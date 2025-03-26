@@ -11,30 +11,30 @@ export default function ShopPage() {
     // Dance Shoes
     {
       id: 1,
-      name: "Morena Dancewear",
+      name: "Dance sneakers australia",
       price: "Various Prices",
       rating: 4.8,
       reviews: 124,
-      image: "/placeholder.svg?height=300&width=300",
+      image: "/images/bailaz.webp",
       category: "shoes",
       description:
         "Offers a wide range of dance shoes and dancewear suitable for various styles, including Salsa and Latin dances like Bachata.",
       location: "Sydney, NSW",
-      website: "morenadancewear.com.au",
+      website: "dance-sneakers.com.au",
       bestseller: true,
     },
     {
       id: 2,
-      name: "Latin Dance Shoes Australia",
+      name: "Vivaz",
       price: "Various Prices",
       rating: 4.7,
       reviews: 98,
-      image: "/placeholder.svg?height=300&width=300",
+      image: "/images/vivaz.webp",
       category: "shoes",
       description:
         "Specializes in comfortable and stylish dance shoes for men and women, suitable for Bachata and other Latin dances.",
       location: "Gold Coast, QLD",
-      website: "latindanceshoes.com.au",
+      website: "vivazdance.com.au",
       bestseller: true,
     },
     // More products...
@@ -44,7 +44,7 @@ export default function ShopPage() {
       price: "Various Prices",
       rating: 4.6,
       reviews: 87,
-      image: "/placeholder.svg?height=300&width=300",
+      image: "images/glamordance.jpg",
       category: "shoes",
       description:
         "Offers a variety of dance shoes, dancewear, and accessories, supporting the dance community across Australia and New Zealand.",
