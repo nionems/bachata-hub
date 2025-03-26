@@ -18,28 +18,24 @@ async function getCalendarEvents(calendarId: string) {
     // Validate environment variables
     const env = validateEnv();
     console.log('Environment variables validated successfully');
-    let auth;
 
-    // Use API Key for Public Calendars
-    if (env.GOOGLE_API_KEY) {
-      auth = env.GOOGLE_API_KEY;
-      console.log('Using Google API Key for authentication');
-    }
-    // Use Service Account for Private Calendars
-    else if (env.GOOGLE_SERVICE_ACCOUNT_EMAIL && env.GOOGLE_PRIVATE_KEY) {
-      auth = new google.auth.JWT(
-        env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
-        undefined,
-        env.GOOGLE_PRIVATE_KEY.replace(/\\n/g, "\n"),
-        ["https://www.googleapis.com/auth/calendar.readonly"]
-      );
-      console.log('Using Service Account for authentication');
-    } else {
-      console.warn('No Google API authentication found in environment variables');
-      return [];
-    }
+    // Use OAuth2 for authentication
+    const oauth2Client = new google.auth.OAuth2(
+      env.GOOGLE_CLIENT_ID,
+      env.GOOGLE_CLIENT_SECRET,
+      env.GOOGLE_REDIRECT_URI
+    );
 
-    const calendar = google.calendar({ version: "v3", auth });
+    // Set credentials
+    oauth2Client.setCredentials({
+      refresh_token: env.GOOGLE_REFRESH_TOKEN,
+    });
+
+    // Create calendar client with OAuth2
+    const calendar = google.calendar({ 
+      version: "v3", 
+      auth: oauth2Client 
+    });
 
     // Get events for the next 3 months
     const now = new Date();
