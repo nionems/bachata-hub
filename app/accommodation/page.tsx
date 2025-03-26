@@ -200,13 +200,17 @@ export default function FestivalAccommodations() {
         </div>
 
         <div className="flex flex-col gap-4">
-          <CollapsibleFilter title="Filter by State" showApplyButton={false}>
+          <CollapsibleFilter title="" showApplyButton={false}>
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2">
               {stateFilter.map((state) => (
                 <Button
                   key={state.value}
                   variant={selectedState === state.value ? "default" : "outline"}
-                  className="w-full text-sm sm:text-base"
+                  className={`w-full text-sm sm:text-base ${
+                    selectedState === state.value
+                      ? "bg-green-600 text-white hover:bg-green-700"
+                      : "border-green-600 text-green-600 hover:bg-green-50"
+                  }`}
                   onClick={() => setSelectedState(state.value)}
                 >
                   {state.label}

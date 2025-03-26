@@ -1,11 +1,9 @@
 "use client"
 
 import type React from "react"
-
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Filter, ChevronDown, ChevronUp } from "lucide-react"
+import { ChevronDown, ChevronUp } from "lucide-react"
 
 interface CollapsibleFilterProps {
   title: string
@@ -24,6 +22,21 @@ export default function CollapsibleFilter({
 }: CollapsibleFilterProps) {
   const [isOpen, setIsOpen] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [isMobile, setIsMobile] = useState(false)
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768)
+      if (window.innerWidth >= 768) {
+        setIsOpen(true)
+      }
+    }
+
+    checkMobile()
+    window.addEventListener('resize', checkMobile)
+
+    return () => window.removeEventListener('resize', checkMobile)
+  }, [])
 
   const handleSubmit = async (formData: FormData) => {
     if (!applyFilters) return
@@ -39,21 +52,21 @@ export default function CollapsibleFilter({
   }
 
   return (
-    <Card className={className}>
-      <CardHeader className="p-3 sm:p-6 cursor-pointer" onClick={() => setIsOpen(!isOpen)}>
-        <div className="flex items-center justify-between">
-          <CardTitle className="text-base sm:text-lg flex items-center">
-            <Filter className="h-4 w-4 sm:h-5 sm:w-5 mr-1 sm:mr-2" />
-            {title}
-          </CardTitle>
+    <div className={className}>
+      <div 
+        className="p-3 sm:p-6 cursor-pointer flex items-center justify-between" 
+        onClick={() => isMobile && setIsOpen(!isOpen)}
+      >
+        <div className="text-base sm:text-lg font-semibold">{title}</div>
+        {isMobile && (
           <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
             {isOpen ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
           </Button>
-        </div>
-      </CardHeader>
+        )}
+      </div>
 
-      {isOpen && (
-        <CardContent className="p-3 sm:p-6 pt-0 border-t">
+      {(!isMobile || isOpen) && (
+        <div className="p-3 sm:p-6">
           <form action={handleSubmit}>
             {children}
 
@@ -70,8 +83,8 @@ export default function CollapsibleFilter({
               </div>
             )}
           </form>
-        </CardContent>
+        </div>
       )}
-    </Card>
+    </div>
   )
 }
