@@ -1,9 +1,22 @@
+"use client"
+
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { MapPin, Star, Calendar, Instagram, Facebook, Youtube } from "lucide-react"
+import { useState } from "react"
 
 export default function InstructorsPage() {
+  const [selectedState, setSelectedState] = useState("all")
+  const states = [
+    { value: "all", label: "All States" },
+    { value: "nsw", label: "New South Wales" },
+    { value: "vic", label: "Victoria" },
+    { value: "qld", label: "Queensland" },
+    { value: "wa", label: "Western Australia" },
+    { value: "sa", label: "South Australia" },
+  ]
+
   const instructors = [
     {
       id: 1,
@@ -20,6 +33,7 @@ export default function InstructorsPage() {
         facebook: "mariarodriguez",
         youtube: "mariabachata",
       },
+      state: "nsw",
     },
     {
       id: 2,
@@ -36,6 +50,7 @@ export default function InstructorsPage() {
         facebook: "davidchen",
         youtube: "davidbachatafusion",
       },
+      state: "vic",
     },
     {
       id: 3,
@@ -52,6 +67,7 @@ export default function InstructorsPage() {
         facebook: "sophiamartinez",
         youtube: "sophiabachata",
       },
+      state: "qld",
     },
     {
       id: 4,
@@ -68,6 +84,7 @@ export default function InstructorsPage() {
         facebook: "michaelwilson",
         youtube: "michaelbachata",
       },
+      state: "wa",
     },
     {
       id: 5,
@@ -84,6 +101,7 @@ export default function InstructorsPage() {
         facebook: "emmajohnson",
         youtube: "emmabachata",
       },
+      state: "sa",
     },
     {
       id: 6,
@@ -100,6 +118,7 @@ export default function InstructorsPage() {
         facebook: "carlossanchez",
         youtube: "carlosbachata",
       },
+      state: "qld",
     },
     {
       id: 7,
@@ -116,6 +135,7 @@ export default function InstructorsPage() {
         facebook: "oliviabrown",
         youtube: "oliviabachata",
       },
+      state: "nsw",
     },
     {
       id: 8,
@@ -132,6 +152,7 @@ export default function InstructorsPage() {
         facebook: "jamestaylor",
         youtube: "jamesbachata",
       },
+      state: "vic",
     },
     {
       id: 9,
@@ -148,8 +169,14 @@ export default function InstructorsPage() {
         facebook: "isabellagarcia",
         youtube: "isabellabachata",
       },
+      state: "qld",
     },
   ]
+
+  // Filter instructors based on selected state
+  const filteredInstructors = selectedState === "all" 
+    ? instructors 
+    : instructors.filter(instructor => instructor.state === selectedState)
 
   return (
     <div className="container mx-auto py-12 px-4">
@@ -162,8 +189,28 @@ export default function InstructorsPage() {
           </p>
         </div>
 
+        {/* State Filter */}
+        <div className="mb-8">
+          <div className="flex flex-wrap gap-2 justify-center">
+            {states.map((state) => (
+              <Button
+                key={state.value}
+                variant={selectedState === state.value ? "default" : "outline"}
+                className={`${
+                  selectedState === state.value
+                    ? "bg-green-600 text-white hover:bg-green-700"
+                    : "border-green-600 text-green-600 hover:bg-green-50"
+                }`}
+                onClick={() => setSelectedState(state.value)}
+              >
+                {state.label}
+              </Button>
+            ))}
+          </div>
+        </div>
+
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
-          {instructors.map((instructor) => (
+          {filteredInstructors.map((instructor) => (
             <Card
               key={instructor.id}
               className="overflow-hidden hover:shadow-lg transition-shadow h-full flex flex-col"

@@ -1,10 +1,46 @@
+"use client"
+
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { MapPin, Star, Users, Clock, MapIcon } from "lucide-react"
+import { MapPin, Star, Users, Clock, MapIcon, ChevronDown } from "lucide-react"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { useState } from "react"
+
+interface Instructor {
+  name: string
+  specialty: string
+  bio?: string
+}
+
+interface School {
+  id: number
+  name: string
+  location: string
+  address: string
+  phone: string
+  email: string
+  website: string
+  rating: number
+  students: string
+  description: string
+  image: string
+  classes: string[]
+  featured?: boolean
+  instructors?: Instructor[]
+  state: string
+}
 
 export default function SchoolsPage() {
+  const [selectedState, setSelectedState] = useState("all")
+  const states = [
+    { value: "all", label: "All States" },
+    { value: "nsw", label: "New South Wales" },
+    { value: "vic", label: "Victoria" },
+    { value: "qld", label: "Queensland" },
+    { value: "wa", label: "Western Australia" },
+  ]
+
   const sydneySchools = [
     {
       id: 1,
@@ -162,6 +198,21 @@ export default function SchoolsPage() {
       image: "/images/schools/arthur-murray-dance-centres.jpg",
       classes: ["Private Lessons", "Group Sessions", "Personalized Learning"],
     },
+    {
+      id: 9,
+      name: "FeelFree Dance",
+      location: "Bondi, NSW",
+      address: "Bondi, NSW",
+      phone: "(02) 1234 9876",
+      email: "info@learntodance.com.au",
+      website: "feelfreedance.com.au",
+      rating: 4.7,
+      students: "400+",
+      description:
+        "Tailors Bachata classes to individual learning styles and paces, offering a combination of private and group sessions.",
+      image: "/images/ff.jpg",
+      classes: ["Private Lessons", "Group Sessions", "Personalized Learning"],
+    },
   ]
 
   const melbourneSchools = [
@@ -302,8 +353,21 @@ export default function SchoolsPage() {
     },
   ]
 
+  // Combine all schools into one array
+  const allSchools = [
+    ...sydneySchools.map(school => ({ ...school, state: "nsw" } as School)),
+    ...melbourneSchools.map(school => ({ ...school, state: "vic" } as School)),
+    ...brisbaneSchools.map(school => ({ ...school, state: "qld" } as School)),
+    ...perthSchools.map(school => ({ ...school, state: "wa" } as School))
+  ]
+
+  // Filter schools based on selected state
+  const filteredSchools = selectedState === "all" 
+    ? allSchools 
+    : allSchools.filter(school => school.state === selectedState)
+
   // Featured school (Dance With Me Sydney)
-  const featuredSchool = sydneySchools.find((school) => school.featured)
+  const featuredSchool = filteredSchools.find((school) => school.featured)
 
   return (
     <div className="container mx-auto py-12 px-4">
@@ -314,6 +378,26 @@ export default function SchoolsPage() {
             Find the best Bachata schools across Australia, offering classes for all levels from beginners to advanced
             dancers.
           </p>
+        </div>
+
+        {/* State Filter */}
+        <div className="mb-8">
+          <div className="flex flex-wrap gap-2 justify-center">
+            {states.map((state) => (
+              <Button
+                key={state.value}
+                variant={selectedState === state.value ? "default" : "outline"}
+                className={`${
+                  selectedState === state.value
+                    ? "bg-green-600 text-white hover:bg-green-700"
+                    : "border-green-600 text-green-600 hover:bg-green-50"
+                }`}
+                onClick={() => setSelectedState(state.value)}
+              >
+                {state.label}
+              </Button>
+            ))}
+          </div>
         </div>
 
         {/* Featured School */}
@@ -393,60 +477,14 @@ export default function SchoolsPage() {
           </div>
         )}
 
-        <Tabs defaultValue="sydney" className="w-full mb-8">
-          <TabsList className="grid w-full grid-cols-4 mb-8">
-            <TabsTrigger value="sydney" className="flex items-center">
-              <MapIcon className="h-4 w-4 mr-2" />
-              Sydney
-            </TabsTrigger>
-            <TabsTrigger value="melbourne" className="flex items-center">
-              <MapIcon className="h-4 w-4 mr-2" />
-              Melbourne
-            </TabsTrigger>
-            <TabsTrigger value="brisbane" className="flex items-center">
-              <MapIcon className="h-4 w-4 mr-2" />
-              Brisbane
-            </TabsTrigger>
-            <TabsTrigger value="perth" className="flex items-center">
-              <MapIcon className="h-4 w-4 mr-2" />
-              Perth
-            </TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="sydney">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
-              {sydneySchools
-                .filter((school) => !school.featured)
-                .map((school) => (
-                  <SchoolCard key={school.id} school={school} />
-                ))}
-            </div>
-          </TabsContent>
-
-          <TabsContent value="melbourne">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
-              {melbourneSchools.map((school) => (
-                <SchoolCard key={school.id} school={school} />
-              ))}
-            </div>
-          </TabsContent>
-
-          <TabsContent value="brisbane">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
-              {brisbaneSchools.map((school) => (
-                <SchoolCard key={school.id} school={school} />
-              ))}
-            </div>
-          </TabsContent>
-
-          <TabsContent value="perth">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
-              {perthSchools.map((school) => (
-                <SchoolCard key={school.id} school={school} />
-              ))}
-            </div>
-          </TabsContent>
-        </Tabs>
+        {/* Schools Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
+          {filteredSchools
+            .filter((school) => !school.featured)
+            .map((school) => (
+              <SchoolCard key={school.id} school={school} />
+            ))}
+        </div>
 
         <div className="bg-gray-50 rounded-lg p-8 text-center">
           <h2 className="text-2xl font-bold text-gray-900 mb-4">Own a Bachata School?</h2>
@@ -461,7 +499,7 @@ export default function SchoolsPage() {
 }
 
 // School Card Component
-function SchoolCard({ school }) {
+function SchoolCard({ school }: { school: School }) {
   return (
     <Card className="overflow-hidden hover:shadow-lg transition-shadow h-full flex flex-col">
       <div className="h-48 overflow-hidden">
@@ -492,7 +530,7 @@ function SchoolCard({ school }) {
         <div className="mb-4">
           <h3 className="text-sm font-semibold mb-2 text-gray-600">Classes Offered:</h3>
           <div className="flex flex-wrap gap-2">
-            {school.classes.map((className, index) => (
+            {school.classes.map((className: string, index: number) => (
               <span key={index} className="bg-green-50 text-green-700 px-2 py-1 rounded-full text-xs">
                 {className}
               </span>
@@ -505,7 +543,7 @@ function SchoolCard({ school }) {
           <div className="mb-4">
             <h3 className="text-sm font-semibold mb-2 text-gray-600">Featured Instructors:</h3>
             <div className="space-y-2">
-              {school.instructors.map((instructor, index) => (
+              {school.instructors.map((instructor: Instructor, index: number) => (
                 <div key={index} className="text-xs text-gray-700">
                   <span className="font-medium">{instructor.name}</span> - {instructor.specialty}
                 </div>

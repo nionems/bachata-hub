@@ -1,9 +1,22 @@
+"use client"
+
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Calendar, MapPin, DollarSign, Users, Ticket, Hotel, CheckCircle, Info } from "lucide-react"
+import { useState } from "react"
 
 export default function FestivalsPage() {
+  const [selectedState, setSelectedState] = useState("all")
+  const states = [
+    { value: "all", label: "All States" },
+    { value: "nsw", label: "New South Wales" },
+    { value: "vic", label: "Victoria" },
+    { value: "qld", label: "Queensland" },
+    { value: "wa", label: "Western Australia" },
+    { value: "sa", label: "South Australia" },
+  ]
+
   // Helper function to check if a date is in the future
   const isFutureDate = (dateString: string) => {
     // Handle "To Be Announced" dates
@@ -76,6 +89,7 @@ export default function FestivalsPage() {
       website: "https://www.bachatafestival.com.au/",
       ticketUrl: "https://www.trybooking.com/events/1219139/sessions/4595849/sections",
       inCalendar: true,
+      state: "nsw",
     },
     {
       id: 2,
@@ -91,6 +105,7 @@ export default function FestivalsPage() {
       website: "https://latindancecalendar.com",
       ticketUrl: "https://latindancecalendar.com",
       inCalendar: false,
+      state: "vic",
     },
     {
       id: 3,
@@ -106,6 +121,7 @@ export default function FestivalsPage() {
       website: "https://melbourne.worldbachatafestival.com",
       ticketUrl: "https://www.trybooking.com/events/1252397/sessions/4737644/sections/2369232/tickets",
       inCalendar: true,
+      state: "vic",
     },
     {
       id: 4,
@@ -121,6 +137,7 @@ export default function FestivalsPage() {
       website: "https://www.bachataflavour.com",
       ticketUrl: "https://www.trybooking.com/events/1280324/sessions/4871040/sections/2430787/tickets",
       inCalendar: false,
+      state: "vic",
     },
     {
       id: 5,
@@ -136,6 +153,7 @@ export default function FestivalsPage() {
       website: "https://www.trybooking.com/events/landing/1304876",
       ticketUrl: "https://www.trybooking.com/events/1304876/sessions/4982925/sections/2481883/tickets",
       inCalendar: false,
+      state: "vic",
     },
     {
       id: 6,
@@ -150,6 +168,7 @@ export default function FestivalsPage() {
       website: "https://adelaidesensualweekend.com/",
       ticketUrl: "https://www.trybooking.com/events/1255696/sessions/4754269/sections/2376399/tickets",
       inCalendar: false,
+      state: "sa",
     },
     {
       id: 7,
@@ -164,6 +183,7 @@ export default function FestivalsPage() {
       website: "https://www.levelupfestival.com/",
       ticketUrl: "https://www.trybooking.com/events/1346992/sessions/5382122/sections/2568152/tickets",
       inCalendar: false,
+      state: "qld",
     },
     {
       id: 8,
@@ -178,12 +198,14 @@ export default function FestivalsPage() {
       website: "https://bailando.com.au/#:~:text=5th%20%E2%80%93%209th%20Feb%2C%202026%20%7C,Whisperer'%20Lara%20and%20Mitch%20Bilic.&text=this%20festival%20is%20a%20celebration%20of%20unity%20and%20passion.",
       ticketUrl: "https://www.trybooking.com/events/1356064/sessions/5418829/sections/2585971/tickets",
       inCalendar: false,
+      state: "nsw",
     },
   ]
 
   // Filter out past events and sort by date
   const upcomingFestivals = festivals
     .filter((festival) => isFutureDate(festival.date))
+    .filter((festival) => selectedState === "all" || festival.state === selectedState)
     .sort((a, b) => getDateSortValue(a.date) - getDateSortValue(b.date))
 
   return (
@@ -195,6 +217,26 @@ export default function FestivalsPage() {
             Discover the biggest and best Bachata festivals across Australia, featuring world-class instructors,
             performances, and social dancing.
           </p>
+        </div>
+
+        {/* State Filter */}
+        <div className="mb-8">
+          <div className="flex flex-wrap gap-2 justify-center">
+            {states.map((state) => (
+              <Button
+                key={state.value}
+                variant={selectedState === state.value ? "default" : "outline"}
+                className={`${
+                  selectedState === state.value
+                    ? "bg-green-600 text-white hover:bg-green-700"
+                    : "border-green-600 text-green-600 hover:bg-green-50"
+                }`}
+                onClick={() => setSelectedState(state.value)}
+              >
+                {state.label}
+              </Button>
+            ))}
+          </div>
         </div>
 
         {/* Legend for calendar events - responsive version */}

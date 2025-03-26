@@ -1,3 +1,5 @@
+"use client"
+
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -6,8 +8,19 @@ import Link from "next/link"
 import CollapsibleFilter from "@/components/collapsible-filter"
 import { applyFilters } from "./actions"
 import FestivalMenu from "@/components/festival-menu"
+import { useState } from "react"
 
 export default function EventsPage() {
+  const [selectedState, setSelectedState] = useState("all")
+  const states = [
+    { value: "all", label: "All States" },
+    { value: "nsw", label: "New South Wales" },
+    { value: "vic", label: "Victoria" },
+    { value: "qld", label: "Queensland" },
+    { value: "wa", label: "Western Australia" },
+    { value: "sa", label: "South Australia" },
+  ]
+
   // Your calendar ID
   const calendarId = "8d27a79f37a74ab7aedc5c038cc4492cd36b87a71b57fb6d7d141d04e8ffe5c2@group.calendar.google.com"
 
@@ -26,8 +39,8 @@ export default function EventsPage() {
       ticketUrl: "https://www.trybooking.com/events/1219139/sessions/4595849/sections",
       featured: true,
       isFestival: true,
+      state: "nsw",
     },
-    
     {
       id: 2,
       title: "Adelaide Sensual Week-end 25",
@@ -41,8 +54,14 @@ export default function EventsPage() {
       ticketUrl: "https://www.trybooking.com/events/1255696/sessions/4754269/sections/2376399/tickets",
       featured: true,
       isFestival: true,
+      state: "sa",
     },
   ]
+
+  // Filter events based on selected state
+  const filteredEvents = selectedState === "all" 
+    ? highlightedEvents 
+    : highlightedEvents.filter(event => event.state === selectedState)
 
   return (
     <div className="container mx-auto py-6 sm:py-12 px-4">
@@ -52,6 +71,26 @@ export default function EventsPage() {
           <p className="text-base sm:text-xl text-gray-600 max-w-3xl mx-auto">
             Discover Bachata events across Australia, from social dances to workshops and festivals.
           </p>
+        </div>
+
+        {/* State Filter */}
+        <div className="mb-8">
+          <div className="flex flex-wrap gap-2 justify-center">
+            {states.map((state) => (
+              <Button
+                key={state.value}
+                variant={selectedState === state.value ? "default" : "outline"}
+                className={`${
+                  selectedState === state.value
+                    ? "bg-green-600 text-white hover:bg-green-700"
+                    : "border-green-600 text-green-600 hover:bg-green-50"
+                }`}
+                onClick={() => setSelectedState(state.value)}
+              >
+                {state.label}
+              </Button>
+            ))}
+          </div>
         </div>
 
         <FestivalMenu />
@@ -64,7 +103,7 @@ export default function EventsPage() {
           </h2>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-            {highlightedEvents.map((event) => (
+            {filteredEvents.map((event) => (
               <Card key={event.id} className="overflow-hidden hover:shadow-lg transition-shadow border-yellow-200">
                 <div className="relative h-40 sm:h-48 overflow-hidden">
                   <div className="absolute top-0 right-0 bg-yellow-500 text-black z-10 px-2 py-1 text-xs sm:text-sm font-medium">

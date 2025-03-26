@@ -12,6 +12,7 @@ interface CollapsibleFilterProps {
   children: React.ReactNode
   applyFilters?: (formData: FormData) => Promise<any>
   showApplyButton?: boolean
+  className?: string
 }
 
 export default function CollapsibleFilter({
@@ -19,6 +20,7 @@ export default function CollapsibleFilter({
   children,
   applyFilters,
   showApplyButton = true,
+  className,
 }: CollapsibleFilterProps) {
   const [isOpen, setIsOpen] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -37,7 +39,7 @@ export default function CollapsibleFilter({
   }
 
   return (
-    <Card className="mb-6">
+    <Card className={className}>
       <CardHeader className="p-3 sm:p-6 cursor-pointer" onClick={() => setIsOpen(!isOpen)}>
         <div className="flex items-center justify-between">
           <CardTitle className="text-base sm:text-lg flex items-center">
