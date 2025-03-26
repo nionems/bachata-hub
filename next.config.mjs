@@ -16,18 +16,14 @@ const nextConfig = {
   images: {
     unoptimized: true,
   },
-  experimental: {
-    webpackBuildWorker: true,
-    parallelServerBuildTraces: true,
-    parallelServerCompiles: true,
-  },
+  output: 'standalone',
   webpack: (config) => {
     config.resolve.fallback = {
       ...config.resolve.fallback,
       net: false,
       tls: false,
       dns: false,
-      fs: false, // 👈 Fix for "Module not found: Can't resolve 'fs'"
+      fs: false,
     }
     return config
   },
