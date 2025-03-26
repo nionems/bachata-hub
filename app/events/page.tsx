@@ -75,22 +75,24 @@ export default function EventsPage() {
 
         {/* State Filter */}
         <div className="mb-8">
-          <div className="flex flex-wrap gap-2 justify-center">
-            {states.map((state) => (
-              <Button
-                key={state.value}
-                variant={selectedState === state.value ? "default" : "outline"}
-                className={`${
-                  selectedState === state.value
-                    ? "bg-green-600 text-white hover:bg-green-700"
-                    : "border-green-600 text-green-600 hover:bg-green-50"
-                }`}
-                onClick={() => setSelectedState(state.value)}
-              >
-                {state.label}
-              </Button>
-            ))}
-          </div>
+          <CollapsibleFilter title="Filter by State" showApplyButton={false}>
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2">
+              {states.map((state) => (
+                <Button
+                  key={state.value}
+                  variant={selectedState === state.value ? "default" : "outline"}
+                  className={`w-full text-sm sm:text-base ${
+                    selectedState === state.value
+                      ? "bg-green-600 text-white hover:bg-green-700"
+                      : "border-green-600 text-green-600 hover:bg-green-50"
+                  }`}
+                  onClick={() => setSelectedState(state.value)}
+                >
+                  {state.label}
+                </Button>
+              ))}
+            </div>
+          </CollapsibleFilter>
         </div>
 
         <FestivalMenu />

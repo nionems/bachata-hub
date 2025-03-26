@@ -6,6 +6,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { MapPin, Star, Users, Clock, MapIcon, ChevronDown } from "lucide-react"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useState } from "react"
+import CollapsibleFilter from "@/components/collapsible-filter"
 
 interface Instructor {
   name: string
@@ -370,34 +371,35 @@ export default function SchoolsPage() {
   const featuredSchool = filteredSchools.find((school) => school.featured)
 
   return (
-    <div className="container mx-auto py-12 px-4">
+    <div className="container mx-auto py-6 sm:py-12 px-4">
       <div className="max-w-7xl mx-auto">
-        <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">Bachata Schools in Australia</h1>
-          <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-            Find the best Bachata schools across Australia, offering classes for all levels from beginners to advanced
-            dancers.
+        <div className="text-center mb-8 sm:mb-12">
+          <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-3 sm:mb-4">Bachata Schools</h1>
+          <p className="text-lg sm:text-xl text-gray-600 max-w-3xl mx-auto">
+            Find Bachata dance schools across Australia, from beginner classes to advanced training.
           </p>
         </div>
 
         {/* State Filter */}
         <div className="mb-8">
-          <div className="flex flex-wrap gap-2 justify-center">
-            {states.map((state) => (
-              <Button
-                key={state.value}
-                variant={selectedState === state.value ? "default" : "outline"}
-                className={`${
-                  selectedState === state.value
-                    ? "bg-green-600 text-white hover:bg-green-700"
-                    : "border-green-600 text-green-600 hover:bg-green-50"
-                }`}
-                onClick={() => setSelectedState(state.value)}
-              >
-                {state.label}
-              </Button>
-            ))}
-          </div>
+          <CollapsibleFilter title="Filter by State" showApplyButton={false}>
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2">
+              {states.map((state) => (
+                <Button
+                  key={state.value}
+                  variant={selectedState === state.value ? "default" : "outline"}
+                  className={`w-full text-sm sm:text-base ${
+                    selectedState === state.value
+                      ? "bg-green-600 text-white hover:bg-green-700"
+                      : "border-green-600 text-green-600 hover:bg-green-50"
+                  }`}
+                  onClick={() => setSelectedState(state.value)}
+                >
+                  {state.label}
+                </Button>
+              ))}
+            </div>
+          </CollapsibleFilter>
         </div>
 
         {/* Featured School */}
