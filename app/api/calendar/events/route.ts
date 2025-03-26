@@ -9,6 +9,7 @@ interface GoogleApiError {
     headers: any;
   };
   message: string;
+  stack?: string;
 }
 
 // Create a server-side function to handle Google Calendar operations
@@ -16,6 +17,7 @@ async function getCalendarEvents(calendarId: string) {
   try {
     // Validate environment variables
     const env = validateEnv();
+    console.log('Environment variables validated successfully');
     let auth;
 
     // Use API Key for Public Calendars
@@ -45,6 +47,7 @@ async function getCalendarEvents(calendarId: string) {
     threeMonthsFromNow.setMonth(now.getMonth() + 3);
 
     console.log(`Fetching events from ${now.toISOString()} to ${threeMonthsFromNow.toISOString()}`);
+    console.log(`Using calendar ID: ${calendarId}`);
 
     const response = await calendar.events.list({
       calendarId,
@@ -61,14 +64,15 @@ async function getCalendarEvents(calendarId: string) {
     return events;
   } catch (error) {
     const apiError = error as GoogleApiError;
-    console.error('Error in getCalendarEvents:', apiError);
-    if (apiError.response) {
-      console.error('Error response:', {
+    console.error('Error in getCalendarEvents:', {
+      message: apiError.message,
+      response: apiError.response ? {
         status: apiError.response.status,
         data: apiError.response.data,
         headers: apiError.response.headers,
-      });
-    }
+      } : null,
+      stack: apiError.stack,
+    });
     return [];
   }
 }
@@ -79,14 +83,28 @@ export async function GET(request: Request) {
     const calendarId = searchParams.get('calendarId');
 
     if (!calendarId) {
+      console.warn('No calendar ID provided in request');
       return NextResponse.json({ error: 'Calendar ID is required' }, { status: 400 });
     }
 
+    console.log(`Received request for calendar ID: ${calendarId}`);
     const events = await getCalendarEvents(calendarId);
+    
     return NextResponse.json(events);
   } catch (error) {
     const apiError = error as GoogleApiError;
-    console.error('Error in GET /api/calendar/events:', apiError);
-    return NextResponse.json({ error: 'Failed to fetch calendar events' }, { status: 500 });
+    console.error('Error in GET /api/calendar/events:', {
+      message: apiError.message,
+      response: apiError.response ? {
+        status: apiError.response.status,
+        data: apiError.response.data,
+        headers: apiError.response.headers,
+      } : null,
+      stack: apiError.stack,
+    });
+    return NextResponse.json({ 
+      error: 'Failed to fetch calendar events',
+      details: apiError.message
+    }, { status: 500 });
   }
 } 
