@@ -96,8 +96,9 @@ export default async function Home() {
     return (
       <div className="min-h-screen bg-gray-50">
         {/* Hero Section */}
-        <section className="bg-gradient-to-r from-green-600 to-yellow-500 text-white py-20">
-          <div className="container mx-auto px-4">
+        <section className="relative bg-gradient-to-r from-green-600 to-yellow-500 text-white py-20 min-h-[80vh] flex items-center">
+          <div className="absolute inset-0 bg-gradient-to-r from-green-600 to-yellow-500"></div>
+          <div className="container mx-auto px-4 relative z-10">
             <div className="max-w-3xl mx-auto text-center">
               <h1 className="text-4xl md:text-5xl font-bold mb-6">Welcome to Bachata Australia</h1>
               <p className="text-xl mb-8">
@@ -114,6 +115,32 @@ export default async function Home() {
                     Join the Community
                   </Button>
                 </Link>
+              </div>
+              <div className="mt-6">
+                <a
+                  href="https://instagram.com/bachataaustralia"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-white hover:text-gray-200 flex items-center justify-center gap-2"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className="lucide lucide-instagram"
+                  >
+                    <rect width="20" height="20" x="2" y="2" rx="5" ry="5" />
+                    <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
+                    <line x1="17.5" x2="17.51" y1="6.5" y2="6.5" />
+                  </svg>
+                  Follow us on Instagram
+                </a>
               </div>
             </div>
           </div>
