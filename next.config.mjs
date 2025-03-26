@@ -17,15 +17,17 @@ const nextConfig = {
     unoptimized: true,
   },
   output: 'standalone',
-  webpack: (config) => {
-    config.resolve.fallback = {
-      ...config.resolve.fallback,
-      net: false,
-      tls: false,
-      dns: false,
-      fs: false,
+  webpack: (config, { isServer }) => {
+    if (!isServer) {
+      config.resolve.fallback = {
+        ...config.resolve.fallback,
+        net: false,
+        tls: false,
+        dns: false,
+        fs: false,
+      };
     }
-    return config
+    return config;
   },
 }
 
