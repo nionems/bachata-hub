@@ -4,7 +4,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Calendar, Users, MapPin, Clock, Star, Info } from "lucide-react"
 import Link from "next/link"
 import CollapsibleFilter from "@/components/collapsible-filter"
-import { applyFilters } from "../actions"
+import { applyFilters } from "./actions"
+import FestivalMenu from "@/components/festival-menu"
 
 export default function EventsPage() {
   // Your calendar ID
@@ -14,17 +15,33 @@ export default function EventsPage() {
   const highlightedEvents = [
     {
       id: 1,
-      title: "Sydney Bachata Festival 2025",
+      title: "Sydney International Bachata Festival 25",
       date: "April 18-20, 2025",
-      time: "All day",
+      time: "3 days",
       location: "West HQ, Rooty Hill, NSW",
       description:
         "Australia's premier Bachata festival featuring world-class workshops, performances, and a live Bachata concert with international artists.",
       image: "/placeholder.svg?height=300&width=600",
       url: "https://www.bachatafestival.com.au/",
+      ticketUrl: "https://www.trybooking.com/events/1219139/sessions/4595849/sections",
       featured: true,
+      isFestival: true,
     },
-
+    
+    {
+      id: 2,
+      title: "Adelaide Sensual Week-end 25",
+      date: "23-07-2025",
+      time: "3 days",
+      location: "Adelaide, SA",
+      description:
+        "Experience the best of Bachata,kizomba, salsa and more in Adelaide with workshops, performances, and social dancing.+ secret Vineyard Party",
+      image: "/images/aws25.jpeg",
+      url: "https://adelaidesensualweekend.com/",
+      ticketUrl: "https://www.trybooking.com/events/1255696/sessions/4754269/sections/2376399/tickets",
+      featured: true,
+      isFestival: true,
+    },
   ]
 
   return (
@@ -36,6 +53,8 @@ export default function EventsPage() {
             Discover Bachata events across Australia, from social dances to workshops and festivals.
           </p>
         </div>
+
+        <FestivalMenu />
 
         {/* Highlighted Events Section */}
         <div className="mb-10 sm:mb-16">
@@ -51,6 +70,11 @@ export default function EventsPage() {
                   <div className="absolute top-0 right-0 bg-yellow-500 text-black z-10 px-2 py-1 text-xs sm:text-sm font-medium">
                     Featured
                   </div>
+                  {event.isFestival && (
+                    <div className="absolute top-0 left-0 bg-green-500 text-white z-10 px-2 py-1 text-xs sm:text-sm font-medium">
+                      Festival
+                    </div>
+                  )}
                   <img
                     src={event.image || "/placeholder.svg"}
                     alt={event.title}
@@ -77,6 +101,16 @@ export default function EventsPage() {
                 </CardContent>
                 <CardFooter className="border-t pt-3 p-3 sm:pt-4 sm:p-4">
                   <div className="w-full flex flex-col gap-2 sm:gap-3">
+                    {event.isFestival && event.ticketUrl && (
+                      <a href={event.ticketUrl} target="_blank" rel="noopener noreferrer" className="w-full">
+                        <Button
+                          size="sm"
+                          className="w-full bg-green-600 hover:bg-green-700 text-white text-xs sm:text-sm"
+                        >
+                          Buy Tickets
+                        </Button>
+                      </a>
+                    )}
                     {event.url && (
                       <a href={event.url} target="_blank" rel="noopener noreferrer" className="w-full">
                         <Button

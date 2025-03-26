@@ -53,13 +53,15 @@ export async function getWeekEvents(calendarId: string, maxResults = 3) {
     // For public calendars, we can access them with an API key
     const calendar = google.calendar({ version: "v3" })
 
-    // Set up params with API key if available
-    const params: any = {}
-    if (process.env.GOOGLE_API_KEY) {
-      params.key = process.env.GOOGLE_API_KEY
-      console.log("Using Google API Key for authentication")
-    } else {
-      console.log("No Google API Key found")
+    // Verify API key is available
+    if (!process.env.GOOGLE_API_KEY) {
+      console.warn("No Google API Key found in environment variables")
+      return []
+    }
+
+    // Set up params with API key
+    const params = {
+      key: process.env.GOOGLE_API_KEY,
     }
 
     const now = new Date()
@@ -123,79 +125,47 @@ export async function getNearestEvent(calendarId: string) {
 // New function to get this weekend's events
 export async function getWeekendEvents(calendarId: string) {
   try {
+    if (!calendarId) {
+      console.warn('No calendar ID provided to getWeekendEvents');
+      return [];
+    }
+
     // For public calendars, we can access them with an API key
-    const calendar = google.calendar({ version: "v3" })
+    const calendar = google.calendar({ version: "v3" });
 
     // Verify API key is available
     if (!process.env.GOOGLE_API_KEY) {
-      console.error("No Google API Key found in environment variables")
-      return []
+      console.warn("No Google API Key found in environment variables");
+      return [];
     }
 
     // Set up params with API key
     const params = {
       key: process.env.GOOGLE_API_KEY,
-    }
+    };
 
-    console.log("Using Google API Key for authentication")
+    const now = new Date();
+    const weekendStart = new Date(now);
+    weekendStart.setDate(now.getDate() + (6 - now.getDay())); // Next Saturday
+    weekendStart.setHours(0, 0, 0, 0);
 
-    // Calculate this weekend's date range
-    const now = new Date()
-    const today = now.getDay() // 0 = Sunday, 1 = Monday, etc.
-
-    // Calculate days until next weekend (Friday, Saturday, Sunday)
-    let daysUntilFriday = 5 - today
-    if (daysUntilFriday < 0) daysUntilFriday += 7
-
-    // If today is Friday, Saturday, or Sunday, include today
-    const isWeekend = today === 5 || today === 6 || today === 0
-
-    // Set start time to today if it's already the weekend, otherwise next Friday
-    const startDate = new Date(now)
-    if (isWeekend) {
-      // If it's already the weekend, start from today
-      startDate.setHours(0, 0, 0, 0)
-    } else {
-      // Otherwise, start from next Friday
-      startDate.setDate(now.getDate() + daysUntilFriday)
-      startDate.setHours(0, 0, 0, 0)
-    }
-
-    // End date is Sunday night
-    const endDate = new Date(startDate)
-    const daysUntilSunday = today === 0 ? 0 : 7 - today
-    endDate.setDate(now.getDate() + daysUntilSunday)
-    endDate.setHours(23, 59, 59, 999)
+    const weekendEnd = new Date(weekendStart);
+    weekendEnd.setDate(weekendStart.getDate() + 2); // Sunday
+    weekendEnd.setHours(23, 59, 59, 999);
 
     const response = await calendar.events.list({
       calendarId,
-      timeMin: startDate.toISOString(),
-      timeMax: endDate.toISOString(),
-      maxResults: 10,
+      timeMin: weekendStart.toISOString(),
+      timeMax: weekendEnd.toISOString(),
       singleEvents: true,
       orderBy: "startTime",
       ...params,
-    })
+    });
 
-    const events = response.data.items || []
-
-    // Add image to each event
-    for (const event of events) {
-      event.image = await getEventImage(event)
-
-      // Try to extract website URL from description
-      if (event.description) {
-        const urlMatch = event.description.match(/https?:\/\/[^\s]+/)
-        if (urlMatch) {
-          event.website = urlMatch[0]
-        }
-      }
-    }
-
-    return events
+    return response.data.items || [];
   } catch (error) {
-    console.error("Error fetching weekend Google Calendar events:", error)
-    return []
+    console.error("Error fetching weekend events:", error);
+    return [];
   }
 }
 
