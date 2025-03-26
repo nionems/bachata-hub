@@ -18,7 +18,7 @@ export default function SchoolsPage() {
       students: "500+",
       description:
         "Offers Bachata classes focusing on technique and connection, aiming to help students grow as dancers and individuals. Features dedicated instructors including Jennifer Olmi and Lauren Andlovec.",
-      image: "/images/schools/dance-with-me-sydney.jpg",
+      image: "/images/dwme.jpg",
       classes: [
         "Beginner",
         "Intermediate",
@@ -54,7 +54,7 @@ export default function SchoolsPage() {
       students: "450+",
       description:
         "Offers classes in both Dominican Bachata and Bachata Sensual, catering to all levels from beginners to advanced dancers.",
-      image: "/images/schools/latin-dance-australia.jpg",
+      image: "/images/schools/lda.png",
       classes: ["Dominican Bachata", "Bachata Sensual", "Beginner", "Intermediate", "Advanced"],
     },
     {
@@ -69,7 +69,7 @@ export default function SchoolsPage() {
       students: "350+",
       description:
         "Provides an 8-week Bachata Dancing Course suitable for beginners, emphasizing foundational steps and techniques.",
-      image: "/images/schools/salsa-suave.jpg",
+      image: "/images/suave.jpeg",
       classes: ["Beginner", "Foundational Steps", "Techniques", "8-Week Course"],
     },
     {
@@ -79,12 +79,12 @@ export default function SchoolsPage() {
       address: "Rosebery, NSW",
       phone: "(02) 6543 2109",
       email: "info@latinjunction.com",
-      website: "latinjunction.com",
+      website: "latinjunction.com.au",
       rating: 4.6,
       students: "300+",
       description:
         "Offers Bachata dance classes focusing on various styles, including Modern, Fusion, Sensual, and traditional Dominican Bachata.",
-      image: "/images/schools/latin-junction.jpg",
+      image: "/images/lj.png",
       classes: ["Modern Bachata", "Bachata Fusion", "Sensual Bachata", "Dominican Bachata"],
     },
     {
@@ -114,7 +114,7 @@ export default function SchoolsPage() {
       students: "280+",
       description:
         "Teaches three popular styles of Bachata: Bachata Moderna, Dominican Bachata, and Bachata Sensual, with classes available from beginner to advanced levels.",
-      image: "/images/schools/tropical-soul-dance-studio.jpg",
+      image: "/images/ts.png",
       classes: ["Bachata Moderna", "Dominican Bachata", "Bachata Sensual", "Beginner to Advanced"],
     },
     {
