@@ -5,14 +5,16 @@ import { Calendar, MapPin, DollarSign, Users, Ticket, Hotel, CheckCircle, Info }
 
 export default function FestivalsPage() {
   // Helper function to check if a date is in the future
-  const isFutureDate = (dateString) => {
+  const isFutureDate = (dateString: string) => {
     // Handle "To Be Announced" dates
     if (dateString.includes("To Be Announced")) {
       return true // Always show TBA dates
     }
 
     // Extract the year from the date string
-    const year = Number.parseInt(dateString.match(/\d{4}/)[0])
+    const yearMatch = dateString.match(/\d{4}/)
+    if (!yearMatch) return true // If no year found, treat as future date
+    const year = Number.parseInt(yearMatch[0])
     const currentYear = new Date().getFullYear()
 
     // If the year is in the future, the event is upcoming
@@ -20,7 +22,7 @@ export default function FestivalsPage() {
   }
 
   // Helper function to convert date string to a comparable value for sorting
-  const getDateSortValue = (dateString) => {
+  const getDateSortValue = (dateString: string) => {
     // Handle "To Be Announced" dates - put them at the end
     if (dateString.includes("To Be Announced")) {
       return Number.POSITIVE_INFINITY // This will place TBA dates at the end
@@ -49,7 +51,7 @@ export default function FestivalsPage() {
     const yearMatch = dateString.match(/\d{4}/)
 
     if (monthMatch && yearMatch) {
-      const month = months[monthMatch[0]]
+      const month = months[monthMatch[0] as keyof typeof months]
       const year = Number.parseInt(yearMatch[0])
       return year * 100 + month // This creates a sortable value (e.g., 202501 for January 2025)
     }
@@ -62,47 +64,36 @@ export default function FestivalsPage() {
   const festivals = [
     {
       id: 1,
-      title: "Bachata Corazon Anniversary Weekend 2025",
-      date: "January 16-19, 2025",
-      location: "Melbourne, VIC",
-      description:
-        "One of Australia's most anticipated 100% Bachata social dancing events, this weekend includes a pre-party on January 16, followed by workshops and social dances from January 17 to 19. The event offers full passes, party passes, styling workshops, and private classes.",
-      image: "/placeholder.svg?height=300&width=600",
-      instructors: ["International Artists", "Local Instructors"],
-      price: "From $120",
-      hasAccommodation: true,
-      website: "https://bachatacorazon.com.au",
-      inCalendar: true, // This event is in the user's Google Calendar
-    },
-    {
-      id: 2,
       title: "Sydney International Bachata Festival 2025",
       date: "April 18-20, 2025",
       location: "West HQ, Rooty Hill, NSW",
       description:
         "As Australia's premier Bachata festival, this event features world-class workshops, sensational performances, and a live Bachata concert. The 2025 lineup includes international artists such as Johnny Sky, Harold & Regan, Simone & Danila, Samuel, and Melonito. Full passes and party passes are available for attendees.",
-      image: "/images/sydney-bachata-festival.png", // Updated to use the new image
+      image: "/images/SIBF2025.jpg",
       instructors: ["Johnny Sky", "Harold & Regan", "Simone & Danila", "Samuel", "Melonito"],
       price: "From $150",
       hasAccommodation: true,
-      website: "https://sydneybachatafestival.com",
-      inCalendar: true, // This event is in the user's Google Calendar
+      website: "https://www.bachatafestival.com.au/",
+      ticketUrl: "https://www.trybooking.com/events/1219139/sessions/4595849/sections",
+      inCalendar: true,
     },
     {
-      id: 3,
+      id: 2,
       title: "Kornel & Catharine – Melbourne Bachata Weekender",
       date: "April 25-27, 2025",
       location: "Melbourne, VIC",
       description:
         "Internationally acclaimed instructors Kornel and Catharine from Poland will lead workshops and social events over this weekend. The program includes multiple workshops, a masterclass, two nights of socials, and a Bachatanama competition.",
-      image: "/placeholder.svg?height=300&width=600",
+      image: "/images/K&C.jpg",
       instructors: ["Kornel", "Catharine"],
       price: "From $95",
       hasAccommodation: true,
       website: "https://latindancecalendar.com",
+      ticketUrl: "https://latindancecalendar.com",
+      inCalendar: false,
     },
     {
-      id: 4,
+      id: 3,
       title: "World Bachata Festival Melbourne 2025",
       date: "June 27-29, 2025",
       location: "Box Hill Town Hall, Melbourne, VIC",
@@ -113,69 +104,80 @@ export default function FestivalsPage() {
       price: "From $110",
       hasAccommodation: true,
       website: "https://melbourne.worldbachatafestival.com",
-      inCalendar: true, // This event is in the user's Google Calendar
+      ticketUrl: "https://www.trybooking.com/events/1252397/sessions/4737644/sections/2369232/tickets",
+      inCalendar: true,
     },
     {
-      id: 5,
+      id: 4,
       title: "Bachata Flavour Melbourne Festival",
       date: "August 15-17, 2025",
       location: "Melbourne, VIC",
       description:
         "Dedicated to both Sensual and Dominican Bachata, this festival features international artists Miguel & Susire from Spain and Roby & Aury from Italy. Attendees can enjoy a weekend full of workshops, social dances, and performances.",
-      image: "/placeholder.svg?height=300&width=600",
+      image: "/images/bachata_flavour25.jpeg",
       instructors: ["Miguel & Susire (Spain)", "Roby & Aury (Italy)"],
       price: "From $85",
       hasAccommodation: true,
-      website: "https://latindancecalendar.com",
+      website: "https://www.bachataflavour.com",
+      ticketUrl: "https://www.trybooking.com/events/1280324/sessions/4871040/sections/2430787/tickets",
+      inCalendar: false,
     },
     {
-      id: 6,
+      id: 5,
       title: "Melbourne Bachata Festival 2025",
       date: "October 3-5, 2025",
       location: "Transit Dance, Brunswick, VIC",
       description:
         "This festival promises an exciting weekend with three renowned international Bachata artists. The event includes workshops, performances, and social dancing opportunities.",
-      image: "/placeholder.svg?height=300&width=600",
+      image: "/images/mbf25.jpeg",
       instructors: ["Three International Artists"],
       price: "From $90",
       hasAccommodation: true,
-      website: "https://trybooking.com",
+      website: "https://www.trybooking.com/events/landing/1304876",
+      ticketUrl: "https://www.trybooking.com/events/1304876/sessions/4982925/sections/2481883/tickets",
+      inCalendar: false,
     },
     {
-      id: 7,
-      title: "Sydney Bachata Festival",
-      date: "To Be Announced, 2025",
-      location: "Sydney, NSW",
+      id: 6,
+      title: "Adelaide Sensual Week-end 2025",
+      date: " 23-07-2025",
+      location: "Adelaide, SA",
       description: "A weekend of workshops, performances, and social dancing with international artists.",
-      image: "/placeholder.svg?height=300&width=600",
+      image:  "/images/aws25.jpeg",
       instructors: ["International Artists", "Local Instructors"],
       price: "TBA",
       hasAccommodation: true,
-      website: "https://bachataaustralia.com",
+      website: "https://adelaidesensualweekend.com/",
+      ticketUrl: "https://www.trybooking.com/events/1255696/sessions/4754269/sections/2376399/tickets",
+      inCalendar: false,
+    },
+    {
+      id: 7,
+      title: "Level Up 2025",
+      date: "09-10-2025",
+      location: "Brisbane, QLD",
+      description: "Perfect for those who love the sensual side of Bachata.",
+      image: "/images/levelup25.jpeg",
+      instructors: ["Sensual Bachata Specialists"],
+      price: "$310",
+      hasAccommodation: true,
+      website: "https://www.levelupfestival.com/",
+      ticketUrl: "https://www.trybooking.com/events/1346992/sessions/5382122/sections/2568152/tickets",
+      inCalendar: false,
     },
     {
       id: 8,
-      title: "Melbourne Latin Festival",
-      date: "To Be Announced, 2025",
-      location: "Melbourne, VIC",
-      description: "A mix of Salsa, Zouk, and Bachata, bringing top instructors and DJs.",
-      image: "/placeholder.svg?height=300&width=600",
+      title: "Bailando Senusal Week-end 2025",
+      date: "07-02-2025",
+      location: "Sydney, NSW",
+      description: "100% Bachata Social Dancing Weekend.",
+      image:  "/images/bailando.png",
       instructors: ["Top Instructors", "Professional DJs"],
-      price: "TBA",
+      price: "$280",
       hasAccommodation: true,
-      website: "https://bachataaustralia.com",
-    },
-    {
-      id: 9,
-      title: "Bachata Sensual Weekender Brisbane",
-      date: "To Be Announced, 2025",
-      location: "Brisbane, QLD",
-      description: "Perfect for those who love the sensual side of Bachata.",
-      image: "/placeholder.svg?height=300&width=600",
-      instructors: ["Sensual Bachata Specialists"],
-      price: "TBA",
-      hasAccommodation: true,
-      website: "https://bachataaustralia.com",
+      website: "https://bailando.com.au/#:~:text=5th%20%E2%80%93%209th%20Feb%2C%202026%20%7C,Whisperer'%20Lara%20and%20Mitch%20Bilic.&text=this%20festival%20is%20a%20celebration%20of%20unity%20and%20passion.",
+      ticketUrl: "https://www.trybooking.com/events/1356064/sessions/5418829/sections/2585971/tickets",
+      inCalendar: false,
     },
   ]
 
@@ -310,15 +312,17 @@ export default function FestivalsPage() {
                       </Link>
                     )}
 
-                    <Link href={`/festivals/${festival.id}`}>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        className="border-gray-300 text-gray-700 hover:bg-gray-50 text-xs sm:text-sm h-8 sm:h-10"
-                      >
-                        View Details
-                      </Button>
-                    </Link>
+                    {festival.ticketUrl && (
+                      <a href={festival.ticketUrl} target="_blank" rel="noopener noreferrer">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="border-gray-300 text-gray-700 hover:bg-gray-50 text-xs sm:text-sm h-8 sm:h-10"
+                        >
+                          Buy Ticket
+                        </Button>
+                      </a>
+                    )}
 
                     {!festival.inCalendar && (
                       <Button
