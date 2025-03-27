@@ -195,7 +195,7 @@ export default function FestivalAccommodations() {
     <div className="container mx-auto px-4 py-4 sm:py-6 md:py-8">
       <div className="flex flex-col gap-4 sm:gap-6">
         <div className="flex flex-col gap-2">
-          <h1 className="text-2xl sm:text-3xl font-bold">Festival Accommodations</h1>
+          <h1 className="text-3xl sm:text-4xl font-bold">Festival Accommodations</h1>
           <p className="text-sm sm:text-base text-muted-foreground">Find the perfect place to stay during your favorite bachata festivals</p>
         </div>
 
