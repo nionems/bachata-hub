@@ -4,9 +4,19 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Calendar, Users, Info, CheckCircle } from "lucide-react";
 import Link from "next/link";
+import { useState } from "react";
 
 export default function CalendarPage() {
-  const calendarId = "8d27a79f37a74ab7aedc5c038cc4492cd36b87a71b57fb6d7d141d04e8ffe5c2@group.calendar.google.com";
+  // Your calendar IDs
+  const calendarIds = {
+    bachataSocial: "8d27a79f37a74ab7aedc5c038cc4492cd36b87a71b57fb6d7d141d04e8ffe5c2@group.calendar.google.com",
+    melbourneBachata: "ZDg5ODU5MzdkZTBhYmU5YjYwZDg4Zjg2NWJhMjA4YzAwNzc0ZDJlMTNjNDFjOWQ4NmMwMDgzODNkNGRhMzJhOUBncm91cC5jYWxlbmRhci5nb29nbGUuY29t",
+    adelaideBachata: "MTZiOGZlOTYwMDc5NGQ1OTAzMDkwMWE2NzlhODRhNmE3YTgxNmY0YjI5MjM3NzNiYWFmODg2ODcxYjE0YTJkZUBncm91cC5jYWxlbmRhci5nb29nbGUuY29t",
+    brisbaneBachata: "YWFhMjIyZjZlZjBhNDNiZTUwOGUyYjVhN2EyYmNhYjIzMmZmMTlmYTlkY2UwZDE2YWViNTQ3MzczZDhkNTI0NUBncm91cC5jYWxlbmRhci5nb29nbGUuY29t",
+    perthBachata: "NDY5ZmIzYmVkMDMwOGIxYThjY2M4ZTlkOTFmYjAyMDBlNmYzYWRlYWZkODE0YzE3NDdiYzk0MDkxZGMxMWFhNUBncm91cC5jYWxlbmRhci5nb29nbGUuY29t"
+  }
+
+  const [selectedCalendar, setSelectedCalendar] = useState(calendarIds.bachataSocial);
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -45,9 +55,74 @@ export default function CalendarPage() {
           </CardHeader>
           <CardContent className="p-0">
             <div className="border-t border-gray-200">
+              <div className="bg-gradient-to-r from-green-600 to-yellow-500 p-3 sm:p-4 flex justify-between items-center">
+                <h3 className="text-white font-bold text-sm sm:text-lg">Bachata Events Calendar</h3>
+                <div className="flex space-x-1 sm:space-x-2">
+                  <Button
+                    size="sm"
+                    variant="secondary"
+                    className="bg-white text-green-700 hover:bg-gray-100 text-xs sm:text-sm h-7 sm:h-9"
+                  >
+                    Today
+                  </Button>
+                  <div className="bg-white/20 rounded-md flex items-center">
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      className="text-white hover:bg-white/20 h-7 sm:h-9 px-1 sm:px-3"
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="14"
+                        height="14"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        className="lucide lucide-chevron-left"
+                      >
+                        <path d="m15 18-6-6 6-6" />
+                      </svg>
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      className="text-white hover:bg-white/20 h-7 sm:h-9 px-1 sm:px-3"
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="14"
+                        height="14"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        className="lucide lucide-chevron-right"
+                      >
+                        <path d="m9 18 6-6-6-6" />
+                      </svg>
+                    </Button>
+                  </div>
+                  <select
+                    value={selectedCalendar}
+                    onChange={(e) => setSelectedCalendar(e.target.value)}
+                    className="bg-white text-green-700 hover:bg-gray-100 text-xs sm:text-sm h-7 sm:h-9 rounded-md border-0 focus:ring-0"
+                  >
+                    <option value={calendarIds.bachataSocial}>Sydney Bachata</option>
+                    <option value={calendarIds.melbourneBachata}>Melbourne Bachata</option>
+                    <option value={calendarIds.adelaideBachata}>Adelaide Bachata</option>
+                    <option value={calendarIds.brisbaneBachata}>Brisbane Bachata</option>
+                    <option value={calendarIds.perthBachata}>Perth Bachata</option>
+                  </select>
+                </div>
+              </div>
               <iframe
                 src={`https://calendar.google.com/calendar/embed?src=${encodeURIComponent(
-                  calendarId,
+                  selectedCalendar,
                 )}&ctz=Australia%2FSydney&wkst=1&bgcolor=%23ffffff&showTitle=0&showNav=1&showDate=1&showPrint=0&showTabs=1&showCalendars=1&showTz=1&color=%23006B3F`}
                 style={{ borderWidth: 0 }}
                 width="100%"
