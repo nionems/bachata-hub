@@ -1,8 +1,8 @@
 "use client"
 
-import { useEffect, useRef } from "react"
+import { useEffect, useRef, useState } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { MapPin } from "lucide-react"
+import { MapPin, AlertCircle } from "lucide-react"
 
 interface Event {
   id: string
@@ -66,62 +66,80 @@ export function EventsMap() {
   const mapRef = useRef<HTMLDivElement>(null)
   const mapInstanceRef = useRef<google.maps.Map | null>(null)
   const markersRef = useRef<google.maps.Marker[]>([])
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
+    const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY
+
+    if (!apiKey) {
+      setError("Google Maps API key is not configured. Please check your environment variables.")
+      return
+    }
+
     // Load Google Maps script
     const script = document.createElement("script")
-    script.src = `https://maps.googleapis.com/maps/api/js?key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}`
+    script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}`
     script.async = true
     script.defer = true
-    document.head.appendChild(script)
 
     script.onload = () => {
       if (mapRef.current) {
-        // Initialize map
-        const map = new google.maps.Map(mapRef.current, {
-          center: { lat: -25.2744, lng: 133.7751 }, // Center of Australia
-          zoom: 4,
-          styles: [
-            {
-              featureType: "all",
-              elementType: "labels.text.fill",
-              stylers: [{ color: "#333333" }]
-            }
-          ]
-        })
-
-        mapInstanceRef.current = map
-
-        // Add markers for each event
-        events.forEach((event) => {
-          const marker = new google.maps.Marker({
-            position: { lat: event.lat, lng: event.lng },
-            map: map,
-            title: event.title,
-            icon: {
-              url: "https://maps.google.com/mapfiles/ms/icons/red-dot.png"
-            }
+        try {
+          // Initialize map
+          const map = new google.maps.Map(mapRef.current, {
+            center: { lat: -25.2744, lng: 133.7751 }, // Center of Australia
+            zoom: 4,
+            styles: [
+              {
+                featureType: "all",
+                elementType: "labels.text.fill",
+                stylers: [{ color: "#333333" }]
+              }
+            ]
           })
 
-          // Add info window
-          const infoWindow = new google.maps.InfoWindow({
-            content: `
-              <div class="p-2">
-                <h3 class="font-bold">${event.title}</h3>
-                <p class="text-sm">${event.location}</p>
-                <p class="text-sm text-gray-600">${event.date}</p>
-              </div>
-            `
-          })
+          mapInstanceRef.current = map
 
-          marker.addListener("click", () => {
-            infoWindow.open(map, marker)
-          })
+          // Add markers for each event
+          events.forEach((event) => {
+            const marker = new google.maps.Marker({
+              position: { lat: event.lat, lng: event.lng },
+              map: map,
+              title: event.title,
+              icon: {
+                url: "https://maps.google.com/mapfiles/ms/icons/red-dot.png"
+              }
+            })
 
-          markersRef.current.push(marker)
-        })
+            // Add info window
+            const infoWindow = new google.maps.InfoWindow({
+              content: `
+                <div class="p-2">
+                  <h3 class="font-bold">${event.title}</h3>
+                  <p class="text-sm">${event.location}</p>
+                  <p class="text-sm text-gray-600">${event.date}</p>
+                </div>
+              `
+            })
+
+            marker.addListener("click", () => {
+              infoWindow.open(map, marker)
+            })
+
+            markersRef.current.push(marker)
+          })
+        } catch (err) {
+          setError("Failed to initialize Google Maps. Please try again later.")
+          console.error("Google Maps initialization error:", err)
+        }
       }
     }
+
+    script.onerror = () => {
+      setError("Failed to load Google Maps. Please check your internet connection.")
+    }
+
+    document.head.appendChild(script)
 
     return () => {
       // Cleanup
@@ -141,7 +159,16 @@ export function EventsMap() {
             <MapPin className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
             <h3 className="text-white font-bold text-sm sm:text-lg">Find Bachata Events Near You</h3>
           </div>
-          <div ref={mapRef} className="w-full h-[500px]" />
+          {error ? (
+            <div className="h-[500px] flex items-center justify-center bg-gray-50">
+              <div className="text-center p-4">
+                <AlertCircle className="h-8 w-8 text-red-500 mx-auto mb-2" />
+                <p className="text-red-600">{error}</p>
+              </div>
+            </div>
+          ) : (
+            <div ref={mapRef} className="w-full h-[500px]" />
+          )}
         </div>
 
         <div className="mt-4 sm:mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">

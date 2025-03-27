@@ -86,12 +86,15 @@ export default function EventsPage() {
         <FestivalMenu />
 
         <Tabs defaultValue="calendar" className="w-full mb-8 sm:mb-12">
-          <TabsList className="grid w-full grid-cols-2 mb-6 sm:mb-8">
+          <TabsList className="grid w-full grid-cols-3 mb-6 sm:mb-8">
             <TabsTrigger value="calendar" className="text-xs sm:text-sm">
               Calendar View
             </TabsTrigger>
             <TabsTrigger value="agenda" className="text-xs sm:text-sm">
               Agenda View
+            </TabsTrigger>
+            <TabsTrigger value="map" className="text-xs sm:text-sm">
+              Map View
             </TabsTrigger>
           </TabsList>
 
@@ -241,7 +244,7 @@ export default function EventsPage() {
             </Card>
           </TabsContent>
 
-          <TabsContent value="agenda" className="mt-4">
+          <TabsContent value="agenda" className="w-full">
             <div className="rounded-lg overflow-hidden border border-gray-200 shadow-lg">
               <div className="bg-gradient-to-r from-green-600 to-yellow-500 p-3 sm:p-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
                 <div className="flex items-center gap-2">
@@ -324,6 +327,10 @@ export default function EventsPage() {
                 className="border-t border-gray-200"
               ></iframe>
             </div>
+          </TabsContent>
+
+          <TabsContent value="map" className="w-full">
+            <EventsMap />
           </TabsContent>
         </Tabs>
 
