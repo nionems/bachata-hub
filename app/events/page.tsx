@@ -32,45 +32,6 @@ export default function EventsPage() {
 
   const [selectedCalendar, setSelectedCalendar] = useState(calendarIds.bachataSocial)
 
-  // Highlighted/Featured events
-  const highlightedEvents = [
-    {
-      id: 1,
-      title: "Sydney International Bachata Festival 25",
-      date: "April 18-20, 2025",
-      time: "3 days",
-      location: "West HQ, Rooty Hill, NSW",
-      description:
-        "Australia's premier Bachata festival featuring world-class workshops, performances, and a live Bachata concert with international artists.",
-      image: "/placeholder.svg?height=300&width=600",
-      url: "https://www.bachatafestival.com.au/",
-      ticketUrl: "https://www.trybooking.com/events/1219139/sessions/4595849/sections",
-      featured: true,
-      isFestival: true,
-      state: "nsw",
-    },
-    {
-      id: 2,
-      title: "Adelaide Sensual Week-end 25",
-      date: "23-07-2025",
-      time: "3 days",
-      location: "Adelaide, SA",
-      description:
-        "Experience the best of Bachata,kizomba, salsa and more in Adelaide with workshops, performances, and social dancing.+ secret Vineyard Party",
-      image: "/images/aws25.jpeg",
-      url: "https://adelaidesensualweekend.com/",
-      ticketUrl: "https://www.trybooking.com/events/1255696/sessions/4754269/sections/2376399/tickets",
-      featured: true,
-      isFestival: true,
-      state: "sa",
-    },
-  ]
-
-  // Filter events based on selected state
-  const filteredEvents = selectedState === "all" 
-    ? highlightedEvents 
-    : highlightedEvents.filter(event => event.state === selectedState)
-
   return (
     <div className="container mx-auto py-6 sm:py-12 px-4">
       <div className="max-w-7xl mx-auto">
@@ -122,87 +83,6 @@ export default function EventsPage() {
 
         <FestivalMenu />
 
-        {/* Highlighted Events Section */}
-        <div className="mb-6 sm:mb-8">
-          <h2 className="text-lg sm:text-xl font-bold text-gray-900 mb-3 sm:mb-4 flex items-center">
-            <Star className="h-4 w-4 sm:h-5 sm:w-5 text-yellow-500 mr-2 fill-yellow-500" />
-            Highlighted Events
-          </h2>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
-            {filteredEvents.map((event) => (
-              <Card key={event.id} className="overflow-hidden hover:shadow-lg transition-shadow border-yellow-200">
-                <div className="relative h-32 sm:h-40 overflow-hidden">
-                  <div className="absolute top-0 right-0 bg-yellow-500 text-black z-10 px-2 py-1 text-xs font-medium">
-                    Featured
-                  </div>
-                  {event.isFestival && (
-                    <div className="absolute top-0 left-0 bg-green-500 text-white z-10 px-2 py-1 text-xs font-medium">
-                      Festival
-                    </div>
-                  )}
-                  <img
-                    src={event.image || "/placeholder.svg"}
-                    alt={event.title}
-                    className="w-full h-full object-cover transition-transform hover:scale-105"
-                  />
-                </div>
-                <CardHeader className="p-2 sm:p-3">
-                  <CardTitle className="text-sm sm:text-base text-green-700">{event.title}</CardTitle>
-                  <CardDescription className="text-xs flex items-center">
-                    <Calendar className="h-3 w-3 mr-1" />
-                    {event.date}
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="p-2 sm:p-3 pt-0">
-                  <div className="flex items-center text-gray-600 text-xs mb-1">
-                    <MapPin className="h-3 w-3 mr-1" />
-                    <span>{event.location}</span>
-                  </div>
-                  <div className="flex items-center text-gray-600 text-xs mb-2">
-                    <Clock className="h-3 w-3 mr-1" />
-                    <span>{event.time}</span>
-                  </div>
-                  <p className="text-gray-700 text-xs line-clamp-2">{event.description}</p>
-                </CardContent>
-                <CardFooter className="border-t pt-2 p-2 sm:pt-3 sm:p-3">
-                  <div className="w-full flex flex-col gap-1 sm:gap-2">
-                    {event.isFestival && event.ticketUrl && (
-                      <a href={event.ticketUrl} target="_blank" rel="noopener noreferrer" className="w-full">
-                        <Button
-                          size="sm"
-                          className="w-full bg-green-600 hover:bg-green-700 text-white text-xs"
-                        >
-                          Buy Tickets
-                        </Button>
-                      </a>
-                    )}
-                    {event.url && (
-                      <a href={event.url} target="_blank" rel="noopener noreferrer" className="w-full">
-                        <Button
-                          size="sm"
-                          className="w-full bg-yellow-500 hover:bg-yellow-600 text-black text-xs"
-                        >
-                          Visit Event Website
-                        </Button>
-                      </a>
-                    )}
-                    <Link href={`/events/${event.id}`} className="w-full">
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        className="w-full border-green-600 text-green-600 hover:bg-green-50 text-xs"
-                      >
-                        View Details
-                      </Button>
-                    </Link>
-                  </div>
-                </CardFooter>
-              </Card>
-            ))}
-          </div>
-        </div>
-
         <Tabs defaultValue="calendar" className="w-full mb-8 sm:mb-12">
           <TabsList className="grid w-full grid-cols-2 mb-6 sm:mb-8">
             <TabsTrigger value="calendar" className="text-xs sm:text-sm">
@@ -214,18 +94,21 @@ export default function EventsPage() {
           </TabsList>
 
           <TabsContent value="calendar" className="w-full">
-            <Card>
-              <CardHeader className="p-3 sm:p-6">
-                <CardTitle className="text-lg sm:text-xl">Bachata Australia Events Calendar</CardTitle>
+            <Card className="border-0 shadow-none">
+              <CardHeader className="p-3 sm:p-6 pb-0">
+                <CardTitle className="text-lg sm:text-xl text-green-700">Bachata Australia Events Calendar</CardTitle>
                 <CardDescription className="text-xs sm:text-sm">
                   View all upcoming Bachata events in Australia. Click on an event for more details.
                 </CardDescription>
               </CardHeader>
-              <CardContent className="p-3 sm:p-6 pt-0">
+              <CardContent className="p-3 sm:p-6">
                 <div className="rounded-lg overflow-hidden border border-gray-200 shadow-lg">
-                  <div className="bg-gradient-to-r from-green-600 to-yellow-500 p-3 sm:p-4 flex justify-between items-center">
-                    <h3 className="text-white font-bold text-sm sm:text-lg">Bachata Events Calendar</h3>
-                    <div className="flex space-x-1 sm:space-x-2">
+                  <div className="bg-gradient-to-r from-green-600 to-yellow-500 p-3 sm:p-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                    <div className="flex items-center gap-2">
+                      <Calendar className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
+                      <h3 className="text-white font-bold text-sm sm:text-lg">Bachata Events Calendar</h3>
+                    </div>
+                    <div className="flex flex-wrap gap-2 items-center">
                       <Button
                         size="sm"
                         variant="secondary"
@@ -294,7 +177,7 @@ export default function EventsPage() {
                     )}&ctz=Australia%2FSydney&wkst=1&bgcolor=%23ffffff&showTitle=0&showNav=1&showDate=1&showPrint=0&showTabs=1&showCalendars=1&showTz=1`}
                     style={{ borderWidth: 0 }}
                     width="100%"
-                    height="500"
+                    height="600"
                     frameBorder="0"
                     scrolling="no"
                     title="Bachata Australia Events Calendar"
@@ -358,9 +241,12 @@ export default function EventsPage() {
 
           <TabsContent value="agenda" className="mt-4">
             <div className="rounded-lg overflow-hidden border border-gray-200 shadow-lg">
-              <div className="bg-gradient-to-r from-green-600 to-yellow-500 p-3 sm:p-4 flex justify-between items-center">
-                <h3 className="text-white font-bold text-sm sm:text-lg">Bachata Events Calendar</h3>
-                <div className="flex space-x-1 sm:space-x-2">
+              <div className="bg-gradient-to-r from-green-600 to-yellow-500 p-3 sm:p-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                <div className="flex items-center gap-2">
+                  <Calendar className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
+                  <h3 className="text-white font-bold text-sm sm:text-lg">Bachata Events Calendar</h3>
+                </div>
+                <div className="flex flex-wrap gap-2 items-center">
                   <Button
                     size="sm"
                     variant="secondary"
@@ -429,7 +315,7 @@ export default function EventsPage() {
                 )}&ctz=Australia%2FSydney&wkst=1&bgcolor=%23ffffff&showTitle=0&showNav=1&showDate=1&showPrint=0&showTabs=1&showCalendars=1&showTz=1&mode=AGENDA`}
                 style={{ borderWidth: 0 }}
                 width="100%"
-                height="500"
+                height="600"
                 frameBorder="0"
                 scrolling="no"
                 title="Bachata Australia Events Calendar"
