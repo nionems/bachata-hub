@@ -21,8 +21,13 @@ export default function EventsPage() {
     { value: "sa", label: "South Australia" },
   ]
 
-  // Your calendar ID
-  const calendarId = "8d27a79f37a74ab7aedc5c038cc4492cd36b87a71b57fb6d7d141d04e8ffe5c2@group.calendar.google.com"
+  // Your calendar IDs
+  const calendarIds = {
+    bachataSocial: "8d27a79f37a74ab7aedc5c038cc4492cd36b87a71b57fb6d7d141d04e8ffe5c2@group.calendar.google.com",
+    melbourneBachata: "ZDg5ODU5MzdkZTBhYmU5YjYwZDg4Zjg2NWJhMjA4YzAwNzc0ZDJlMTNjNDFjOWQ4NmMwMDgzODNkNGRhMzJhOUBncm91cC5jYWxlbmRhci5nb29nbGUuY29t"
+  }
+
+  const [selectedCalendar, setSelectedCalendar] = useState(calendarIds.bachataSocial)
 
   // Highlighted/Featured events
   const highlightedEvents = [
@@ -250,19 +255,19 @@ export default function EventsPage() {
                           </svg>
                         </Button>
                       </div>
-                      <Button
-                        size="sm"
-                        variant="secondary"
-                        className="bg-white text-green-700 hover:bg-gray-100 text-xs sm:text-sm h-7 sm:h-9"
-                        onClick={() => window.open("https://calendar.google.com/calendar/u/0?cid=ZDg5ODU5MzdkZTBhYmU5YjYwZDg4Zjg2NWJhMjA4YzAwNzc0ZDJlMTNjNDFjOWQ4NmMwMDgzODNkNGRhMzJhOUBncm91cC5jYWxlbmRhci5nb29nbGUuY29t", "_blank")}
+                      <select
+                        value={selectedCalendar}
+                        onChange={(e) => setSelectedCalendar(e.target.value)}
+                        className="bg-white text-green-700 hover:bg-gray-100 text-xs sm:text-sm h-7 sm:h-9 rounded-md border-0 focus:ring-0"
                       >
-                        Share Calendar
-                      </Button>
+                        <option value={calendarIds.bachataSocial}>Bachata Social</option>
+                        <option value={calendarIds.melbourneBachata}>Melbourne Bachata</option>
+                      </select>
                     </div>
                   </div>
                   <iframe
                     src={`https://calendar.google.com/calendar/embed?src=${encodeURIComponent(
-                      calendarId,
+                      selectedCalendar,
                     )}&ctz=Australia%2FSydney&wkst=1&bgcolor=%23ffffff&showTitle=0&showNav=1&showDate=1&showPrint=0&showTabs=1&showCalendars=1&showTz=1`}
                     style={{ borderWidth: 0 }}
                     width="100%"
@@ -340,7 +345,7 @@ export default function EventsPage() {
                 <div className="border rounded-lg overflow-hidden">
                   <iframe
                     src={`https://calendar.google.com/calendar/embed?src=${encodeURIComponent(
-                      calendarId,
+                      selectedCalendar,
                     )}&ctz=Australia%2FSydney&wkst=1&bgcolor=%23ffffff&showTitle=0&showNav=1&showDate=1&showPrint=0&showTabs=1&showCalendars=1&showTz=1&mode=AGENDA`}
                     style={{ borderWidth: 0 }}
                     width="100%"
