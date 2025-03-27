@@ -9,6 +9,7 @@ import CollapsibleFilter from "@/components/collapsible-filter"
 import { applyFilters } from "./actions"
 import FestivalMenu from "@/components/festival-menu"
 import { useState } from "react"
+import StateCalendarLinks from "@/components/state-calendar-links"
 
 export default function EventsPage() {
   const [selectedState, setSelectedState] = useState("all")
@@ -67,9 +68,9 @@ export default function EventsPage() {
     <div className="container mx-auto py-6 sm:py-12 px-4">
       <div className="max-w-7xl mx-auto">
         <div className="text-center mb-8 sm:mb-12">
-          <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-3 sm:mb-4">Bachata Events</h1>
-          <p className="text-base sm:text-xl text-gray-600 max-w-3xl mx-auto">
-            Discover Bachata events across Australia, from social dances to workshops and festivals.
+          <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-3 sm:mb-4">Bachata Events in Australia</h1>
+          <p className="text-lg sm:text-xl text-gray-600 max-w-3xl mx-auto">
+            Discover Bachata events across Australia, from social dances to workshops and festivals. Stay updated with the latest events in your area.
           </p>
         </div>
 
@@ -93,6 +94,11 @@ export default function EventsPage() {
               ))}
             </div>
           </CollapsibleFilter>
+        </div>
+
+        {/* State Calendar Links */}
+        <div className="mb-8">
+          <StateCalendarLinks />
         </div>
 
         <FestivalMenu />
