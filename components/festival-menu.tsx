@@ -37,13 +37,6 @@ export default function FestivalMenu() {
   return (
     <div className="container mx-auto py-6 sm:py-12 px-4">
       <div className="max-w-7xl mx-auto">
-        <div className="text-center mb-8 sm:mb-12">
-          <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-3 sm:mb-4">Bachata Festivals</h1>
-          <p className="text-base sm:text-xl text-gray-600 max-w-3xl mx-auto">
-            Discover major Bachata festivals across Australia. Book your tickets early for the best rates!
-          </p>
-        </div>
-
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
           {festivals.map((festival) => (
             <Card key={festival.id} className="overflow-hidden hover:shadow-lg transition-shadow border-yellow-200">
