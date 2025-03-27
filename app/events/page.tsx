@@ -250,6 +250,14 @@ export default function EventsPage() {
                           </svg>
                         </Button>
                       </div>
+                      <Button
+                        size="sm"
+                        variant="secondary"
+                        className="bg-white text-green-700 hover:bg-gray-100 text-xs sm:text-sm h-7 sm:h-9"
+                        onClick={() => window.open("https://calendar.google.com/calendar/u/0?cid=ZDg5ODU5MzdkZTBhYmU5YjYwZDg4Zjg2NWJhMjA4YzAwNzc0ZDJlMTNjNDFjOWQ4NmMwMDgzODNkNGRhMzJhOUBncm91cC5jYWxlbmRhci5nb29nbGUuY29t", "_blank")}
+                      >
+                        Share Calendar
+                      </Button>
                     </div>
                   </div>
                   <iframe
