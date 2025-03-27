@@ -9,6 +9,7 @@ import CollapsibleFilter from "@/components/collapsible-filter"
 import { applyFilters } from "./actions"
 import FestivalMenu from "@/components/festival-menu"
 import { useState } from "react"
+import { EventsMap } from "@/components/events-map"
 
 export default function EventsPage() {
   const [selectedState, setSelectedState] = useState("all")
@@ -31,6 +32,7 @@ export default function EventsPage() {
   }
 
   const [selectedCalendar, setSelectedCalendar] = useState(calendarIds.bachataSocial)
+  const [showMap, setShowMap] = useState(false)
 
   return (
     <div className="container mx-auto py-6 sm:py-12 px-4">
@@ -38,7 +40,7 @@ export default function EventsPage() {
         <div className="text-center mb-4">
           <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">Bachata Events</h1>
           <p className="text-lg text-gray-600 max-w-3xl mx-auto">
-            View all upcoming Bachata events across Australia. Click on any event for more details.
+            Discover Bachata events across Australia. From social dances to workshops and festivals.
           </p>
         </div>
 
