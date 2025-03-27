@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Calendar, Users, MapPin, Clock, Star, Info } from "lucide-react"
+import { Calendar, Users, MapPin, Clock, Star, Info, CheckCircle } from "lucide-react"
 import Link from "next/link"
 import CollapsibleFilter from "@/components/collapsible-filter"
 import { applyFilters } from "./actions"
@@ -75,10 +75,27 @@ export default function EventsPage() {
     <div className="container mx-auto py-6 sm:py-12 px-4">
       <div className="max-w-7xl mx-auto">
         <div className="text-center mb-4">
-          <h1 className="text-3xl font-bold text-gray-900 mb-4">Bachata Events</h1>
+          <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">Bachata Events</h1>
           <p className="text-lg text-gray-600 max-w-3xl mx-auto">
             View all upcoming Bachata events across Australia. Click on any event for more details.
           </p>
+        </div>
+
+        {/* Calendar Info Box */}
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center">
+            <div className="flex items-center mb-3 sm:mb-0 sm:mr-4">
+              <Info className="h-4 w-4 text-blue-600 mr-2 flex-shrink-0" />
+              <span className="text-sm text-gray-700">
+                Events with{" "}
+                <span className="inline-flex items-center text-green-600 font-medium">
+                  <CheckCircle className="h-3 w-3 mr-1" />
+                  green highlighting
+                </span>{" "}
+                are in your Google Calendar
+              </span>
+            </div>
+          </div>
         </div>
 
         {/* State Filter */}
@@ -106,21 +123,21 @@ export default function EventsPage() {
         <FestivalMenu />
 
         {/* Highlighted Events Section */}
-        <div className="mb-10 sm:mb-16">
-          <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-4 sm:mb-6 flex items-center">
-            <Star className="h-5 w-5 sm:h-6 sm:w-6 text-yellow-500 mr-2 fill-yellow-500" />
+        <div className="mb-6 sm:mb-8">
+          <h2 className="text-lg sm:text-xl font-bold text-gray-900 mb-3 sm:mb-4 flex items-center">
+            <Star className="h-4 w-4 sm:h-5 sm:w-5 text-yellow-500 mr-2 fill-yellow-500" />
             Highlighted Events
           </h2>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
             {filteredEvents.map((event) => (
               <Card key={event.id} className="overflow-hidden hover:shadow-lg transition-shadow border-yellow-200">
-                <div className="relative h-40 sm:h-48 overflow-hidden">
-                  <div className="absolute top-0 right-0 bg-yellow-500 text-black z-10 px-2 py-1 text-xs sm:text-sm font-medium">
+                <div className="relative h-32 sm:h-40 overflow-hidden">
+                  <div className="absolute top-0 right-0 bg-yellow-500 text-black z-10 px-2 py-1 text-xs font-medium">
                     Featured
                   </div>
                   {event.isFestival && (
-                    <div className="absolute top-0 left-0 bg-green-500 text-white z-10 px-2 py-1 text-xs sm:text-sm font-medium">
+                    <div className="absolute top-0 left-0 bg-green-500 text-white z-10 px-2 py-1 text-xs font-medium">
                       Festival
                     </div>
                   )}
@@ -130,31 +147,31 @@ export default function EventsPage() {
                     className="w-full h-full object-cover transition-transform hover:scale-105"
                   />
                 </div>
-                <CardHeader className="p-3 sm:p-4">
-                  <CardTitle className="text-base sm:text-xl text-green-700">{event.title}</CardTitle>
-                  <CardDescription className="text-xs sm:text-sm flex items-center">
-                    <Calendar className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
+                <CardHeader className="p-2 sm:p-3">
+                  <CardTitle className="text-sm sm:text-base text-green-700">{event.title}</CardTitle>
+                  <CardDescription className="text-xs flex items-center">
+                    <Calendar className="h-3 w-3 mr-1" />
                     {event.date}
                   </CardDescription>
                 </CardHeader>
-                <CardContent className="p-3 sm:p-4 pt-0">
-                  <div className="flex items-center text-gray-600 text-xs sm:text-sm mb-2">
-                    <MapPin className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
+                <CardContent className="p-2 sm:p-3 pt-0">
+                  <div className="flex items-center text-gray-600 text-xs mb-1">
+                    <MapPin className="h-3 w-3 mr-1" />
                     <span>{event.location}</span>
                   </div>
-                  <div className="flex items-center text-gray-600 text-xs sm:text-sm mb-3">
-                    <Clock className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
+                  <div className="flex items-center text-gray-600 text-xs mb-2">
+                    <Clock className="h-3 w-3 mr-1" />
                     <span>{event.time}</span>
                   </div>
-                  <p className="text-gray-700 text-xs sm:text-sm line-clamp-3">{event.description}</p>
+                  <p className="text-gray-700 text-xs line-clamp-2">{event.description}</p>
                 </CardContent>
-                <CardFooter className="border-t pt-3 p-3 sm:pt-4 sm:p-4">
-                  <div className="w-full flex flex-col gap-2 sm:gap-3">
+                <CardFooter className="border-t pt-2 p-2 sm:pt-3 sm:p-3">
+                  <div className="w-full flex flex-col gap-1 sm:gap-2">
                     {event.isFestival && event.ticketUrl && (
                       <a href={event.ticketUrl} target="_blank" rel="noopener noreferrer" className="w-full">
                         <Button
                           size="sm"
-                          className="w-full bg-green-600 hover:bg-green-700 text-white text-xs sm:text-sm"
+                          className="w-full bg-green-600 hover:bg-green-700 text-white text-xs"
                         >
                           Buy Tickets
                         </Button>
@@ -164,7 +181,7 @@ export default function EventsPage() {
                       <a href={event.url} target="_blank" rel="noopener noreferrer" className="w-full">
                         <Button
                           size="sm"
-                          className="w-full bg-yellow-500 hover:bg-yellow-600 text-black text-xs sm:text-sm"
+                          className="w-full bg-yellow-500 hover:bg-yellow-600 text-black text-xs"
                         >
                           Visit Event Website
                         </Button>
@@ -174,7 +191,7 @@ export default function EventsPage() {
                       <Button
                         size="sm"
                         variant="outline"
-                        className="w-full border-green-600 text-green-600 hover:bg-green-50 text-xs sm:text-sm"
+                        className="w-full border-green-600 text-green-600 hover:bg-green-50 text-xs"
                       >
                         View Details
                       </Button>
