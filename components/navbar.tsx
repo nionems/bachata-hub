@@ -12,6 +12,10 @@ export default function Navbar() {
     setIsMenuOpen(!isMenuOpen)
   }
 
+  const handleLoginClick = () => {
+    alert("Login functionality is under construction. Please check back later!")
+  }
+
   const navItems = [
     { name: "Home", href: "/" },
     { name: "Events", href: "/events" },
@@ -48,7 +52,7 @@ export default function Navbar() {
                 {item.name}
               </Link>
             ))}
-            <Button size="sm" className="bg-green-600 hover:bg-green-700 text-white">
+            <Button size="sm" className="bg-green-600 hover:bg-green-700 text-white" onClick={handleLoginClick}>
               Login
             </Button>
           </nav>
@@ -85,7 +89,7 @@ export default function Navbar() {
                 {item.name}
               </Link>
             ))}
-            <Button className="w-full mt-4 bg-green-600 hover:bg-green-700 text-white">Login</Button>
+            <Button className="w-full mt-4 bg-green-600 hover:bg-green-700 text-white" onClick={handleLoginClick}>Login</Button>
           </div>
         </div>
       )}
