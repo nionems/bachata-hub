@@ -24,7 +24,10 @@ export default function EventsPage() {
   // Your calendar IDs
   const calendarIds = {
     bachataSocial: "8d27a79f37a74ab7aedc5c038cc4492cd36b87a71b57fb6d7d141d04e8ffe5c2@group.calendar.google.com",
-    melbourneBachata: "ZDg5ODU5MzdkZTBhYmU5YjYwZDg4Zjg2NWJhMjA4YzAwNzc0ZDJlMTNjNDFjOWQ4NmMwMDgzODNkNGRhMzJhOUBncm91cC5jYWxlbmRhci5nb29nbGUuY29t"
+    melbourneBachata: "ZDg5ODU5MzdkZTBhYmU5YjYwZDg4Zjg2NWJhMjA4YzAwNzc0ZDJlMTNjNDFjOWQ4NmMwMDgzODNkNGRhMzJhOUBncm91cC5jYWxlbmRhci5nb29nbGUuY29t",
+    adelaideBachata: "MTZiOGZlOTYwMDc5NGQ1OTAzMDkwMWE2NzlhODRhNmE3YTgxNmY0YjI5MjM3NzNiYWFmODg2ODcxYjE0YTJkZUBncm91cC5jYWxlbmRhci5nb29nbGUuY29t",
+    brisbaneBachata: "YWFhMjIyZjZlZjBhNDNiZTUwOGUyYjVhN2EyYmNhYjIzMmZmMTlmYTlkY2UwZDE2YWViNTQ3MzczZDhkNTI0NUBncm91cC5jYWxlbmRhci5nb29nbGUuY29t",
+    perthBachata: "NDY5ZmIzYmVkMDMwOGIxYThjY2M4ZTlkOTFmYjAyMDBlNmYzYWRlYWZkODE0YzE3NDdiYzk0MDkxZGMxMWFhNUBncm91cC5jYWxlbmRhci5nb29nbGUuY29t"
   }
 
   const [selectedCalendar, setSelectedCalendar] = useState(calendarIds.bachataSocial)
@@ -260,8 +263,11 @@ export default function EventsPage() {
                         onChange={(e) => setSelectedCalendar(e.target.value)}
                         className="bg-white text-green-700 hover:bg-gray-100 text-xs sm:text-sm h-7 sm:h-9 rounded-md border-0 focus:ring-0"
                       >
-                        <option value={calendarIds.bachataSocial}>Bachata Social</option>
+                        <option value={calendarIds.bachataSocial}>Sydney Bachata</option>
                         <option value={calendarIds.melbourneBachata}>Melbourne Bachata</option>
+                        <option value={calendarIds.adelaideBachata}>Adelaide Bachata</option>
+                        <option value={calendarIds.brisbaneBachata}>Brisbane Bachata</option>
+                        <option value={calendarIds.perthBachata}>Perth Bachata</option>
                       </select>
                     </div>
                   </div>
