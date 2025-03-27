@@ -58,10 +58,10 @@ export default function ShopPage() {
   return (
     <div className="container mx-auto py-6 sm:py-12 px-4">
       <div className="max-w-7xl mx-auto">
-        <div className="text-center mb-8 sm:mb-12">
+        <div className="text-center mb-4">
           <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-3 sm:mb-4">Bachata Shop</h1>
-          <p className="text-base sm:text-xl text-gray-600 max-w-3xl mx-auto">
-            Everything you need for Bachata dancing - from shoes and clothing to music and accessories.
+          <p className="text-lg sm:text-xl text-gray-600 max-w-3xl mx-auto">
+            Shop for Bachata dance shoes, accessories, and more. Everything you need for your Bachata journey.
           </p>
         </div>
 

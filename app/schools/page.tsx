@@ -363,10 +363,10 @@ export default function SchoolsPage() {
   return (
     <div className="container mx-auto py-6 sm:py-12 px-4">
       <div className="max-w-7xl mx-auto">
-        <div className="text-center mb-8 sm:mb-12">
-          <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-3 sm:mb-4">Bachata Schools</h1>
+        <div className="text-center mb-4">
+          <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-3 sm:mb-4">Bachata Schools in Australia</h1>
           <p className="text-lg sm:text-xl text-gray-600 max-w-3xl mx-auto">
-            Find Bachata dance schools across Australia, from beginner classes to advanced training.
+            Find Bachata schools and instructors across Australia. Learn from experienced teachers and join the Bachata community.
           </p>
         </div>
 

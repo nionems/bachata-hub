@@ -212,11 +212,10 @@ export default function FestivalsPage() {
   return (
     <div className="container mx-auto py-6 sm:py-12 px-4">
       <div className="max-w-7xl mx-auto">
-        <div className="text-center mb-8 sm:mb-12">
-          <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-3 sm:mb-4">Bachata Festivals in Australia</h1>
+        <div className="text-center mb-4">
+          <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-3 sm:mb-4">Bachata Festivals</h1>
           <p className="text-lg sm:text-xl text-gray-600 max-w-3xl mx-auto">
-            Discover the biggest and best Bachata festivals across Australia, featuring world-class instructors,
-            performances, and social dancing.
+            Discover Bachata festivals and events across Australia. Join the community for unforgettable dance experiences.
           </p>
         </div>
 

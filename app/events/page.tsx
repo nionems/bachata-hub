@@ -74,10 +74,10 @@ export default function EventsPage() {
   return (
     <div className="container mx-auto py-6 sm:py-12 px-4">
       <div className="max-w-7xl mx-auto">
-        <div className="text-center mb-8 sm:mb-12">
-          <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-3 sm:mb-4">Bachata Events in Australia</h1>
-          <p className="text-lg sm:text-xl text-gray-600 max-w-3xl mx-auto">
-            Discover Bachata events across Australia, from social dances to workshops and festivals.
+        <div className="text-center mb-4">
+          <h1 className="text-3xl font-bold text-gray-900 mb-4">Bachata Events</h1>
+          <p className="text-lg text-gray-600 max-w-3xl mx-auto">
+            View all upcoming Bachata events across Australia. Click on any event for more details.
           </p>
         </div>
 

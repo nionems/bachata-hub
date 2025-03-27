@@ -182,11 +182,10 @@ export default function InstructorsPage() {
   return (
     <div className="container mx-auto py-6 sm:py-12 px-4">
       <div className="max-w-7xl mx-auto">
-        <div className="text-center mb-8 sm:mb-12">
-          <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-3 sm:mb-4">Bachata Instructors in Australia</h1>
+        <div className="text-center mb-4">
+          <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-3 sm:mb-4">Bachata Instructors</h1>
           <p className="text-lg sm:text-xl text-gray-600 max-w-3xl mx-auto">
-            Learn from Australia's top Bachata instructors, each bringing their unique style and expertise to help you
-            become a better dancer.
+            Find experienced Bachata instructors across Australia. Learn from the best in the community.
           </p>
         </div>
 
