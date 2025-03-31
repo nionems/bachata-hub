@@ -52,12 +52,25 @@ export async function POST(request: Request) {
     // Log the incoming request
     console.log("Received event submission request")
     
+    // Log request headers
+    const headers = Object.fromEntries(request.headers.entries())
+    console.log("Request headers:", headers)
+    
     const formData = await request.formData()
     const formDataObj = Object.fromEntries(formData)
     console.log("Form data received:", {
       ...formDataObj,
       image: formDataObj.image ? "File present" : "No file"
     })
+
+    // Validate form data structure
+    if (!formDataObj || typeof formDataObj !== 'object') {
+      console.error("Invalid form data structure:", formDataObj)
+      return NextResponse.json(
+        { error: "Invalid form data structure" },
+        { status: 400 }
+      )
+    }
 
     const {
       eventName,
@@ -71,6 +84,20 @@ export async function POST(request: Request) {
       ticketLink,
       image,
     } = formDataObj
+
+    // Log parsed form data
+    console.log("Parsed form data:", {
+      eventName,
+      eventDate,
+      eventTime,
+      location,
+      city,
+      description,
+      organizerName,
+      organizerEmail,
+      ticketLink,
+      hasImage: !!image
+    })
 
     // Validate required fields
     if (!eventName || !eventDate || !eventTime || !location || !city || !description || !organizerName || !organizerEmail) {
@@ -237,7 +264,8 @@ export async function POST(request: Request) {
     return NextResponse.json(
       { 
         error: "Failed to submit event",
-        details: error instanceof Error ? error.message : "Unknown error"
+        details: error instanceof Error ? error.message : "Unknown error",
+        stack: error instanceof Error ? error.stack : undefined
       },
       { status: 500 },
     )
