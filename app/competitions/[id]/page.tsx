@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Calendar, MapPin, Users, Trophy, Clock, ArrowLeft } from "lucide-react"
+import { Calendar, MapPin, Users, Trophy, Clock, ArrowLeft, Medal } from "lucide-react"
 import Link from "next/link"
 
 // This would typically come from your database
@@ -17,7 +17,7 @@ const competitions = [
     description: "Annual NSW Jack & Jill competition featuring the best dancers from across the state.",
     categories: ["Open", "Advanced", "Intermediate"],
     registrationLink: "https://www.facebook.com/groups/1268854410845691",
-    image: "/placeholder.svg?height=300&width=600",
+    image: "/images/nswjack&jill.jpg",
     leaderboard: {
       leaders: [
         { id: 1, name: "Lionel Coevoet", points: 120, rank: 1 },
@@ -151,9 +151,19 @@ export default function CompetitionDetailPage({ params }: { params: { id: string
                           className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
                         >
                           <div className="flex items-center">
-                            <div className="w-8 h-8 flex items-center justify-center bg-green-100 text-green-800 rounded-full font-semibold mr-3">
-                              {leader.rank}
-                            </div>
+                            {leader.rank <= 3 ? (
+                              <div className="w-8 h-8 flex items-center justify-center mr-3">
+                                <Medal className={`h-6 w-6 ${
+                                  leader.rank === 1 ? 'text-yellow-500' :
+                                  leader.rank === 2 ? 'text-gray-400' :
+                                  'text-amber-700'
+                                }`} />
+                              </div>
+                            ) : (
+                              <div className="w-8 h-8 flex items-center justify-center bg-green-100 text-green-800 rounded-full font-semibold mr-3">
+                                {leader.rank}
+                              </div>
+                            )}
                             <div>
                               <div className="font-medium">{leader.name}</div>
                               <div className="text-sm text-gray-500">{leader.points} points</div>
@@ -172,9 +182,19 @@ export default function CompetitionDetailPage({ params }: { params: { id: string
                           className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
                         >
                           <div className="flex items-center">
-                            <div className="w-8 h-8 flex items-center justify-center bg-green-100 text-green-800 rounded-full font-semibold mr-3">
-                              {follower.rank}
-                            </div>
+                            {follower.rank <= 3 ? (
+                              <div className="w-8 h-8 flex items-center justify-center mr-3">
+                                <Medal className={`h-6 w-6 ${
+                                  follower.rank === 1 ? 'text-yellow-500' :
+                                  follower.rank === 2 ? 'text-gray-400' :
+                                  'text-amber-700'
+                                }`} />
+                              </div>
+                            ) : (
+                              <div className="w-8 h-8 flex items-center justify-center bg-green-100 text-green-800 rounded-full font-semibold mr-3">
+                                {follower.rank}
+                              </div>
+                            )}
                             <div>
                               <div className="font-medium">{follower.name}</div>
                               <div className="text-sm text-gray-500">{follower.points} points</div>

@@ -68,6 +68,7 @@ export default function SchoolsPage() {
           name: "Mitch Billic",
         },
       ],
+      state: "nsw"
     },
     {
       id: 2,
@@ -81,8 +82,9 @@ export default function SchoolsPage() {
       students: "450+",
       description:
         "Offers classes in both Dominican Bachata and Bachata Sensual, catering to all levels from beginners to advanced dancers.",
-      image: "/images/schools/lda.png",
+      image: "/images/lda.png",
       classes: ["Dominican Bachata", "Bachata Sensual", "Beginner", "Intermediate", "Advanced"],
+      state: "nsw"
     },
     {
       id: 3,
@@ -98,6 +100,7 @@ export default function SchoolsPage() {
         "Provides an 8-week Bachata Dancing Course suitable for beginners, emphasizing foundational steps and techniques.",
       image: "/images/suave.jpeg",
       classes: ["Beginner", "Foundational Steps", "Techniques", "8-Week Course"],
+      state: "nsw"
     },
     {
       id: 4,
@@ -113,6 +116,7 @@ export default function SchoolsPage() {
         "Offers Bachata dance classes focusing on various styles, including Modern, Fusion, Sensual, and traditional Dominican Bachata.",
       image: "/images/lj.png",
       classes: ["Modern Bachata", "Bachata Fusion", "Sensual Bachata", "Dominican Bachata"],
+      state: "nsw"
     },
     {
       id: 5,
@@ -128,6 +132,7 @@ export default function SchoolsPage() {
         "Provides Salsa and Bachata dance classes, focusing on technique and musicality, suitable for dancers at various levels.",
       image: "/images/schools/r-and-m-latin-dance.jpg",
       classes: ["Technique", "Musicality", "Beginner", "Intermediate", "Advanced"],
+      state: "nsw"
     },
     {
       id: 6,
@@ -143,6 +148,7 @@ export default function SchoolsPage() {
         "Teaches three popular styles of Bachata: Bachata Moderna, Dominican Bachata, and Bachata Sensual, with classes available from beginner to advanced levels.",
       image: "/images/ts.png",
       classes: ["Bachata Moderna", "Dominican Bachata", "Bachata Sensual", "Beginner to Advanced"],
+      state: "nsw"
     },
     {
       id: 7,
@@ -158,6 +164,7 @@ export default function SchoolsPage() {
         "Provides a mix of Bachata Moderna, Dominican footwork, and Sensual Bachata, emphasizing lead-follow techniques, body movement, and isolations.",
       image: "/images/schools/salsa-republic.jpg",
       classes: ["Bachata Moderna", "Dominican Footwork", "Sensual Bachata", "Lead-Follow Techniques"],
+      state: "nsw"
     },
     {
       id: 8,
@@ -173,6 +180,7 @@ export default function SchoolsPage() {
         "Offers Bachata classes designed to build confidence on the dance floor, with courses ranging from foundational movements to advanced techniques.",
       image: "/images/schools/sydney-salsa-classes.jpg",
       classes: ["Confidence Building", "Foundational Movements", "Advanced Techniques"],
+      state: "nsw"
     },
     {
       id: 9,
@@ -188,6 +196,7 @@ export default function SchoolsPage() {
         "Tailors Bachata classes to individual learning styles and paces, offering a combination of private and group sessions.",
       image: "/images/schools/arthur-murray-dance-centres.jpg",
       classes: ["Private Lessons", "Group Sessions", "Personalized Learning"],
+      state: "nsw"
     },
     {
       id: 9,
@@ -203,6 +212,7 @@ export default function SchoolsPage() {
         "Tailors Bachata classes to individual learning styles and paces, offering a combination of private and group sessions.",
       image: "/images/ff.jpg",
       classes: ["Private Lessons", "Group Sessions", "Personalized Learning"],
+      state: "nsw"
     },
   ]
 
@@ -220,6 +230,7 @@ export default function SchoolsPage() {
       description: "Specializes in Bachata classes and private lessons, focusing on technique and musicality.",
       image: "/images/schools/bachata-beats.jpg",
       classes: ["Technique", "Musicality", "Private Lessons", "Group Classes"],
+      state: "vic"
     },
     {
       id: 11,
@@ -235,6 +246,7 @@ export default function SchoolsPage() {
         "Led by Pedro Gonzalez and Tiffany De Caires, offering classes in Salsa, Bachata, Merengue, Cha Cha Cha, and more.",
       image: "/images/schools/cortes-dance.jpg",
       classes: ["Bachata", "Salsa", "Merengue", "Cha Cha Cha"],
+      state: "vic"
     },
     {
       id: 12,
@@ -249,6 +261,7 @@ export default function SchoolsPage() {
       description: "Offers free beginners Bachata classes and progressive levels, emphasizing social dancing skills.",
       image: "/images/schools/the-salsa-foundation.jpg",
       classes: ["Free Beginner Classes", "Progressive Levels", "Social Dancing Skills"],
+      state: "vic"
     },
     {
       id: 13,
@@ -261,8 +274,9 @@ export default function SchoolsPage() {
       rating: 4.6,
       students: "300+",
       description: "Provides Bachata classes and social events, aiming to create a vibrant dance community.",
-      image: "/images/schools/bachata-corazon.jpg",
+      image: "/images/bc.webp",
       classes: ["Bachata Classes", "Social Events", "Community Building"],
+      state: "vic"
     },
     {
       id: 14,
@@ -277,6 +291,7 @@ export default function SchoolsPage() {
       description: "Offers classes in Salsa, Bachata, and other Latin dance styles, catering to all levels.",
       image: "/images/schools/la-encantada-collective.jpg",
       classes: ["Bachata", "Salsa", "Latin Dance", "All Levels"],
+      state: "vic"
     },
     {
       id: 15,
@@ -292,6 +307,7 @@ export default function SchoolsPage() {
         "Provides Bachata classes with authentic international instructors, emphasizing enthusiasm and flow.",
       image: "/images/schools/melbourne-salsa.jpg",
       classes: ["International Instructors", "Enthusiasm", "Flow", "Authentic Bachata"],
+      state: "vic"
     },
   ]
 
@@ -309,6 +325,7 @@ export default function SchoolsPage() {
       description: "Offers Bachata classes and social events, aiming to make a positive difference through dance.",
       image: "/images/schools/rio-rhythmics-latin-dance-academy.jpg",
       classes: ["Bachata Classes", "Social Events", "Community Impact"],
+      state: "qld"
     },
     {
       id: 17,
@@ -324,6 +341,7 @@ export default function SchoolsPage() {
         "Specializes in private Latin, Kizomba, and Bachata dance lessons, focusing on connection and expressivity.",
       image: "/images/schools/annabelle-weir-private-lessons.jpg",
       classes: ["Private Lessons", "Latin Dance", "Kizomba", "Bachata", "Connection", "Expressivity"],
+      state: "qld"
     },
   ]
 
@@ -341,6 +359,7 @@ export default function SchoolsPage() {
       description: "A comprehensive directory of Bachata dance classes and events in Perth.",
       image: "/images/schools/latin-dance-calendar-perth.jpg",
       classes: ["Bachata Classes", "Events Directory", "Perth Dance Community"],
+      state: "wa"
     },
   ]
 

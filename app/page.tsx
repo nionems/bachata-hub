@@ -9,22 +9,31 @@ import { getWeekEvents } from "./actions/calendar-events"
 import WeekendEventsHighlight from "@/components/weekend-events-highlight"
 import EventCard from "@/components/event-card"
 
-// Update the Home component to be async so we can fetch the events
+/**
+ * Home Page Component
+ * This is the main landing page that displays:
+ * - Hero section with call-to-action buttons
+ * - Feature cards for different sections
+ * - Featured events from Google Calendar
+ */
 export default async function Home() {
   try {
-    // Your calendar ID
+    // Google Calendar ID for fetching events
     const calendarId = "8d27a79f37a74ab7aedc5c038cc4492cd36b87a71b57fb6d7d141d04e8ffe5c2@group.calendar.google.com"
 
-    // Fetch the week's events
+    // Fetch events for the current week from Google Calendar
     const weekEvents = await getWeekEvents(calendarId)
 
-    // Format the event date and time for display
+    /**
+     * Format event date and time for display
+     * Handles both all-day events and events with specific times
+     */
     const formatEventDateTime = (event: any) => {
       if (!event) return { date: "No upcoming events", time: "" }
 
       const start = event.start.dateTime ? new Date(event.start.dateTime) : new Date(event.start.date)
 
-      // For all-day events (no time specified)
+      // Format all-day events
       if (!event.start.dateTime) {
         return {
           date: start.toLocaleDateString("en-AU", { weekday: "long", year: "numeric", month: "long", day: "numeric" }),
@@ -32,14 +41,14 @@ export default async function Home() {
         }
       }
 
-      // For events with specific times
+      // Format events with specific times
       return {
         date: start.toLocaleDateString("en-AU", { weekday: "long", year: "numeric", month: "long", day: "numeric" }),
         time: start.toLocaleTimeString("en-AU", { hour: "2-digit", minute: "2-digit" }),
       }
     }
 
-    // Format the events for display
+    // Format calendar events for display
     const formattedWeekEvents = weekEvents.map((event: any) => ({
       id: event.id,
       title: event.summary,
@@ -52,9 +61,10 @@ export default async function Home() {
       featured: true,
     }))
 
-    // Combine with static featured events
+    // Combine calendar events with static featured events
     const featuredEvents = [
       ...formattedWeekEvents,
+      // Static featured events for major festivals
       {
         id: 1,
         title: "Sydney Bachata Festival 2025",
@@ -95,38 +105,42 @@ export default async function Home() {
 
     return (
       <div className="min-h-screen bg-gray-50">
-        {/* Hero Section */}
-        <section className="relative bg-gradient-to-r from-green-600 to-yellow-500 text-white py-20 min-h-[80vh] flex items-center">
+        {/* Hero Section - Main banner with call-to-action buttons */}
+        <section className="relative bg-gradient-to-r from-green-600 to-yellow-500 text-white py-8 min-h-[40vh] flex items-center">
+          {/* Background gradient overlay */}
           <div className="absolute inset-0 bg-gradient-to-r from-green-600 to-yellow-500"></div>
           <div className="container mx-auto px-4 relative z-10">
             <div className="max-w-3xl mx-auto text-center">
-              <h1 className="text-4xl md:text-5xl font-bold mb-6">Welcome to Bachata Australia</h1>
-              <p className="text-xl mb-8">
+              {/* Main heading and description */}
+              <h1 className="text-2xl md:text-3xl font-bold mb-3">Bachata Australia</h1>
+              <p className="text-base mb-4">
                 Your one-stop destination for Bachata events, classes, and community across Australia.
               </p>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              {/* Call-to-action buttons */}
+              <div className="flex flex-col sm:flex-row gap-3 justify-center">
                 <Link href="/events">
-                  <Button size="lg" className="bg-white text-green-700 hover:bg-gray-100">
+                  <Button size="default" className="bg-white text-green-700 hover:bg-gray-100">
                     Explore Events
                   </Button>
                 </Link>
                 <Link href="/community">
-                  <Button size="lg" className="bg-white/20 text-white hover:bg-white/30">
+                  <Button size="default" className="bg-white/20 text-white hover:bg-white/30">
                     Join the Community
                   </Button>
                 </Link>
               </div>
-              <div className="mt-6">
+              {/* Social media link */}
+              <div className="mt-3">
                 <a
                   href="https://instagram.com/bachata.au"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-white hover:text-gray-200 flex items-center justify-center gap-2"
+                  className="text-white hover:text-gray-200 flex items-center justify-center gap-2 text-sm"
                 >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
-                    width="24"
-                    height="24"
+                    width="16"
+                    height="16"
                     viewBox="0 0 24 24"
                     fill="none"
                     stroke="currentColor"
@@ -146,21 +160,34 @@ export default async function Home() {
           </div>
         </section>
 
-        {/* Features Section */}
+        {/* Features Section - Grid of feature cards */}
         <section className="py-16">
           <div className="container mx-auto px-4">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+              {/* Feature cards for different sections */}
               <FeatureCard
                 icon={<Music className="h-8 w-8 sm:h-10 sm:w-10 text-green-600" />}
                 title="Events"
-                description="Find Bachata events near you"
+                description="Find Bachata events"
                 link="/events"
+              />
+              <FeatureCard
+                icon={<MapPin className="h-8 w-8 sm:h-10 sm:w-10 text-purple-500" />}
+                title="Festivals"
+                description="Find Bachata festivals"
+                link="/festivals"
               />
               <FeatureCard
                 icon={<School className="h-8 w-8 sm:h-10 sm:w-10 text-yellow-500" />}
                 title="Schools"
-                description="Learn from the best instructors"
+                description="Find your school"
                 link="/schools"
+              />
+                <FeatureCard
+                icon={<Users className="h-8 w-8 sm:h-10 sm:w-10 text-green-600" />}
+                title="Instructors"
+                description="Connect with instructors"
+                link="/instructors"
               />
               <FeatureCard
                 icon={<Trophy className="h-8 w-8 sm:h-10 sm:w-10 text-blue-500" />}
@@ -168,36 +195,32 @@ export default async function Home() {
                 description="Show off your skills"
                 link="/competitions"
               />
-              <FeatureCard
-                icon={<MapPin className="h-8 w-8 sm:h-10 sm:w-10 text-purple-500" />}
-                title="Locations"
-                description="Find dance venues near you"
-                link="/locations"
-              />
+              
               <FeatureCard
                 icon={<ShoppingBag className="h-8 w-8 sm:h-10 sm:w-10 text-yellow-500" />}
                 title="Shop"
-                description="Get dance shoes, clothing, and accessories"
+                description="Find dance shoes,clothing..."
                 link="/shop"
               />
-              <FeatureCard
-                icon={<Users className="h-8 w-8 sm:h-10 sm:w-10 text-green-600" />}
-                title="Community"
-                description="Connect with fellow Bachata dancers"
-                link="/community"
-              />
+
               <FeatureCard
                 icon={<Calendar className="h-8 w-8 sm:h-10 sm:w-10 text-yellow-500" />}
                 title="Calendar"
-                description="View all upcoming events in one place"
+                description="Find all events"
                 link="/calendar"
+              />
+              <FeatureCard
+                icon={<Users className="h-8 w-8 sm:h-10 sm:w-10 text-green-600" />}
+                title="Forum"
+                description="Connect with dancers"
+                link="/forum"
               />
             </div>
           </div>
         </section>
 
-        {/* Featured Events */}
-        <section className="py-16 bg-white">
+        {/* Featured Events Section - Display of upcoming events */}
+        <section className="pt-8 pb-16 bg-white">
           <div className="container mx-auto px-4">
             <h2 className="text-3xl font-bold text-center mb-12">Featured Events This Week</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -210,6 +233,7 @@ export default async function Home() {
       </div>
     )
   } catch (error) {
+    // Error handling - Display error message if something goes wrong
     console.error("Error in Home component:", error)
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -222,6 +246,10 @@ export default async function Home() {
   }
 }
 
+/**
+ * FeatureCard Component
+ * Displays a feature card with an icon, title, description, and link
+ */
 function FeatureCard({ icon, title, description, link }: { icon: React.ReactNode; title: string; description: string; link: string }) {
   return (
     <Link href={link}>
