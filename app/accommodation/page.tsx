@@ -74,7 +74,7 @@ const accommodations: Accommodation[] = [
     state: "NSW",
     price: "$299",
     rating: 4.8,
-    reviews: 124,
+      reviews: 124,
     amenities: ["wifi", "parking", "restaurant", "gym", "pool", "spa"],
     description: "Luxury hotel in the heart of Sydney with stunning views of the city.",
     image: "/accommodations/hilton-sydney.jpg",
@@ -95,7 +95,7 @@ const accommodations: Accommodation[] = [
     amenities: ["wifi", "parking", "gym", "pool"],
     description: "Modern apartment-style accommodation with full kitchen facilities.",
     image: "/accommodations/meriton-suites.jpg",
-    distance: "0.5 km from venue",
+      distance: "0.5 km from venue",
     capacity: 4,
     checkIn: "2:00 PM",
     checkOut: "10:00 AM"
@@ -108,7 +108,7 @@ const accommodations: Accommodation[] = [
     state: "VIC",
     price: "$279",
     rating: 4.7,
-    reviews: 156,
+      reviews: 156,
     amenities: ["wifi", "parking", "restaurant", "gym", "pool", "spa", "casino"],
     description: "Luxury hotel with world-class dining and entertainment options.",
     image: "/accommodations/crown-towers.jpg",
@@ -125,7 +125,7 @@ const accommodations: Accommodation[] = [
     state: "VIC",
     price: "$259",
     rating: 4.5,
-    reviews: 92,
+      reviews: 92,
     amenities: ["wifi", "parking", "restaurant", "gym", "pool"],
     description: "Modern hotel connected to the convention centre.",
     image: "/accommodations/pan-pacific.jpg",
@@ -158,7 +158,7 @@ const accommodations: Accommodation[] = [
     location: "515 Queen Street",
     state: "QLD",
     price: "$269",
-    rating: 4.6,
+      rating: 4.6,
     reviews: 98,
     amenities: ["wifi", "parking", "restaurant", "gym", "pool"],
     description: "Contemporary hotel with modern amenities and river views.",
@@ -195,7 +195,7 @@ export default function FestivalAccommodations() {
     <div className="container mx-auto px-4 py-4 sm:py-6 md:py-8">
       <div className="flex flex-col gap-4 sm:gap-6">
         <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-green-600 to-yellow-500 bg-clip-text text-transparent mb-4">Accommodation</h1>
+          <h1 className="text-4xl font-bold bg-gradient-to-r from-green-600 to-yellow-500 bg-clip-text text-transparent mb-2">Accomodation</h1>
           <p className="text-xl text-gray-600">
             Find accommodation near Bachata events
           </p>
@@ -218,7 +218,7 @@ export default function FestivalAccommodations() {
                   {state.label}
                 </Button>
               ))}
-            </div>
+                        </div>
           </CollapsibleFilter>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
@@ -242,13 +242,13 @@ export default function FestivalAccommodations() {
                       <MapPin className="h-4 w-4" />
                       {accommodation.location}
                     </CardDescription>
-                  </CardHeader>
+                    </CardHeader>
                   <CardContent className="flex-grow p-4 sm:p-6 pt-0">
                     <div className="flex items-center gap-2 mb-2">
                       <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
                       <span className="font-medium text-sm sm:text-base">{accommodation.rating}</span>
                       <span className="text-muted-foreground text-sm">({accommodation.reviews} reviews)</span>
-                    </div>
+                          </div>
                     <p className="text-sm text-muted-foreground mb-4">{accommodation.description}</p>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
                       <div className="flex items-center gap-1">
@@ -283,7 +283,7 @@ export default function FestivalAccommodations() {
                           </Badge>
                         ) : null
                       })}
-                    </div>
+                  </div>
                   </CardContent>
                   <CardFooter className="flex justify-between items-center p-4 sm:p-6 pt-0">
                     <div className="flex gap-2">
@@ -296,7 +296,7 @@ export default function FestivalAccommodations() {
                       <Button variant="ghost" size="icon" className="h-8 w-8 sm:h-10 sm:w-10">
                         <Share2 className="h-4 w-4" />
                       </Button>
-                    </div>
+                  </div>
                     <Button className="text-sm sm:text-base">
                       Book Now
                       <ChevronRight className="h-4 w-4 ml-2" />
@@ -305,7 +305,7 @@ export default function FestivalAccommodations() {
                 </Card>
               )
             })}
-          </div>
+              </div>
         </div>
       </div>
     </div>

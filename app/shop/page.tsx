@@ -59,7 +59,7 @@ export default function ShopPage() {
     <div className="container mx-auto py-6 sm:py-12 px-4">
       <div className="max-w-7xl mx-auto">
         <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-green-600 to-yellow-500 bg-clip-text text-transparent mb-4">Bachata Shop</h1>
+          <h1 className="text-4xl font-bold bg-gradient-to-r from-green-600 to-yellow-500 bg-clip-text text-transparent mb-2">Bachata Shop</h1>
           <p className="text-xl text-gray-600">
             Find Bachata dance shoes and clothing
           </p>
