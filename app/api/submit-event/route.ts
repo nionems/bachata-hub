@@ -203,28 +203,44 @@ export async function POST(request: Request) {
           subject: `New Event Submission: ${eventName}`,
           html: `
             <h2>New Event Submission</h2>
-            <p><strong>Event Name:</strong> ${eventName}</p>
-            <p><strong>Date:</strong> ${eventDate}</p>
-            <p><strong>Time:</strong> ${eventTime}</p>
-            <p><strong>Location:</strong> ${location}</p>
-            <p><strong>City:</strong> ${city}</p>
-            <p><strong>Description:</strong> ${description}</p>
-            <p><strong>Organizer Name:</strong> ${organizerName}</p>
-            <p><strong>Organizer Email:</strong> ${organizerEmail}</p>
-            ${ticketLink ? `<p><strong>Ticket Link:</strong> ${ticketLink}</p>` : ""}
-            ${imageUrl ? `<p><strong>Event Image:</strong> <a href="${imageUrl}">View Image</a></p>` : ""}
-            <br>
-            <p>Please review this event and add it to the appropriate calendar if approved.</p>
-            <div style="margin-top: 20px;">
-              <a href="${calendarUrl}" 
-                 style="background-color: #4CAF50; 
-                        color: white; 
-                        padding: 10px 20px; 
-                        text-decoration: none; 
-                        border-radius: 5px; 
-                        display: inline-block;">
-                Add to ${city} Calendar
-              </a>
+            <div style="max-width: 600px; margin: 0 auto; font-family: Arial, sans-serif;">
+              <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+                <h3 style="color: #333; margin-bottom: 15px;">Event Details</h3>
+                <p><strong>Event Name:</strong> ${eventName}</p>
+                <p><strong>Date:</strong> ${eventDate}</p>
+                <p><strong>Time:</strong> ${eventTime}</p>
+                <p><strong>Location:</strong> ${location}</p>
+                <p><strong>City:</strong> ${city}</p>
+                <p><strong>Description:</strong> ${description}</p>
+                <p><strong>Organizer Name:</strong> ${organizerName}</p>
+                <p><strong>Organizer Email:</strong> ${organizerEmail}</p>
+                ${ticketLink ? `<p><strong>Ticket Link:</strong> <a href="${ticketLink}">${ticketLink}</a></p>` : ""}
+              </div>
+
+              ${imageUrl ? `
+                <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+                  <h3 style="color: #333; margin-bottom: 15px;">Event Image</h3>
+                  <img src="${imageUrl}" alt="Event Image" style="max-width: 100%; height: auto; border-radius: 4px;">
+                  <p style="margin-top: 10px;"><a href="${imageUrl}" style="color: #007bff; text-decoration: none;">View Full Image</a></p>
+                </div>
+              ` : ""}
+
+              <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px;">
+                <h3 style="color: #333; margin-bottom: 15px;">Actions</h3>
+                <p>Please review this event and add it to the appropriate calendar if approved.</p>
+                <div style="margin-top: 20px;">
+                  <a href="${calendarUrl}" 
+                     style="background-color: #4CAF50; 
+                            color: white; 
+                            padding: 12px 24px; 
+                            text-decoration: none; 
+                            border-radius: 5px; 
+                            display: inline-block;
+                            font-weight: bold;">
+                    Add to ${city} Calendar
+                  </a>
+                </div>
+              </div>
             </div>
           `,
         })
@@ -236,26 +252,32 @@ export async function POST(request: Request) {
           to: organizerEmail as string,
           subject: "Your Event Submission Received",
           html: `
-            <h2>Thank You for Submitting Your Event!</h2>
-            <p>Dear ${organizerName},</p>
-            <p>We have received your event submission for "${eventName}". Our team will review it and add it to the calendar if approved.</p>
-            <p>Here's a summary of your submission:</p>
-            <ul>
-              <li><strong>Event Name:</strong> ${eventName}</li>
-              <li><strong>Date:</strong> ${eventDate}</li>
-              <li><strong>Time:</strong> ${eventTime}</li>
-              <li><strong>Location:</strong> ${location}</li>
-              <li><strong>City:</strong> ${city}</li>
-            </ul>
-            <p>We typically process submissions within 24-48 hours. If you have any questions, please don't hesitate to contact us.</p>
-            <br>
-            <p>Best regards,<br>The Bachata Hub Team</p>
+            <div style="max-width: 600px; margin: 0 auto; font-family: Arial, sans-serif;">
+              <h2 style="color: #333;">Thank You for Submitting Your Event!</h2>
+              <p>Dear ${organizerName},</p>
+              <p>We have received your event submission for "${eventName}". Our team will review it and add it to the calendar if approved.</p>
+              <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0;">
+                <h3 style="color: #333; margin-bottom: 15px;">Your Submission Details</h3>
+                <ul style="list-style: none; padding: 0;">
+                  <li style="margin-bottom: 10px;"><strong>Event Name:</strong> ${eventName}</li>
+                  <li style="margin-bottom: 10px;"><strong>Date:</strong> ${eventDate}</li>
+                  <li style="margin-bottom: 10px;"><strong>Time:</strong> ${eventTime}</li>
+                  <li style="margin-bottom: 10px;"><strong>Location:</strong> ${location}</li>
+                  <li style="margin-bottom: 10px;"><strong>City:</strong> ${city}</li>
+                </ul>
+              </div>
+              <p>We typically process submissions within 24-48 hours. If you have any questions, please don't hesitate to contact us.</p>
+              <br>
+              <p style="color: #666;">Best regards,<br>The Bachata Hub Team</p>
+            </div>
           `,
         })
       } catch (emailError) {
         console.error("Error sending emails:", emailError)
         // Continue even if email sending fails
       }
+    } else {
+      console.error("Resend is not configured. Emails will not be sent.")
     }
 
     console.log("Event submission successful")
