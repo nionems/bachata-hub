@@ -218,8 +218,10 @@ export async function POST(request: Request) {
               ${imageUrl ? `
                 <div style="margin: 20px 0;">
                   <h4 style="color: #444;">Event Image</h4>
-                  <img src="${imageUrl}" alt="Event Image" style="max-width: 100%; height: auto; border-radius: 5px;">
-                  <p><a href="${imageUrl}" style="color: #0066cc;">View Full Image</a></p>
+                  <div style="text-align: center; margin: 20px 0;">
+                    <img src="${imageUrl}" alt="Event Image" style="max-width: 100%; height: auto; border-radius: 5px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                  </div>
+                  <p style="text-align: center;"><a href="${imageUrl}" style="color: #0066cc; text-decoration: none;">Click here to view full image</a></p>
                 </div>
               ` : ""}
             </div>
@@ -245,6 +247,12 @@ export async function POST(request: Request) {
           to: adminEmail,
           subject: `New Event Submission: ${eventName}`,
           html: emailHtml,
+          attachments: imageUrl ? [
+            {
+              filename: "event-image.jpg",
+              path: imageUrl
+            }
+          ] : undefined
         })
 
         console.log("Admin email sent successfully:", adminEmailResult)
@@ -267,8 +275,10 @@ export async function POST(request: Request) {
               ${imageUrl ? `
                 <div style="margin-top: 20px;">
                   <h4 style="color: #444;">Your Event Image</h4>
-                  <img src="${imageUrl}" alt="Event Image" style="max-width: 100%; height: auto; border-radius: 5px;">
-                  <p><a href="${imageUrl}" style="color: #0066cc;">View Full Image</a></p>
+                  <div style="text-align: center; margin: 20px 0;">
+                    <img src="${imageUrl}" alt="Event Image" style="max-width: 100%; height: auto; border-radius: 5px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                  </div>
+                  <p style="text-align: center;"><a href="${imageUrl}" style="color: #0066cc; text-decoration: none;">Click here to view full image</a></p>
                 </div>
               ` : ""}
             </div>
@@ -283,6 +293,12 @@ export async function POST(request: Request) {
           to: organizerEmail as string,
           subject: "Your Event Submission Received",
           html: organizerEmailHtml,
+          attachments: imageUrl ? [
+            {
+              filename: "event-image.jpg",
+              path: imageUrl
+            }
+          ] : undefined
         })
 
         console.log("Organizer email sent successfully:", organizerEmailResult)
