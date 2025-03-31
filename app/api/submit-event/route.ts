@@ -11,6 +11,13 @@ const cloudName = process.env.CLOUDINARY_CLOUD_NAME
 const apiKey = process.env.CLOUDINARY_API_KEY
 const apiSecret = process.env.CLOUDINARY_API_SECRET
 
+// Log Cloudinary configuration status
+console.log("Cloudinary configuration:", {
+  cloudName: cloudName ? "Set" : "Missing",
+  apiKey: apiKey ? "Set" : "Missing",
+  apiSecret: apiSecret ? "Set" : "Missing"
+})
+
 if (cloudName && apiKey && apiSecret) {
   cloudinary.config({
     cloud_name: cloudName,
@@ -46,27 +53,41 @@ export async function POST(request: Request) {
 
     let imageUrl = null
     if (image instanceof File) {
-      // Convert File to Buffer
-      const bytes = await image.arrayBuffer()
-      const buffer = Buffer.from(bytes)
+      try {
+        // Convert File to Buffer
+        const bytes = await image.arrayBuffer()
+        const buffer = Buffer.from(bytes)
 
-      // Upload to Cloudinary
-      const result = await new Promise((resolve, reject) => {
-        cloudinary.uploader
-          .upload_stream(
-            {
-              resource_type: "auto",
-              folder: "bachata-events",
-            },
-            (error, result) => {
-              if (error) reject(error)
-              else resolve(result)
-            }
-          )
-          .end(buffer)
-      })
+        // Upload to Cloudinary
+        const result = await new Promise((resolve, reject) => {
+          if (!cloudName || !apiKey || !apiSecret) {
+            reject(new Error("Cloudinary configuration is incomplete"))
+            return
+          }
 
-      imageUrl = (result as any).secure_url
+          cloudinary.uploader
+            .upload_stream(
+              {
+                resource_type: "auto",
+                folder: "bachata-events",
+              },
+              (error, result) => {
+                if (error) {
+                  console.error("Cloudinary upload error:", error)
+                  reject(error)
+                } else {
+                  resolve(result)
+                }
+              }
+            )
+            .end(buffer)
+        })
+
+        imageUrl = (result as any).secure_url
+      } catch (uploadError) {
+        console.error("Error uploading image:", uploadError)
+        // Continue without the image if upload fails
+      }
     }
 
     // Get the appropriate calendar ID based on the city
