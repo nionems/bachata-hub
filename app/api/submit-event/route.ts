@@ -139,8 +139,24 @@ export async function POST(request: Request) {
     return NextResponse.json({ success: true })
   } catch (error) {
     console.error("Error submitting event:", error)
+    // Log more details about the error
+    if (error instanceof Error) {
+      console.error("Error name:", error.name)
+      console.error("Error message:", error.message)
+      console.error("Error stack:", error.stack)
+    }
+    // Log the request data that caused the error
+    try {
+      const formData = await request.formData()
+      console.error("Request data:", Object.fromEntries(formData))
+    } catch (e) {
+      console.error("Error reading form data:", e)
+    }
     return NextResponse.json(
-      { error: "Failed to submit event" },
+      { 
+        error: "Failed to submit event",
+        details: error instanceof Error ? error.message : "Unknown error"
+      },
       { status: 500 },
     )
   }
