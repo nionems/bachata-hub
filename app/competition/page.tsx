@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Calendar, MapPin, Users, Trophy, Clock } from "lucide-react"
+import Link from "next/link"
 
 export default function CompetitionPage() {
   const competitions = [
@@ -72,53 +73,58 @@ export default function CompetitionPage() {
           <TabsContent value="upcoming" className="w-full">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               {competitions.map((competition) => (
-                <Card key={competition.id} className="overflow-hidden">
-                  <div className="relative h-48">
-                    <img
-                      src={competition.image}
-                      alt={competition.name}
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                  <CardHeader>
-                    <CardTitle>{competition.name}</CardTitle>
-                    <CardDescription className="flex items-center gap-4">
-                      <span className="flex items-center">
-                        <Calendar className="h-4 w-4 mr-1" />
-                        {competition.date}
-                      </span>
-                      <span className="flex items-center">
-                        <Clock className="h-4 w-4 mr-1" />
-                        {competition.time}
-                      </span>
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-4">
-                      <div className="flex items-center text-gray-600">
-                        <MapPin className="h-4 w-4 mr-1" />
-                        {competition.location}
-                      </div>
-                      <p className="text-gray-600">{competition.description}</p>
-                      <div className="flex flex-wrap gap-2">
-                        {competition.categories.map((category) => (
-                          <span
-                            key={category}
-                            className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm"
-                          >
-                            {category}
-                          </span>
-                        ))}
-                      </div>
-                      <Button
-                        className="w-full bg-green-600 hover:bg-green-700"
-                        onClick={() => window.open(competition.registrationLink, "_blank", "noopener,noreferrer")}
-                      >
-                        Register Now
-                      </Button>
+                <Link href={`/competition/${competition.id}`} key={competition.id}>
+                  <Card className="overflow-hidden hover:shadow-lg transition-shadow cursor-pointer">
+                    <div className="relative h-48">
+                      <img
+                        src={competition.image}
+                        alt={competition.name}
+                        className="w-full h-full object-cover"
+                      />
                     </div>
-                  </CardContent>
-                </Card>
+                    <CardHeader>
+                      <CardTitle>{competition.name}</CardTitle>
+                      <CardDescription className="flex items-center gap-4">
+                        <span className="flex items-center">
+                          <Calendar className="h-4 w-4 mr-1" />
+                          {competition.date}
+                        </span>
+                        <span className="flex items-center">
+                          <Clock className="h-4 w-4 mr-1" />
+                          {competition.time}
+                        </span>
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-4">
+                        <div className="flex items-center text-gray-600">
+                          <MapPin className="h-4 w-4 mr-1" />
+                          {competition.location}
+                        </div>
+                        <p className="text-gray-600">{competition.description}</p>
+                        <div className="flex flex-wrap gap-2">
+                          {competition.categories.map((category) => (
+                            <span
+                              key={category}
+                              className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm"
+                            >
+                              {category}
+                            </span>
+                          ))}
+                        </div>
+                        <Button
+                          className="w-full bg-green-600 hover:bg-green-700"
+                          onClick={(e) => {
+                            e.preventDefault()
+                            window.open(competition.registrationLink, "_blank", "noopener,noreferrer")
+                          }}
+                        >
+                          Register Now
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </Link>
               ))}
             </div>
           </TabsContent>
