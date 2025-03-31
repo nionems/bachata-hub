@@ -52,25 +52,12 @@ export async function POST(request: Request) {
     // Log the incoming request
     console.log("Received event submission request")
     
-    // Log request headers
-    const headers = Object.fromEntries(request.headers.entries())
-    console.log("Request headers:", headers)
-    
     const formData = await request.formData()
     const formDataObj = Object.fromEntries(formData)
     console.log("Form data received:", {
       ...formDataObj,
       image: formDataObj.image ? "File present" : "No file"
     })
-
-    // Validate form data structure
-    if (!formDataObj || typeof formDataObj !== 'object') {
-      console.error("Invalid form data structure:", formDataObj)
-      return NextResponse.json(
-        { error: "Invalid form data structure" },
-        { status: 400 }
-      )
-    }
 
     const {
       eventName,
@@ -120,20 +107,31 @@ export async function POST(request: Request) {
     // Format date and time for Google Calendar
     const formattedDate = eventDate as string
     const formattedTime = eventTime as string
-    const [hours, minutes] = formattedTime.split(':')
     
     // Create a date object in the local timezone
     const eventDateTime = new Date(`${formattedDate}T${formattedTime}`)
     
+    // Ensure the date is valid
+    if (isNaN(eventDateTime.getTime())) {
+      console.error("Invalid date:", formattedDate, formattedTime)
+      return NextResponse.json(
+        { error: "Invalid date or time format" },
+        { status: 400 }
+      )
+    }
+
     // Format the date and time for the Google Calendar URL
+    // Use UTC to avoid timezone issues
     const startDateTime = eventDateTime.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z'
     const endDateTime = new Date(eventDateTime.getTime() + 2 * 60 * 60 * 1000).toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z'
     
     console.log("Formatted date/time:", {
       originalDate: formattedDate,
       originalTime: formattedTime,
+      parsedDateTime: eventDateTime.toISOString(),
       startDateTime,
-      endDateTime
+      endDateTime,
+      timezone: Intl.DateTimeFormat().resolvedOptions().timeZone
     })
 
     let imageUrl = null
