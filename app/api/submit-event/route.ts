@@ -190,8 +190,8 @@ export async function POST(request: Request) {
     // Create a rich description that includes the image
     const richDescription = `${description as string}${imageUrl ? `\n\nEvent Image:\n${imageUrl}` : ""}`
     
-    // Create the Google Calendar URL with proper date formatting
-    const calendarUrl = `https://calendar.google.com/calendar/event?action=TEMPLATE&text=${encodeURIComponent(eventName as string)}&details=${encodeURIComponent(richDescription)}&location=${encodeURIComponent(location as string)}&dates=${startDateTime}/${endDateTime}&ctz=Australia/Sydney`
+    // Create the Google Calendar URL with proper date formatting and image
+    const calendarUrl = `https://calendar.google.com/calendar/event?action=TEMPLATE&text=${encodeURIComponent(eventName as string)}&details=${encodeURIComponent(richDescription)}&location=${encodeURIComponent(location as string)}&dates=${startDateTime}/${endDateTime}&ctz=Australia/Sydney${imageUrl ? `&image=${encodeURIComponent(imageUrl)}` : ""}`
 
     // Send email to admin for review if Resend is configured
     if (resend) {
@@ -264,6 +264,13 @@ export async function POST(request: Request) {
                 <li style="margin-bottom: 10px;"><strong>Location:</strong> ${location}</li>
                 <li style="margin-bottom: 10px;"><strong>City:</strong> ${city}</li>
               </ul>
+              ${imageUrl ? `
+                <div style="margin-top: 20px;">
+                  <h4 style="color: #444;">Your Event Image</h4>
+                  <img src="${imageUrl}" alt="Event Image" style="max-width: 100%; height: auto; border-radius: 5px;">
+                  <p><a href="${imageUrl}" style="color: #0066cc;">View Full Image</a></p>
+                </div>
+              ` : ""}
             </div>
             <p>We typically process submissions within 24-48 hours. If you have any questions, please don't hesitate to contact us.</p>
             <br>
