@@ -37,7 +37,12 @@ const calendarIds = {
 
 export async function POST(request: Request) {
   try {
+    // Log the incoming request
+    console.log("Received event submission request")
+    
     const formData = await request.formData()
+    console.log("Form data received:", Object.fromEntries(formData))
+
     const {
       eventName,
       eventDate,
@@ -51,9 +56,28 @@ export async function POST(request: Request) {
       image,
     } = Object.fromEntries(formData)
 
+    // Validate required fields
+    if (!eventName || !eventDate || !eventTime || !location || !city || !description || !organizerName || !organizerEmail) {
+      console.error("Missing required fields:", {
+        eventName: !!eventName,
+        eventDate: !!eventDate,
+        eventTime: !!eventTime,
+        location: !!location,
+        city: !!city,
+        description: !!description,
+        organizerName: !!organizerName,
+        organizerEmail: !!organizerEmail
+      })
+      return NextResponse.json(
+        { error: "Missing required fields" },
+        { status: 400 }
+      )
+    }
+
     let imageUrl = null
     if (image instanceof File) {
       try {
+        console.log("Processing image upload")
         // Convert File to Buffer
         const bytes = await image.arrayBuffer()
         const buffer = Buffer.from(bytes)
@@ -61,6 +85,11 @@ export async function POST(request: Request) {
         // Upload to Cloudinary
         const result = await new Promise((resolve, reject) => {
           if (!cloudName || !apiKey || !apiSecret) {
+            console.error("Cloudinary configuration missing:", {
+              cloudName: !!cloudName,
+              apiKey: !!apiKey,
+              apiSecret: !!apiSecret
+            })
             reject(new Error("Cloudinary configuration is incomplete"))
             return
           }
@@ -76,6 +105,7 @@ export async function POST(request: Request) {
                   console.error("Cloudinary upload error:", error)
                   reject(error)
                 } else {
+                  console.log("Image uploaded successfully")
                   resolve(result)
                 }
               }
@@ -101,63 +131,75 @@ export async function POST(request: Request) {
 
     // Send email to admin for review if Resend is configured
     if (resend) {
-      await resend.emails.send({
-        from: "Bachata Hub <onboarding@resend.dev>",
-        to: process.env.ADMIN_EMAIL || "your-email@example.com",
-        subject: `New Event Submission: ${eventName}`,
-        html: `
-          <h2>New Event Submission</h2>
-          <p><strong>Event Name:</strong> ${eventName}</p>
-          <p><strong>Date:</strong> ${eventDate}</p>
-          <p><strong>Time:</strong> ${eventTime}</p>
-          <p><strong>Location:</strong> ${location}</p>
-          <p><strong>City:</strong> ${city}</p>
-          <p><strong>Description:</strong> ${description}</p>
-          <p><strong>Organizer Name:</strong> ${organizerName}</p>
-          <p><strong>Organizer Email:</strong> ${organizerEmail}</p>
-          ${ticketLink ? `<p><strong>Ticket Link:</strong> ${ticketLink}</p>` : ""}
-          ${imageUrl ? `<p><strong>Event Image:</strong> <a href="${imageUrl}">View Image</a></p>` : ""}
-          <br>
-          <p>Please review this event and add it to the appropriate calendar if approved.</p>
-          <div style="margin-top: 20px;">
-            <a href="${calendarUrl}" 
-               style="background-color: #4CAF50; 
-                      color: white; 
-                      padding: 10px 20px; 
-                      text-decoration: none; 
-                      border-radius: 5px; 
-                      display: inline-block;">
-              Add to ${city} Calendar
-            </a>
-          </div>
-        `,
-      })
+      try {
+        console.log("Sending admin notification email")
+        await resend.emails.send({
+          from: "Bachata Hub <onboarding@resend.dev>",
+          to: process.env.ADMIN_EMAIL || "your-email@example.com",
+          subject: `New Event Submission: ${eventName}`,
+          html: `
+            <h2>New Event Submission</h2>
+            <p><strong>Event Name:</strong> ${eventName}</p>
+            <p><strong>Date:</strong> ${eventDate}</p>
+            <p><strong>Time:</strong> ${eventTime}</p>
+            <p><strong>Location:</strong> ${location}</p>
+            <p><strong>City:</strong> ${city}</p>
+            <p><strong>Description:</strong> ${description}</p>
+            <p><strong>Organizer Name:</strong> ${organizerName}</p>
+            <p><strong>Organizer Email:</strong> ${organizerEmail}</p>
+            ${ticketLink ? `<p><strong>Ticket Link:</strong> ${ticketLink}</p>` : ""}
+            ${imageUrl ? `<p><strong>Event Image:</strong> <a href="${imageUrl}">View Image</a></p>` : ""}
+            <br>
+            <p>Please review this event and add it to the appropriate calendar if approved.</p>
+            <div style="margin-top: 20px;">
+              <a href="${calendarUrl}" 
+                 style="background-color: #4CAF50; 
+                        color: white; 
+                        padding: 10px 20px; 
+                        text-decoration: none; 
+                        border-radius: 5px; 
+                        display: inline-block;">
+                Add to ${city} Calendar
+              </a>
+            </div>
+          `,
+        })
 
-      // Send confirmation email to the organizer
-      await resend.emails.send({
-        from: "Bachata Hub <onboarding@resend.dev>",
-        to: organizerEmail as string,
-        subject: "Your Event Submission Received",
-        html: `
-          <h2>Thank You for Submitting Your Event!</h2>
-          <p>Dear ${organizerName},</p>
-          <p>We have received your event submission for "${eventName}". Our team will review it and add it to the calendar if approved.</p>
-          <p>Here's a summary of your submission:</p>
-          <ul>
-            <li><strong>Event Name:</strong> ${eventName}</li>
-            <li><strong>Date:</strong> ${eventDate}</li>
-            <li><strong>Time:</strong> ${eventTime}</li>
-            <li><strong>Location:</strong> ${location}</li>
-            <li><strong>City:</strong> ${city}</li>
-          </ul>
-          <p>We typically process submissions within 24-48 hours. If you have any questions, please don't hesitate to contact us.</p>
-          <br>
-          <p>Best regards,<br>The Bachata Hub Team</p>
-        `,
-      })
+        console.log("Sending confirmation email to organizer")
+        // Send confirmation email to the organizer
+        await resend.emails.send({
+          from: "Bachata Hub <onboarding@resend.dev>",
+          to: organizerEmail as string,
+          subject: "Your Event Submission Received",
+          html: `
+            <h2>Thank You for Submitting Your Event!</h2>
+            <p>Dear ${organizerName},</p>
+            <p>We have received your event submission for "${eventName}". Our team will review it and add it to the calendar if approved.</p>
+            <p>Here's a summary of your submission:</p>
+            <ul>
+              <li><strong>Event Name:</strong> ${eventName}</li>
+              <li><strong>Date:</strong> ${eventDate}</li>
+              <li><strong>Time:</strong> ${eventTime}</li>
+              <li><strong>Location:</strong> ${location}</li>
+              <li><strong>City:</strong> ${city}</li>
+            </ul>
+            <p>We typically process submissions within 24-48 hours. If you have any questions, please don't hesitate to contact us.</p>
+            <br>
+            <p>Best regards,<br>The Bachata Hub Team</p>
+          `,
+        })
+      } catch (emailError) {
+        console.error("Error sending emails:", emailError)
+        // Continue even if email sending fails
+      }
     }
 
-    return NextResponse.json({ success: true })
+    console.log("Event submission successful")
+    return NextResponse.json({ 
+      success: true,
+      message: "Event submitted successfully",
+      imageUrl: imageUrl || null
+    })
   } catch (error) {
     console.error("Error submitting event:", error)
     // Log more details about the error
