@@ -22,11 +22,11 @@ export default function Navbar() {
     { name: "Festivals", href: "/festivals" },
     { name: "Schools", href: "/schools" },
     { name: "Instructors", href: "/instructors" },
-    { name: "Competitions", href: "/competition" },
-    { name: "Accommodation", href: "/accommodation" },
+    { name: "Competitions", href: "/competitions" },
     { name: "Shop", href: "/shop" },
-    { name: "Calendar", href: "/calendar" },
+    { name: "Accommodation", href: "/accommodation" },
     { name: "Forum", href: "/forum" },
+    { name: "Calendar", href: "/calendar" },
   ]
 
   return (
