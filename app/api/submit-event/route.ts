@@ -2,6 +2,15 @@ import { Resend } from "resend"
 import { NextResponse } from "next/server"
 import { v2 as cloudinary } from "cloudinary"
 
+// Log all environment variables (without sensitive values)
+console.log("Environment variables status:", {
+  RESEND_API_KEY: process.env.RESEND_API_KEY ? "Set" : "Missing",
+  CLOUDINARY_CLOUD_NAME: process.env.CLOUDINARY_CLOUD_NAME ? "Set" : "Missing",
+  CLOUDINARY_API_KEY: process.env.CLOUDINARY_API_KEY ? "Set" : "Missing",
+  CLOUDINARY_API_SECRET: process.env.CLOUDINARY_API_SECRET ? "Set" : "Missing",
+  ADMIN_EMAIL: process.env.ADMIN_EMAIL ? "Set" : "Missing"
+})
+
 // Initialize Resend only if API key is available
 const resendApiKey = process.env.RESEND_API_KEY
 const resend = resendApiKey ? new Resend(resendApiKey) : null
@@ -24,6 +33,9 @@ if (cloudName && apiKey && apiSecret) {
     api_key: apiKey,
     api_secret: apiSecret,
   })
+  console.log("Cloudinary configured successfully")
+} else {
+  console.error("Cloudinary configuration is incomplete")
 }
 
 // Calendar IDs for different cities
@@ -41,7 +53,11 @@ export async function POST(request: Request) {
     console.log("Received event submission request")
     
     const formData = await request.formData()
-    console.log("Form data received:", Object.fromEntries(formData))
+    const formDataObj = Object.fromEntries(formData)
+    console.log("Form data received:", {
+      ...formDataObj,
+      image: formDataObj.image ? "File present" : "No file"
+    })
 
     const {
       eventName,
@@ -54,7 +70,7 @@ export async function POST(request: Request) {
       organizerEmail,
       ticketLink,
       image,
-    } = Object.fromEntries(formData)
+    } = formDataObj
 
     // Validate required fields
     if (!eventName || !eventDate || !eventTime || !location || !city || !description || !organizerName || !organizerEmail) {
@@ -81,6 +97,7 @@ export async function POST(request: Request) {
         // Convert File to Buffer
         const bytes = await image.arrayBuffer()
         const buffer = Buffer.from(bytes)
+        console.log("Image buffer created, size:", buffer.length)
 
         // Upload to Cloudinary
         const result = await new Promise((resolve, reject) => {
@@ -94,26 +111,28 @@ export async function POST(request: Request) {
             return
           }
 
-          cloudinary.uploader
-            .upload_stream(
-              {
-                resource_type: "auto",
-                folder: "bachata-events",
-              },
-              (error, result) => {
-                if (error) {
-                  console.error("Cloudinary upload error:", error)
-                  reject(error)
-                } else {
-                  console.log("Image uploaded successfully")
-                  resolve(result)
-                }
+          const uploadStream = cloudinary.uploader.upload_stream(
+            {
+              resource_type: "auto",
+              folder: "bachata-events",
+            },
+            (error, result) => {
+              if (error) {
+                console.error("Cloudinary upload error:", error)
+                reject(error)
+              } else {
+                console.log("Image uploaded successfully")
+                resolve(result)
               }
-            )
-            .end(buffer)
+            }
+          )
+
+          uploadStream.end(buffer)
+          console.log("Upload stream started")
         })
 
         imageUrl = (result as any).secure_url
+        console.log("Image URL:", imageUrl)
       } catch (uploadError) {
         console.error("Error uploading image:", uploadError)
         // Continue without the image if upload fails
