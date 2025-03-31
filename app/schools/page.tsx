@@ -382,10 +382,12 @@ export default function SchoolsPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="container mx-auto px-4 py-8">
-        <h1 className="text-4xl font-bold text-center mb-4">Bachata Schools</h1>
-        <p className="text-xl text-center text-gray-600 mb-8">
-          Find Bachata schools and instructors across Australia
-        </p>
+        <div className="text-center mb-12">
+          <h1 className="text-4xl font-bold bg-gradient-to-r from-green-600 to-yellow-500 bg-clip-text text-transparent mb-4">Bachata Schools</h1>
+          <p className="text-xl text-gray-600">
+            Find Bachata dance schools across Australia
+          </p>
+        </div>
 
         {/* State Filter */}
         <div className="mb-8">

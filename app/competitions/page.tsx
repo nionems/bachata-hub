@@ -17,7 +17,7 @@ export default function CompetitionsPage() {
       description: "Annual NSW Jack & Jill competition featuring the best dancers from across the state.",
       categories: ["Open", "Advanced", "Intermediate"],
       registrationLink: "https://www.facebook.com/groups/1268854410845691",
-      image: "/placeholder.svg?height=300&width=600",
+      image: "/images/nswjack&jill.jpg",
     },
     {
       id: 2,
@@ -58,9 +58,9 @@ export default function CompetitionsPage() {
     <div className="container mx-auto py-12 px-4">
       <div className="max-w-7xl mx-auto">
         <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">Bachata Competitions</h1>
-          <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-            Discover and participate in Bachata competitions across Australia. Show off your skills and compete with the best dancers in the country.
+          <h1 className="text-4xl font-bold bg-gradient-to-r from-green-600 to-yellow-500 bg-clip-text text-transparent mb-4">Bachata Competitions</h1>
+          <p className="text-xl text-gray-600">
+            Find Bachata competitions across Australia
           </p>
         </div>
 

@@ -166,7 +166,7 @@ export default function ForumPage() {
     <div className="container mx-auto py-12 px-4">
       <div className="max-w-7xl mx-auto">
         <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">Bachata Australia Forum</h1>
+          <h1 className="text-4xl font-bold bg-gradient-to-r from-green-600 to-yellow-500 bg-clip-text text-transparent mb-4">Bachata Forum</h1>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto">
             Connect with the Australian Bachata community. Ask questions, share experiences, and discuss all things
             Bachata.
