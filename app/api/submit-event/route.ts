@@ -197,83 +197,98 @@ export async function POST(request: Request) {
     if (resend) {
       try {
         console.log("Sending admin notification email")
-        await resend.emails.send({
-          from: "Bachata Hub <onboarding@resend.dev>",
-          to: process.env.ADMIN_EMAIL || "your-email@example.com",
-          subject: `New Event Submission: ${eventName}`,
-          html: `
-            <h2>New Event Submission</h2>
-            <div style="max-width: 600px; margin: 0 auto; font-family: Arial, sans-serif;">
-              <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
-                <h3 style="color: #333; margin-bottom: 15px;">Event Details</h3>
-                <p><strong>Event Name:</strong> ${eventName}</p>
-                <p><strong>Date:</strong> ${eventDate}</p>
-                <p><strong>Time:</strong> ${eventTime}</p>
-                <p><strong>Location:</strong> ${location}</p>
-                <p><strong>City:</strong> ${city}</p>
-                <p><strong>Description:</strong> ${description}</p>
-                <p><strong>Organizer Name:</strong> ${organizerName}</p>
-                <p><strong>Organizer Email:</strong> ${organizerEmail}</p>
-                ${ticketLink ? `<p><strong>Ticket Link:</strong> <a href="${ticketLink}">${ticketLink}</a></p>` : ""}
-              </div>
+        const adminEmail = process.env.ADMIN_EMAIL || "your-email@example.com"
+        console.log("Sending to admin email:", adminEmail)
 
+        // Create a rich HTML email with better formatting
+        const emailHtml = `
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+            <h2 style="color: #333;">New Event Submission</h2>
+            <div style="background-color: #f5f5f5; padding: 20px; border-radius: 5px; margin: 20px 0;">
+              <h3 style="color: #444; margin-top: 0;">Event Details</h3>
+              <p><strong>Event Name:</strong> ${eventName}</p>
+              <p><strong>Date:</strong> ${eventDate}</p>
+              <p><strong>Time:</strong> ${eventTime}</p>
+              <p><strong>Location:</strong> ${location}</p>
+              <p><strong>City:</strong> ${city}</p>
+              <p><strong>Description:</strong> ${description}</p>
+              <p><strong>Organizer Name:</strong> ${organizerName}</p>
+              <p><strong>Organizer Email:</strong> ${organizerEmail}</p>
+              ${ticketLink ? `<p><strong>Ticket Link:</strong> <a href="${ticketLink}">${ticketLink}</a></p>` : ""}
               ${imageUrl ? `
-                <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
-                  <h3 style="color: #333; margin-bottom: 15px;">Event Image</h3>
-                  <img src="${imageUrl}" alt="Event Image" style="max-width: 100%; height: auto; border-radius: 4px;">
-                  <p style="margin-top: 10px;"><a href="${imageUrl}" style="color: #007bff; text-decoration: none;">View Full Image</a></p>
+                <div style="margin: 20px 0;">
+                  <h4 style="color: #444;">Event Image</h4>
+                  <img src="${imageUrl}" alt="Event Image" style="max-width: 100%; height: auto; border-radius: 5px;">
+                  <p><a href="${imageUrl}" style="color: #0066cc;">View Full Image</a></p>
                 </div>
               ` : ""}
-
-              <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px;">
-                <h3 style="color: #333; margin-bottom: 15px;">Actions</h3>
-                <p>Please review this event and add it to the appropriate calendar if approved.</p>
-                <div style="margin-top: 20px;">
-                  <a href="${calendarUrl}" 
-                     style="background-color: #4CAF50; 
-                            color: white; 
-                            padding: 12px 24px; 
-                            text-decoration: none; 
-                            border-radius: 5px; 
-                            display: inline-block;
-                            font-weight: bold;">
-                    Add to ${city} Calendar
-                  </a>
-                </div>
-              </div>
             </div>
-          `,
+            <div style="margin-top: 20px;">
+              <p style="color: #666;">Please review this event and add it to the appropriate calendar if approved.</p>
+              <a href="${calendarUrl}" 
+                 style="background-color: #4CAF50; 
+                        color: white; 
+                        padding: 12px 24px; 
+                        text-decoration: none; 
+                        border-radius: 5px; 
+                        display: inline-block;
+                        margin-top: 10px;">
+                Add to ${city} Calendar
+              </a>
+            </div>
+          </div>
+        `
+
+        // Send email to admin
+        const adminEmailResult = await resend.emails.send({
+          from: "Bachata Hub <onboarding@resend.dev>",
+          to: adminEmail,
+          subject: `New Event Submission: ${eventName}`,
+          html: emailHtml,
         })
 
-        console.log("Sending confirmation email to organizer")
+        console.log("Admin email sent successfully:", adminEmailResult)
+
         // Send confirmation email to the organizer
-        await resend.emails.send({
+        const organizerEmailHtml = `
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+            <h2 style="color: #333;">Thank You for Submitting Your Event!</h2>
+            <p>Dear ${organizerName},</p>
+            <p>We have received your event submission for "${eventName}". Our team will review it and add it to the calendar if approved.</p>
+            <div style="background-color: #f5f5f5; padding: 20px; border-radius: 5px; margin: 20px 0;">
+              <h3 style="color: #444; margin-top: 0;">Your Event Details</h3>
+              <ul style="list-style: none; padding: 0;">
+                <li style="margin-bottom: 10px;"><strong>Event Name:</strong> ${eventName}</li>
+                <li style="margin-bottom: 10px;"><strong>Date:</strong> ${eventDate}</li>
+                <li style="margin-bottom: 10px;"><strong>Time:</strong> ${eventTime}</li>
+                <li style="margin-bottom: 10px;"><strong>Location:</strong> ${location}</li>
+                <li style="margin-bottom: 10px;"><strong>City:</strong> ${city}</li>
+              </ul>
+            </div>
+            <p>We typically process submissions within 24-48 hours. If you have any questions, please don't hesitate to contact us.</p>
+            <br>
+            <p style="color: #666;">Best regards,<br>The Bachata Hub Team</p>
+          </div>
+        `
+
+        const organizerEmailResult = await resend.emails.send({
           from: "Bachata Hub <onboarding@resend.dev>",
           to: organizerEmail as string,
           subject: "Your Event Submission Received",
-          html: `
-            <div style="max-width: 600px; margin: 0 auto; font-family: Arial, sans-serif;">
-              <h2 style="color: #333;">Thank You for Submitting Your Event!</h2>
-              <p>Dear ${organizerName},</p>
-              <p>We have received your event submission for "${eventName}". Our team will review it and add it to the calendar if approved.</p>
-              <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0;">
-                <h3 style="color: #333; margin-bottom: 15px;">Your Submission Details</h3>
-                <ul style="list-style: none; padding: 0;">
-                  <li style="margin-bottom: 10px;"><strong>Event Name:</strong> ${eventName}</li>
-                  <li style="margin-bottom: 10px;"><strong>Date:</strong> ${eventDate}</li>
-                  <li style="margin-bottom: 10px;"><strong>Time:</strong> ${eventTime}</li>
-                  <li style="margin-bottom: 10px;"><strong>Location:</strong> ${location}</li>
-                  <li style="margin-bottom: 10px;"><strong>City:</strong> ${city}</li>
-                </ul>
-              </div>
-              <p>We typically process submissions within 24-48 hours. If you have any questions, please don't hesitate to contact us.</p>
-              <br>
-              <p style="color: #666;">Best regards,<br>The Bachata Hub Team</p>
-            </div>
-          `,
+          html: organizerEmailHtml,
         })
+
+        console.log("Organizer email sent successfully:", organizerEmailResult)
       } catch (emailError) {
         console.error("Error sending emails:", emailError)
+        // Log more details about the email error
+        if (emailError instanceof Error) {
+          console.error("Email error details:", {
+            name: emailError.name,
+            message: emailError.message,
+            stack: emailError.stack
+          })
+        }
         // Continue even if email sending fails
       }
     } else {
