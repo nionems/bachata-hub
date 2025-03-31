@@ -361,200 +361,94 @@ export default function SchoolsPage() {
   const featuredSchool = filteredSchools.find((school) => school.featured)
 
   return (
-    <div className="container mx-auto py-6 sm:py-12 px-4">
-      <div className="max-w-7xl mx-auto">
-        <div className="text-center mb-4">
-          <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-3 sm:mb-4">Bachata Schools in Australia</h1>
-          <p className="text-lg sm:text-xl text-gray-600 max-w-3xl mx-auto">
-            Find Bachata schools and instructors across Australia. Learn from experienced teachers and join the Bachata community.
-          </p>
-        </div>
+    <div className="min-h-screen bg-gray-50">
+      <div className="container mx-auto px-4 py-8">
+        <h1 className="text-4xl font-bold text-center mb-4">Bachata Schools</h1>
+        <p className="text-xl text-center text-gray-600 mb-8">
+          Find Bachata schools and instructors across Australia
+        </p>
 
         {/* State Filter */}
         <div className="mb-8">
-          <CollapsibleFilter title="Filter by State" showApplyButton={false}>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2">
+          <Tabs defaultValue="all" className="w-full">
+            <TabsList className="grid w-full grid-cols-2 sm:grid-cols-5">
               {states.map((state) => (
-                <Button
+                <TabsTrigger
                   key={state.value}
-                  variant={selectedState === state.value ? "default" : "outline"}
-                  className={`w-full text-sm sm:text-base ${
-                    selectedState === state.value
-                      ? "bg-green-600 text-white hover:bg-green-700"
-                      : "border-green-600 text-green-600 hover:bg-green-50"
-                  }`}
+                  value={state.value}
                   onClick={() => setSelectedState(state.value)}
                 >
                   {state.label}
-                </Button>
+                </TabsTrigger>
               ))}
-            </div>
-          </CollapsibleFilter>
+            </TabsList>
+          </Tabs>
         </div>
 
-        {/* Featured School */}
-        {featuredSchool && (
-          <div className="mb-12">
-            <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center">
-              <Star className="h-6 w-6 text-yellow-500 mr-2 fill-yellow-500" />
-              Featured School
-            </h2>
-            <Card className="overflow-hidden hover:shadow-lg transition-shadow border-yellow-300">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-0">
-                <div className="md:col-span-1">
-                  <div className="h-full">
-                    <img
-                      src={featuredSchool.image || "/placeholder.svg"}
-                      alt={featuredSchool.name}
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                </div>
-                <div className="md:col-span-2 p-6">
-                  <h3 className="text-2xl font-bold text-green-700 mb-2">{featuredSchool.name}</h3>
-                  <div className="flex items-center mb-3">
-                    <MapPin className="h-4 w-4 text-gray-500 mr-2" />
-                    <span className="text-gray-600">{featuredSchool.location}</span>
-                  </div>
-
-                  <div className="flex items-center mb-4">
-                    <Star className="h-4 w-4 text-yellow-500 mr-1 fill-yellow-500" />
-                    <span className="font-medium mr-3">{featuredSchool.rating}</span>
-                    <Users className="h-4 w-4 text-gray-500 mr-1" />
-                    <span>{featuredSchool.students} students</span>
-                  </div>
-
-                  <p className="text-gray-700 mb-6">{featuredSchool.description}</p>
-
-                  <div className="mb-6">
-                    <h4 className="text-sm font-semibold mb-2 text-gray-600">Classes Offered:</h4>
-                    <div className="flex flex-wrap gap-2">
-                      {featuredSchool.classes.map((className, index) => (
-                        <span key={index} className="bg-green-50 text-green-700 px-3 py-1 rounded-full text-sm">
-                          {className}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Add this new section for instructors */}
-                  {featuredSchool.instructors && featuredSchool.instructors.length > 0 && (
-                    <div className="mb-6">
-                      <h4 className="text-sm font-semibold mb-2 text-gray-600">Featured Instructors:</h4>
-                      <div className="space-y-3">
-                        {featuredSchool.instructors.map((instructor, index) => (
-                          <div key={index} className="bg-gray-50 p-3 rounded-md">
-                            <div className="font-medium text-green-700">{instructor.name}</div>
-                            <div className="text-sm text-gray-600">{instructor.specialty}</div>
-                            <div className="text-sm text-gray-700 mt-1">{instructor.bio}</div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  <div className="flex flex-wrap gap-3">
-                    <a href={`https://${featuredSchool.website}`} target="_blank" rel="noopener noreferrer">
-                      <Button className="bg-yellow-500 hover:bg-yellow-600 text-black">Visit Website</Button>
-                    </a>
-                    <Link href={`/schools/${featuredSchool.id}`}>
-                      <Button variant="outline" className="border-green-600 text-green-600 hover:bg-green-50">
-                        View Details
-                      </Button>
-                    </Link>
-                  </div>
-                </div>
-              </div>
-            </Card>
-          </div>
-        )}
-
-        {/* Schools Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
-          {filteredSchools
-            .filter((school) => !school.featured)
+        {/* All Schools Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {[...sydneySchools, ...melbourneSchools]
+            .filter((school) => selectedState === "all" || school.state === selectedState)
             .map((school) => (
               <SchoolCard key={school.id} school={school} />
             ))}
-        </div>
-
-        <div className="bg-gray-50 rounded-lg p-8 text-center">
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">Own a Bachata School?</h2>
-          <p className="text-lg text-gray-700 mb-6 max-w-2xl mx-auto">
-            List your school on Bachata Australia to reach more students and grow your community.
-          </p>
-          <Button className="bg-green-600 hover:bg-green-700 text-white">Add Your School</Button>
         </div>
       </div>
     </div>
   )
 }
 
-// School Card Component
 function SchoolCard({ school }: { school: School }) {
   return (
-    <Card className="overflow-hidden hover:shadow-lg transition-shadow h-full flex flex-col">
-      <div className="h-48 overflow-hidden">
+    <Card className="overflow-hidden">
+      <div className="relative h-48">
         <img
-          src={school.image || "/placeholder.svg"}
+          src={school.image}
           alt={school.name}
-          className="w-full h-full object-cover transition-transform hover:scale-105"
+          className="w-full h-full object-cover"
         />
+        <div className="absolute top-2 right-2 bg-white/90 px-2 py-1 rounded-full text-sm font-semibold flex items-center gap-1">
+          <Star className="h-4 w-4 text-yellow-400" />
+          {school.rating}
+        </div>
       </div>
       <CardHeader>
-        <CardTitle className="text-xl text-green-700">{school.name}</CardTitle>
-        <CardDescription className="flex items-center">
-          <MapPin className="h-4 w-4 mr-2" />
+        <CardTitle>{school.name}</CardTitle>
+        <CardDescription className="flex items-center gap-2">
+          <MapPin className="h-4 w-4" />
           {school.location}
         </CardDescription>
       </CardHeader>
-      <CardContent className="flex-grow">
-        <div className="flex items-center mb-3">
-          <Star className="h-4 w-4 text-yellow-500 mr-1 fill-yellow-500" />
-          <span className="font-medium">{school.rating}</span>
-          <span className="mx-2 text-gray-400">•</span>
-          <Users className="h-4 w-4 text-gray-500 mr-1" />
-          <span>{school.students} students</span>
-        </div>
-
-        <p className="text-gray-700 mb-4">{school.description}</p>
-
-        <div className="mb-4">
-          <h3 className="text-sm font-semibold mb-2 text-gray-600">Classes Offered:</h3>
-          <div className="flex flex-wrap gap-2">
-            {school.classes.map((className: string, index: number) => (
-              <span key={index} className="bg-green-50 text-green-700 px-2 py-1 rounded-full text-xs">
-                {className}
-              </span>
-            ))}
+      <CardContent>
+        <p className="text-gray-600 mb-4">{school.description}</p>
+        <div className="space-y-2">
+          <div className="flex items-center gap-2 text-sm text-gray-500">
+            <Users className="h-4 w-4" />
+            {school.students} students
+          </div>
+          <div className="flex items-center gap-2 text-sm text-gray-500">
+            <Clock className="h-4 w-4" />
+            {school.classes.join(", ")}
           </div>
         </div>
-
-        {/* Add this new section for instructors */}
-        {school.instructors && school.instructors.length > 0 && (
-          <div className="mb-4">
-            <h3 className="text-sm font-semibold mb-2 text-gray-600">Featured Instructors:</h3>
-            <div className="space-y-2">
-              {school.instructors.map((instructor: Instructor, index: number) => (
-                <div key={index} className="text-xs text-gray-700">
-                  <span className="font-medium">{instructor.name}</span> - {instructor.specialty}
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
       </CardContent>
-      <CardFooter className="border-t pt-4">
-        <div className="w-full flex flex-col gap-3">
-          <a href={`https://${school.website}`} target="_blank" rel="noopener noreferrer" className="w-full">
-            <Button className="w-full bg-yellow-500 hover:bg-yellow-600 text-black">Visit Website</Button>
-          </a>
-          <Link href={`/schools/${school.id}`} className="w-full">
-            <Button variant="outline" className="w-full border-green-600 text-green-600 hover:bg-green-50">
-              <Clock className="h-4 w-4 mr-2" />
-              View Details
-            </Button>
-          </Link>
+      <CardFooter className="flex flex-col gap-4">
+        <div className="flex items-center gap-2 text-sm text-gray-500">
+          <MapIcon className="h-4 w-4" />
+          {school.address}
+        </div>
+        <div className="flex flex-wrap gap-2">
+          <Button variant="outline" size="sm" asChild>
+            <a href={`tel:${school.phone}`}>Call</a>
+          </Button>
+          <Button variant="outline" size="sm" asChild>
+            <a href={`mailto:${school.email}`}>Email</a>
+          </Button>
+          <Button variant="outline" size="sm" asChild>
+            <a href={`https://${school.website}`} target="_blank" rel="noopener noreferrer">
+              Website
+            </a>
+          </Button>
         </div>
       </CardFooter>
     </Card>
