@@ -22,7 +22,7 @@ export default function Navbar() {
     { name: "Festivals", href: "/festivals" },
     { name: "Schools", href: "/schools" },
     { name: "Instructors", href: "/instructors" },
-    { name: "Competition", href: "/competition" },
+    { name: "Competitions", href: "/competition" },
     { name: "Accommodation", href: "/accommodation" },
     { name: "Shop", href: "/shop" },
     { name: "Calendar", href: "/calendar" },
