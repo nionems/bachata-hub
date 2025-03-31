@@ -229,51 +229,48 @@ export default function AddEventPage() {
 
               <div className="space-y-2">
                 <Label htmlFor="image">Event Image (Optional)</Label>
-                <div className="flex flex-col gap-4">
-                  <div className="flex items-center gap-4">
-                    <Button
-                      type="button"
-                      variant="outline"
-                      className="flex-1"
-                      onClick={() => document.getElementById("image")?.click()}
-                    >
-                      <ImageIcon className="mr-2 h-4 w-4" />
-                      Choose Image
-                    </Button>
-                    <input
-                      id="image"
-                      type="file"
-                      accept="image/*"
-                      className="hidden"
-                      onChange={handleImageChange}
-                    />
-                    {imagePreview && (
+                <div className="flex items-center gap-4">
+                  <Input
+                    id="image"
+                    name="image"
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageChange}
+                    className="hidden"
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => document.getElementById("image")?.click()}
+                    className="w-full sm:w-auto"
+                  >
+                    <ImageIcon className="h-4 w-4 mr-2" />
+                    Choose Image
+                  </Button>
+                  {imagePreview && (
+                    <div className="relative w-20 h-20">
+                      <Image
+                        src={imagePreview}
+                        alt="Event preview"
+                        fill
+                        className="object-cover rounded-lg"
+                      />
                       <Button
                         type="button"
                         variant="destructive"
+                        size="icon"
+                        className="absolute -top-2 -right-2 h-6 w-6"
                         onClick={() => {
                           setImagePreview(null)
                           setFormData((prev) => ({ ...prev, image: null }))
                         }}
                       >
-                        Remove
+                        ×
                       </Button>
-                    )}
-                  </div>
-                  {imagePreview && (
-                    <div className="relative aspect-video w-full overflow-hidden rounded-lg border">
-                      <Image
-                        src={imagePreview}
-                        alt="Event preview"
-                        fill
-                        className="object-cover"
-                      />
                     </div>
                   )}
-                  <p className="text-sm text-muted-foreground">
-                    Supported formats: JPG, PNG, GIF. Max size: 5MB
-                  </p>
                 </div>
+                <p className="text-xs text-gray-500">Maximum file size: 5MB. Supported formats: JPG, PNG, GIF</p>
               </div>
 
               <Button
