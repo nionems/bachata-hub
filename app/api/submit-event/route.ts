@@ -2,7 +2,9 @@ import { Resend } from "resend"
 import { NextResponse } from "next/server"
 import { v2 as cloudinary } from "cloudinary"
 
-const resend = new Resend(process.env.RESEND_API_KEY)
+// Initialize Resend only if API key is available
+const resendApiKey = process.env.RESEND_API_KEY
+const resend = resendApiKey ? new Resend(resendApiKey) : null
 
 // Configure Cloudinary with environment variables
 const cloudName = process.env.CLOUDINARY_CLOUD_NAME
@@ -76,61 +78,63 @@ export async function POST(request: Request) {
     
     const calendarUrl = `https://calendar.google.com/calendar/event?action=TEMPLATE&text=${encodeURIComponent(eventName as string)}&details=${encodeURIComponent(richDescription)}&location=${encodeURIComponent(location as string)}&dates=${eventDate}T${eventTime}/${eventDate}T${eventTime}&ctz=Australia/Sydney`
 
-    // Send email to admin for review
-    await resend.emails.send({
-      from: "Bachata Hub <onboarding@resend.dev>",
-      to: process.env.ADMIN_EMAIL || "your-email@example.com",
-      subject: `New Event Submission: ${eventName}`,
-      html: `
-        <h2>New Event Submission</h2>
-        <p><strong>Event Name:</strong> ${eventName}</p>
-        <p><strong>Date:</strong> ${eventDate}</p>
-        <p><strong>Time:</strong> ${eventTime}</p>
-        <p><strong>Location:</strong> ${location}</p>
-        <p><strong>City:</strong> ${city}</p>
-        <p><strong>Description:</strong> ${description}</p>
-        <p><strong>Organizer Name:</strong> ${organizerName}</p>
-        <p><strong>Organizer Email:</strong> ${organizerEmail}</p>
-        ${ticketLink ? `<p><strong>Ticket Link:</strong> ${ticketLink}</p>` : ""}
-        ${imageUrl ? `<p><strong>Event Image:</strong> <a href="${imageUrl}">View Image</a></p>` : ""}
-        <br>
-        <p>Please review this event and add it to the appropriate calendar if approved.</p>
-        <div style="margin-top: 20px;">
-          <a href="${calendarUrl}" 
-             style="background-color: #4CAF50; 
-                    color: white; 
-                    padding: 10px 20px; 
-                    text-decoration: none; 
-                    border-radius: 5px; 
-                    display: inline-block;">
-            Add to ${city} Calendar
-          </a>
-        </div>
-      `,
-    })
+    // Send email to admin for review if Resend is configured
+    if (resend) {
+      await resend.emails.send({
+        from: "Bachata Hub <onboarding@resend.dev>",
+        to: process.env.ADMIN_EMAIL || "your-email@example.com",
+        subject: `New Event Submission: ${eventName}`,
+        html: `
+          <h2>New Event Submission</h2>
+          <p><strong>Event Name:</strong> ${eventName}</p>
+          <p><strong>Date:</strong> ${eventDate}</p>
+          <p><strong>Time:</strong> ${eventTime}</p>
+          <p><strong>Location:</strong> ${location}</p>
+          <p><strong>City:</strong> ${city}</p>
+          <p><strong>Description:</strong> ${description}</p>
+          <p><strong>Organizer Name:</strong> ${organizerName}</p>
+          <p><strong>Organizer Email:</strong> ${organizerEmail}</p>
+          ${ticketLink ? `<p><strong>Ticket Link:</strong> ${ticketLink}</p>` : ""}
+          ${imageUrl ? `<p><strong>Event Image:</strong> <a href="${imageUrl}">View Image</a></p>` : ""}
+          <br>
+          <p>Please review this event and add it to the appropriate calendar if approved.</p>
+          <div style="margin-top: 20px;">
+            <a href="${calendarUrl}" 
+               style="background-color: #4CAF50; 
+                      color: white; 
+                      padding: 10px 20px; 
+                      text-decoration: none; 
+                      border-radius: 5px; 
+                      display: inline-block;">
+              Add to ${city} Calendar
+            </a>
+          </div>
+        `,
+      })
 
-    // Send confirmation email to the organizer
-    await resend.emails.send({
-      from: "Bachata Hub <onboarding@resend.dev>",
-      to: organizerEmail as string,
-      subject: "Your Event Submission Received",
-      html: `
-        <h2>Thank You for Submitting Your Event!</h2>
-        <p>Dear ${organizerName},</p>
-        <p>We have received your event submission for "${eventName}". Our team will review it and add it to the calendar if approved.</p>
-        <p>Here's a summary of your submission:</p>
-        <ul>
-          <li><strong>Event Name:</strong> ${eventName}</li>
-          <li><strong>Date:</strong> ${eventDate}</li>
-          <li><strong>Time:</strong> ${eventTime}</li>
-          <li><strong>Location:</strong> ${location}</li>
-          <li><strong>City:</strong> ${city}</li>
-        </ul>
-        <p>We typically process submissions within 24-48 hours. If you have any questions, please don't hesitate to contact us.</p>
-        <br>
-        <p>Best regards,<br>The Bachata Hub Team</p>
-      `,
-    })
+      // Send confirmation email to the organizer
+      await resend.emails.send({
+        from: "Bachata Hub <onboarding@resend.dev>",
+        to: organizerEmail as string,
+        subject: "Your Event Submission Received",
+        html: `
+          <h2>Thank You for Submitting Your Event!</h2>
+          <p>Dear ${organizerName},</p>
+          <p>We have received your event submission for "${eventName}". Our team will review it and add it to the calendar if approved.</p>
+          <p>Here's a summary of your submission:</p>
+          <ul>
+            <li><strong>Event Name:</strong> ${eventName}</li>
+            <li><strong>Date:</strong> ${eventDate}</li>
+            <li><strong>Time:</strong> ${eventTime}</li>
+            <li><strong>Location:</strong> ${location}</li>
+            <li><strong>City:</strong> ${city}</li>
+          </ul>
+          <p>We typically process submissions within 24-48 hours. If you have any questions, please don't hesitate to contact us.</p>
+          <br>
+          <p>Best regards,<br>The Bachata Hub Team</p>
+        `,
+      })
+    }
 
     return NextResponse.json({ success: true })
   } catch (error) {
