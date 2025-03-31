@@ -117,6 +117,25 @@ export async function POST(request: Request) {
       )
     }
 
+    // Format date and time for Google Calendar
+    const formattedDate = eventDate as string
+    const formattedTime = eventTime as string
+    const [hours, minutes] = formattedTime.split(':')
+    
+    // Create a date object in the local timezone
+    const eventDateTime = new Date(`${formattedDate}T${formattedTime}`)
+    
+    // Format the date and time for the Google Calendar URL
+    const startDateTime = eventDateTime.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z'
+    const endDateTime = new Date(eventDateTime.getTime() + 2 * 60 * 60 * 1000).toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z'
+    
+    console.log("Formatted date/time:", {
+      originalDate: formattedDate,
+      originalTime: formattedTime,
+      startDateTime,
+      endDateTime
+    })
+
     let imageUrl = null
     if (image instanceof File) {
       try {
@@ -173,7 +192,8 @@ export async function POST(request: Request) {
     // Create a rich description that includes the image
     const richDescription = `${description as string}${imageUrl ? `\n\nEvent Image:\n${imageUrl}` : ""}`
     
-    const calendarUrl = `https://calendar.google.com/calendar/event?action=TEMPLATE&text=${encodeURIComponent(eventName as string)}&details=${encodeURIComponent(richDescription)}&location=${encodeURIComponent(location as string)}&dates=${eventDate}T${eventTime}/${eventDate}T${eventTime}&ctz=Australia/Sydney`
+    // Create the Google Calendar URL with proper date formatting
+    const calendarUrl = `https://calendar.google.com/calendar/event?action=TEMPLATE&text=${encodeURIComponent(eventName as string)}&details=${encodeURIComponent(richDescription)}&location=${encodeURIComponent(location as string)}&dates=${startDateTime}/${endDateTime}&ctz=Australia/Sydney`
 
     // Send email to admin for review if Resend is configured
     if (resend) {
