@@ -118,7 +118,7 @@ export default async function Home() {
               </div>
               <div className="mt-6">
                 <a
-                  href="https://instagram.com/bachataaustralia"
+                  href="https://instagram.com/bachata.au"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-white hover:text-gray-200 flex items-center justify-center gap-2"

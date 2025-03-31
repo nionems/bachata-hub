@@ -9,7 +9,6 @@ import CollapsibleFilter from "@/components/collapsible-filter"
 import { applyFilters } from "./actions"
 import FestivalMenu from "@/components/festival-menu"
 import { useState } from "react"
-import { EventsMap } from "@/components/events-map"
 
 export default function EventsPage() {
   const [selectedState, setSelectedState] = useState("all")
@@ -32,19 +31,15 @@ export default function EventsPage() {
   }
 
   const [selectedCalendar, setSelectedCalendar] = useState(calendarIds.bachataSocial)
-  const [showMap, setShowMap] = useState(false)
 
   return (
     <div className="container mx-auto py-6 sm:py-12 px-4">
       <div className="max-w-7xl mx-auto">
         <div className="text-center mb-4">
           <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">Bachata Events</h1>
-          <p className="text-lg text-gray-600 max-w-3xl mx-auto">
-            Discover Bachata events across Australia. From social dances to workshops and festivals.
-          </p>
         </div>
 
-        {/* Calendar Info Box */}
+        {/* Calendar Info Box
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
           <div className="flex flex-col sm:flex-row items-start sm:items-center">
             <div className="flex items-center mb-3 sm:mb-0 sm:mr-4">
@@ -59,7 +54,7 @@ export default function EventsPage() {
               </span>
             </div>
           </div>
-        </div>
+        </div> */}
 
         {/* State Filter */}
         <div className="mb-8">
@@ -78,6 +73,11 @@ export default function EventsPage() {
                 >
                   {state.label}
                 </Button>
+
+
+
+
+
               ))}
             </div>
           </CollapsibleFilter>
@@ -86,15 +86,12 @@ export default function EventsPage() {
         <FestivalMenu />
 
         <Tabs defaultValue="calendar" className="w-full mb-8 sm:mb-12">
-          <TabsList className="grid w-full grid-cols-3 mb-6 sm:mb-8">
+          <TabsList className="grid w-full grid-cols-2 mb-6 sm:mb-8">
             <TabsTrigger value="calendar" className="text-xs sm:text-sm">
               Calendar View
             </TabsTrigger>
             <TabsTrigger value="agenda" className="text-xs sm:text-sm">
               Agenda View
-            </TabsTrigger>
-            <TabsTrigger value="map" className="text-xs sm:text-sm">
-              Map View
             </TabsTrigger>
           </TabsList>
 
@@ -202,7 +199,7 @@ export default function EventsPage() {
                     </div>
                   </div>
 
-                  <div className="bg-blue-50 rounded-lg p-3 sm:p-4 border border-blue-200 flex items-start">
+                  {/* <div className="bg-blue-50 rounded-lg p-3 sm:p-4 border border-blue-200 flex items-start">
                     <Users className="h-4 w-4 sm:h-5 sm:w-5 text-blue-600 mr-2 sm:mr-3 mt-0.5 flex-shrink-0" />
                     <div>
                       <h3 className="font-medium text-blue-800 mb-1 text-sm sm:text-base">Community Events</h3>
@@ -211,7 +208,7 @@ export default function EventsPage() {
                         Australia.
                       </p>
                     </div>
-                  </div>
+                  </div> */}
 
                   <div className="bg-yellow-50 rounded-lg p-3 sm:p-4 border border-yellow-200 flex items-start">
                     <svg
@@ -244,7 +241,7 @@ export default function EventsPage() {
             </Card>
           </TabsContent>
 
-          <TabsContent value="agenda" className="w-full">
+          <TabsContent value="agenda" className="mt-4">
             <div className="rounded-lg overflow-hidden border border-gray-200 shadow-lg">
               <div className="bg-gradient-to-r from-green-600 to-yellow-500 p-3 sm:p-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
                 <div className="flex items-center gap-2">
@@ -328,10 +325,6 @@ export default function EventsPage() {
               ></iframe>
             </div>
           </TabsContent>
-
-          <TabsContent value="map" className="w-full">
-            <EventsMap />
-          </TabsContent>
         </Tabs>
 
         <div className="flex flex-col lg:flex-row gap-6 sm:gap-8 mb-8 sm:mb-12">
@@ -376,7 +369,7 @@ export default function EventsPage() {
             </CollapsibleFilter>
 
             {/* Calendar Note */}
-            <div className="bg-yellow-50 p-3 rounded-lg border border-yellow-200 mb-6">
+            {/* <div className="bg-yellow-50 p-3 rounded-lg border border-yellow-200 mb-6">
               <div className="flex items-start">
                 <Info className="h-4 w-4 text-yellow-600 mr-2 mt-0.5 flex-shrink-0" />
                 <div>
@@ -387,7 +380,7 @@ export default function EventsPage() {
                   </p>
                 </div>
               </div>
-            </div>
+            </div> */}
           </div>
 
           <div className="lg:w-3/4">
