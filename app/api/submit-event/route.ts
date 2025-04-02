@@ -205,8 +205,8 @@ export async function POST(request: Request) {
       try {
         console.log("Sending admin notification email")
         // Send email to admin
-        await resend.emails.send({
-          from: "Bachata Hub <noreply@bachata.au>",
+        const adminEmailResult = await resend.emails.send({
+          from: "Bachata Hub <onboarding@resend.dev>",
           to: "bachata.au@gmail.com",
           subject: `New Event Submission: ${eventName}`,
           html: `
@@ -251,11 +251,11 @@ export async function POST(request: Request) {
             </div>
           `,
         })
-        console.log("Admin email sent successfully")
+        console.log("Admin email sent successfully:", adminEmailResult)
 
         // Send confirmation email to the organizer
-        await resend.emails.send({
-          from: "Bachata Hub <noreply@bachata.au>",
+        const organizerEmailResult = await resend.emails.send({
+          from: "Bachata Hub <onboarding@resend.dev>",
           to: organizerEmail,
           subject: `Event Submission Received: ${eventName}`,
           html: `
@@ -285,10 +285,17 @@ export async function POST(request: Request) {
             </div>
           `,
         })
-        console.log("Organizer email sent successfully")
+        console.log("Organizer email sent successfully:", organizerEmailResult)
       } catch (emailError) {
         console.error("Error sending emails:", emailError)
-        // Continue even if email sending fails
+        // Log more details about the error
+        if (emailError instanceof Error) {
+          console.error("Email error details:", {
+            message: emailError.message,
+            stack: emailError.stack,
+            name: emailError.name
+          })
+        }
       }
     } else {
       console.error("Resend is not configured. Emails will not be sent.")
