@@ -23,14 +23,16 @@ export default function EventsPage() {
 
   // Your calendar IDs
   const calendarIds = {
-    bachataSocial: "8d27a79f37a74ab7aedc5c038cc4492cd36b87a71b57fb6d7d141d04e8ffe5c2@group.calendar.google.com",
-    melbourneBachata: "ZDg5ODU5MzdkZTBhYmU5YjYwZDg4Zjg2NWJhMjA4YzAwNzc0ZDJlMTNjNDFjOWQ4NmMwMDgzODNkNGRhMzJhOUBncm91cC5jYWxlbmRhci5nb29nbGUuY29t",
-    adelaideBachata: "MTZiOGZlOTYwMDc5NGQ1OTAzMDkwMWE2NzlhODRhNmE3YTgxNmY0YjI5MjM3NzNiYWFmODg2ODcxYjE0YTJkZUBncm91cC5jYWxlbmRhci5nb29nbGUuY29t",
-    brisbaneBachata: "YWFhMjIyZjZlZjBhNDNiZTUwOGUyYjVhN2EyYmNhYjIzMmZmMTlmYTlkY2UwZDE2YWViNTQ3MzczZDhkNTI0NUBncm91cC5jYWxlbmRhci5nb29nbGUuY29t",
-    perthBachata: "NDY5ZmIzYmVkMDMwOGIxYThjY2M4ZTlkOTFmYjAyMDBlNmYzYWRlYWZkODE0YzE3NDdiYzk0MDkxZGMxMWFhNUBncm91cC5jYWxlbmRhci5nb29nbGUuY29t"
+    sydneyBachata: "4ea35178b00a2daa33a492682e866bd67e8b83797a948a31caa8a37e2a982dce@group.calendar.google.com",
+    melbourneBachata: "641b8d8fbee5ff9eb2402997e5990b3e52a737b134ec201748349884985c84f4@group.calendar.google.com",
+    brisbaneBachata: "f0b5764410b23c93087a7d3ef5ed0d0a295ad2b811d10bb772533d7517d2fdc5@group.calendar.google.com",
+    adelaideBachata: "6b95632fc6fe63530bbdd89c944d792009478636f5b2ce7ffc8718ccd500915f@group.calendar.google.com",
+    goldCoastBachata: "c9ed91c3930331387d69631072510838ec9155b75ca697065025d24e34cde78b@group.calendar.google.com",
+    perthBachata: "e521c86aed4060431cf6de7405315790dcca0a10d4779cc333835199f3724c16@group.calendar.google.com",
+    canberraBachata: "3a82a9f1ed5a4e865ed9f13b24a96004fe7c4b2deb07a422f068c70753f421eb@group.calendar.google.com"
   }
 
-  const [selectedCalendar, setSelectedCalendar] = useState(calendarIds.bachataSocial)
+  const [selectedCalendar, setSelectedCalendar] = useState(calendarIds.sydneyBachata)
 
   return (
     <div className="container mx-auto py-6 sm:py-12 px-4">
@@ -168,11 +170,13 @@ export default function EventsPage() {
                         onChange={(e) => setSelectedCalendar(e.target.value)}
                         className="bg-white text-green-700 hover:bg-gray-100 text-xs sm:text-sm h-7 sm:h-9 rounded-md border-0 focus:ring-0"
                       >
-                        <option value={calendarIds.bachataSocial}>Sydney Bachata</option>
+                        <option value={calendarIds.sydneyBachata}>Sydney Bachata</option>
                         <option value={calendarIds.melbourneBachata}>Melbourne Bachata</option>
-                        <option value={calendarIds.adelaideBachata}>Adelaide Bachata</option>
                         <option value={calendarIds.brisbaneBachata}>Brisbane Bachata</option>
+                        <option value={calendarIds.adelaideBachata}>Adelaide Bachata</option>
+                        <option value={calendarIds.goldCoastBachata}>Gold Coast Bachata</option>
                         <option value={calendarIds.perthBachata}>Perth Bachata</option>
+                        <option value={calendarIds.canberraBachata}>Canberra Bachata</option>
                       </select>
                     </div>
                   </div>
@@ -306,11 +310,13 @@ export default function EventsPage() {
                     onChange={(e) => setSelectedCalendar(e.target.value)}
                     className="bg-white text-green-700 hover:bg-gray-100 text-xs sm:text-sm h-7 sm:h-9 rounded-md border-0 focus:ring-0"
                   >
-                    <option value={calendarIds.bachataSocial}>Sydney Bachata</option>
+                    <option value={calendarIds.sydneyBachata}>Sydney Bachata</option>
                     <option value={calendarIds.melbourneBachata}>Melbourne Bachata</option>
-                    <option value={calendarIds.adelaideBachata}>Adelaide Bachata</option>
                     <option value={calendarIds.brisbaneBachata}>Brisbane Bachata</option>
+                    <option value={calendarIds.adelaideBachata}>Adelaide Bachata</option>
+                    <option value={calendarIds.goldCoastBachata}>Gold Coast Bachata</option>
                     <option value={calendarIds.perthBachata}>Perth Bachata</option>
+                    <option value={calendarIds.canberraBachata}>Canberra Bachata</option>
                   </select>
                 </div>
               </div>
