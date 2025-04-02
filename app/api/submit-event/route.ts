@@ -218,38 +218,40 @@ export async function POST(request: Request) {
             <h2 style="color: #333;">New Event Submission</h2>
             <div style="background-color: #f5f5f5; padding: 20px; border-radius: 5px; margin: 20px 0;">
               <h3 style="color: #444; margin-top: 0;">Event Details</h3>
-              <p><strong>Event Name:</strong> ${eventName}</p>
-              <p><strong>Date:</strong> ${eventDate}</p>
-              <p><strong>Time:</strong> ${eventTime}</p>
-              <p><strong>Location:</strong> ${location}</p>
-              <p><strong>City:</strong> ${city}</p>
-              <p><strong>Description:</strong> ${description}</p>
-              <p><strong>Organizer Name:</strong> ${organizerName}</p>
-              <p><strong>Organizer Email:</strong> ${organizerEmail}</p>
-              ${ticketLink ? `<p><strong>Ticket Link:</strong> <a href="${ticketLink}">${ticketLink}</a></p>` : ""}
-              ${imageUrl ? `
-                <div style="margin: 20px 0;">
-                  <h4 style="color: #444;">Event Image</h4>
-                  <div style="text-align: center; margin: 20px 0;">
-                    <img src="${imageUrl}" alt="Event Image" style="max-width: 100%; height: auto; border-radius: 5px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-                  </div>
-                  <p style="text-align: center;"><a href="${imageUrl}" style="color: #0066cc; text-decoration: none;">Click here to view full image</a></p>
-                </div>
-              ` : ""}
+              <ul style="list-style: none; padding: 0;">
+                <li style="margin-bottom: 10px;"><strong>Event Name:</strong> ${eventName}</li>
+                <li style="margin-bottom: 10px;"><strong>Date:</strong> ${eventDate}</li>
+                <li style="margin-bottom: 10px;"><strong>Time:</strong> ${eventTime}</li>
+                <li style="margin-bottom: 10px;"><strong>Location:</strong> ${location}</li>
+                <li style="margin-bottom: 10px;"><strong>City:</strong> ${city}</li>
+                <li style="margin-bottom: 10px;"><strong>Organizer:</strong> ${organizerName}</li>
+                <li style="margin-bottom: 10px;"><strong>Email:</strong> ${organizerEmail}</li>
+                <li style="margin-bottom: 10px;"><strong>Description:</strong> ${description}</li>
+              </ul>
             </div>
-            <div style="margin-top: 20px;">
-              <p style="color: #666;">Please review this event and add it to the appropriate calendar if approved.</p>
-              <a href="${calendarUrl}" 
-                 style="background-color: #4CAF50; 
-                        color: white; 
-                        padding: 12px 24px; 
-                        text-decoration: none; 
-                        border-radius: 5px; 
-                        display: inline-block;
-                        margin-top: 10px;">
-                Add to ${city} Calendar
-              </a>
+            ${imageUrl ? `
+              <div style="margin: 20px 0;">
+                <h3 style="color: #444;">Event Image</h3>
+                <img src="${imageUrl}" alt="Event image" style="max-width: 100%; border-radius: 5px;">
+                <p style="margin-top: 10px;"><a href="${imageUrl}" target="_blank">View full image</a></p>
+              </div>
+            ` : ''}
+            <div style="margin: 20px 0;">
+              <h3 style="color: #444;">Quick Actions</h3>
+              <p style="margin-bottom: 15px;">
+                <a href="https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(String(eventName))}&details=${encodeURIComponent(String(description))}&location=${encodeURIComponent(String(location))}&dates=${encodeURIComponent(String(eventDate))}T${encodeURIComponent(String(eventTime))}/${encodeURIComponent(String(eventDate))}T${encodeURIComponent(String(eventTime))}" 
+                   style="background-color: #4CAF50; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; display: inline-block;">
+                  Add to Google Calendar
+                </a>
+              </p>
+              <p>
+                <a href="mailto:${organizerEmail}?subject=Re: ${eventName} - Event Submission&body=Hi ${organizerName},%0A%0AThank you for submitting your event "%0A%0AEvent Details:%0A- Name: ${eventName}%0A- Date: ${eventDate}%0A- Time: ${eventTime}%0A- Location: ${location}%0A- City: ${city}%0A%0A" 
+                   style="background-color: #2196F3; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; display: inline-block;">
+                  Reply to Organizer
+                </a>
+              </p>
             </div>
+            <p style="color: #666; font-size: 0.9em;">This event was submitted through the Bachata Hub website.</p>
           </div>
         `
 
