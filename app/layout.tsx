@@ -13,11 +13,7 @@ export const metadata: Metadata = {
   title: "Bachata Australia - Your Ultimate Bachata Hub",
   description:
     "The ultimate hub for Bachata dancing in Australia featuring events, festivals, schools, instructors, and more.",
-  generator: 'v0.dev',
-  icons: {
-    icon: '/favicon.ico',
-    apple: '/apple-touch-icon.png',
-  },
+  generator: 'v0.dev'
 }
 
 export default function RootLayout({

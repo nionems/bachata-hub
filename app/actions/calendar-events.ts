@@ -1,15 +1,10 @@
 "use server"
 
 import { google } from "googleapis"
-import { calendar_v3 } from 'googleapis';
-
-// Define a custom type that extends Schema$Event
-type EventWithImage = calendar_v3.Schema$Event & {
-  image?: string
-}
 
 // Update the getUpcomingEvents function to better handle the API key
-export async function getUpcomingEvents(calendarId: string, maxResults = 3): Promise<EventWithImage[]> {
+
+export async function getUpcomingEvents(calendarId: string, maxResults = 3) {
   try {
     console.log(`Fetching upcoming events for calendar ID: ${calendarId}`)
 
@@ -43,16 +38,7 @@ export async function getUpcomingEvents(calendarId: string, maxResults = 3): Pro
 
     console.log(`Found ${response.data.items?.length || 0} upcoming events`)
 
-    // Add images to events
-    const eventsWithImages = await Promise.all(
-      (response.data.items || []).map(async (event) => {
-        const eventWithImage = event as EventWithImage
-        eventWithImage.image = await getEventImage(event)
-        return eventWithImage
-      })
-    )
-
-    return eventsWithImages
+    return response.data.items || []
   } catch (error) {
     console.error("Error fetching Google Calendar events:", error)
     return []
@@ -60,7 +46,7 @@ export async function getUpcomingEvents(calendarId: string, maxResults = 3): Pro
 }
 
 // Get events for the current week
-export async function getWeekEvents(calendarId: string, maxResults = 3): Promise<EventWithImage[]> {
+export async function getWeekEvents(calendarId: string, maxResults = 3) {
   try {
     console.log(`Fetching week events for calendar ID: ${calendarId}`)
 
@@ -97,16 +83,7 @@ export async function getWeekEvents(calendarId: string, maxResults = 3): Promise
 
     console.log(`Found ${response.data.items?.length || 0} events for the current week`)
 
-    // Add images to events
-    const eventsWithImages = await Promise.all(
-      (response.data.items || []).map(async (event) => {
-        const eventWithImage = event as EventWithImage
-        eventWithImage.image = await getEventImage(event)
-        return eventWithImage
-      })
-    )
-
-    return eventsWithImages
+    return response.data.items || []
   } catch (error: any) {
     console.error("Error fetching Google Calendar events for the week:", error)
     if (error.response?.data?.error) {
@@ -117,7 +94,7 @@ export async function getWeekEvents(calendarId: string, maxResults = 3): Promise
 }
 
 // Make this function async to comply with Server Actions requirements
-export async function getEventImage(event: calendar_v3.Schema$Event): Promise<string> {
+export async function getEventImage(event: any): Promise<string> {
   // Check if the event title contains specific keywords
   const title = event?.summary?.toLowerCase() || ""
 
@@ -133,7 +110,7 @@ export async function getEventImage(event: calendar_v3.Schema$Event): Promise<st
   return "/placeholder.svg?height=300&width=600"
 }
 
-export async function getNearestEvent(calendarId: string): Promise<EventWithImage | null> {
+export async function getNearestEvent(calendarId: string) {
   const events = await getUpcomingEvents(calendarId, 1)
   const event = events.length > 0 ? events[0] : null
 
@@ -146,7 +123,7 @@ export async function getNearestEvent(calendarId: string): Promise<EventWithImag
 }
 
 // New function to get this weekend's events
-export async function getWeekendEvents(calendarId: string): Promise<EventWithImage[]> {
+export async function getWeekendEvents(calendarId: string) {
   try {
     if (!calendarId) {
       console.warn('No calendar ID provided to getWeekendEvents');
@@ -173,7 +150,7 @@ export async function getWeekendEvents(calendarId: string): Promise<EventWithIma
     weekendStart.setHours(0, 0, 0, 0);
 
     const weekendEnd = new Date(weekendStart);
-    weekendEnd.setDate(weekendStart.getDate() + 1); // Next Sunday
+    weekendEnd.setDate(weekendStart.getDate() + 2); // Sunday
     weekendEnd.setHours(23, 59, 59, 999);
 
     const response = await calendar.events.list({
@@ -185,16 +162,7 @@ export async function getWeekendEvents(calendarId: string): Promise<EventWithIma
       ...params,
     });
 
-    // Add images to events
-    const eventsWithImages = await Promise.all(
-      (response.data.items || []).map(async (event) => {
-        const eventWithImage = event as EventWithImage
-        eventWithImage.image = await getEventImage(event)
-        return eventWithImage
-      })
-    )
-
-    return eventsWithImages;
+    return response.data.items || [];
   } catch (error) {
     console.error("Error fetching weekend events:", error);
     return [];
