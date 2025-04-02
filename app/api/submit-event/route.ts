@@ -13,9 +13,8 @@ console.log("Environment variables status:", {
   ADMIN_EMAIL: process.env.ADMIN_EMAIL ? "Set" : "Missing"
 })
 
-// Initialize Resend only if API key is available
-const resendApiKey = process.env.RESEND_API_KEY
-const resend = resendApiKey ? new Resend(resendApiKey) : null
+// Initialize Resend with the new API key
+const resend = new Resend("re_CTYDDUiU_Q5YKZME4bYE5XYHcNbKjimX6")
 
 // Configure Cloudinary with environment variables
 const cloudName = process.env.CLOUDINARY_CLOUD_NAME
@@ -207,7 +206,7 @@ export async function POST(request: Request) {
         console.log("Sending admin notification email")
         // Send email to admin
         await resend.emails.send({
-          from: "Bachata Hub <bachata.au@gmail.com>",
+          from: "Bachata Hub <noreply@bachata.au>",
           to: process.env.ADMIN_EMAIL || "bachata.au@gmail.com",
           subject: `New Event Submission: ${eventName}`,
           html: `
@@ -256,7 +255,7 @@ export async function POST(request: Request) {
 
         // Send confirmation email to the organizer
         await resend.emails.send({
-          from: "Bachata Hub <bachata.au@gmail.com>",
+          from: "Bachata Hub <noreply@bachata.au>",
           to: organizerEmail,
           subject: `Event Submission Received: ${eventName}`,
           html: `
