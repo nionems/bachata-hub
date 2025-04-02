@@ -117,7 +117,7 @@ export async function getWeekEvents(calendarId: string, maxResults = 3): Promise
 }
 
 // Make this function async to comply with Server Actions requirements
-export async function getEventImage(event: google.calendar_v3.Schema$Event): Promise<string> {
+export async function getEventImage(event: calendar_v3.Schema$Event): Promise<string> {
   // Check if the event title contains specific keywords
   const title = event?.summary?.toLowerCase() || ""
 
