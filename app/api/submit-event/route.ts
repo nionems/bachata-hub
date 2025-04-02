@@ -53,12 +53,63 @@ const calendarIds = {
 
 export async function POST(request: Request) {
   try {
-    // Log request headers and method
-    console.log("Request details:", {
+    // Log environment variables (without sensitive values)
+    const envCheck = {
+      cloudinary: {
+        cloudName: !!process.env.CLOUDINARY_CLOUD_NAME,
+        apiKey: !!process.env.CLOUDINARY_API_KEY,
+        apiSecret: !!process.env.CLOUDINARY_API_SECRET
+      },
+      resend: {
+        apiKey: !!process.env.RESEND_API_KEY,
+        adminEmail: !!process.env.ADMIN_EMAIL
+      },
+      nodeEnv: process.env.NODE_ENV,
+      isProduction: process.env.NODE_ENV === 'production',
+      runtime: process.env.NEXT_RUNTIME,
+      serverRuntime: process.env.NEXT_SERVER_RUNTIME
+    }
+
+    console.log("Environment check:", envCheck)
+
+    // Validate required environment variables
+    const missingEnvVars = []
+    if (!process.env.CLOUDINARY_CLOUD_NAME) missingEnvVars.push('CLOUDINARY_CLOUD_NAME')
+    if (!process.env.CLOUDINARY_API_KEY) missingEnvVars.push('CLOUDINARY_API_KEY')
+    if (!process.env.CLOUDINARY_API_SECRET) missingEnvVars.push('CLOUDINARY_API_SECRET')
+    if (!process.env.RESEND_API_KEY) missingEnvVars.push('RESEND_API_KEY')
+    if (!process.env.ADMIN_EMAIL) missingEnvVars.push('ADMIN_EMAIL')
+
+    if (missingEnvVars.length > 0) {
+      console.error("Missing environment variables:", {
+        missing: missingEnvVars,
+        environment: process.env.NODE_ENV,
+        runtime: process.env.NEXT_RUNTIME,
+        serverRuntime: process.env.NEXT_SERVER_RUNTIME
+      })
+      return NextResponse.json({
+        success: false,
+        message: "Server configuration error",
+        error: "Missing environment variables",
+        details: {
+          missingVariables: missingEnvVars,
+          environment: process.env.NODE_ENV,
+          runtime: process.env.NEXT_RUNTIME,
+          serverRuntime: process.env.NEXT_SERVER_RUNTIME
+        }
+      }, { status: 500 })
+    }
+
+    // Log request details
+    const requestDetails = {
       method: request.method,
       headers: Object.fromEntries(request.headers.entries()),
-      url: request.url
-    })
+      url: request.url,
+      environment: process.env.NODE_ENV,
+      runtime: process.env.NEXT_RUNTIME,
+      serverRuntime: process.env.NEXT_SERVER_RUNTIME
+    }
+    console.log("Request details:", requestDetails)
 
     // Log the incoming request
     console.log("Received event submission request")
