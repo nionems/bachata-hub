@@ -1,6 +1,9 @@
 import { Resend } from "resend"
 import { NextResponse } from "next/server"
 import { v2 as cloudinary } from "cloudinary"
+import { google } from "googleapis"
+import { z } from "zod"
+import nodemailer from "nodemailer"
 
 // Log all environment variables (without sensitive values)
 console.log("Environment variables status:", {
@@ -51,30 +54,33 @@ const calendarIds = {
   perth: "NDY5ZmIzYmVkMDMwOGIxYThjY2M4ZTlkOTFmYjAyMDBlNmYzYWRlYWZkODE0YzE3NDdiYzk0MDkxZGMxMWFhNUBncm91cC5jYWxlbmRhci5nb29nbGUuY29t"
 }
 
+// Email configuration
+const transporter = nodemailer.createTransport({
+  service: "gmail",
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASSWORD,
+  },
+})
+
 export async function POST(request: Request) {
   try {
     // Log the incoming request
     console.log("Received event submission request")
     
     const formData = await request.formData()
-    const formDataObj = Object.fromEntries(formData)
-    console.log("Form data received:", {
-      ...formDataObj,
-      image: formDataObj.image ? "File present" : "No file"
-    })
-
-    const {
-      eventName,
-      eventDate,
-      eventTime,
-      location,
-      city,
-      description,
-      organizerName,
-      organizerEmail,
-      ticketLink,
-      image,
-    } = formDataObj
+    
+    // Extract and validate form data
+    const eventName = formData.get("eventName")?.toString() || ""
+    const eventDate = formData.get("eventDate")?.toString() || ""
+    const eventTime = formData.get("eventTime")?.toString() || ""
+    const location = formData.get("location")?.toString() || ""
+    const description = formData.get("description")?.toString() || ""
+    const organizerName = formData.get("organizerName")?.toString() || ""
+    const organizerEmail = formData.get("organizerEmail")?.toString() || ""
+    const ticketLink = formData.get("ticketLink")?.toString() || ""
+    const city = formData.get("city")?.toString() || ""
+    const imageFile = formData.get("image") as File | null
 
     // Log parsed form data
     console.log("Parsed form data:", {
@@ -87,7 +93,7 @@ export async function POST(request: Request) {
       organizerName,
       organizerEmail,
       ticketLink,
-      hasImage: !!image
+      hasImage: !!imageFile
     })
 
     // Validate required fields
@@ -139,11 +145,11 @@ export async function POST(request: Request) {
     })
 
     let imageUrl = null
-    if (image instanceof File) {
+    if (imageFile) {
       try {
         console.log("Processing image upload")
         // Convert File to Buffer
-        const bytes = await image.arrayBuffer()
+        const bytes = await imageFile.arrayBuffer()
         const buffer = Buffer.from(bytes)
         console.log("Image buffer created, size:", buffer.length)
 
@@ -299,6 +305,33 @@ export async function POST(request: Request) {
       console.error("Resend is not configured. Emails will not be sent.")
     }
 
+    // Send email notification
+    const emailContent = `
+New Event Submission:
+
+Title: ${eventName}
+Date: ${eventDate}
+Time: ${eventTime}
+Location: ${location}
+Description: ${description}
+Contact: ${organizerName}
+Website: ${ticketLink}
+City: ${city}
+Event Type: Bachata
+Submitted By: ${organizerName}
+Email: ${organizerEmail}
+
+Calendar Link: ${calendarUrl}
+    `.trim()
+
+    await transporter.sendMail({
+      from: process.env.EMAIL_USER,
+      to: "bachata.au@gmail.com",
+      subject: `New Bachata Event Submission: ${eventName}`,
+      text: emailContent,
+      html: emailContent.replace(/\n/g, "<br>"),
+    })
+
     console.log("Event submission successful")
     return NextResponse.json({ 
       success: true, 
@@ -307,6 +340,12 @@ export async function POST(request: Request) {
     })
   } catch (error) {
     console.error("Error processing event submission:", error)
+    if (error instanceof z.ZodError) {
+      return NextResponse.json(
+        { error: "Validation error", details: error.errors },
+        { status: 400 },
+      )
+    }
     return NextResponse.json(
       { 
         success: false, 
