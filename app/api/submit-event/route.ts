@@ -207,7 +207,7 @@ export async function POST(request: Request) {
         console.log("Sending admin notification email")
         // Send email to admin
         await resend.emails.send({
-          from: process.env.EMAIL_FROM || "Bachata Hub <onboarding@resend.dev>",
+          from: "Bachata Hub <bachata.au@gmail.com>",
           to: process.env.ADMIN_EMAIL || "bachata.au@gmail.com",
           subject: `New Event Submission: ${eventName}`,
           html: `
@@ -256,7 +256,7 @@ export async function POST(request: Request) {
 
         // Send confirmation email to the organizer
         await resend.emails.send({
-          from: process.env.EMAIL_FROM || "Bachata Hub <onboarding@resend.dev>",
+          from: "Bachata Hub <bachata.au@gmail.com>",
           to: organizerEmail,
           subject: `Event Submission Received: ${eventName}`,
           html: `
