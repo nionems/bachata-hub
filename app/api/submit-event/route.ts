@@ -198,7 +198,7 @@ export async function POST(request: Request) {
     const richDescription = `${description as string}${imageUrl ? `\n\nEvent Image:\n${imageUrl}` : ""}`
     
     // Create the Google Calendar URL with proper date formatting and image
-    const calendarUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(eventName.toString())}&details=${encodeURIComponent(description.toString())}&location=${encodeURIComponent(location.toString())}&dates=${startDateTime}/${endDateTime}${imageUrl ? `&image=${encodeURIComponent(imageUrl)}` : ""}`
+    const calendarUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(eventName.toString())}&details=${encodeURIComponent(richDescription)}&location=${encodeURIComponent(location.toString())}&dates=${startDateTime}/${endDateTime}${imageUrl ? `&image=${encodeURIComponent(imageUrl)}` : ""}`
 
     // Send email to admin for review if Resend is configured
     if (resend) {
@@ -229,7 +229,9 @@ export async function POST(request: Request) {
                 <div style="margin: 20px 0;">
                   <h3 style="color: #444;">Event Image</h3>
                   <img src="${imageUrl}" alt="Event image" style="max-width: 100%; border-radius: 5px;">
-                  <p style="margin-top: 10px;"><a href="${imageUrl}" target="_blank">View full image</a></p>
+                  <p style="margin-top: 10px;">
+                    <a href="${imageUrl}" target="_blank" style="color: #2196F3; text-decoration: none;">View full image</a>
+                  </p>
                 </div>
               ` : ''}
               <div style="margin: 20px 0;">
@@ -278,6 +280,9 @@ export async function POST(request: Request) {
                 <div style="margin: 20px 0;">
                   <h3 style="color: #444;">Event Image</h3>
                   <img src="${imageUrl}" alt="Event image" style="max-width: 100%; border-radius: 5px;">
+                  <p style="margin-top: 10px;">
+                    <a href="${imageUrl}" target="_blank" style="color: #2196F3; text-decoration: none;">View full image</a>
+                  </p>
                 </div>
               ` : ''}
               <p>We will review your submission and get back to you soon.</p>
