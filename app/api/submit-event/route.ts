@@ -147,7 +147,7 @@ export async function POST(request: Request) {
         const buffer = Buffer.from(bytes)
         console.log("Image buffer created, size:", buffer.length)
 
-        // Upload to Cloudinary
+        // Upload to Cloudinary with timeout
         const result = await new Promise((resolve, reject) => {
           if (!cloudName || !apiKey || !apiSecret) {
             console.error("Cloudinary configuration missing:", {
@@ -163,11 +163,14 @@ export async function POST(request: Request) {
             {
               resource_type: "auto",
               folder: "bachata-events",
+              timeout: 30000, // 30 second timeout
             },
             (error, result) => {
               if (error) {
                 console.error("Cloudinary upload error:", error)
-                reject(error)
+                // Don't reject, just log the error and continue without the image
+                console.log("Continuing without image upload")
+                resolve(null)
               } else {
                 console.log("Image uploaded successfully:", result)
                 resolve(result)
@@ -179,11 +182,16 @@ export async function POST(request: Request) {
           console.log("Upload stream started")
         })
 
-        imageUrl = (result as any).secure_url
-        console.log("Image URL:", imageUrl)
+        if (result) {
+          imageUrl = (result as any).secure_url
+          console.log("Image URL:", imageUrl)
+        } else {
+          console.log("No image URL available due to upload failure")
+        }
       } catch (uploadError) {
         console.error("Error uploading image:", uploadError)
         // Continue without the image if upload fails
+        console.log("Continuing without image due to upload error")
       }
     }
 
@@ -195,7 +203,7 @@ export async function POST(request: Request) {
     const richDescription = `${description as string}${imageUrl ? `\n\nEvent Image:\n${imageUrl}` : ""}`
     
     // Create the Google Calendar URL with proper date formatting and image
-    const calendarUrl = `https://calendar.google.com/calendar/event?action=TEMPLATE&text=${encodeURIComponent(eventName as string)}&details=${encodeURIComponent(richDescription)}&location=${encodeURIComponent(location as string)}&dates=${startDateTime}/${endDateTime}&ctz=Australia/Sydney${imageUrl ? `&image=${encodeURIComponent(imageUrl)}` : ""}`
+    const calendarUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(eventName.toString())}&details=${encodeURIComponent(description.toString())}&location=${encodeURIComponent(location.toString())}&dates=${startDateTime}/${endDateTime}${imageUrl ? `&image=${encodeURIComponent(imageUrl)}` : ""}`
 
     // Send email to admin for review if Resend is configured
     if (resend) {
@@ -219,6 +227,15 @@ export async function POST(request: Request) {
               <p><strong>Organizer Name:</strong> ${organizerName}</p>
               <p><strong>Organizer Email:</strong> ${organizerEmail}</p>
               ${ticketLink ? `<p><strong>Ticket Link:</strong> <a href="${ticketLink}">${ticketLink}</a></p>` : ""}
+              ${imageUrl ? `
+                <div style="margin: 20px 0;">
+                  <h4 style="color: #444;">Event Image</h4>
+                  <div style="text-align: center; margin: 20px 0;">
+                    <img src="${imageUrl}" alt="Event Image" style="max-width: 100%; height: auto; border-radius: 5px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                  </div>
+                  <p style="text-align: center;"><a href="${imageUrl}" style="color: #0066cc; text-decoration: none;">Click here to view full image</a></p>
+                </div>
+              ` : ""}
             </div>
             <div style="margin-top: 20px;">
               <p style="color: #666;">Please review this event and add it to the appropriate calendar if approved.</p>
@@ -278,6 +295,15 @@ export async function POST(request: Request) {
                 <li style="margin-bottom: 10px;"><strong>Location:</strong> ${location}</li>
                 <li style="margin-bottom: 10px;"><strong>City:</strong> ${city}</li>
               </ul>
+              ${imageUrl ? `
+                <div style="margin-top: 20px;">
+                  <h4 style="color: #444;">Your Event Image</h4>
+                  <div style="text-align: center; margin: 20px 0;">
+                    <img src="${imageUrl}" alt="Event Image" style="max-width: 100%; height: auto; border-radius: 5px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                  </div>
+                  <p style="text-align: center;"><a href="${imageUrl}" style="color: #0066cc; text-decoration: none;">Click here to view full image</a></p>
+                </div>
+              ` : ""}
             </div>
             <p>We typically process submissions within 24-48 hours. If you have any questions, please don't hesitate to contact us.</p>
             <br>
@@ -296,14 +322,6 @@ export async function POST(request: Request) {
         console.log("Organizer email sent successfully:", organizerEmailResult)
       } catch (emailError) {
         console.error("Error sending emails:", emailError)
-        // Log more details about the email error
-        if (emailError instanceof Error) {
-          console.error("Email error details:", {
-            name: emailError.name,
-            message: emailError.message,
-            stack: emailError.stack
-          })
-        }
         // Continue even if email sending fails
       }
     } else {
@@ -311,33 +329,12 @@ export async function POST(request: Request) {
     }
 
     console.log("Event submission successful")
-    return NextResponse.json({ 
-      success: true,
-      message: "Event submitted successfully",
-      imageUrl: imageUrl || null
-    })
+    return NextResponse.json({ success: true, message: "Event submitted successfully" })
   } catch (error) {
-    console.error("Error submitting event:", error)
-    // Log more details about the error
-    if (error instanceof Error) {
-      console.error("Error name:", error.name)
-      console.error("Error message:", error.message)
-      console.error("Error stack:", error.stack)
-    }
-    // Log the request data that caused the error
-    try {
-      const formData = await request.formData()
-      console.error("Request data:", Object.fromEntries(formData))
-    } catch (e) {
-      console.error("Error reading form data:", e)
-    }
+    console.error("Error processing event submission:", error)
     return NextResponse.json(
-      { 
-        error: "Failed to submit event",
-        details: error instanceof Error ? error.message : "Unknown error",
-        stack: error instanceof Error ? error.stack : undefined
-      },
-      { status: 500 },
+      { success: false, message: "Failed to submit event", error: error instanceof Error ? error.message : "Unknown error" },
+      { status: 500 }
     )
   }
 } 
