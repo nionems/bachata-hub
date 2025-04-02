@@ -1,9 +1,10 @@
 "use server"
 
 import { google } from "googleapis"
+import { calendar_v3 } from 'googleapis';
 
 // Define a custom type that extends Schema$Event
-type EventWithImage = google.calendar_v3.Schema$Event & {
+type EventWithImage = calendar_v3.Schema$Event & {
   image?: string
 }
 
