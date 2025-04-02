@@ -8,9 +8,6 @@ const nextConfig = {
     RESEND_API_KEY: process.env.RESEND_API_KEY,
     ADMIN_EMAIL: process.env.ADMIN_EMAIL,
   },
-  experimental: {
-    serverActions: true,
-  },
   // Ensure environment variables are available at runtime
   serverRuntimeConfig: {
     CLOUDINARY_CLOUD_NAME: process.env.CLOUDINARY_CLOUD_NAME,
@@ -19,6 +16,10 @@ const nextConfig = {
     RESEND_API_KEY: process.env.RESEND_API_KEY,
     ADMIN_EMAIL: process.env.ADMIN_EMAIL,
   },
+  // Add build optimization settings
+  poweredByHeader: false,
+  reactStrictMode: true,
+  swcMinify: true,
 }
 
 module.exports = nextConfig 

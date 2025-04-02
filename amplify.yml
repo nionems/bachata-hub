@@ -4,6 +4,7 @@ frontend:
     preBuild:
       commands:
         - npm ci
+        - npm audit fix --force
     build:
       commands:
         - npm run build
@@ -14,6 +15,7 @@ frontend:
   cache:
     paths:
       - node_modules/**/*
+      - .next/cache/**/*
   customHeaders:
     - pattern: '**/*'
       headers:
