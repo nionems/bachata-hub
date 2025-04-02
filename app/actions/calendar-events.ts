@@ -46,49 +46,53 @@ export async function getUpcomingEvents(calendarId: string, maxResults = 3) {
 }
 
 // Get events for the current week
-export async function getWeekEvents(calendarId: string, maxResults = 3) {
+export async function getWeekEvents() {
   try {
-    console.log(`Fetching week events for calendar ID: ${calendarId}`)
+    // Use the new calendar from bachata.au@gmail.com
+    const calendarId = "6b95632fc6fe63530bbdd89c944d792009478636f5b2ce7ffc8718ccd500915f@group.calendar.google.com"
 
-    // For public calendars, we can access them with an API key
-    const calendar = google.calendar({ version: "v3" })
-
-    // Verify API key is available
-    if (!process.env.GOOGLE_API_KEY) {
-      console.warn("No Google API Key found in environment variables")
+    const apiKey = process.env.GOOGLE_API_KEY
+    if (!apiKey) {
+      console.error("GOOGLE_API_KEY environment variable is not set")
       return []
     }
 
     console.log("Using Google API Key for authentication")
+    console.log("Current time:", new Date().toISOString())
 
+    // Get the current date and end of week
     const now = new Date()
-    console.log(`Current time: ${now.toISOString()}`)
-
-    // Calculate the end of the week (Sunday)
     const endOfWeek = new Date(now)
-    const daysUntilEndOfWeek = 7 - now.getDay()
-    endOfWeek.setDate(now.getDate() + daysUntilEndOfWeek)
+    endOfWeek.setDate(now.getDate() + 7) // Get events for the next 7 days
     endOfWeek.setHours(23, 59, 59, 999)
-    console.log(`End of week: ${endOfWeek.toISOString()}`)
+    console.log("End of week:", endOfWeek.toISOString())
 
-    const response = await calendar.events.list({
-      calendarId,
-      timeMin: now.toISOString(),
-      timeMax: endOfWeek.toISOString(),
-      maxResults,
-      singleEvents: true,
-      orderBy: "startTime",
-      key: process.env.GOOGLE_API_KEY
-    })
+    try {
+      console.log(`Fetching events for calendar: ${calendarId}`)
+      const response = await fetch(
+        `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(calendarId)}/events?` +
+        `key=${apiKey}&` +
+        `timeMin=${now.toISOString()}&` +
+        `timeMax=${endOfWeek.toISOString()}&` +
+        `singleEvents=true&` +
+        `orderBy=startTime`
+      )
 
-    console.log(`Found ${response.data.items?.length || 0} events for the current week`)
+      if (!response.ok) {
+        const errorData = await response.json()
+        console.error(`Error fetching events for calendar ${calendarId}:`, errorData)
+        return []
+      }
 
-    return response.data.items || []
-  } catch (error: any) {
-    console.error("Error fetching Google Calendar events for the week:", error)
-    if (error.response?.data?.error) {
-      console.error("API Error details:", error.response.data.error)
+      const data = await response.json()
+      console.log(`Found ${data.items?.length || 0} events for the current week`)
+      return data.items || []
+    } catch (error) {
+      console.error(`Error fetching events for calendar ${calendarId}:`, error)
+      return []
     }
+  } catch (error) {
+    console.error("Error in getWeekEvents:", error)
     return []
   }
 }
