@@ -207,7 +207,7 @@ export async function POST(request: Request) {
         // Send email to admin
         await resend.emails.send({
           from: "Bachata Hub <noreply@bachata.au>",
-          to: process.env.ADMIN_EMAIL || "bachata.au@gmail.com",
+          to: "bachata.au@gmail.com",
           subject: `New Event Submission: ${eventName}`,
           html: `
             <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
@@ -294,28 +294,15 @@ export async function POST(request: Request) {
       console.error("Resend is not configured. Emails will not be sent.")
     }
 
-    console.log("Event submission successful")
-    return NextResponse.json({ 
-      success: true, 
-      message: "Event submitted successfully",
-      imageUrl: imageUrl || null
-    })
+    return NextResponse.json(
+      { message: "Event submission successful" },
+      { status: 200 }
+    )
   } catch (error) {
     console.error("Error processing event submission:", error)
-    if (error instanceof z.ZodError) {
-      return NextResponse.json(
-        { error: "Validation error", details: error.errors },
-        { status: 400 },
-      )
-    }
     return NextResponse.json(
-      { 
-        success: false, 
-        message: "Failed to submit event", 
-        error: error instanceof Error ? error.message : "Unknown error",
-        details: error instanceof Error ? error.stack : undefined
-      },
+      { error: "Internal server error" },
       { status: 500 }
     )
   }
-} 
+}
