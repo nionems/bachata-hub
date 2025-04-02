@@ -199,7 +199,7 @@ export default function SchoolsPage() {
       state: "nsw"
     },
     {
-      id: 9,
+      id: 19,
       name: "FeelFree Dance",
       location: "Bondi, NSW",
       address: "Bondi, NSW",

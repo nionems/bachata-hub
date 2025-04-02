@@ -22,8 +22,8 @@ const apiSecret = process.env.CLOUDINARY_API_SECRET
 
 // Log Cloudinary configuration status
 console.log("Cloudinary configuration:", {
-  cloudName: cloudName ? "Set" : "Missing",
-  apiKey: apiKey ? "Set" : "Missing",
+  cloudName: cloudName || "Missing",
+  apiKey: apiKey || "Missing",
   apiSecret: apiSecret ? "Set" : "Missing"
 })
 
@@ -33,7 +33,11 @@ if (cloudName && apiKey && apiSecret) {
     api_key: apiKey,
     api_secret: apiSecret,
   })
-  console.log("Cloudinary configured successfully")
+  console.log("Cloudinary configured successfully with:", {
+    cloud_name: cloudName,
+    api_key: apiKey,
+    api_secret: apiSecret ? "Set" : "Missing"
+  })
 } else {
   console.error("Cloudinary configuration is incomplete")
 }
@@ -165,7 +169,7 @@ export async function POST(request: Request) {
                 console.error("Cloudinary upload error:", error)
                 reject(error)
               } else {
-                console.log("Image uploaded successfully")
+                console.log("Image uploaded successfully:", result)
                 resolve(result)
               }
             }
@@ -215,15 +219,6 @@ export async function POST(request: Request) {
               <p><strong>Organizer Name:</strong> ${organizerName}</p>
               <p><strong>Organizer Email:</strong> ${organizerEmail}</p>
               ${ticketLink ? `<p><strong>Ticket Link:</strong> <a href="${ticketLink}">${ticketLink}</a></p>` : ""}
-              ${imageUrl ? `
-                <div style="margin: 20px 0;">
-                  <h4 style="color: #444;">Event Image</h4>
-                  <div style="text-align: center; margin: 20px 0;">
-                    <img src="${imageUrl}" alt="Event Image" style="max-width: 100%; height: auto; border-radius: 5px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-                  </div>
-                  <p style="text-align: center;"><a href="${imageUrl}" style="color: #0066cc; text-decoration: none;">Click here to view full image</a></p>
-                </div>
-              ` : ""}
             </div>
             <div style="margin-top: 20px;">
               <p style="color: #666;">Please review this event and add it to the appropriate calendar if approved.</p>
@@ -241,18 +236,29 @@ export async function POST(request: Request) {
           </div>
         `
 
+        // Prepare email attachments
+        let attachments = []
+        if (image instanceof File) {
+          try {
+            const bytes = await image.arrayBuffer()
+            const buffer = Buffer.from(bytes)
+            attachments.push({
+              filename: image.name || "event-image.jpg",
+              content: buffer,
+              contentType: image.type || "image/jpeg"
+            })
+          } catch (error) {
+            console.error("Error preparing image attachment:", error)
+          }
+        }
+
         // Send email to admin
         const adminEmailResult = await resend.emails.send({
           from: "Bachata Hub <onboarding@resend.dev>",
           to: adminEmail,
           subject: `New Event Submission: ${eventName}`,
           html: emailHtml,
-          attachments: imageUrl ? [
-            {
-              filename: "event-image.jpg",
-              path: imageUrl
-            }
-          ] : undefined
+          attachments: attachments.length > 0 ? attachments : undefined
         })
 
         console.log("Admin email sent successfully:", adminEmailResult)
@@ -272,15 +278,6 @@ export async function POST(request: Request) {
                 <li style="margin-bottom: 10px;"><strong>Location:</strong> ${location}</li>
                 <li style="margin-bottom: 10px;"><strong>City:</strong> ${city}</li>
               </ul>
-              ${imageUrl ? `
-                <div style="margin-top: 20px;">
-                  <h4 style="color: #444;">Your Event Image</h4>
-                  <div style="text-align: center; margin: 20px 0;">
-                    <img src="${imageUrl}" alt="Event Image" style="max-width: 100%; height: auto; border-radius: 5px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-                  </div>
-                  <p style="text-align: center;"><a href="${imageUrl}" style="color: #0066cc; text-decoration: none;">Click here to view full image</a></p>
-                </div>
-              ` : ""}
             </div>
             <p>We typically process submissions within 24-48 hours. If you have any questions, please don't hesitate to contact us.</p>
             <br>
@@ -293,12 +290,7 @@ export async function POST(request: Request) {
           to: organizerEmail as string,
           subject: "Your Event Submission Received",
           html: organizerEmailHtml,
-          attachments: imageUrl ? [
-            {
-              filename: "event-image.jpg",
-              path: imageUrl
-            }
-          ] : undefined
+          attachments: attachments.length > 0 ? attachments : undefined
         })
 
         console.log("Organizer email sent successfully:", organizerEmailResult)

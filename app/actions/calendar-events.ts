@@ -59,10 +59,7 @@ export async function getWeekEvents(calendarId: string, maxResults = 3) {
       return []
     }
 
-    // Set up params with API key
-    const params = {
-      key: process.env.GOOGLE_API_KEY,
-    }
+    console.log("Using Google API Key for authentication")
 
     const now = new Date()
     console.log(`Current time: ${now.toISOString()}`)
@@ -81,14 +78,17 @@ export async function getWeekEvents(calendarId: string, maxResults = 3) {
       maxResults,
       singleEvents: true,
       orderBy: "startTime",
-      ...params,
+      key: process.env.GOOGLE_API_KEY
     })
 
     console.log(`Found ${response.data.items?.length || 0} events for the current week`)
 
     return response.data.items || []
-  } catch (error) {
+  } catch (error: any) {
     console.error("Error fetching Google Calendar events for the week:", error)
+    if (error.response?.data?.error) {
+      console.error("API Error details:", error.response.data.error)
+    }
     return []
   }
 }
