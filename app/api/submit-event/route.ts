@@ -329,11 +329,20 @@ export async function POST(request: Request) {
     }
 
     console.log("Event submission successful")
-    return NextResponse.json({ success: true, message: "Event submitted successfully" })
+    return NextResponse.json({ 
+      success: true, 
+      message: "Event submitted successfully",
+      imageUrl: imageUrl || null
+    })
   } catch (error) {
     console.error("Error processing event submission:", error)
     return NextResponse.json(
-      { success: false, message: "Failed to submit event", error: error instanceof Error ? error.message : "Unknown error" },
+      { 
+        success: false, 
+        message: "Failed to submit event", 
+        error: error instanceof Error ? error.message : "Unknown error",
+        details: error instanceof Error ? error.stack : undefined
+      },
       { status: 500 }
     )
   }
