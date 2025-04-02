@@ -3,7 +3,6 @@ import { NextResponse } from "next/server"
 import { v2 as cloudinary } from "cloudinary"
 import { google } from "googleapis"
 import { z } from "zod"
-import nodemailer from "nodemailer"
 
 // Log all environment variables (without sensitive values)
 console.log("Environment variables status:", {
@@ -53,15 +52,6 @@ const calendarIds = {
   brisbane: "YWFhMjIyZjZlZjBhNDNiZTUwOGUyYjVhN2EyYmNhYjIzMmZmMTlmYTlkY2UwZDE2YWViNTQ3MzczZDhkNTI0NUBncm91cC5jYWxlbmRhci5nb29nbGUuY29t",
   perth: "NDY5ZmIzYmVkMDMwOGIxYThjY2M4ZTlkOTFmYjAyMDBlNmYzYWRlYWZkODE0YzE3NDdiYzk0MDkxZGMxMWFhNUBncm91cC5jYWxlbmRhci5nb29nbGUuY29t"
 }
-
-// Email configuration
-const transporter = nodemailer.createTransport({
-  service: "gmail",
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASSWORD,
-  },
-})
 
 export async function POST(request: Request) {
   try {
@@ -218,7 +208,7 @@ export async function POST(request: Request) {
         // Send email to admin
         await resend.emails.send({
           from: process.env.EMAIL_FROM || "Bachata Hub <onboarding@resend.dev>",
-          to: process.env.ADMIN_EMAIL || "lionelcoevoet@gmail.com",
+          to: process.env.ADMIN_EMAIL || "bachata.au@gmail.com",
           subject: `New Event Submission: ${eventName}`,
           html: `
             <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
@@ -246,7 +236,7 @@ export async function POST(request: Request) {
               <div style="margin: 20px 0;">
                 <h3 style="color: #444;">Quick Actions</h3>
                 <p style="margin-bottom: 15px;">
-                  <a href="https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(String(eventName))}&details=${encodeURIComponent(String(description))}&location=${encodeURIComponent(String(location))}&dates=${encodeURIComponent(String(eventDate))}T${encodeURIComponent(String(eventTime))}/${encodeURIComponent(String(eventDate))}T${encodeURIComponent(String(eventTime))}" 
+                  <a href="${calendarUrl}" 
                      style="background-color: #4CAF50; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; display: inline-block;">
                     Add to Google Calendar
                   </a>
@@ -304,33 +294,6 @@ export async function POST(request: Request) {
     } else {
       console.error("Resend is not configured. Emails will not be sent.")
     }
-
-    // Send email notification
-    const emailContent = `
-New Event Submission:
-
-Title: ${eventName}
-Date: ${eventDate}
-Time: ${eventTime}
-Location: ${location}
-Description: ${description}
-Contact: ${organizerName}
-Website: ${ticketLink}
-City: ${city}
-Event Type: Bachata
-Submitted By: ${organizerName}
-Email: ${organizerEmail}
-
-Calendar Link: ${calendarUrl}
-    `.trim()
-
-    await transporter.sendMail({
-      from: process.env.EMAIL_USER,
-      to: "bachata.au@gmail.com",
-      subject: `New Bachata Event Submission: ${eventName}`,
-      text: emailContent,
-      html: emailContent.replace(/\n/g, "<br>"),
-    })
 
     console.log("Event submission successful")
     return NextResponse.json({ 
