@@ -117,6 +117,7 @@ export async function getEventImage(event: any): Promise<string> {
 // Define a custom type that extends Schema$Event to include our image property
 interface EventWithImage extends calendar_v3.Schema$Event {
   image?: string;
+  website?: string;
 }
 
 export async function getNearestEvent(calendarId: string): Promise<EventWithImage | null> {
