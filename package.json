@@ -73,5 +73,9 @@
     "tailwindcss": "^3.3.0",
     "ts-node": "^10.9.2",
     "typescript": "^5.8.2"
+  },
+  "resolutions": {
+    "picomatch": "^4.0.2",
+    "gcp-metadata": "^6.1.1"
   }
 }
