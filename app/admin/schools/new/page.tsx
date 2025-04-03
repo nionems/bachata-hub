@@ -14,9 +14,9 @@ export default function NewSchool() {
     state: '',
     address: '',
     contactInfo: '',
-    instructors: '',
+    instructors: [],
     website: '',
-    danceStyles: '',
+    danceStyles: [],
     imageUrl: '',
     comment: '',
     googleReviewsUrl: '',
@@ -191,8 +191,8 @@ export default function NewSchool() {
           <label className="block text-sm font-medium text-gray-700">Instructors</label>
           <input
             type="text"
-            value={school.instructors}
-            onChange={(e) => setSchool({ ...school, instructors: e.target.value })}
+            value={school.instructors?.join(', ') || ''}
+            onChange={(e) => setSchool({ ...school, instructors: e.target.value.split(',').map(i => i.trim()).filter(Boolean) })}
             className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
           />
         </div>
@@ -211,8 +211,8 @@ export default function NewSchool() {
           <label className="block text-sm font-medium text-gray-700">Dance Styles</label>
           <input
             type="text"
-            value={school.danceStyles}
-            onChange={(e) => setSchool({ ...school, danceStyles: e.target.value })}
+            value={school.danceStyles?.join(', ') || ''}
+            onChange={(e) => setSchool({ ...school, danceStyles: e.target.value.split(',').map(i => i.trim()).filter(Boolean) })}
             className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
           />
         </div>
@@ -239,7 +239,7 @@ export default function NewSchool() {
                 <div className="w-full border-t border-gray-300" />
               </div>
               <div className="relative flex justify-center">
-                <span className="bg-white px-2 text-sm text-gray-500">OR</span>
+                <span className="bg-white px-2 text-sm text-gray-500 mb-1">OR</span>
               </div>
             </div>
             <div>
