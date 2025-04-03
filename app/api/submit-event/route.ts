@@ -3,9 +3,6 @@ import { NextResponse } from "next/server"
 import { v2 as cloudinary } from "cloudinary"
 import { google } from "googleapis"
 import { z } from "zod"
-import fs from "fs"
-import path from "path"
-import { v4 as uuidv4 } from "uuid"
 
 // Log all environment variables (without sensitive values)
 console.log("Environment variables status:", {
@@ -18,12 +15,6 @@ console.log("Environment variables status:", {
 
 // Initialize Resend with the new API key
 const resend = new Resend("re_CTYDDUiU_Q5YKZME4bYE5XYHcNbKjimX6")
-
-// Create uploads directory if it doesn't exist
-const uploadsDir = path.join(process.cwd(), "public", "uploads")
-if (!fs.existsSync(uploadsDir)) {
-  fs.mkdirSync(uploadsDir, { recursive: true })
-}
 
 // Configure Cloudinary with environment variables
 const cloudName = process.env.CLOUDINARY_CLOUD_NAME
@@ -142,29 +133,60 @@ export async function POST(request: Request) {
       timezone: Intl.DateTimeFormat().resolvedOptions().timeZone
     })
 
-    // Handle image upload
     let imageUrl = null
     if (imageFile) {
       try {
         console.log("Processing image upload")
-        const buffer = Buffer.from(await imageFile.arrayBuffer())
+        // Convert File to Buffer
+        const bytes = await imageFile.arrayBuffer()
+        const buffer = Buffer.from(bytes)
         console.log("Image buffer created, size:", buffer.length)
 
-        // Generate unique filename
-        const fileExtension = imageFile.name.split(".").pop() || "jpg"
-        const fileName = `${uuidv4()}.${fileExtension}`
-        const filePath = path.join(uploadsDir, fileName)
+        // Upload to Cloudinary with timeout
+        const result = await new Promise((resolve, reject) => {
+          if (!cloudName || !apiKey || !apiSecret) {
+            console.error("Cloudinary configuration missing:", {
+              cloudName: !!cloudName,
+              apiKey: !!apiKey,
+              apiSecret: !!apiSecret
+            })
+            reject(new Error("Cloudinary configuration is incomplete"))
+            return
+          }
 
-        // Save file to public/uploads directory
-        fs.writeFileSync(filePath, buffer)
-        console.log("Image saved successfully:", filePath)
+          const uploadStream = cloudinary.uploader.upload_stream(
+            {
+              resource_type: "auto",
+              folder: "bachata-events",
+              timeout: 30000, // 30 second timeout
+            },
+            (error, result) => {
+              if (error) {
+                console.error("Cloudinary upload error:", error)
+                // Don't reject, just log the error and continue without the image
+                console.log("Continuing without image upload")
+                resolve(null)
+              } else {
+                console.log("Image uploaded successfully:", result)
+                resolve(result)
+              }
+            }
+          )
 
-        // Create URL for the saved image
-        imageUrl = `/uploads/${fileName}`
-        console.log("Image URL created:", imageUrl)
-      } catch (error) {
-        console.error("Error saving image:", error)
-        // Continue without image
+          uploadStream.end(buffer)
+          console.log("Upload stream started")
+        })
+
+        if (result) {
+          imageUrl = (result as any).secure_url
+          console.log("Image URL:", imageUrl)
+        } else {
+          console.log("No image URL available due to upload failure")
+        }
+      } catch (uploadError) {
+        console.error("Error uploading image:", uploadError)
+        // Continue without the image if upload fails
+        console.log("Continuing without image due to upload error")
       }
     }
 
