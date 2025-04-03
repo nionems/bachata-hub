@@ -225,7 +225,7 @@ export async function getFilteredEvents(
     startDate?: string
     endDate?: string
   },
-) {
+): Promise<EventWithImage[]> {
   try {
     // For public calendars, we can access them with an API key
     const calendar = google.calendar({ version: "v3" })
@@ -260,74 +260,56 @@ export async function getFilteredEvents(
       calendarId,
       timeMin,
       timeMax,
-      maxResults: 100, // Get more events to filter client-side
       singleEvents: true,
       orderBy: "startTime",
       ...params,
     })
 
-    let events = response.data.items || []
+    const events = response.data.items || []
+    const eventsWithImages: EventWithImage[] = []
 
     // Add image and website to each event
     for (const event of events) {
-      event.image = await getEventImage(event)
+      const eventWithImage = { ...event, image: await getEventImage(event) } as EventWithImage
 
       // Try to extract website URL from description
       if (event.description) {
         const urlMatch = event.description.match(/https?:\/\/[^\s]+/)
         if (urlMatch) {
-          event.website = urlMatch[0]
+          eventWithImage.website = urlMatch[0]
         }
+      }
+
+      // Apply filters
+      let includeEvent = true
+
+      if (filters.keyword) {
+        const keyword = filters.keyword.toLowerCase()
+        const title = event.summary?.toLowerCase() || ""
+        const description = event.description?.toLowerCase() || ""
+        includeEvent = includeEvent && (title.includes(keyword) || description.includes(keyword))
+      }
+
+      if (filters.eventType) {
+        const eventType = filters.eventType.toLowerCase()
+        const title = event.summary?.toLowerCase() || ""
+        includeEvent = includeEvent && title.includes(eventType)
+      }
+
+      if (filters.location) {
+        const location = filters.location.toLowerCase()
+        const eventLocation = event.location?.toLowerCase() || ""
+        includeEvent = includeEvent && eventLocation.includes(location)
+      }
+
+      if (includeEvent) {
+        eventsWithImages.push(eventWithImage)
       }
     }
 
-    // Apply keyword filter
-    if (filters.keyword) {
-      const keyword = filters.keyword.toLowerCase()
-      events = events.filter(
-        (event) =>
-          (event.summary && event.summary.toLowerCase().includes(keyword)) ||
-          (event.description && event.description.toLowerCase().includes(keyword)) ||
-          (event.location && event.location.toLowerCase().includes(keyword)),
-      )
-    }
-
-    // Apply event type filter
-    if (filters.eventType && filters.eventType !== "all") {
-      const eventType = filters.eventType.toLowerCase()
-      events = events.filter((event) => {
-        const title = (event.summary || "").toLowerCase()
-        const description = (event.description || "").toLowerCase()
-
-        switch (eventType) {
-          case "social":
-            return title.includes("social") || title.includes("dance") || description.includes("social dance")
-          case "workshop":
-            return title.includes("workshop") || description.includes("workshop")
-          case "festival":
-            return title.includes("festival") || description.includes("festival")
-          case "class":
-            return (
-              title.includes("class") ||
-              title.includes("lesson") ||
-              description.includes("class") ||
-              description.includes("lesson")
-            )
-          default:
-            return true
-        }
-      })
-    }
-
-    // Apply location filter
-    if (filters.location) {
-      const location = filters.location.toLowerCase()
-      events = events.filter((event) => event.location && event.location.toLowerCase().includes(location))
-    }
-
-    return events
+    return eventsWithImages
   } catch (error) {
-    console.error("Error fetching filtered Google Calendar events:", error)
+    console.error("Error fetching filtered events:", error)
     return []
   }
 }
