@@ -5,9 +5,9 @@ export interface School {
   state: string
   address: string
   contactInfo: string
-  instructors: string
+  instructors: string[]
   website: string
-  danceStyles: string
+  danceStyles: string[]
   imageUrl: string
   imageRef: string  // Storage reference path for the image
   comment: string
