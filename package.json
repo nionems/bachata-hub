@@ -56,7 +56,7 @@
     "react-day-picker": "^8.10.0",
     "react-dom": "^18.2.0",
     "resend": "^4.2.0",
-    "rimraf": "^6.0.1",
+    "rimraf": "^3.0.2",
     "sonner": "^2.0.2",
     "tailwind-merge": "^2.2.1",
     "tailwindcss-animate": "^1.0.7"
