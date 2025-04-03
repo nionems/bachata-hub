@@ -4,7 +4,7 @@ import { google, calendar_v3 } from "googleapis"
 
 // Update the getUpcomingEvents function to better handle the API key
 
-export async function getUpcomingEvents(calendarId: string, maxResults = 3) {
+export async function getUpcomingEvents(calendarId: string, maxResults = 3): Promise<EventWithImage[]> {
   try {
     console.log(`Fetching upcoming events for calendar ID: ${calendarId}`)
 
@@ -38,7 +38,16 @@ export async function getUpcomingEvents(calendarId: string, maxResults = 3) {
 
     console.log(`Found ${response.data.items?.length || 0} upcoming events`)
 
-    return response.data.items || []
+    const events = response.data.items || []
+    const eventsWithImages: EventWithImage[] = []
+
+    // Add image to each event
+    for (const event of events) {
+      const eventWithImage = { ...event, image: await getEventImage(event) } as EventWithImage
+      eventsWithImages.push(eventWithImage)
+    }
+
+    return eventsWithImages
   } catch (error) {
     console.error("Error fetching Google Calendar events:", error)
     return []
