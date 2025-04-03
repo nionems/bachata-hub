@@ -10,14 +10,14 @@ export async function POST(request: Request) {
       success: true,
       message: "Event submitted successfully! It will be reviewed and added to the calendar.",
     })
-  } catch (error) {
+  } catch (error: any) {
     console.error("Error adding event:", error)
 
     return NextResponse.json(
       {
         success: false,
         message: "Failed to add event",
-        error: error.message,
+        error: error?.message || "Unknown error occurred",
       },
       { status: 500 },
     )
