@@ -134,7 +134,7 @@ export async function getNearestEvent(calendarId: string): Promise<EventWithImag
 }
 
 // New function to get this weekend's events
-export async function getWeekendEvents(calendarId: string) {
+export async function getWeekendEvents(calendarId: string): Promise<EventWithImage[]> {
   try {
     if (!calendarId) {
       console.warn('No calendar ID provided to getWeekendEvents');
@@ -155,25 +155,50 @@ export async function getWeekendEvents(calendarId: string) {
       key: process.env.GOOGLE_API_KEY,
     };
 
+    // Get the current date and end of weekend
     const now = new Date();
-    const weekendStart = new Date(now);
-    weekendStart.setDate(now.getDate() + (6 - now.getDay())); // Next Saturday
-    weekendStart.setHours(0, 0, 0, 0);
-
-    const weekendEnd = new Date(weekendStart);
-    weekendEnd.setDate(weekendStart.getDate() + 2); // Sunday
-    weekendEnd.setHours(23, 59, 59, 999);
+    const endOfWeekend = new Date(now);
+    
+    // If it's already Saturday or Sunday, get events for the rest of the weekend
+    if (now.getDay() === 6) { // Saturday
+      endOfWeekend.setDate(now.getDate() + 1); // End of Sunday
+    } else if (now.getDay() === 0) { // Sunday
+      endOfWeekend.setDate(now.getDate()); // End of today
+    } else {
+      // If it's a weekday, get events for the upcoming weekend
+      endOfWeekend.setDate(now.getDate() + (6 - now.getDay())); // Next Saturday
+    }
+    
+    endOfWeekend.setHours(23, 59, 59, 999);
 
     const response = await calendar.events.list({
       calendarId,
-      timeMin: weekendStart.toISOString(),
-      timeMax: weekendEnd.toISOString(),
+      timeMin: now.toISOString(),
+      timeMax: endOfWeekend.toISOString(),
       singleEvents: true,
       orderBy: "startTime",
       ...params,
     });
 
-    return response.data.items || [];
+    const events = response.data.items || [];
+    const eventsWithImages: EventWithImage[] = [];
+    
+    // Add image and website to each event
+    for (const event of events) {
+      const eventWithImage = { ...event, image: await getEventImage(event) } as EventWithImage;
+
+      // Try to extract website URL from description
+      if (event.description) {
+        const urlMatch = event.description.match(/https?:\/\/[^\s]+/);
+        if (urlMatch) {
+          eventWithImage.website = urlMatch[0];
+        }
+      }
+      
+      eventsWithImages.push(eventWithImage);
+    }
+
+    return eventsWithImages;
   } catch (error) {
     console.error("Error fetching weekend events:", error);
     return [];
