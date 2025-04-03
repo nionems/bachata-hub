@@ -105,16 +105,19 @@ export default function AdminDashboard() {
               {typeof school.googleRating === 'number' && (
                 <div className="flex items-center mb-2">
                   <div className="flex">
-                    {[1, 2, 3, 4, 5].map((value) => (
-                      <span
-                        key={value}
-                        className={`text-xl ${
-                          value <= school.googleRating ? 'text-yellow-400' : 'text-gray-300'
-                        }`}
-                      >
-                        ★
-                      </span>
-                    ))}
+                    {[1, 2, 3, 4, 5].map((value) => {
+                      const rating = school.googleRating as number
+                      return (
+                        <span
+                          key={value}
+                          className={`text-xl ${
+                            value <= rating ? 'text-yellow-400' : 'text-gray-300'
+                          }`}
+                        >
+                          ★
+                        </span>
+                      )
+                    })}
                   </div>
                   <span className="ml-2 text-sm text-gray-500">
                     ({school.googleRating} from {school.googleReviewsCount || 0} reviews)
