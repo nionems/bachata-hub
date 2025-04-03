@@ -114,16 +114,23 @@ export async function getEventImage(event: any): Promise<string> {
   return "/placeholder.svg?height=300&width=600"
 }
 
-export async function getNearestEvent(calendarId: string) {
+// Define a custom type that extends Schema$Event to include our image property
+interface EventWithImage extends google.calendar.Schema$Event {
+  image?: string;
+}
+
+export async function getNearestEvent(calendarId: string): Promise<EventWithImage | null> {
   const events = await getUpcomingEvents(calendarId, 1)
   const event = events.length > 0 ? events[0] : null
 
   // If we have an event, add the image property
   if (event) {
-    event.image = await getEventImage(event)
+    const eventWithImage = event as EventWithImage
+    eventWithImage.image = await getEventImage(event)
+    return eventWithImage
   }
 
-  return event
+  return null
 }
 
 // New function to get this weekend's events
