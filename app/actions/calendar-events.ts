@@ -1,6 +1,6 @@
 "use server"
 
-import { google } from "googleapis"
+import { google, calendar_v3 } from "googleapis"
 
 // Update the getUpcomingEvents function to better handle the API key
 
@@ -115,7 +115,7 @@ export async function getEventImage(event: any): Promise<string> {
 }
 
 // Define a custom type that extends Schema$Event to include our image property
-interface EventWithImage extends google.calendar.Schema$Event {
+interface EventWithImage extends calendar_v3.Schema$Event {
   image?: string;
 }
 
