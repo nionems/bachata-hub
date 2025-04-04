@@ -4,6 +4,17 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { MessageSquare, Users, Calendar, Pin, MessageCircle, Eye } from "lucide-react"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
+interface Topic {
+  id: number
+  title: string
+  author: string
+  date: string
+  replies: number
+  views: number
+  category: string
+  pinned: boolean
+}
+
 export default function ForumPage() {
   const categories = [
     {
@@ -291,30 +302,28 @@ export default function ForumPage() {
   )
 }
 
-function TopicRow({ topic }) {
+function TopicRow({ topic }: { topic: Topic }) {
   return (
-    <div className="border rounded-lg p-4 hover:bg-gray-50 transition-colors">
-      <div className="flex justify-between items-start">
-        <div>
-          <Link href={`/forum/topics/${topic.id}`}>
-            <h3 className="text-lg font-medium text-green-700 hover:text-green-800 transition-colors flex items-center">
-              {topic.pinned && <Pin className="h-4 w-4 mr-2 text-yellow-500" />}
-              {topic.title}
-            </h3>
+    <div className="flex items-center justify-between p-4 border-b last:border-b-0 hover:bg-gray-50">
+      <div className="flex-1">
+        <div className="flex items-center space-x-2">
+          {topic.pinned && <Pin className="h-4 w-4 text-green-600" />}
+          <Link href={`/forum/topics/${topic.id}`} className="font-medium text-green-700 hover:text-green-800">
+            {topic.title}
           </Link>
-          <div className="text-sm text-gray-600 mt-1">
-            Started by {topic.author} • {topic.date} • in {topic.category}
-          </div>
         </div>
-        <div className="flex items-center space-x-4 text-sm text-gray-600">
-          <div className="flex items-center">
-            <MessageCircle className="h-4 w-4 mr-1" />
-            <span>{topic.replies}</span>
-          </div>
-          <div className="flex items-center">
-            <Eye className="h-4 w-4 mr-1" />
-            <span>{topic.views}</span>
-          </div>
+        <div className="text-sm text-gray-600 mt-1">
+          Posted by {topic.author} in {topic.category} • {topic.date}
+        </div>
+      </div>
+      <div className="flex items-center space-x-4 text-sm text-gray-600">
+        <div className="flex items-center">
+          <MessageCircle className="h-4 w-4 mr-1" />
+          {topic.replies}
+        </div>
+        <div className="flex items-center">
+          <Eye className="h-4 w-4 mr-1" />
+          {topic.views}
         </div>
       </div>
     </div>
