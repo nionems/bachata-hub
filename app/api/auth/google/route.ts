@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { google } from 'googleapis';
+import { OAuth2Client } from 'google-auth-library';
 
 export async function GET() {
   try {
@@ -7,7 +8,7 @@ export async function GET() {
       scopes: ['https://www.googleapis.com/auth/calendar.readonly'],
     });
 
-    const client = await auth.getClient();
+    const client = await auth.getClient() as OAuth2Client;
     const calendar = google.calendar({ version: 'v3', auth: client });
 
     // You can now use the calendar client for server-side operations

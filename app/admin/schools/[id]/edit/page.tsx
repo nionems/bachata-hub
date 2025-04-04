@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { School } from '@/types/school'
 
@@ -10,11 +10,7 @@ export default function EditSchool({ params }: { params: { id: string } }) {
   const [error, setError] = useState<string | null>(null)
   const router = useRouter()
 
-  useEffect(() => {
-    fetchSchool()
-  }, [params.id])
-
-  const fetchSchool = async () => {
+  const fetchSchool = useCallback(async () => {
     try {
       const response = await fetch(`/api/schools/${params.id}`)
       if (!response.ok) throw new Error('Failed to fetch school')
@@ -25,7 +21,11 @@ export default function EditSchool({ params }: { params: { id: string } }) {
     } finally {
       setIsLoading(false)
     }
-  }
+  }, [params.id])
+
+  useEffect(() => {
+    fetchSchool()
+  }, [fetchSchool])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
