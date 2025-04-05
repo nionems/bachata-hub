@@ -5,6 +5,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Trophy, Medal, Calendar } from "lucide-react"
 
+interface RankBadgeProps {
+  rank: number;
+}
+
 export default function LeaderboardPage() {
   const competitions = [
     {
@@ -254,7 +258,7 @@ export default function LeaderboardPage() {
   )
 }
 
-function RankBadge({ rank }) {
+function RankBadge({ rank }: RankBadgeProps) {
   if (rank === 1) {
     return (
       <div className="flex items-center">
