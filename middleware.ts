@@ -2,17 +2,17 @@ import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 
 export function middleware(request: NextRequest) {
-  const isAdminPath = request.nextUrl.pathname.startsWith('/admin')
-  const isLoginPath = request.nextUrl.pathname === '/admin/login'
-  const isAdmin = request.cookies.get('isAdmin')?.value === 'true'
+  const adminSession = request.cookies.get('admin_session')
+  const isAdminRoute = request.nextUrl.pathname.startsWith('/admin')
+  const isLoginPage = request.nextUrl.pathname === '/admin/login'
 
-  // If trying to access admin routes without being logged in
-  if (isAdminPath && !isLoginPath && !isAdmin) {
+  // If trying to access admin routes without being logged in (except login page)
+  if (isAdminRoute && !adminSession?.value && !isLoginPage) {
     return NextResponse.redirect(new URL('/admin/login', request.url))
   }
 
   // If already logged in and trying to access login page
-  if (isLoginPath && isAdmin) {
+  if (isLoginPage && adminSession?.value === 'true') {
     return NextResponse.redirect(new URL('/admin/dashboard', request.url))
   }
 
@@ -20,5 +20,5 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: '/admin/:path*',
+  matcher: ['/admin/:path*']
 } 

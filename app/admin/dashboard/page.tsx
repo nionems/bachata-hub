@@ -13,31 +13,44 @@ export default function AdminDashboard() {
   const router = useRouter()
 
   useEffect(() => {
-    checkAuth()
-    fetchSchools()
-  }, [])
+    const init = async () => {
+      try {
+        // First check auth
+        const authResponse = await fetch('/api/auth/check', {
+          credentials: 'include'
+        })
+        
+        if (!authResponse.ok) {
+          router.replace('/admin/login')
+          return
+        }
 
-  const checkAuth = async () => {
-    try {
-      const response = await fetch('/api/auth/check')
-      if (!response.ok) {
-        router.push('/admin/login')
+        // Then fetch schools
+        await fetchSchools()
+      } catch (err) {
+        router.replace('/admin/login')
       }
-    } catch (err) {
-      router.push('/admin/login')
     }
-  }
+
+    init()
+  }, [])
 
   const handleLogout = async () => {
     try {
       const response = await fetch('/api/auth/logout', {
         method: 'POST',
+        credentials: 'include',
       })
-      if (response.ok) {
-        router.push('/admin/login')
+
+      if (!response.ok) {
+        throw new Error('Logout failed')
       }
+
+      // Redirect to login page
+      router.replace('/admin/login')
     } catch (err) {
       console.error('Logout failed:', err)
+      setError('Failed to logout. Please try again.')
     }
   }
 
@@ -54,17 +67,31 @@ export default function AdminDashboard() {
     }
   }
 
-  const handleDelete = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this school?')) return
+  const handleDelete = async (id: string, schoolName: string) => {
+    // Show confirmation dialog
+    const isConfirmed = window.confirm(`Are you sure you want to delete "${schoolName}"? This action cannot be undone.`)
+    
+    if (!isConfirmed) {
+      return // User cancelled the deletion
+    }
 
     try {
       const response = await fetch(`/api/schools/${id}`, {
         method: 'DELETE',
       })
-      if (!response.ok) throw new Error('Failed to delete school')
+      
+      if (!response.ok) {
+        throw new Error('Failed to delete school')
+      }
+
+      // Remove the school from the state
       setSchools(schools.filter(school => school.id !== id))
+      
+      // Show success message
+      alert(`"${schoolName}" has been successfully deleted.`)
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to delete school')
+      console.error('Delete failed:', err)
+      setError('Failed to delete school. Please try again.')
     }
   }
 
@@ -122,7 +149,7 @@ export default function AdminDashboard() {
                     className="w-full h-full object-cover rounded"
                     onError={(e) => {
                       console.error('Error loading image:', school.imageUrl);
-                      (e.target as HTMLImageElement).src = '/placeholder-school.jpg';
+                      (e.target as HTMLImageElement).style.display = 'none';
                     }}
                   />
                 </div>
@@ -167,7 +194,7 @@ export default function AdminDashboard() {
                   Edit
                 </button>
                 <button
-                  onClick={() => handleDelete(school.id)}
+                  onClick={() => handleDelete(school.id, school.name)}
                   className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"
                 >
                   Delete

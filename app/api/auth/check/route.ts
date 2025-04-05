@@ -3,9 +3,9 @@ import { cookies } from 'next/headers'
 
 export async function GET() {
   const cookieStore = cookies()
-  const session = cookieStore.get('admin_session')
+  const adminSession = cookieStore.get('admin_session')
 
-  if (!session) {
+  if (!adminSession || adminSession.value !== 'true') {
     return NextResponse.json(
       { error: 'Unauthorized' },
       { status: 401 }
