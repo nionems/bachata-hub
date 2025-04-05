@@ -6,6 +6,20 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import CollapsibleFilter from "@/components/collapsible-filter"
 import { applyFilters } from "../actions"
 
+interface Product {
+  id: number;
+  name: string;
+  price: string;
+  rating: number;
+  reviews: number;
+  image: string;
+  category: string;
+  description: string;
+  location: string;
+  website: string;
+  bestseller: boolean;
+}
+
 export default function ShopPage() {
   const products = [
     // Dance Shoes
@@ -179,7 +193,7 @@ export default function ShopPage() {
   )
 }
 
-function ProductCard({ product }) {
+function ProductCard({ product }: { product: Product }) {
   return (
     <Card className="overflow-hidden hover:shadow-lg transition-shadow h-full flex flex-col">
       <div className="relative">
