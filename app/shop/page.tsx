@@ -20,6 +20,11 @@ interface Product {
   bestseller: boolean;
 }
 
+interface FilterCheckboxProps {
+  id: string;
+  label: string;
+}
+
 export default function ShopPage() {
   const products = [
     // Dance Shoes
@@ -251,7 +256,7 @@ function ProductCard({ product }: { product: Product }) {
   )
 }
 
-function FilterCheckbox({ id, label }) {
+function FilterCheckbox({ id, label }: FilterCheckboxProps) {
   return (
     <div className="flex items-center">
       <input
