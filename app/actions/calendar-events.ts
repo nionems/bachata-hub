@@ -55,10 +55,11 @@ export async function getUpcomingEvents(calendarId: string, maxResults = 3): Pro
 }
 
 // Get events for the current week
-export async function getWeekEvents() {
+export async function getWeekEvents(calendarId?: string) {
   try {
-    // Use the new calendar from bachata.au@gmail.com
-    const calendarId = "6b95632fc6fe63530bbdd89c944d792009478636f5b2ce7ffc8718ccd500915f@group.calendar.google.com"
+    // Use the provided calendarId or fall back to the default
+    const defaultCalendarId = "6b95632fc6fe63530bbdd89c944d792009478636f5b2ce7ffc8718ccd500915f@group.calendar.google.com"
+    const targetCalendarId = calendarId || defaultCalendarId
 
     const apiKey = process.env.GOOGLE_API_KEY
     if (!apiKey) {
@@ -77,9 +78,9 @@ export async function getWeekEvents() {
     console.log("End of week:", endOfWeek.toISOString())
 
     try {
-      console.log(`Fetching events for calendar: ${calendarId}`)
+      console.log(`Fetching events for calendar: ${targetCalendarId}`)
       const response = await fetch(
-        `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(calendarId)}/events?` +
+        `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(targetCalendarId)}/events?` +
         `key=${apiKey}&` +
         `timeMin=${now.toISOString()}&` +
         `timeMax=${endOfWeek.toISOString()}&` +
@@ -89,7 +90,7 @@ export async function getWeekEvents() {
 
       if (!response.ok) {
         const errorData = await response.json()
-        console.error(`Error fetching events for calendar ${calendarId}:`, errorData)
+        console.error(`Error fetching events for calendar ${targetCalendarId}:`, errorData)
         return []
       }
 
@@ -97,7 +98,7 @@ export async function getWeekEvents() {
       console.log(`Found ${data.items?.length || 0} events for the current week`)
       return data.items || []
     } catch (error) {
-      console.error(`Error fetching events for calendar ${calendarId}:`, error)
+      console.error(`Error fetching events for calendar ${targetCalendarId}:`, error)
       return []
     }
   } catch (error) {
