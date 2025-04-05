@@ -8,7 +8,7 @@ import { AlertCircle, CheckCircle, RefreshCw, ExternalLink } from "lucide-react"
 export default function CalendarTroubleshooter() {
   const [loading, setLoading] = useState(false)
   const [result, setResult] = useState(null)
-  const [error, setError] = useState(null)
+  const [error, setError] = useState<string | null>(null)
 
   const checkCalendar = async () => {
     setLoading(true)
