@@ -85,8 +85,5 @@
     "asap": "2.0.6",
     "pop-iterate": "1.0.1",
     "weak-map": "1.0.8"
-  },
-  "overrides": {
-    "q": "^2.0.0"
   }
 }
