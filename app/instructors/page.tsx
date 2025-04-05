@@ -7,6 +7,12 @@ import { MapPin, Star, Calendar, Instagram, Facebook, Youtube } from "lucide-rea
 import { useState } from "react"
 import CollapsibleFilter from "@/components/collapsible-filter"
 
+interface SocialLinkProps {
+  icon: React.ReactNode;
+  username: string;
+  platform: string;
+}
+
 export default function InstructorsPage() {
   const [selectedState, setSelectedState] = useState("all")
   const states = [
@@ -298,7 +304,7 @@ export default function InstructorsPage() {
   )
 }
 
-function SocialLink({ icon, username, platform }) {
+function SocialLink({ icon, username, platform }: SocialLinkProps) {
   return (
     <a
       href={`https://${platform}.com/${username}`}
