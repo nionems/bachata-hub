@@ -35,24 +35,23 @@ export default function NewSchool() {
       })
 
       if (!response.ok) {
-        const errorData = await response.json()
-        throw new Error(errorData.error || 'Failed to upload image')
+        const errorText = await response.text()
+        console.error('Upload error response:', errorText)
+        throw new Error(`Upload failed: ${response.status} ${response.statusText}`)
       }
 
       const data = await response.json()
-      console.log('Image upload response:', data)
-      
-      if (!data.url || !data.path) {
+      console.log('Upload response:', data)
+
+      if (!data || !data.url) {
+        console.error('Invalid upload response:', data)
         throw new Error('Invalid response from upload server')
       }
 
-      return {
-        url: data.url,
-        ref: data.path
-      }
+      return data.url
     } catch (error) {
-      console.error('Error uploading image:', error)
-      throw error
+      console.error('Upload error:', error)
+      throw new Error('Failed to upload image. Please try again.')
     }
   }
 
@@ -63,61 +62,51 @@ export default function NewSchool() {
 
     try {
       let imageUrl = ''
-      let imageRef = ''
-
-      // Handle image upload if file is selected
       if (school.imageFile) {
-        try {
-          const imageData = await handleImageUpload(school.imageFile)
-          imageUrl = imageData.url
-          imageRef = imageData.ref
-          console.log('Image uploaded successfully:', imageUrl)
-        } catch (uploadError) {
-          console.error('Error uploading image:', uploadError)
-          throw new Error('Failed to upload image. Please try again.')
-        }
+        imageUrl = await handleImageUpload(school.imageFile)
+        console.log('Successfully uploaded image:', imageUrl)
       } else if (school.imageUrl) {
-        // Use the provided URL directly
         imageUrl = school.imageUrl
-        imageRef = '' // No storage reference for external URLs
       }
 
-      // Create school with image URL and reference
+      const schoolData = {
+        name: school.name,
+        location: school.location,
+        state: school.state,
+        address: school.address,
+        contactInfo: school.contactInfo,
+        instructors: school.instructors,
+        website: school.website,
+        danceStyles: school.danceStyles,
+        imageUrl: imageUrl,
+        comment: school.comment,
+        googleReviewsUrl: school.googleReviewsUrl,
+        googleRating: school.googleRating,
+        googleReviewsCount: school.googleReviewsCount,
+      }
+
+      console.log('Submitting school data:', schoolData)
+
       const response = await fetch('/api/schools', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          name: school.name,
-          location: school.location,
-          state: school.state,
-          address: school.address,
-          contactInfo: school.contactInfo,
-          instructors: school.instructors,
-          website: school.website,
-          danceStyles: school.danceStyles,
-          imageUrl: imageUrl,
-          imageRef: imageRef,
-          comment: school.comment,
-          googleReviewsUrl: school.googleReviewsUrl,
-          googleRating: school.googleRating,
-          googleReviewsCount: school.googleReviewsCount,
-        }),
+        body: JSON.stringify(schoolData),
       })
 
       if (!response.ok) {
-        const errorData = await response.json()
-        console.error('Server error:', errorData)
-        throw new Error(errorData.error || 'Failed to create school')
+        const errorData = await response.text()
+        console.error('School creation error:', errorData)
+        throw new Error('Failed to create school')
       }
 
-      const data = await response.json()
-      console.log('School created successfully:', data)
+      const newSchool = await response.json()
+      console.log('School created:', newSchool)
       router.push('/admin/dashboard')
-    } catch (err) {
-      console.error('Error creating school:', err)
-      setError(err instanceof Error ? err.message : 'An error occurred while creating the school')
+    } catch (error) {
+      console.error('Error creating school:', error)
+      setError(error instanceof Error ? error.message : 'Failed to create school')
     } finally {
       setIsLoading(false)
     }

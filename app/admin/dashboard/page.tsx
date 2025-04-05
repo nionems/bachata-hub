@@ -13,8 +13,20 @@ export default function AdminDashboard() {
   const router = useRouter()
 
   useEffect(() => {
+    checkAuth()
     fetchSchools()
   }, [])
+
+  const checkAuth = async () => {
+    try {
+      const response = await fetch('/api/auth/check')
+      if (!response.ok) {
+        router.push('/admin/login')
+      }
+    } catch (err) {
+      router.push('/admin/login')
+    }
+  }
 
   const handleLogout = async () => {
     try {
@@ -102,6 +114,19 @@ export default function AdminDashboard() {
               <p className="text-gray-600 mb-2">{school.location}, {school.state}</p>
               <p className="text-gray-600 mb-2">{school.address}</p>
               <p className="text-gray-600 mb-2">{school.contactInfo}</p>
+              {school.imageUrl && (
+                <div className="w-full h-48 mb-4 relative">
+                  <img
+                    src={school.imageUrl}
+                    alt={school.name}
+                    className="w-full h-full object-cover rounded"
+                    onError={(e) => {
+                      console.error('Error loading image:', school.imageUrl);
+                      (e.target as HTMLImageElement).src = '/placeholder-school.jpg';
+                    }}
+                  />
+                </div>
+              )}
               {typeof school.googleRating === 'number' && (
                 <div className="flex items-center mb-2">
                   <div className="flex">
@@ -133,17 +158,6 @@ export default function AdminDashboard() {
                     </a>
                   )}
                 </div>
-              )}
-              {school.imageUrl && (
-                <img
-                  src={school.imageUrl}
-                  alt={school.name}
-                  className="w-full h-48 object-cover rounded mb-2"
-                  onError={(e) => {
-                    console.error('Error loading image:', school.imageUrl);
-                    (e.target as HTMLImageElement).style.display = 'none';
-                  }}
-                />
               )}
               <div className="flex gap-2 mt-4">
                 <button

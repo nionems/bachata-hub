@@ -1,16 +1,21 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { School } from '@/types/school'
 
 export default function EditSchool({ params }: { params: { id: string } }) {
+  const router = useRouter()
   const [school, setSchool] = useState<School | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const router = useRouter()
+  const [selectedImage, setSelectedImage] = useState<File | null>(null)
 
-  const fetchSchool = useCallback(async () => {
+  useEffect(() => {
+    fetchSchool()
+  }, [params.id])
+
+  const fetchSchool = async () => {
     try {
       const response = await fetch(`/api/schools/${params.id}`)
       if (!response.ok) throw new Error('Failed to fetch school')
@@ -21,24 +26,39 @@ export default function EditSchool({ params }: { params: { id: string } }) {
     } finally {
       setIsLoading(false)
     }
-  }, [params.id])
-
-  useEffect(() => {
-    fetchSchool()
-  }, [fetchSchool])
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!school) return
 
     try {
+      let imageUrl = school.imageUrl
+      if (selectedImage) {
+        const formData = new FormData()
+        formData.append('file', selectedImage)
+        const uploadResponse = await fetch('/api/upload', {
+          method: 'POST',
+          body: formData,
+        })
+        if (!uploadResponse.ok) throw new Error('Failed to upload image')
+        const { url } = await uploadResponse.json()
+        imageUrl = url
+      }
+
+      const updatedSchool = {
+        ...school,
+        imageUrl,
+      }
+
       const response = await fetch(`/api/schools/${params.id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(school),
+        body: JSON.stringify(updatedSchool),
       })
+
       if (!response.ok) throw new Error('Failed to update school')
       router.push('/admin/dashboard')
     } catch (err) {
@@ -54,69 +74,150 @@ export default function EditSchool({ params }: { params: { id: string } }) {
     <div className="container mx-auto px-4 py-8">
       <h1 className="text-2xl font-bold mb-6">Edit School</h1>
       <form onSubmit={handleSubmit} className="space-y-4">
+        {/* Basic Information */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700">Name</label>
+            <input
+              type="text"
+              value={school.name}
+              onChange={(e) => setSchool({ ...school, name: e.target.value })}
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+              required
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700">Location</label>
+            <input
+              type="text"
+              value={school.location}
+              onChange={(e) => setSchool({ ...school, location: e.target.value })}
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+              required
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700">State</label>
+            <select
+              value={school.state}
+              onChange={(e) => setSchool({ ...school, state: e.target.value })}
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+              required
+            >
+              <option value="NSW">New South Wales</option>
+              <option value="VIC">Victoria</option>
+              <option value="QLD">Queensland</option>
+              <option value="WA">Western Australia</option>
+            </select>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700">Address</label>
+            <input
+              type="text"
+              value={school.address}
+              onChange={(e) => setSchool({ ...school, address: e.target.value })}
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+              required
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700">Contact Info</label>
+            <input
+              type="text"
+              value={school.contactInfo}
+              onChange={(e) => setSchool({ ...school, contactInfo: e.target.value })}
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+              required
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700">Website</label>
+            <input
+              type="url"
+              value={school.website}
+              onChange={(e) => setSchool({ ...school, website: e.target.value })}
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+            />
+          </div>
+        </div>
+
+        {/* Dance Styles */}
         <div>
-          <label className="block text-sm font-medium text-gray-700">Name</label>
+          <label className="block text-sm font-medium text-gray-700">Dance Styles</label>
           <input
             type="text"
-            value={school.name}
-            onChange={(e) => setSchool({ ...school, name: e.target.value })}
+            value={Array.isArray(school.danceStyles) ? school.danceStyles.join(', ') : ''}
+            onChange={(e) => setSchool({ 
+              ...school, 
+              danceStyles: e.target.value.split(',').map(style => style.trim()).filter(Boolean)
+            })}
             className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-            required
+            placeholder="Enter dance styles separated by commas"
           />
         </div>
 
+        {/* Google Information */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700">Google Rating</label>
+            <input
+              type="number"
+              step="0.1"
+              min="0"
+              max="5"
+              value={school.googleRating || ''}
+              onChange={(e) => setSchool({ ...school, googleRating: parseFloat(e.target.value) })}
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700">Google Reviews Count</label>
+            <input
+              type="number"
+              value={school.googleReviewsCount || ''}
+              onChange={(e) => setSchool({ ...school, googleReviewsCount: parseInt(e.target.value) })}
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700">Google Reviews URL</label>
+            <input
+              type="url"
+              value={school.googleReviewsUrl || ''}
+              onChange={(e) => setSchool({ ...school, googleReviewsUrl: e.target.value })}
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+            />
+          </div>
+        </div>
+
+        {/* Image Upload */}
         <div>
-          <label className="block text-sm font-medium text-gray-700">Location</label>
+          <label className="block text-sm font-medium text-gray-700">School Image</label>
+          {school.imageUrl && (
+            <div className="mt-2 w-48 h-48 relative">
+              <img
+                src={school.imageUrl}
+                alt={school.name}
+                className="w-full h-full object-cover rounded"
+              />
+            </div>
+          )}
           <input
-            type="text"
-            value={school.location}
-            onChange={(e) => setSchool({ ...school, location: e.target.value })}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-            required
+            type="file"
+            accept="image/*"
+            onChange={(e) => setSelectedImage(e.target.files?.[0] || null)}
+            className="mt-2 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
           />
         </div>
 
-        <div>
-          <label className="block text-sm font-medium text-gray-700">Contact Info</label>
-          <input
-            type="text"
-            value={school.contactInfo}
-            onChange={(e) => setSchool({ ...school, contactInfo: e.target.value })}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-            required
-          />
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-gray-700">Instructors (comma-separated)</label>
-          <input
-            type="text"
-            value={school.instructors.join(', ')}
-            onChange={(e) => setSchool({ ...school, instructors: e.target.value.split(',').map(i => i.trim()) })}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-          />
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-gray-700">Website</label>
-          <input
-            type="url"
-            value={school.website}
-            onChange={(e) => setSchool({ ...school, website: e.target.value })}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-          />
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-gray-700">Dance Styles (comma-separated)</label>
-          <input
-            type="text"
-            value={school.danceStyles.join(', ')}
-            onChange={(e) => setSchool({ ...school, danceStyles: e.target.value.split(',').map(s => s.trim()) })}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-          />
-        </div>
-
+        {/* Buttons */}
         <div className="flex gap-4">
           <button
             type="submit"

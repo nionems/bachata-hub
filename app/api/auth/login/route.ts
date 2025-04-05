@@ -1,23 +1,23 @@
 import { NextResponse } from 'next/server'
-import { cookies } from 'next/headers'
+
+// Hardcoded admin credentials
+const ADMIN_EMAIL = "admin@bachata.au"
+const ADMIN_PASSWORD = "admin123"
 
 export async function POST(request: Request) {
   try {
-    const body = await request.json()
-    const { email, password } = body
+    const { email, password } = await request.json()
 
-    // For now, using a simple hardcoded check
-    // In production, you should use proper authentication
-    if (email === 'admin@bachata.au' && password === 'admin123') {
-      // Set the cookie
-      cookies().set('isAdmin', 'true', {
+    if (email === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
+      // Set a cookie to maintain the session
+      const response = NextResponse.json({ success: true })
+      response.cookies.set('admin_session', 'true', {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
-        sameSite: 'strict',
-        path: '/',
+        sameSite: 'lax',
+        maxAge: 60 * 60 * 24 // 24 hours
       })
-
-      return NextResponse.json({ success: true })
+      return response
     }
 
     return NextResponse.json(
@@ -26,7 +26,7 @@ export async function POST(request: Request) {
     )
   } catch (error) {
     return NextResponse.json(
-      { error: 'An error occurred during login' },
+      { error: 'Authentication failed' },
       { status: 500 }
     )
   }

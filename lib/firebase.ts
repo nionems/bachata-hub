@@ -12,6 +12,16 @@ const firebaseConfig = {
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID
 }
 
+// Add this before the try block
+console.log('Firebase Config:', {
+  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY ? 'Set' : 'Missing',
+  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN ? 'Set' : 'Missing',
+  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID ? 'Set' : 'Missing',
+  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET ? 'Set' : 'Missing',
+  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID ? 'Set' : 'Missing',
+  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID ? 'Set' : 'Missing'
+});
+
 // Initialize Firebase
 let app
 let db: Firestore
@@ -29,22 +39,16 @@ try {
   }
 
   // Initialize Firebase app if it hasn't been initialized
-  if (getApps().length === 0) {
-    app = initializeApp(firebaseConfig)
-    console.log('Firebase app initialized')
-  } else {
-    app = getApp()
-    console.log('Using existing Firebase app')
-  }
+  const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
+  console.log('Firebase app initialized')
 
   // Initialize Firestore
   db = getFirestore(app)
   console.log('Firestore initialized')
 
-  // Initialize Storage with explicit bucket URL
-  const bucketUrl = `gs://${firebaseConfig.storageBucket}`
-  storage = getStorage(app, bucketUrl)
-  console.log('Storage initialized with bucket:', bucketUrl)
+  // Initialize Storage
+  storage = getStorage(app);
+  console.log('Storage initialized successfully')
 } catch (error) {
   console.error('Error initializing Firebase:', error)
   if (error instanceof Error) {

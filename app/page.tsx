@@ -1,6 +1,10 @@
+'use client'
+
 import Link from "next/link"
 import { Calendar, Users, Music, School, ShoppingBag, Trophy, MapPin, Clock } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { useState, useEffect } from 'react'
+import { School as SchoolType } from '@/types/school'
 
 // Import the server actions at the top of the file
 import { getWeekEvents } from "./actions/calendar-events"
@@ -16,40 +20,58 @@ import EventCard from "@/components/event-card"
  * - Feature cards for different sections
  * - Featured events from Google Calendar
  */
-export default async function Home() {
-  try {
-    // Google Calendar ID for fetching events
-    const calendarId = "8d27a79f37a74ab7aedc5c038cc4492cd36b87a71b57fb6d7d141d04e8ffe5c2@group.calendar.google.com"
+export default function Home() {
+  const [schools, setSchools] = useState<SchoolType[]>([])
+  const [events, setEvents] = useState([])
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
-    // Fetch events for the current week from Google Calendar
-    const weekEvents = await getWeekEvents(calendarId)
+  useEffect(() => {
+    fetchData()
+  }, [])
 
-    /**
-     * Format event date and time for display
-     * Handles both all-day events and events with specific times
-     */
-    const formatEventDateTime = (event: any) => {
-      if (!event) return { date: "No upcoming events", time: "" }
+  const fetchData = async () => {
+    try {
+      // Fetch schools
+      const schoolsResponse = await fetch('/api/schools')
+      if (!schoolsResponse.ok) throw new Error('Failed to fetch schools')
+      const schoolsData = await schoolsResponse.json()
+      setSchools(schoolsData)
 
-      const start = event.start.dateTime ? new Date(event.start.dateTime) : new Date(event.start.date)
+      // Fetch calendar events
+      const calendarId = "8d27a79f37a74ab7aedc5c038cc4492cd36b87a71b57fb6d7d141d04e8ffe5c2@group.calendar.google.com"
+      const weekEvents = await getWeekEvents(calendarId)
+      
+      // Format events
+      const formattedEvents = formatEvents(weekEvents)
+      setEvents(formattedEvents)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'An error occurred')
+    } finally {
+      setIsLoading(false)
+    }
+  }
 
-      // Format all-day events
-      if (!event.start.dateTime) {
-        return {
-          date: start.toLocaleDateString("en-AU", { weekday: "long", year: "numeric", month: "long", day: "numeric" }),
-          time: "All day",
-        }
-      }
+  const formatEventDateTime = (event: any) => {
+    if (!event) return { date: "No upcoming events", time: "" }
 
-      // Format events with specific times
+    const start = event.start.dateTime ? new Date(event.start.dateTime) : new Date(event.start.date)
+
+    if (!event.start.dateTime) {
       return {
         date: start.toLocaleDateString("en-AU", { weekday: "long", year: "numeric", month: "long", day: "numeric" }),
-        time: start.toLocaleTimeString("en-AU", { hour: "2-digit", minute: "2-digit" }),
+        time: "All day",
       }
     }
 
-    // Format calendar events for display
-    const formattedWeekEvents = weekEvents.map((event: any) => ({
+    return {
+      date: start.toLocaleDateString("en-AU", { weekday: "long", year: "numeric", month: "long", day: "numeric" }),
+      time: start.toLocaleTimeString("en-AU", { hour: "2-digit", minute: "2-digit" }),
+    }
+  }
+
+  const formatEvents = (weekEvents: any[]) => {
+    const formattedWeekEvents = weekEvents.map(event => ({
       id: event.id,
       title: event.summary,
       date: formatEventDateTime(event).date,
@@ -61,8 +83,8 @@ export default async function Home() {
       featured: true,
     }))
 
-    // Combine calendar events with static featured events
-    const featuredEvents = [
+    // Add static events
+    return [
       ...formattedWeekEvents,
       // Static featured events for major festivals
       {
@@ -102,7 +124,12 @@ export default async function Home() {
         featured: true,
       },
     ].slice(0, 6) // Limit to 6 events to avoid overcrowding
+  }
 
+  if (isLoading) return <div>Loading...</div>
+  if (error) return <div>Error: {error}</div>
+
+  try {
     return (
       <div className="min-h-screen bg-gray-50">
         {/* Hero Section - Main banner with call-to-action buttons */}
@@ -224,7 +251,7 @@ export default async function Home() {
           <div className="container mx-auto px-4">
             <h2 className="text-3xl font-bold text-center mb-12">Featured Events This Week</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {featuredEvents.map((event) => (
+              {events.map((event) => (
                 <EventCard key={event.id} event={event} />
               ))}
             </div>

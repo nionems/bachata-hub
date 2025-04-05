@@ -8,7 +8,7 @@ export interface School {
   instructors: string[]
   website: string
   danceStyles: string[]
-  imageUrl: string
+  imageUrl: string  // Keep this as the main image URL field
   imageRef: string  // Storage reference path for the image
   comment: string
   googleReviewsUrl?: string
