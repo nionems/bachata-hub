@@ -18,8 +18,9 @@ export default function CalendarTroubleshooter() {
       const response = await fetch("/api/calendar-debug")
       const data = await response.json()
       setResult(data)
-    } catch (err) {
-      setError(err.message || "An error occurred while checking the calendar")
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : "An error occurred while checking the calendar"
+      setError(errorMessage)
     } finally {
       setLoading(false)
     }
