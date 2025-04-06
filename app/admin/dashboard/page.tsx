@@ -4,6 +4,8 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { School } from '@/types/school'
 import ErrorBoundary from '@/components/ErrorBoundary'
+import { collection, getDocs } from 'firebase/firestore'
+import { db } from '../../../firebase/config'
 
 // Add Event type
 interface Event {
@@ -46,11 +48,24 @@ interface Instructor {
   emailLink?: string
 }
 
+interface Shop {
+  id: string;
+  name: string;
+  location: string;
+  state: string;
+  address: string;
+  googleReviewLink: string;
+  websiteLink: string;
+  imageUrl: string;
+  comment: string;
+}
+
 export default function AdminDashboard() {
   const [schools, setSchools] = useState<School[]>([])
   const [events, setEvents] = useState<Event[]>([])
   const [festivals, setFestivals] = useState<Festival[]>([])
   const [instructors, setInstructors] = useState<Instructor[]>([])
+  const [shops, setShops] = useState<Shop[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [searchTerm, setSearchTerm] = useState('')
@@ -85,6 +100,18 @@ export default function AdminDashboard() {
       fetchInstructors()
     }
   }, [activeTab])
+
+  useEffect(() => {
+    const loadShops = async () => {
+      try {
+        const shopsData = await fetchShops()
+        setShops(shopsData)
+      } catch (error) {
+        console.error('Error fetching shops:', error)
+      }
+    }
+    loadShops()
+  }, [])
 
   const checkAuth = async () => {
     try {
@@ -185,6 +212,15 @@ export default function AdminDashboard() {
     }
   }
 
+  const fetchShops = async () => {
+    const shopsCollection = collection(db, 'shops')
+    const shopsSnapshot = await getDocs(shopsCollection)
+    return shopsSnapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data()
+    })) as Shop[]
+  }
+
   const handleDelete = async (id: string, schoolName: string) => {
     // Show confirmation dialog
     const isConfirmed = window.confirm(`Are you sure you want to delete "${schoolName}"? This action cannot be undone.`)
@@ -262,6 +298,25 @@ export default function AdminDashboard() {
     } catch (err) {
       console.error('Failed to delete instructor:', err)
       setError('Failed to delete instructor')
+    }
+  }
+
+  const handleDeleteShop = async (shopId: string) => {
+    if (!confirm('Are you sure you want to delete this shop?')) return
+
+    try {
+      const response = await fetch(`/api/shops/${shopId}`, {
+        method: 'DELETE',
+      })
+
+      if (!response.ok) throw new Error('Failed to delete shop')
+      
+      // Refresh shops list
+      const updatedShops = await fetchShops()
+      setShops(updatedShops)
+    } catch (err) {
+      console.error('Failed to delete shop:', err)
+      setError('Failed to delete shop')
     }
   }
 
@@ -751,8 +806,110 @@ export default function AdminDashboard() {
 
           {activeTab === 'shop' && (
             <div>
-              <h2 className="text-xl font-semibold mb-4">Shop Management</h2>
-              {/* Shop content will go here */}
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="text-xl font-semibold">Shops Management</h2>
+                <button
+                  onClick={() => router.push('/admin/shops/new')}
+                  className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+                >
+                  Add New Shop
+                </button>
+              </div>
+
+              {isLoading ? (
+                <div className="text-center py-8">Loading shops...</div>
+              ) : error ? (
+                <div className="text-red-500 text-center py-8">{error}</div>
+              ) : shops.length === 0 ? (
+                <div className="text-center py-8 text-gray-500">
+                  No shops found. Click "Add New Shop" to create one.
+                </div>
+              ) : (
+                <div className={`
+                  ${layout === 'grid' 
+                    ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6' 
+                    : 'flex flex-col gap-4'
+                  }
+                `}>
+                  {shops.map((shop) => (
+                    <div
+                      key={shop.id}
+                      className={`bg-white rounded-lg shadow overflow-hidden ${
+                        layout === 'grid' ? 'flex flex-col' : 'flex flex-row'
+                      }`}
+                    >
+                      {/* Image */}
+                      <div className={`relative ${
+                        layout === 'grid' ? 'w-full h-48' : 'w-32 h-32 flex-shrink-0'
+                      }`}>
+                        <img
+                          src={shop.imageUrl || '/placeholder-shop.jpg'}
+                          alt={shop.name}
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+
+                      {/* Content */}
+                      <div className="p-4 flex-1">
+                        <h3 className="text-xl font-semibold mb-2">{shop.name}</h3>
+                        <div className="space-y-2">
+                          <p className="text-gray-600">
+                            <span className="font-medium">Location:</span> {shop.location}, {shop.state}
+                          </p>
+                          <p className="text-gray-600">
+                            <span className="font-medium">Address:</span> {shop.address}
+                          </p>
+                          {shop.comment && (
+                            <p className="text-gray-600">
+                              <span className="font-medium">Comment:</span> {shop.comment}
+                            </p>
+                          )}
+
+                          {/* Links */}
+                          <div className="flex gap-4 mt-2">
+                            {shop.websiteLink && (
+                              <a
+                                href={shop.websiteLink}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-blue-600 hover:text-blue-700"
+                              >
+                                Website
+                              </a>
+                            )}
+                            {shop.googleReviewLink && (
+                              <a
+                                href={shop.googleReviewLink}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-blue-600 hover:text-blue-700"
+                              >
+                                Reviews
+                              </a>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Action Buttons */}
+                        <div className="mt-4 flex gap-2">
+                          <button
+                            onClick={() => router.push(`/admin/shops/${shop.id}/edit`)}
+                            className="bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600"
+                          >
+                            Edit
+                          </button>
+                          <button
+                            onClick={() => handleDeleteShop(shop.id)}
+                            className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"
+                          >
+                            Delete
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           )}
 
@@ -784,7 +941,7 @@ export default function AdminDashboard() {
                   router.push('/admin/competitions/new')
                   break
                 case 'shop':
-                  router.push('/admin/shop/new')
+                  router.push('/admin/shops/new')
                   break
                 case 'accommodations':
                   router.push('/admin/accommodations/new')

@@ -2,15 +2,23 @@
 
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { MapPin, Star, Calendar, Instagram, Facebook, Youtube } from "lucide-react"
-import { useState } from "react"
+import { Card } from "@/components/ui/card"
+import { MapPin, Instagram, Facebook, Mail } from "lucide-react"
+import { useState, useEffect } from "react"
 import CollapsibleFilter from "@/components/collapsible-filter"
 
-interface SocialLinkProps {
-  icon: React.ReactNode;
-  username: string;
-  platform: string;
+interface Instructor {
+  id: string
+  name: string
+  location: string
+  state: string
+  contact: string
+  danceStyles: string
+  imageUrl: string
+  comment: string
+  instagramLink: string
+  facebookLink: string
+  emailLink: string
 }
 
 export default function InstructorsPage() {
@@ -24,174 +32,48 @@ export default function InstructorsPage() {
     { value: "sa", label: "South Australia" },
   ]
 
-  const instructors = [
-    {
-      id: 1,
-      name: "Maria Rodriguez",
-      location: "Sydney, NSW",
-      specialty: "Dominican Bachata",
-      experience: "10+ years",
-      bio: "International Bachata champion and instructor specializing in authentic Dominican style with a modern twist.",
-      image: "/placeholder.svg?height=300&width=300",
-      rating: 4.9,
-      school: "Sydney Bachata Academy",
-      social: {
-        instagram: "maria_bachata",
-        facebook: "mariarodriguez",
-        youtube: "mariabachata",
-      },
-      state: "nsw",
-    },
-    {
-      id: 2,
-      name: "David Chen",
-      location: "Melbourne, VIC",
-      specialty: "Modern Bachata Fusion",
-      experience: "8+ years",
-      bio: "Known for his creative choreography and fusion of Bachata with contemporary dance styles.",
-      image: "/placeholder.svg?height=300&width=300",
-      rating: 4.8,
-      school: "Melbourne Bachata School",
-      social: {
-        instagram: "david_bachata",
-        facebook: "davidchen",
-        youtube: "davidbachatafusion",
-      },
-      state: "vic",
-    },
-    {
-      id: 3,
-      name: "Sophia Martinez",
-      location: "Brisbane, QLD",
-      specialty: "Ladies Styling",
-      experience: "12+ years",
-      bio: "Renowned for her elegant styling techniques and empowering approach to teaching women's Bachata movement.",
-      image: "/placeholder.svg?height=300&width=300",
-      rating: 4.9,
-      school: "Brisbane Bachata Institute",
-      social: {
-        instagram: "sophia_styling",
-        facebook: "sophiamartinez",
-        youtube: "sophiabachata",
-      },
-      state: "qld",
-    },
-    {
-      id: 4,
-      name: "Michael Wilson",
-      location: "Perth, WA",
-      specialty: "Sensual Bachata",
-      experience: "9+ years",
-      bio: "Specializes in sensual Bachata with a focus on connection, musicality, and fluid movement patterns.",
-      image: "/placeholder.svg?height=300&width=300",
-      rating: 4.7,
-      school: "Perth Dance Studio",
-      social: {
-        instagram: "michael_sensual",
-        facebook: "michaelwilson",
-        youtube: "michaelbachata",
-      },
-      state: "wa",
-    },
-    {
-      id: 5,
-      name: "Emma Johnson",
-      location: "Adelaide, SA",
-      specialty: "Traditional & Modern Bachata",
-      experience: "7+ years",
-      bio: "Versatile instructor skilled in both traditional and modern Bachata styles with a focus on technique.",
-      image: "/placeholder.svg?height=300&width=300",
-      rating: 4.8,
-      school: "Adelaide Bachata Center",
-      social: {
-        instagram: "emma_bachata",
-        facebook: "emmajohnson",
-        youtube: "emmabachata",
-      },
-      state: "sa",
-    },
-    {
-      id: 6,
-      name: "Carlos Sanchez",
-      location: "Gold Coast, QLD",
-      specialty: "Bachata Musicality",
-      experience: "15+ years",
-      bio: "Master instructor with deep knowledge of Bachata music, rhythm, and authentic Dominican movement.",
-      image: "/placeholder.svg?height=300&width=300",
-      rating: 4.9,
-      school: "Gold Coast Dance Academy",
-      social: {
-        instagram: "carlos_bachata",
-        facebook: "carlossanchez",
-        youtube: "carlosbachata",
-      },
-      state: "qld",
-    },
-    {
-      id: 7,
-      name: "Olivia Brown",
-      location: "Sydney, NSW",
-      specialty: "Performance Choreography",
-      experience: "8+ years",
-      bio: "Choreographer and performer known for creating dynamic Bachata routines for shows and competitions.",
-      image: "/placeholder.svg?height=300&width=300",
-      rating: 4.7,
-      school: "Sydney Bachata Academy",
-      social: {
-        instagram: "olivia_choreo",
-        facebook: "oliviabrown",
-        youtube: "oliviabachata",
-      },
-      state: "nsw",
-    },
-    {
-      id: 8,
-      name: "James Taylor",
-      location: "Melbourne, VIC",
-      specialty: "Bachata Partnerwork",
-      experience: "11+ years",
-      bio: "Expert in advanced partnerwork techniques, focusing on lead and follow dynamics and creative patterns.",
-      image: "/placeholder.svg?height=300&width=300",
-      rating: 4.8,
-      school: "Melbourne Bachata School",
-      social: {
-        instagram: "james_bachata",
-        facebook: "jamestaylor",
-        youtube: "jamesbachata",
-      },
-      state: "vic",
-    },
-    {
-      id: 9,
-      name: "Isabella Garcia",
-      location: "Brisbane, QLD",
-      specialty: "Urban Bachata",
-      experience: "6+ years",
-      bio: "Bringing fresh urban influences to Bachata, Isabella is known for her dynamic and contemporary style.",
-      image: "/placeholder.svg?height=300&width=300",
-      rating: 4.7,
-      school: "Brisbane Bachata Institute",
-      social: {
-        instagram: "isabella_urban",
-        facebook: "isabellagarcia",
-        youtube: "isabellabachata",
-      },
-      state: "qld",
-    },
-  ]
+  const [instructors, setInstructors] = useState<Instructor[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
-  // Filter instructors based on selected state
-  const filteredInstructors = selectedState === "all" 
-    ? instructors 
-    : instructors.filter(instructor => instructor.state === selectedState)
+  useEffect(() => {
+    fetchInstructors()
+  }, [])
+
+  const fetchInstructors = async () => {
+    try {
+      const response = await fetch('/api/instructors')
+      if (!response.ok) throw new Error('Failed to fetch instructors')
+      const data = await response.json()
+      setInstructors(data)
+    } catch (err) {
+      setError('Failed to load instructors')
+      console.error(err)
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  // Filter instructors by state
+  const filteredInstructors = instructors.filter(
+    instructor => selectedState === "all" || instructor.state.toLowerCase() === selectedState
+  )
+
+  if (isLoading) {
+    return <div className="text-center py-8">Loading instructors...</div>
+  }
+
+  if (error) {
+    return <div className="text-red-500 text-center py-8">{error}</div>
+  }
 
   return (
     <div className="container mx-auto py-6 sm:py-12 px-4">
       <div className="max-w-7xl mx-auto">
-        <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-green-600 to-yellow-500 bg-clip-text text-transparent mb-2">Bachata Instructors</h1>
-          <p className="text-xl text-gray-600">
-            Find Bachata instructors across Australia
+        <div className="text-center mb-4">
+          <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-3 sm:mb-4">Bachata Instructors</h1>
+          <p className="text-lg sm:text-xl text-gray-600 max-w-3xl mx-auto">
+            Find Bachata instructors across Australia. Learn from experienced dancers and improve your skills.
           </p>
         </div>
 
@@ -217,103 +99,119 @@ export default function InstructorsPage() {
           </CollapsibleFilter>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
+        <div className="grid grid-cols-1 gap-6 sm:gap-8 lg:gap-12 mb-12">
           {filteredInstructors.map((instructor) => (
             <Card
               key={instructor.id}
-              className="overflow-hidden hover:shadow-lg transition-shadow h-full flex flex-col"
+              className="overflow-hidden border-0 shadow-lg"
             >
-              <div className="relative pt-[100%] overflow-hidden bg-gray-100">
-                <img
-                  src={instructor.image || "/placeholder.svg"}
-                  alt={instructor.name}
-                  className="absolute inset-0 w-full h-full object-cover transition-transform hover:scale-105"
-                />
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-0">
+                <div className="md:col-span-1 relative">
+                  <div className="h-48 sm:h-full">
+                    <img
+                      src={instructor.imageUrl || "/placeholder.svg"}
+                      alt={instructor.name}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                </div>
+                <div className="md:col-span-2 p-4 sm:p-6">
+                  <h2 className="text-xl sm:text-2xl font-bold text-green-700 mb-2">{instructor.name}</h2>
+                  <div className="flex flex-wrap gap-2 sm:gap-4 mb-3 sm:mb-4">
+                    <div className="flex items-center text-gray-600 text-sm sm:text-base">
+                      <MapPin className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
+                      <span>{instructor.location}, {instructor.state}</span>
+                    </div>
+                  </div>
+
+                  <p className="text-gray-700 text-sm sm:text-base mb-3 sm:mb-4">
+                    {instructor.comment}
+                  </p>
+
+                  <div className="mb-3 sm:mb-4">
+                    <h3 className="text-base sm:text-lg font-semibold mb-1 sm:mb-2">Dance Styles</h3>
+                    <div className="flex flex-wrap gap-1 sm:gap-2">
+                      {instructor.danceStyles.split(',').map((style, index) => (
+                        <span
+                          key={index}
+                          className="bg-gray-100 text-gray-800 px-2 sm:px-3 py-0.5 sm:py-1 rounded-full text-xs sm:text-sm"
+                        >
+                          {style.trim()}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="flex flex-wrap gap-2 sm:gap-3 mt-4 sm:mt-6">
+                    {instructor.instagramLink && (
+                      <a
+                        href={instructor.instagramLink}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        <Button
+                          size="sm"
+                          className="bg-pink-600 hover:bg-pink-700 text-white text-xs sm:text-sm h-8 sm:h-10"
+                        >
+                          <Instagram className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
+                          Instagram
+                        </Button>
+                      </a>
+                    )}
+
+                    {instructor.facebookLink && (
+                      <a
+                        href={instructor.facebookLink}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        <Button
+                          size="sm"
+                          className="bg-blue-600 hover:bg-blue-700 text-white text-xs sm:text-sm h-8 sm:h-10"
+                        >
+                          <Facebook className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
+                          Facebook
+                        </Button>
+                      </a>
+                    )}
+
+                    {instructor.emailLink && (
+                      <a
+                        href={`mailto:${instructor.emailLink}`}
+                      >
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="border-gray-500 text-gray-600 hover:bg-gray-50 text-xs sm:text-sm h-8 sm:h-10"
+                        >
+                          <Mail className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
+                          Contact
+                        </Button>
+                      </a>
+                    )}
+                  </div>
+                </div>
               </div>
-              <CardHeader>
-                <CardTitle className="text-xl text-green-700">{instructor.name}</CardTitle>
-                <CardDescription className="flex items-center justify-between">
-                  <div className="flex items-center">
-                    <MapPin className="h-4 w-4 mr-2" />
-                    {instructor.location}
-                  </div>
-                  <div className="flex items-center">
-                    <Star className="h-4 w-4 text-yellow-500 mr-1" />
-                    <span>{instructor.rating}</span>
-                  </div>
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="flex-grow">
-                <div className="mb-3">
-                  <span className="inline-block bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium">
-                    {instructor.specialty}
-                  </span>
-                  <span className="inline-block ml-2 text-gray-600 text-sm">{instructor.experience} experience</span>
-                </div>
-
-                <p className="text-gray-700 mb-4">{instructor.bio}</p>
-
-                <div className="text-sm text-gray-600 mb-3">
-                  <span className="font-medium">School:</span> {instructor.school}
-                </div>
-
-                <div className="flex space-x-3">
-                  <SocialLink
-                    icon={<Instagram className="h-4 w-4" />}
-                    username={instructor.social.instagram}
-                    platform="instagram"
-                  />
-                  <SocialLink
-                    icon={<Facebook className="h-4 w-4" />}
-                    username={instructor.social.facebook}
-                    platform="facebook"
-                  />
-                  <SocialLink
-                    icon={<Youtube className="h-4 w-4" />}
-                    username={instructor.social.youtube}
-                    platform="youtube"
-                  />
-                </div>
-              </CardContent>
-              <CardFooter className="border-t pt-4">
-                <div className="w-full flex flex-col gap-3">
-                  <Link href={`/instructors/${instructor.id}`} className="w-full">
-                    <Button className="w-full bg-yellow-500 hover:bg-yellow-600 text-black">View Profile</Button>
-                  </Link>
-                  <Link href={`/instructors/${instructor.id}#classes`} className="w-full">
-                    <Button variant="outline" className="w-full border-green-600 text-green-600 hover:bg-green-50">
-                      <Calendar className="h-4 w-4 mr-2" />
-                      Book Classes
-                    </Button>
-                  </Link>
-                </div>
-              </CardFooter>
             </Card>
           ))}
         </div>
 
-        <div className="bg-gradient-to-r from-green-600 to-yellow-500 rounded-lg p-8 text-white text-center">
-          <h2 className="text-2xl font-bold mb-4">Are You a Bachata Instructor?</h2>
-          <p className="text-lg mb-6 max-w-2xl mx-auto">
+        {filteredInstructors.length === 0 && (
+          <div className="text-center py-8 text-gray-500">
+            No instructors found in this state.
+          </div>
+        )}
+
+        <div className="bg-gradient-to-r from-green-600 to-yellow-500 rounded-lg p-4 sm:p-8 text-white text-center">
+          <h2 className="text-xl sm:text-2xl font-bold mb-2 sm:mb-4">Are you a Bachata Instructor?</h2>
+          <p className="text-base sm:text-lg mb-4 sm:mb-6 max-w-2xl mx-auto">
             Join our directory to connect with students and promote your classes across Australia.
           </p>
-          <Button className="bg-white text-green-700 hover:bg-gray-100">Join as Instructor</Button>
+          <Button size="sm" className="bg-white text-green-700 hover:bg-gray-100 sm:text-base">
+            Join as Instructor
+          </Button>
         </div>
       </div>
     </div>
-  )
-}
-
-function SocialLink({ icon, username, platform }: SocialLinkProps) {
-  return (
-    <a
-      href={`https://${platform}.com/${username}`}
-      target="_blank"
-      rel="noopener noreferrer"
-      className="text-gray-500 hover:text-gray-700 flex items-center"
-    >
-      {icon}
-      <span className="ml-1 text-sm">{username}</span>
-    </a>
   )
 }

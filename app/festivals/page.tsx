@@ -4,8 +4,25 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Calendar, MapPin, DollarSign, Users, Ticket, Hotel, CheckCircle, Info } from "lucide-react"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import CollapsibleFilter from "@/components/collapsible-filter"
+
+interface Festival {
+  id: string
+  name: string
+  startDate: string
+  endDate: string
+  location: string
+  state: string
+  address: string
+  eventLink: string
+  price: string
+  ticketLink: string
+  danceStyles: string
+  imageUrl: string
+  comment: string
+  googleMapLink: string
+}
 
 export default function FestivalsPage() {
   const [selectedState, setSelectedState] = useState("all")
@@ -17,6 +34,28 @@ export default function FestivalsPage() {
     { value: "wa", label: "Western Australia" },
     { value: "sa", label: "South Australia" },
   ]
+
+  const [festivals, setFestivals] = useState<Festival[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    fetchFestivals()
+  }, [])
+
+  const fetchFestivals = async () => {
+    try {
+      const response = await fetch('/api/festivals')
+      if (!response.ok) throw new Error('Failed to fetch festivals')
+      const data = await response.json()
+      setFestivals(data)
+    } catch (err) {
+      setError('Failed to load festivals')
+      console.error(err)
+    } finally {
+      setIsLoading(false)
+    }
+  }
 
   // Helper function to check if a date is in the future
   const isFutureDate = (dateString: string) => {
@@ -73,141 +112,19 @@ export default function FestivalsPage() {
     return Number.POSITIVE_INFINITY // Fallback for unparseable dates
   }
 
-  // Find the Sydney International Bachata Festival in the festivals array
-  // and update its image property
-  const festivals = [
-    {
-      id: 1,
-      title: "Sydney International Bachata Festival 2025",
-      date: "April 18-20, 2025",
-      location: "West HQ, Rooty Hill, NSW",
-      description:
-        "As Australia's premier Bachata festival, this event features world-class workshops, sensational performances, and a live Bachata concert. The 2025 lineup includes international artists such as Johnny Sky, Harold & Regan, Simone & Danila, Samuel, and Melonito. Full passes and party passes are available for attendees.",
-      image: "/images/SIBF2025.jpg",
-      instructors: ["Johnny Sky", "Harold & Regan", "Simone & Danila", "Samuel", "Melonito"],
-      price: "From $150",
-      hasAccommodation: true,
-      website: "https://www.bachatafestival.com.au/",
-      ticketUrl: "https://www.trybooking.com/events/1219139/sessions/4595849/sections",
-      inCalendar: true,
-      state: "nsw",
-    },
-    {
-      id: 2,
-      title: "Kornel & Catharine – Melbourne Bachata Weekender",
-      date: "April 25-27, 2025",
-      location: "Melbourne, VIC",
-      description:
-        "Internationally acclaimed instructors Kornel and Catharine from Poland will lead workshops and social events over this weekend. The program includes multiple workshops, a masterclass, two nights of socials, and a Bachatanama competition.",
-      image: "/images/K&C.jpg",
-      instructors: ["Kornel", "Catharine"],
-      price: "From $95",
-      hasAccommodation: true,
-      website: "https://latindancecalendar.com",
-      ticketUrl: "https://latindancecalendar.com",
-      inCalendar: false,
-      state: "vic",
-    },
-    {
-      id: 3,
-      title: "World Bachata Festival Melbourne 2025",
-      date: "June 27-29, 2025",
-      location: "Box Hill Town Hall, Melbourne, VIC",
-      description:
-        "This festival brings together world-renowned artists, DJs, and singers for a weekend filled with Bachata and Salsa workshops, performances, and social dancing. The event also features other Latin dances such as Merengue and Zouk.",
-      image: "/images/world_bachata.png",
-      instructors: ["World-renowned Artists", "International DJs", "Latin Singers"],
-      price: "From $110",
-      hasAccommodation: true,
-      website: "https://melbourne.worldbachatafestival.com",
-      ticketUrl: "https://www.trybooking.com/events/1252397/sessions/4737644/sections/2369232/tickets",
-      inCalendar: true,
-      state: "vic",
-    },
-    {
-      id: 4,
-      title: "Bachata Flavour Melbourne Festival",
-      date: "August 15-17, 2025",
-      location: "Melbourne, VIC",
-      description:
-        "Dedicated to both Sensual and Dominican Bachata, this festival features international artists Miguel & Susire from Spain and Roby & Aury from Italy. Attendees can enjoy a weekend full of workshops, social dances, and performances.",
-      image: "/images/bachata_flavour25.jpeg",
-      instructors: ["Miguel & Susire (Spain)", "Roby & Aury (Italy)"],
-      price: "From $85",
-      hasAccommodation: true,
-      website: "https://www.bachataflavour.com",
-      ticketUrl: "https://www.trybooking.com/events/1280324/sessions/4871040/sections/2430787/tickets",
-      inCalendar: false,
-      state: "vic",
-    },
-    {
-      id: 5,
-      title: "Melbourne Bachata Festival 2025",
-      date: "October 3-5, 2025",
-      location: "Transit Dance, Brunswick, VIC",
-      description:
-        "This festival promises an exciting weekend with three renowned international Bachata artists. The event includes workshops, performances, and social dancing opportunities.",
-      image: "/images/mbf25.jpeg",
-      instructors: ["Three International Artists"],
-      price: "From $90",
-      hasAccommodation: true,
-      website: "https://www.trybooking.com/events/landing/1304876",
-      ticketUrl: "https://www.trybooking.com/events/1304876/sessions/4982925/sections/2481883/tickets",
-      inCalendar: false,
-      state: "vic",
-    },
-    {
-      id: 6,
-      title: "Adelaide Sensual Week-end 2025",
-      date: " 23-07-2025",
-      location: "Adelaide, SA",
-      description: "A weekend of workshops, performances, and social dancing with international artists.",
-      image:  "/images/aws25.jpeg",
-      instructors: ["International Artists", "Local Instructors"],
-      price: "TBA",
-      hasAccommodation: true,
-      website: "https://adelaidesensualweekend.com/",
-      ticketUrl: "https://www.trybooking.com/events/1255696/sessions/4754269/sections/2376399/tickets",
-      inCalendar: false,
-      state: "sa",
-    },
-    {
-      id: 7,
-      title: "Level Up 2025",
-      date: "09-10-2025",
-      location: "Brisbane, QLD",
-      description: "Perfect for those who love the sensual side of Bachata.",
-      image: "/images/levelup25.jpeg",
-      instructors: ["Sensual Bachata Specialists"],
-      price: "$310",
-      hasAccommodation: true,
-      website: "https://www.levelupfestival.com/",
-      ticketUrl: "https://www.trybooking.com/events/1346992/sessions/5382122/sections/2568152/tickets",
-      inCalendar: false,
-      state: "qld",
-    },
-    {
-      id: 8,
-      title: "Bailando Senusal Week-end 2025",
-      date: "07-02-2025",
-      location: "Sydney, NSW",
-      description: "100% Bachata Social Dancing Weekend.",
-      image:  "/images/bailando.png",
-      instructors: ["Top Instructors", "Professional DJs"],
-      price: "$280",
-      hasAccommodation: true,
-      website: "https://bailando.com.au/#:~:text=5th%20%E2%80%93%209th%20Feb%2C%202026%20%7C,Whisperer'%20Lara%20and%20Mitch%20Bilic.&text=this%20festival%20is%20a%20celebration%20of%20unity%20and%20passion.",
-      ticketUrl: "https://www.trybooking.com/events/1356064/sessions/5418829/sections/2585971/tickets",
-      inCalendar: false,
-      state: "nsw",
-    },
-  ]
-
   // Filter out past events and sort by date
   const upcomingFestivals = festivals
-    .filter((festival) => isFutureDate(festival.date))
+    .filter((festival) => isFutureDate(festival.startDate))
     .filter((festival) => selectedState === "all" || festival.state === selectedState)
-    .sort((a, b) => getDateSortValue(a.date) - getDateSortValue(b.date))
+    .sort((a, b) => getDateSortValue(a.startDate) - getDateSortValue(b.startDate))
+
+  if (isLoading) {
+    return <div className="text-center py-8">Loading festivals...</div>
+  }
+
+  if (error) {
+    return <div className="text-red-500 text-center py-8">{error}</div>
+  }
 
   return (
     <div className="container mx-auto py-6 sm:py-12 px-4">
@@ -274,11 +191,11 @@ export default function FestivalsPage() {
           {upcomingFestivals.map((festival) => (
             <Card
               key={festival.id}
-              className={`overflow-hidden border-0 shadow-lg ${festival.inCalendar ? "ring-2 ring-green-500" : ""}`}
+              className={`overflow-hidden border-0 shadow-lg ${festival.eventLink ? "ring-2 ring-green-500" : ""}`}
             >
               <div className="grid grid-cols-1 md:grid-cols-3 gap-0">
                 <div className="md:col-span-1 relative">
-                  {festival.inCalendar && (
+                  {festival.eventLink && (
                     <div className="absolute top-2 left-2 bg-green-500 text-white px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm font-medium flex items-center z-10">
                       <CheckCircle className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
                       <span className="hidden xs:inline">In Your Calendar</span>
@@ -287,22 +204,22 @@ export default function FestivalsPage() {
                   )}
                   <div className="h-48 sm:h-full">
                     <img
-                      src={festival.image || "/placeholder.svg"}
-                      alt={festival.title}
+                      src={festival.imageUrl || "/placeholder.svg"}
+                      alt={festival.name}
                       className="w-full h-full object-cover"
                     />
                   </div>
                 </div>
                 <div className="md:col-span-2 p-4 sm:p-6">
-                  <h2 className="text-xl sm:text-2xl font-bold text-green-700 mb-2">{festival.title}</h2>
+                  <h2 className="text-xl sm:text-2xl font-bold text-green-700 mb-2">{festival.name}</h2>
                   <div className="flex flex-wrap gap-2 sm:gap-4 mb-3 sm:mb-4">
                     <div className="flex items-center text-gray-600 text-sm sm:text-base">
                       <Calendar className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
-                      <span>{festival.date}</span>
+                      <span>{new Date(festival.startDate).toLocaleDateString()} - {new Date(festival.endDate).toLocaleDateString()}</span>
                     </div>
                     <div className="flex items-center text-gray-600 text-sm sm:text-base">
                       <MapPin className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
-                      <span>{festival.location}</span>
+                      <span>{festival.location}, {festival.state}</span>
                     </div>
                     <div className="flex items-center text-gray-600 text-sm sm:text-base">
                       <DollarSign className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
@@ -311,7 +228,7 @@ export default function FestivalsPage() {
                   </div>
 
                   <p className="text-gray-700 text-sm sm:text-base mb-3 sm:mb-4 line-clamp-3 sm:line-clamp-none">
-                    {festival.description}
+                    {festival.comment}
                   </p>
 
                   <div className="mb-3 sm:mb-4">
@@ -320,64 +237,62 @@ export default function FestivalsPage() {
                       Featured Instructors
                     </h3>
                     <div className="flex flex-wrap gap-1 sm:gap-2">
-                      {festival.instructors.map((instructor, index) => (
+                      {festival.danceStyles.split(',').map((style, index) => (
                         <span
                           key={index}
                           className="bg-gray-100 text-gray-800 px-2 sm:px-3 py-0.5 sm:py-1 rounded-full text-xs sm:text-sm"
                         >
-                          {instructor}
+                          {style.trim()}
                         </span>
                       ))}
                     </div>
                   </div>
 
                   <div className="flex flex-wrap gap-2 sm:gap-3 mt-4 sm:mt-6">
-                    <a href={festival.website} target="_blank" rel="noopener noreferrer">
-                      <Button
-                        size="sm"
-                        className="bg-green-600 hover:bg-green-700 text-white text-xs sm:text-sm h-8 sm:h-10"
+                    {festival.eventLink && (
+                      <a
+                        href={festival.eventLink}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-blue-500 hover:text-blue-700"
                       >
-                        <Ticket className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
-                        Visit Website
-                      </Button>
-                    </a>
-
-                    {festival.hasAccommodation && (
-                      <Link href={`/accommodation?festival=${festival.id}`}>
                         <Button
                           size="sm"
-                          variant="outline"
-                          className="border-yellow-500 text-yellow-600 hover:bg-yellow-50 text-xs sm:text-sm h-8 sm:h-10"
+                          className="bg-green-600 hover:bg-green-700 text-white text-xs sm:text-sm h-8 sm:h-10"
                         >
-                          <Hotel className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
-                          <span className="hidden xs:inline">View Accommodation</span>
-                          <span className="xs:hidden">Accommodation</span>
-                        </Button>
-                      </Link>
-                    )}
-
-                    {festival.ticketUrl && (
-                      <a href={festival.ticketUrl} target="_blank" rel="noopener noreferrer">
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          className="border-gray-300 text-gray-700 hover:bg-gray-50 text-xs sm:text-sm h-8 sm:h-10"
-                        >
-                          Buy Ticket
+                          <Ticket className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
+                          Visit Website
                         </Button>
                       </a>
                     )}
 
-                    {!festival.inCalendar && (
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        className="border-green-500 text-green-600 hover:bg-green-50 text-xs sm:text-sm h-8 sm:h-10"
+                    {festival.ticketLink && (
+                      <a
+                        href={festival.ticketLink}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="bg-blue-500 text-white px-4 py-2 rounded text-center hover:bg-blue-600"
                       >
-                        <Calendar className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
-                        <span className="hidden xs:inline">Add to Calendar</span>
-                        <span className="xs:hidden">Add</span>
-                      </Button>
+                        Buy Tickets
+                      </a>
+                    )}
+
+                    {festival.googleMapLink && (
+                      <a
+                        href={festival.googleMapLink}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-blue-500 hover:text-blue-700"
+                      >
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="border-blue-500 text-blue-600 hover:bg-blue-50 text-xs sm:text-sm h-8 sm:h-10"
+                        >
+                          <MapPin className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
+                          View on Map
+                        </Button>
+                      </a>
                     )}
                   </div>
                 </div>
@@ -385,6 +300,12 @@ export default function FestivalsPage() {
             </Card>
           ))}
         </div>
+
+        {upcomingFestivals.length === 0 && (
+          <div className="text-center py-8 text-gray-500">
+            No festivals currently scheduled.
+          </div>
+        )}
 
         <div className="bg-gradient-to-r from-green-600 to-yellow-500 rounded-lg p-4 sm:p-8 text-white text-center">
           <h2 className="text-xl sm:text-2xl font-bold mb-2 sm:mb-4">Organizing a Bachata Festival?</h2>
