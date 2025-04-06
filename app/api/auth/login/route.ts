@@ -1,11 +1,20 @@
 import { NextResponse } from 'next/server'
 
+// Hardcoded admin credentials
+const ADMIN_EMAIL = "admin@bachata.au"
+const ADMIN_PASSWORD = "admin123"
+
 export async function POST(request: Request) {
   try {
     const { email, password } = await request.json()
 
-    if (email === 'admin@bachata.au' && password === 'admin123') {
-      const response = NextResponse.json({ success: true })
+    // Check if credentials match
+    if (email === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
+      // Create successful response
+      const response = NextResponse.json({ 
+        success: true,
+        message: 'Login successful' 
+      })
       
       // Set the admin session cookie
       response.cookies.set('admin_session', 'true', {
@@ -19,8 +28,9 @@ export async function POST(request: Request) {
       return response
     }
 
+    // If credentials don't match
     return NextResponse.json(
-      { error: 'Invalid credentials' },
+      { error: 'Invalid email or password' },
       { status: 401 }
     )
   } catch (error) {

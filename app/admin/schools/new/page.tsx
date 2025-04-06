@@ -32,6 +32,7 @@ export default function NewSchool() {
       const response = await fetch('/api/upload', {
         method: 'POST',
         body: formData,
+        credentials: 'include'
       })
 
       if (!response.ok) {
@@ -44,7 +45,6 @@ export default function NewSchool() {
       console.log('Upload response:', data)
 
       if (!data || !data.url) {
-        console.error('Invalid upload response:', data)
         throw new Error('Invalid response from upload server')
       }
 
@@ -57,14 +57,13 @@ export default function NewSchool() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    setIsLoading(true)
     setError(null)
+    setIsLoading(true)
 
     try {
       let imageUrl = ''
       if (school.imageFile) {
         imageUrl = await handleImageUpload(school.imageFile)
-        console.log('Successfully uploaded image:', imageUrl)
       } else if (school.imageUrl) {
         imageUrl = school.imageUrl
       }
@@ -93,20 +92,16 @@ export default function NewSchool() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(schoolData),
+        credentials: 'include'
       })
 
       if (!response.ok) {
-        const errorData = await response.text()
-        console.error('School creation error:', errorData)
         throw new Error('Failed to create school')
       }
 
-      const newSchool = await response.json()
-      console.log('School created:', newSchool)
       router.push('/admin/dashboard')
-    } catch (error) {
-      console.error('Error creating school:', error)
-      setError(error instanceof Error ? error.message : 'Failed to create school')
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to create school')
     } finally {
       setIsLoading(false)
     }

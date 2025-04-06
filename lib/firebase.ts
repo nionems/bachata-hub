@@ -1,4 +1,4 @@
-import { initializeApp, getApps, getApp } from 'firebase/app'
+import { initializeApp } from 'firebase/app'
 import { getFirestore, Firestore } from 'firebase/firestore'
 import { getStorage, FirebaseStorage } from 'firebase/storage'
 
@@ -23,42 +23,15 @@ console.log('Firebase Config:', {
 });
 
 // Initialize Firebase
-let app
-let db: Firestore
-let storage: FirebaseStorage
+const app = initializeApp(firebaseConfig);
+console.log('Firebase app initialized')
 
-try {
-  if (!firebaseConfig.apiKey) {
-    throw new Error('Firebase API key is missing')
-  }
-  if (!firebaseConfig.projectId) {
-    throw new Error('Firebase project ID is missing')
-  }
-  if (!firebaseConfig.storageBucket) {
-    throw new Error('Firebase Storage bucket is missing')
-  }
+// Initialize Firestore
+const db = getFirestore(app)
+console.log('Firestore initialized')
 
-  // Initialize Firebase app if it hasn't been initialized
-  const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
-  console.log('Firebase app initialized')
-
-  // Initialize Firestore
-  db = getFirestore(app)
-  console.log('Firestore initialized')
-
-  // Initialize Storage
-  storage = getStorage(app);
-  console.log('Storage initialized successfully')
-} catch (error) {
-  console.error('Error initializing Firebase:', error)
-  if (error instanceof Error) {
-    console.error('Error details:', {
-      message: error.message,
-      stack: error.stack,
-      name: error.name
-    })
-  }
-  throw error
-}
+// Initialize Storage
+const storage = getStorage(app);
+console.log('Storage initialized successfully')
 
 export { db, storage } 

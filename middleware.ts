@@ -2,23 +2,25 @@ import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 
 export function middleware(request: NextRequest) {
-  const adminSession = request.cookies.get('admin_session')
-  const isAdminRoute = request.nextUrl.pathname.startsWith('/admin')
-  const isLoginPage = request.nextUrl.pathname === '/admin/login'
+  // Get the pathname
+  const path = request.nextUrl.pathname
 
-  // If trying to access admin routes without being logged in (except login page)
-  if (isAdminRoute && !adminSession?.value && !isLoginPage) {
-    return NextResponse.redirect(new URL('/admin/login', request.url))
-  }
+  // Check if it's an admin path
+  if (path.startsWith('/admin') && path !== '/admin/login') {
+    // Get the admin session cookie
+    const adminSession = request.cookies.get('admin_session')
 
-  // If already logged in and trying to access login page
-  if (isLoginPage && adminSession?.value === 'true') {
-    return NextResponse.redirect(new URL('/admin/dashboard', request.url))
+    // If no session or session is not valid, redirect to login
+    if (!adminSession || adminSession.value !== 'true') {
+      const url = new URL('/admin/login', request.url)
+      return NextResponse.redirect(url)
+    }
   }
 
   return NextResponse.next()
 }
 
+// Configure which paths the middleware should run on
 export const config = {
-  matcher: ['/admin/:path*']
+  matcher: '/admin/:path*'
 } 

@@ -25,11 +25,14 @@ export default function LoginPage() {
         credentials: 'include'
       })
 
+      const data = await response.json()
+
       if (!response.ok) {
-        throw new Error('Invalid credentials')
+        throw new Error(data.error || 'Invalid credentials')
       }
 
-      router.replace('/admin/dashboard')
+      // Use router.push instead of window.location
+      router.push('/admin/dashboard')
     } catch (err) {
       setError('Invalid email or password')
     } finally {
@@ -45,7 +48,7 @@ export default function LoginPage() {
             Admin Login
           </h2>
           <p className="mt-2 text-center text-sm text-gray-600">
-            Please sign in to access the admin dashboard
+            Sign in to access the admin dashboard
           </p>
         </div>
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
@@ -65,7 +68,7 @@ export default function LoginPage() {
                 type="email"
                 required
                 className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-green-500 focus:border-green-500 focus:z-10 sm:text-sm"
-                placeholder="Email address"
+                placeholder="Email address (admin@bachata.au)"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 disabled={isLoading}
@@ -81,7 +84,7 @@ export default function LoginPage() {
                 type="password"
                 required
                 className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-green-500 focus:border-green-500 focus:z-10 sm:text-sm"
-                placeholder="Password"
+                placeholder="Password (admin123)"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 disabled={isLoading}
