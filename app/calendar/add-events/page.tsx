@@ -17,14 +17,27 @@ export default function AddEventPage() {
     eventName: "",
     eventDate: "",
     eventTime: "",
+    endTime: "",
     location: "",
     city: "",
     description: "",
     organizerName: "",
     organizerEmail: "",
     ticketLink: "",
+    eventLink: "",
     image: null as File | null,
   })
+
+  const states = [
+    { value: "NSW", label: "New South Wales" },
+    { value: "VIC", label: "Victoria" },
+    { value: "QLD", label: "Queensland" },
+    { value: "WA", label: "Western Australia" },
+    { value: "SA", label: "South Australia" },
+    { value: "TAS", label: "Tasmania" },
+    { value: "ACT", label: "Australian Capital Territory" },
+    { value: "NT", label: "Northern Territory" }
+  ];
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -72,12 +85,14 @@ export default function AddEventPage() {
         eventName: "",
         eventDate: "",
         eventTime: "",
+        endTime: "",
         location: "",
         city: "",
         description: "",
         organizerName: "",
         organizerEmail: "",
         ticketLink: "",
+        eventLink: "",
         image: null,
       })
       setImagePreview(null)
@@ -150,16 +165,30 @@ export default function AddEventPage() {
                   />
                 </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="eventTime">Event Time</Label>
-                  <Input
-                    id="eventTime"
-                    name="eventTime"
-                    type="time"
-                    value={formData.eventTime}
-                    onChange={handleChange}
-                    required
-                  />
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="eventTime">Start Time</Label>
+                    <Input
+                      id="eventTime"
+                      name="eventTime"
+                      type="time"
+                      value={formData.eventTime}
+                      onChange={handleChange}
+                      required
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="endTime">End Time</Label>
+                    <Input
+                      id="endTime"
+                      name="endTime"
+                      type="time"
+                      value={formData.endTime}
+                      onChange={handleChange}
+                      required
+                    />
+                  </div>
                 </div>
               </div>
 
@@ -173,6 +202,41 @@ export default function AddEventPage() {
                   required
                   placeholder="Full address or venue name"
                 />
+              </div>
+
+              <div className="mb-4">
+                <label htmlFor="eventLink" className="block text-sm font-medium text-gray-700 mb-1">
+                  Event Link
+                </label>
+                <input
+                  type="url"
+                  id="eventLink"
+                  name="eventLink"
+                  placeholder="https://..."
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500"
+                />
+                <p className="mt-1 text-sm text-gray-500">
+                  Link to your event page or social media post (optional)
+                </p>
+              </div>
+
+              <div className="mb-4">
+                <label htmlFor="state" className="block text-sm font-medium text-gray-700 mb-1">
+                  State
+                </label>
+                <select
+                  id="state"
+                  name="state"
+                  required
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500"
+                >
+                  <option value="">Select a state</option>
+                  {states.map((state) => (
+                    <option key={state.value} value={state.value}>
+                      {state.label}
+                    </option>
+                  ))}
+                </select>
               </div>
 
               <div className="space-y-2">

@@ -3,6 +3,7 @@ import { NextResponse } from "next/server"
 import { v2 as cloudinary } from "cloudinary"
 import { google } from "googleapis"
 import { z } from "zod"
+import nodemailer from 'nodemailer'
 
 // Log all environment variables (without sensitive values)
 console.log("Environment variables status:", {
@@ -63,12 +64,15 @@ export async function POST(request: Request) {
     const eventName = formData.get("eventName")?.toString() || ""
     const eventDate = formData.get("eventDate")?.toString() || ""
     const eventTime = formData.get("eventTime")?.toString() || ""
+    const endTime = formData.get("endTime")?.toString() || ""
     const location = formData.get("location")?.toString() || ""
+    const state = formData.get("state")?.toString() || ""
+    const city = formData.get("city")?.toString() || ""
     const description = formData.get("description")?.toString() || ""
     const organizerName = formData.get("organizerName")?.toString() || ""
     const organizerEmail = formData.get("organizerEmail")?.toString() || ""
     const ticketLink = formData.get("ticketLink")?.toString() || ""
-    const city = formData.get("city")?.toString() || ""
+    const eventLink = formData.get("eventLink")?.toString() || ""
     const imageFile = formData.get("image") as File | null
 
     // Log parsed form data
@@ -76,21 +80,24 @@ export async function POST(request: Request) {
       eventName,
       eventDate,
       eventTime,
+      endTime,
       location,
       city,
       description,
       organizerName,
       organizerEmail,
       ticketLink,
+      eventLink,
       hasImage: !!imageFile
     })
 
     // Validate required fields
-    if (!eventName || !eventDate || !eventTime || !location || !city || !description || !organizerName || !organizerEmail) {
+    if (!eventName || !eventDate || !eventTime || !endTime || !location || !city || !description || !organizerName || !organizerEmail) {
       console.error("Missing required fields:", {
         eventName: !!eventName,
         eventDate: !!eventDate,
         eventTime: !!eventTime,
+        endTime: !!endTime,
         location: !!location,
         city: !!city,
         description: !!description,
@@ -119,10 +126,13 @@ export async function POST(request: Request) {
       )
     }
 
-    // Format the date and time for the Google Calendar URL
-    // Use UTC to avoid timezone issues
-    const startDateTime = eventDateTime.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z'
-    const endDateTime = new Date(eventDateTime.getTime() + 2 * 60 * 60 * 1000).toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z'
+    // Create start and end date objects
+    const startDateTime = new Date(`${formattedDate}T${formattedTime}`)
+    const endDateTime = new Date(`${formattedDate}T${endTime}`)
+    
+    // Format for Google Calendar URL
+    const startDateTimeStr = startDateTime.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z'
+    const endDateTimeStr = endDateTime.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z'
     
     console.log("Formatted date/time:", {
       originalDate: formattedDate,
@@ -195,119 +205,128 @@ export async function POST(request: Request) {
     const calendarId = calendarIds[cityKey as keyof typeof calendarIds] || calendarIds.sydney
     
     // Create a rich description that includes the image
-    const richDescription = `${description as string}${imageUrl ? `\n\nEvent Image:\n${imageUrl}` : ""}`
-    
+    const richDescription = `${description}
+
+[image:${imageUrl}]
+
+Organizer: ${organizerName}
+Contact: ${organizerEmail}
+${eventLink ? `Event Link: ${eventLink}` : ''}
+${ticketLink ? `Tickets: ${ticketLink}` : ''}`
+
     // Create the Google Calendar URL with proper date formatting and image
-    const calendarUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(eventName.toString())}&details=${encodeURIComponent(richDescription)}&location=${encodeURIComponent(location.toString())}&dates=${startDateTime}/${endDateTime}${imageUrl ? `&image=${encodeURIComponent(imageUrl)}` : ""}`
+    const calendarUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(eventName)}&details=${encodeURIComponent(richDescription)}&location=${encodeURIComponent(location)}&dates=${startDateTimeStr}/${endDateTimeStr}&src=${encodeURIComponent(calendarId)}`
 
-    // Send email to admin for review if Resend is configured
-    if (resend) {
-      try {
-        console.log("Sending admin notification email")
-        // Send email to admin
-        const adminEmailResult = await resend.emails.send({
-          from: "Bachata Hub <onboarding@resend.dev>",
-          to: "bachata.au@gmail.com",
-          subject: `New Event Submission: ${eventName}`,
-          html: `
-            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-              <h2 style="color: #333;">New Event Submission</h2>
-              <div style="background-color: #f5f5f5; padding: 20px; border-radius: 5px; margin: 20px 0;">
-                <h3 style="color: #444; margin-top: 0;">Event Details</h3>
-                <ul style="list-style: none; padding: 0;">
-                  <li style="margin-bottom: 10px;"><strong>Event Name:</strong> ${eventName}</li>
-                  <li style="margin-bottom: 10px;"><strong>Date:</strong> ${eventDate}</li>
-                  <li style="margin-bottom: 10px;"><strong>Time:</strong> ${eventTime}</li>
-                  <li style="margin-bottom: 10px;"><strong>Location:</strong> ${location}</li>
-                  <li style="margin-bottom: 10px;"><strong>City:</strong> ${city}</li>
-                  <li style="margin-bottom: 10px;"><strong>Organizer:</strong> ${organizerName}</li>
-                  <li style="margin-bottom: 10px;"><strong>Email:</strong> ${organizerEmail}</li>
-                  <li style="margin-bottom: 10px;"><strong>Description:</strong> ${description}</li>
-                </ul>
-              </div>
-              ${imageUrl ? `
-                <div style="margin: 20px 0;">
-                  <h3 style="color: #444;">Event Image</h3>
-                  <img src="${imageUrl}" alt="Event image" style="max-width: 100%; border-radius: 5px;">
-                  <p style="margin-top: 10px;">
-                    <a href="${imageUrl}" target="_blank" style="color: #2196F3; text-decoration: none;">View full image</a>
-                  </p>
-                </div>
-              ` : ''}
-              <div style="margin: 20px 0;">
-                <h3 style="color: #444;">Quick Actions</h3>
-                <p style="margin-bottom: 15px;">
-                  <a href="${calendarUrl}" 
-                     style="background-color: #4CAF50; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; display: inline-block;">
-                    Add to Google Calendar
-                  </a>
-                </p>
-                <p>
-                  <a href="mailto:${organizerEmail}?subject=Re: ${eventName} - Event Submission&body=Hi ${organizerName},%0A%0AThank you for submitting your event "%0A%0AEvent Details:%0A- Name: ${eventName}%0A- Date: ${eventDate}%0A- Time: ${eventTime}%0A- Location: ${location}%0A- City: ${city}%0A%0A" 
-                     style="background-color: #2196F3; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; display: inline-block;">
-                    Reply to Organizer
-                  </a>
-                </p>
-              </div>
-              <p style="color: #666; font-size: 0.9em;">This event was submitted through the Bachata Hub website.</p>
-            </div>
-          `,
-        })
-        console.log("Admin email sent successfully:", adminEmailResult)
+    // Create email transporter
+    const transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASSWORD,
+      },
+    })
 
-        // Send confirmation email to the organizer
-        const organizerEmailResult = await resend.emails.send({
-          from: "Bachata Hub <onboarding@resend.dev>",
-          to: organizerEmail,
-          subject: `Event Submission Received: ${eventName}`,
-          html: `
-            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-              <h2 style="color: #333;">Event Submission Received</h2>
-              <p>Dear ${organizerName},</p>
-              <p>Thank you for submitting your event to Bachata Hub. We have received your submission and will review it shortly.</p>
-              <div style="background-color: #f5f5f5; padding: 20px; border-radius: 5px; margin: 20px 0;">
-                <h3 style="color: #444; margin-top: 0;">Your Event Details</h3>
-                <ul style="list-style: none; padding: 0;">
-                  <li style="margin-bottom: 10px;"><strong>Event Name:</strong> ${eventName}</li>
-                  <li style="margin-bottom: 10px;"><strong>Date:</strong> ${eventDate}</li>
-                  <li style="margin-bottom: 10px;"><strong>Time:</strong> ${eventTime}</li>
-                  <li style="margin-bottom: 10px;"><strong>Location:</strong> ${location}</li>
-                  <li style="margin-bottom: 10px;"><strong>City:</strong> ${city}</li>
-                  <li style="margin-bottom: 10px;"><strong>Description:</strong> ${description}</li>
-                </ul>
-              </div>
-              ${imageUrl ? `
-                <div style="margin: 20px 0;">
-                  <h3 style="color: #444;">Event Image</h3>
-                  <img src="${imageUrl}" alt="Event image" style="max-width: 100%; border-radius: 5px;">
-                  <p style="margin-top: 10px;">
-                    <a href="${imageUrl}" target="_blank" style="color: #2196F3; text-decoration: none;">View full image</a>
-                  </p>
-                </div>
-              ` : ''}
-              <p>We will review your submission and get back to you soon.</p>
-              <p style="color: #666;">Best regards,<br>The Bachata Hub Team</p>
-            </div>
-          `,
-        })
-        console.log("Organizer email sent successfully:", organizerEmailResult)
-      } catch (emailError) {
-        console.error("Error sending emails:", emailError)
-        // Log more details about the error
-        if (emailError instanceof Error) {
-          console.error("Email error details:", {
-            message: emailError.message,
-            stack: emailError.stack,
-            name: emailError.name
-          })
-        }
-      }
-    } else {
-      console.error("Resend is not configured. Emails will not be sent.")
+    // Prepare email attachments if there's an image
+    let attachments = []
+    if (imageFile) {
+      const buffer = Buffer.from(await imageFile.arrayBuffer())
+      attachments.push({
+        filename: imageFile.name,
+        content: buffer,
+      })
     }
 
+    // Update the admin email HTML content
+    const adminEmailHtml = `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <h2 style="color: #333;">New Event Submission</h2>
+        
+        <div style="background-color: #f5f5f5; padding: 20px; border-radius: 5px; margin: 20px 0;">
+          <p><strong>Event Name:</strong> ${eventName}</p>
+          <p><strong>Date:</strong> ${eventDate}</p>
+          <p><strong>Time:</strong> ${eventTime} - ${endTime}</p>
+          <p><strong>Location:</strong> ${location}</p>
+          <p><strong>State:</strong> ${state}</p>
+          <p><strong>City:</strong> ${city}</p>
+          <p><strong>Description:</strong> ${description}</p>
+          <p><strong>Organizer:</strong> ${organizerName}</p>
+          <p><strong>Organizer Email:</strong> ${organizerEmail}</p>
+          ${eventLink ? `<p><strong>Event Link:</strong> ${eventLink}</p>` : ''}
+          ${ticketLink ? `<p><strong>Ticket Link:</strong> ${ticketLink}</p>` : ''}
+        </div>
+
+        ${imageUrl ? `
+          <div style="margin: 20px 0;">
+            <h3 style="color: #444;">Event Image</h3>
+            <img src="${imageUrl}" alt="Event image" style="max-width: 100%; border-radius: 5px;">
+          </div>
+        ` : ''}
+
+        <div style="text-align: center; margin: 30px 0;">
+          <a href="${calendarUrl}" 
+             style="display: inline-block; background-color: #4CAF50; color: white; padding: 15px 30px; 
+                    text-decoration: none; border-radius: 5px; font-weight: bold;">
+            Add to Google Calendar
+          </a>
+        </div>
+
+        <p style="color: #666; font-size: 0.9em;">
+          This event will be added to the ${city} calendar (${calendarId}).
+        </p>
+      </div>
+    `
+
+    // Update the admin email sending code
+    const adminEmailResult = await resend.emails.send({
+      from: "Bachata Hub <onboarding@resend.dev>",
+      to: "bachata.au@gmail.com",
+      subject: `New Event Submission: ${eventName}`,
+      html: adminEmailHtml,
+      attachments: attachments,
+    })
+
+    // Send confirmation email to the organizer
+    const organizerEmailResult = await resend.emails.send({
+      from: "Bachata Hub <onboarding@resend.dev>",
+      to: organizerEmail,
+      subject: `Event Submission Received: ${eventName}`,
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <h2 style="color: #333;">Event Submission Received</h2>
+          <p>Dear ${organizerName},</p>
+          <p>Thank you for submitting your event to Bachata Hub. We have received your submission and will review it shortly.</p>
+          <div style="background-color: #f5f5f5; padding: 20px; border-radius: 5px; margin: 20px 0;">
+            <h3 style="color: #444; margin-top: 0;">Your Event Details</h3>
+            <ul style="list-style: none; padding: 0;">
+              <li style="margin-bottom: 10px;"><strong>Event Name:</strong> ${eventName}</li>
+              <li style="margin-bottom: 10px;"><strong>Date:</strong> ${eventDate}</li>
+              <li style="margin-bottom: 10px;"><strong>Time:</strong> ${eventTime} - ${endTime}</li>
+              <li style="margin-bottom: 10px;"><strong>Location:</strong> ${location}</li>
+              <li style="margin-bottom: 10px;"><strong>City:</strong> ${city}</li>
+              <li style="margin-bottom: 10px;"><strong>Description:</strong> ${description}</li>
+              ${eventLink ? `<li style="margin-bottom: 10px;"><strong>Event Link:</strong> ${eventLink}</li>` : ''}
+              ${ticketLink ? `<li style="margin-bottom: 10px;"><strong>Ticket Link:</strong> ${ticketLink}</li>` : ''}
+            </ul>
+          </div>
+          ${imageUrl ? `
+            <div style="margin: 20px 0;">
+              <h3 style="color: #444;">Event Image</h3>
+              <img src="${imageUrl}" alt="Event image" style="max-width: 100%; border-radius: 5px;">
+              <p style="margin-top: 10px;">
+                <a href="${imageUrl}" target="_blank" style="color: #2196F3; text-decoration: none;">View full image</a>
+              </p>
+            </div>
+          ` : ''}
+          <p>We will review your submission and get back to you soon.</p>
+          <p style="color: #666;">Best regards,<br>The Bachata Hub Team</p>
+        </div>
+      `,
+      attachments: attachments,
+    })
+    console.log("Organizer email sent successfully:", organizerEmailResult)
+
     return NextResponse.json(
-      { message: "Event submission successful" },
+      { message: "Event submission successful", imageUrl: imageUrl },
       { status: 200 }
     )
   } catch (error) {

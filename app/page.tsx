@@ -8,6 +8,8 @@ import { School as SchoolType } from '@/types/school'
 import Slider from 'react-slick'
 import "slick-carousel/slick/slick.css"
 import "slick-carousel/slick/slick-theme.css"
+import Image from 'next/image'
+import { useRouter } from 'next/navigation'
 
 // Import the server actions at the top of the file
 import { getWeekEvents } from "./actions/calendar-events"
@@ -18,15 +20,22 @@ import EventCard from "@/components/event-card"
 
 // Add this interface at the top of your file
 interface Event {
-  id: number | string
-  title: string
+  id: string
+  name: string
   date: string
   time: string
-  location: string
+  start: string
+  end: string
   description: string
-  image: string
-  url: string
-  featured: boolean
+  location: string
+  state: string
+  address: string
+  eventLink: string
+  price: string
+  ticketLink: string
+  imageUrl: string
+  comment: string
+  googleMapLink: string
 }
 
 // Add these helper functions
@@ -66,6 +75,27 @@ const filterEventsByLocation = (events: Event[], userLocation: { city: string; s
   })
 }
 
+function convertGoogleDriveUrl(url: string): string {
+  // Check if it's already in the correct format
+  if (url.includes('uc?export=view&id=')) {
+    return url
+  }
+  
+  // Handle different Google Drive URL formats
+  if (url.includes('drive.google.com')) {
+    if (url.includes('/file/d/')) {
+      // Extract file ID from URL like https://drive.google.com/file/d/FILE_ID/view
+      const fileId = url.split('/file/d/')[1].split('/')[0]
+      return `https://drive.google.com/uc?export=view&id=${fileId}`
+    } else if (url.includes('id=')) {
+      // Extract file ID from URL containing id= parameter
+      const fileId = url.split('id=')[1].split('&')[0]
+      return `https://drive.google.com/uc?export=view&id=${fileId}`
+    }
+  }
+  return url // Return original URL if it's not a Google Drive URL
+}
+
 /**
  * Home Page Component
  * This is the main landing page that displays:
@@ -80,47 +110,26 @@ export default function Home() {
   const [userLocation, setUserLocation] = useState<{ city: string; state: string } | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const router = useRouter()
 
   useEffect(() => {
-    fetchData()
-    getUserLocationAndFilterEvents()
+    const fetchEvents = async () => {
+      try {
+        setIsLoading(true)
+        const calendarId = "8d27a79f37a74ab7aedc5c038cc4492cd36b87a71b57fb6d7d141d04e8ffe5c2@group.calendar.google.com"
+        const weekEvents = await getWeekEvents(calendarId)
+        const formattedEvents = formatEvents(weekEvents)
+        setEvents(formattedEvents)
+      } catch (err) {
+        setError('Failed to fetch events')
+        console.error('Error fetching events:', err)
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    fetchEvents()
   }, [])
-
-  useEffect(() => {
-    if (events.length > 0 && userLocation) {
-      const localEvents = filterEventsByLocation(events, userLocation)
-      setFilteredEvents(localEvents.length > 0 ? localEvents : events)
-    } else {
-      setFilteredEvents(events)
-    }
-  }, [events, userLocation])
-
-  const getUserLocationAndFilterEvents = async () => {
-    const location = await getUserLocation()
-    setUserLocation(location)
-  }
-
-  const fetchData = async () => {
-    try {
-      // Fetch schools
-      const schoolsResponse = await fetch('/api/schools')
-      if (!schoolsResponse.ok) throw new Error('Failed to fetch schools')
-      const schoolsData = await schoolsResponse.json()
-      setSchools(schoolsData)
-
-      // Fetch calendar events
-      const calendarId = "8d27a79f37a74ab7aedc5c038cc4492cd36b87a71b57fb6d7d141d04e8ffe5c2@group.calendar.google.com"
-      const weekEvents = await getWeekEvents(calendarId)
-      
-      // Format events
-      const formattedEvents = formatEvents(weekEvents)
-      setEvents(formattedEvents)
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred')
-    } finally {
-      setIsLoading(false)
-    }
-  }
 
   const formatEventDateTime = (event: any) => {
     if (!event) return { date: "No upcoming events", time: "" }
@@ -141,59 +150,40 @@ export default function Home() {
   }
 
   const formatEvents = (weekEvents: any[]) => {
-    const formattedWeekEvents = weekEvents.map(event => ({
-      id: event.id,
-      title: event.summary,
-      date: formatEventDateTime(event).date,
-      time: formatEventDateTime(event).time,
-      location: event.location || "Location TBA",
-      description: event.description || "No description available",
-      image: "https://scontent.fsyd6-1.fna.fbcdn.net/v/t39.30808-6/486144426_122117358548781927_7687492644287808260_n.jpg?stp=dst-jpg_p960x960_tt6&_nc_cat=108&ccb=1-7&_nc_sid=75d36f&_nc_ohc=AYj_cyXtmF8Q7kNvwHU23_C&_nc_oc=AdlXmWJ5-or2MDUSIq_0ipplYbpW8AFbfbOcIcX0T4gg5fp8EvBR7COtxOAZn8XwEmk&_nc_zt=23&_nc_ht=scontent.fsyd6-1.fna&_nc_gid=TFKyS0_l4F58My29RaWGVg&oh=00_AfGpFNxv4K3kP3dpAnYo3caEBA1gTxG5nUkewJuI3TCtgA&oe=67FA429E",
-      url: event.htmlLink,
-      featured: true,
-    }))
+    const formattedWeekEvents = weekEvents.map(event => {
+      let imageUrl = '/placeholder.svg'
+      
+      if (event.description) {
+        const imageMatch = event.description.match(/\[image:(.*?)\]/)
+        if (imageMatch && imageMatch[1]) {
+          // Convert the Google Drive URL to the correct format
+          imageUrl = convertGoogleDriveUrl(imageMatch[1].trim())
+        }
+      }
 
-    // Add static events
-    return [
-      ...formattedWeekEvents,
-      // Static featured events for major festivals
-      {
-        id: 1,
-        title: "Sydney Bachata Festival 2025",
-        date: "April 18-20, 2025",
-        time: "All day",
-        location: "West HQ, Rooty Hill, NSW",
-        description:
-          "Australia's premier Bachata festival featuring world-class workshops, performances, and a live Bachata concert with international artists.",
-        image: "/placeholder.svg?height=300&width=600",
-        url: "https://www.bachatafestival.com.au/",
-        featured: true,
-      },
-      {
-        id: 2,
-        title: "Melbourne Bachata Congress",
-        date: "June 15-17, 2025",
-        time: "All day",
-        location: "Melbourne Convention Centre",
-        description:
-          "Join us for three days of workshops, performances, and social dancing with international Bachata artists.",
-        image: "/placeholder.svg?height=300&width=600",
-        url: "https://www.melbournebachata.com/",
-        featured: true,
-      },
-      {
-        id: 3,
-        title: "Brisbane Bachata Festival",
-        date: "August 10-12, 2025",
-        time: "All day",
-        location: "Brisbane Convention Centre",
-        description:
-          "Experience the best of Bachata in Brisbane with workshops, performances, and social dancing.",
-        image: "/placeholder.svg?height=300&width=600",
-        url: "https://www.brisbanebachata.com/",
-        featured: true,
-      },
-    ].slice(0, 6) // Limit to 6 events to avoid overcrowding
+      // Format all events to have the same structure
+      return {
+        id: event.id || event.iCalUID,
+        name: event.summary,
+        date: event.start.dateTime ? new Date(event.start.dateTime).toLocaleDateString() : event.start.date,
+        time: event.start.dateTime ? new Date(event.start.dateTime).toLocaleTimeString() : 'All day',
+        start: event.start.dateTime || event.start.date,
+        end: event.end.dateTime || event.end.date,
+        description: event.description?.replace(/\[image:.*?\]/, '').trim() || "No description available",
+        location: event.location || "Location TBA",
+        state: event.location?.split(',').pop()?.trim() || "TBA",
+        address: event.location || "TBA",
+        eventLink: event.htmlLink || "",
+        price: "TBA",
+        ticketLink: "",
+        imageUrl: imageUrl,
+        comment: event.description?.replace(/\[image:.*?\]/, '').trim() || "No description available",
+        googleMapLink: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(event.location || '')}`
+      }
+    })
+
+    // Return only the formatted events from Google Calendar
+    return formattedWeekEvents
   }
 
   // Add this carousel settings object before your Home component
@@ -221,6 +211,12 @@ export default function Home() {
         }
       }
     ]
+  }
+
+  // Add this handler function
+  const handleEventClick = (event: any) => {
+    console.log('Clicked event ID:', event.id)
+    router.push(`/events/${event.id || event.iCalUID}`)
   }
 
   if (isLoading) return <div>Loading...</div>
@@ -290,9 +286,35 @@ export default function Home() {
             <h2 className="text-3xl font-bold text-center mb-8">Featured Events This Week</h2>
             <div className="relative">
               <Slider {...carouselSettings}>
-                {filteredEvents.map((event) => (
+                {events.map((event) => (
                   <div key={event.id} className="px-2">
-                    <EventCard event={event} />
+                    <div 
+                      className="bg-white rounded-xl shadow-lg overflow-hidden cursor-pointer hover:shadow-xl transition-shadow"
+                      onClick={() => handleEventClick(event)}
+                    >
+                      <div className="relative h-48">
+                        <Image
+                          src={event.imageUrl}
+                          alt={event.name}
+                          fill
+                          className="object-cover"
+                          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                          priority
+                          unoptimized={true}
+                          referrerPolicy="no-referrer"
+                          onError={(e: any) => {
+                            e.currentTarget.src = '/placeholder.svg'
+                          }}
+                        />
+                      </div>
+                      <div className="p-4">
+                        <h3 className="text-xl font-semibold mb-2">{event.name}</h3>
+                        <p className="text-gray-600 mb-2">
+                          {event.date}
+                        </p>
+                        <p className="text-gray-600 mb-2">{event.location}</p>
+                      </div>
+                    </div>
                   </div>
                 ))}
               </Slider>
