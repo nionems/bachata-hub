@@ -78,25 +78,20 @@ export default function InstructorsPage() {
         </div>
 
         {/* State Filter */}
-        <div className="mb-8">
-          <CollapsibleFilter title="Filter by State" showApplyButton={false}>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2">
-              {states.map((state) => (
-                <Button
-                  key={state.value}
-                  variant={selectedState === state.value ? "default" : "outline"}
-                  className={`w-full text-sm sm:text-base ${
-                    selectedState === state.value
-                      ? "bg-green-600 text-white hover:bg-green-700"
-                      : "border-green-600 text-green-600 hover:bg-green-50"
-                  }`}
-                  onClick={() => setSelectedState(state.value)}
-                >
-                  {state.label}
-                </Button>
-              ))}
-            </div>
-          </CollapsibleFilter>
+        <div className="flex justify-center flex-wrap gap-2 mb-8">
+          {['All', 'NSW', 'VIC', 'QLD', 'WA', 'SA', 'TAS', 'ACT', 'NT'].map((state) => (
+            <button
+              key={state}
+              onClick={() => setSelectedState(state)}
+              className={`px-6 py-2 rounded-full transition-colors duration-200 ${
+                selectedState === state
+                  ? 'bg-green-600 text-white'
+                  : 'bg-green-100 text-green-700 hover:bg-green-200'
+              }`}
+            >
+              {state}
+            </button>
+          ))}
         </div>
 
         <div className="grid grid-cols-1 gap-6 sm:gap-8 lg:gap-12 mb-12">

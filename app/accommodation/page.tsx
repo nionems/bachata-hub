@@ -1,311 +1,172 @@
 "use client"
 
-import { useState } from "react"
+import { useState } from 'react'
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Star, MapPin, DollarSign, Users, Calendar, Clock, Building2, Wifi, ParkingCircle, Utensils, Dumbbell, Waves, Heart, MessageSquare, Share2, ChevronRight } from "lucide-react"
 import CollapsibleFilter from "@/components/collapsible-filter"
 
-interface Festival {
-  id: string
-  name: string
-  date: string
-  location: string
-  state: string
-  description: string
-  image: string
-}
-
-interface Accommodation {
-  id: string
-  name: string
-  festivalId: string
-  location: string
-  state: string
-  price: string
-  rating: number
-  reviews: number
-  amenities: string[]
-  description: string
-  image: string
-  distance: string
-  capacity: number
-  checkIn: string
-  checkOut: string
-}
-
-const festivals: Festival[] = [
+// Hardcoded accommodations data
+const accommodationsData = [
   {
-    id: "festival-1",
-    name: "Bachata Festival Sydney 2024",
-    date: "March 15-17, 2024",
-    location: "Sydney Convention Centre",
+    id: "1",
+    name: "Dance Central Hotel",
+    location: "Sydney",
     state: "NSW",
-    description: "Australia's biggest bachata festival featuring world-class instructors and performers.",
-    image: "/festivals/sydney-festival.jpg"
+    address: "123 Dance Street, Sydney CBD",
+    websiteLink: "https://example.com",
+    price: "From $150/night",
+    bookingLink: "https://example.com/book",
+    imageUrl: "/accommodations/sydney-hotel.jpg",
+    comment: "Located near major dance venues, featuring spacious rooms and practice areas.",
+    googleMapLink: "https://goo.gl/maps/example",
+    amenities: ["Free WiFi", "Dance Practice Room", "Pool", "Gym"]
   },
   {
-    id: "festival-2",
-    name: "Melbourne Bachata Congress",
-    date: "April 5-7, 2024",
-    location: "Melbourne Exhibition Centre",
+    id: "2",
+    name: "Dancers Paradise Resort",
+    location: "Melbourne",
     state: "VIC",
-    description: "A celebration of bachata music and dance in the heart of Melbourne.",
-    image: "/festivals/melbourne-festival.jpg"
+    address: "456 Salsa Avenue, Melbourne CBD",
+    websiteLink: "https://example.com",
+    price: "From $180/night",
+    bookingLink: "https://example.com/book",
+    imageUrl: "/accommodations/melbourne-hotel.jpg",
+    comment: "Perfect for dance festival attendees, with special rates for event participants.",
+    googleMapLink: "https://goo.gl/maps/example",
+    amenities: ["Free WiFi", "Restaurant", "Parking", "Dance Studio"]
   },
-  {
-    id: "festival-3",
-    name: "Brisbane Bachata Festival",
-    date: "May 10-12, 2024",
-    location: "Brisbane Convention Centre",
-    state: "QLD",
-    description: "The premier bachata event in Queensland.",
-    image: "/festivals/brisbane-festival.jpg"
-  }
+  // Add more hardcoded accommodations as needed
 ]
 
-const accommodations: Accommodation[] = [
-  {
-    id: "acc-1",
-    festivalId: "festival-1",
-    name: "Hilton Sydney",
-    location: "488 George Street",
-    state: "NSW",
-    price: "$299",
-    rating: 4.8,
-      reviews: 124,
-    amenities: ["wifi", "parking", "restaurant", "gym", "pool", "spa"],
-    description: "Luxury hotel in the heart of Sydney with stunning views of the city.",
-    image: "/accommodations/hilton-sydney.jpg",
-    distance: "0.2 km from venue",
-    capacity: 2,
-    checkIn: "3:00 PM",
-    checkOut: "11:00 AM"
-  },
-  {
-    id: "acc-2",
-    festivalId: "festival-1",
-    name: "Meriton Suites",
-    location: "528 Kent Street",
-    state: "NSW",
-    price: "$249",
-    rating: 4.6,
-    reviews: 89,
-    amenities: ["wifi", "parking", "gym", "pool"],
-    description: "Modern apartment-style accommodation with full kitchen facilities.",
-    image: "/accommodations/meriton-suites.jpg",
-      distance: "0.5 km from venue",
-    capacity: 4,
-    checkIn: "2:00 PM",
-    checkOut: "10:00 AM"
-  },
-  {
-    id: "acc-3",
-    festivalId: "festival-2",
-    name: "Crown Towers Melbourne",
-    location: "8 Whiteman Street",
-    state: "VIC",
-    price: "$279",
-    rating: 4.7,
-      reviews: 156,
-    amenities: ["wifi", "parking", "restaurant", "gym", "pool", "spa", "casino"],
-    description: "Luxury hotel with world-class dining and entertainment options.",
-    image: "/accommodations/crown-towers.jpg",
-    distance: "0.3 km from venue",
-    capacity: 2,
-    checkIn: "3:00 PM",
-    checkOut: "11:00 AM"
-  },
-  {
-    id: "acc-4",
-    festivalId: "festival-2",
-    name: "Pan Pacific Melbourne",
-    location: "2 Convention Centre Place",
-    state: "VIC",
-    price: "$259",
-    rating: 4.5,
-      reviews: 92,
-    amenities: ["wifi", "parking", "restaurant", "gym", "pool"],
-    description: "Modern hotel connected to the convention centre.",
-    image: "/accommodations/pan-pacific.jpg",
-    distance: "0.1 km from venue",
-    capacity: 2,
-    checkIn: "3:00 PM",
-    checkOut: "11:00 AM"
-  },
-  {
-    id: "acc-5",
-    festivalId: "festival-3",
-    name: "Sofitel Brisbane",
-    location: "249 Turbot Street",
-    state: "QLD",
-    price: "$289",
-    rating: 4.8,
-    reviews: 143,
-    amenities: ["wifi", "parking", "restaurant", "gym", "pool", "spa"],
-    description: "Luxury French hotel with elegant rooms and city views.",
-    image: "/accommodations/sofitel-brisbane.jpg",
-    distance: "0.4 km from venue",
-    capacity: 2,
-    checkIn: "3:00 PM",
-    checkOut: "11:00 AM"
-  },
-  {
-    id: "acc-6",
-    festivalId: "festival-3",
-    name: "Brisbane Marriott",
-    location: "515 Queen Street",
-    state: "QLD",
-    price: "$269",
-      rating: 4.6,
-    reviews: 98,
-    amenities: ["wifi", "parking", "restaurant", "gym", "pool"],
-    description: "Contemporary hotel with modern amenities and river views.",
-    image: "/accommodations/marriott-brisbane.jpg",
-    distance: "0.6 km from venue",
-    capacity: 2,
-    checkIn: "3:00 PM",
-    checkOut: "11:00 AM"
-  }
-]
+export default function AccommodationPage() {
+  const [selectedState, setSelectedState] = useState('All')
 
-const stateFilter = [
-  { value: "all", label: "All States" },
-  { value: "NSW", label: "New South Wales" },
-  { value: "VIC", label: "Victoria" },
-  { value: "QLD", label: "Queensland" },
-  { value: "WA", label: "Western Australia" },
-  { value: "SA", label: "South Australia" },
-  { value: "TAS", label: "Tasmania" },
-  { value: "ACT", label: "Australian Capital Territory" },
-  { value: "NT", label: "Northern Territory" }
-]
-
-export default function FestivalAccommodations() {
-  const [selectedState, setSelectedState] = useState("all")
-  const [selectedFestival, setSelectedFestival] = useState<string | null>(null)
-
-  const filteredAccommodations = accommodations.filter(acc => {
-    if (selectedState === "all") return true
-    return acc.state === selectedState
-  })
+  const filteredAccommodations = selectedState === 'All'
+    ? accommodationsData
+    : accommodationsData.filter(accommodation => accommodation.state === selectedState)
 
   return (
-    <div className="container mx-auto px-4 py-4 sm:py-6 md:py-8">
-      <div className="flex flex-col gap-4 sm:gap-6">
-        <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-green-600 to-yellow-500 bg-clip-text text-transparent mb-2">Accomodation</h1>
-          <p className="text-xl text-gray-600">
-            Find accommodation near Bachata events
-          </p>
-        </div>
+    <div className="container mx-auto px-4 py-8">
+      <div className="text-center mb-8">
+        <h1 className="text-4xl font-bold text-green-900 mb-4">Dance-Friendly Accommodation</h1>
+        <p className="text-lg text-gray-600">
+          Find accommodation near dance venues and events across Australia
+        </p>
+      </div>
 
-        <div className="flex flex-col gap-4">
-          <CollapsibleFilter title="" showApplyButton={false}>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2">
-              {stateFilter.map((state) => (
-                <Button
-                  key={state.value}
-                  variant={selectedState === state.value ? "default" : "outline"}
-                  className={`w-full text-sm sm:text-base ${
-                    selectedState === state.value
-                      ? "bg-green-600 text-white hover:bg-green-700"
-                      : "border-green-600 text-green-600 hover:bg-green-50"
-                  }`}
-                  onClick={() => setSelectedState(state.value)}
-                >
-                  {state.label}
-                </Button>
-              ))}
-                        </div>
-          </CollapsibleFilter>
+      {/* State Filter */}
+      <div className="flex justify-center flex-wrap gap-2 mb-8">
+        {['All', 'NSW', 'VIC', 'QLD', 'WA', 'SA', 'TAS', 'ACT', 'NT'].map((state) => (
+          <button
+            key={state}
+            onClick={() => setSelectedState(state)}
+            className={`px-6 py-2 rounded-full transition-colors duration-200 ${
+              selectedState === state
+                ? 'bg-green-600 text-white'
+                : 'bg-green-100 text-green-700 hover:bg-green-200'
+            }`}
+          >
+            {state}
+          </button>
+        ))}
+      </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-            {filteredAccommodations.map((accommodation) => {
-              const festival = festivals.find(f => f.id === accommodation.festivalId)
-              return (
-                <Card key={accommodation.id} className="flex flex-col">
-                  <CardHeader className="p-4 sm:p-6">
-                    <div className="relative aspect-video mb-4">
-                      <img
-                        src={accommodation.image}
-                        alt={accommodation.name}
-                        className="object-cover rounded-lg"
-                      />
-                      <Badge className="absolute top-2 right-2 bg-white text-black hover:bg-white text-sm">
-                        {accommodation.price}
-                      </Badge>
-                    </div>
-                    <CardTitle className="text-lg sm:text-xl">{accommodation.name}</CardTitle>
-                    <CardDescription className="flex items-center gap-2 text-sm">
-                      <MapPin className="h-4 w-4" />
-                      {accommodation.location}
-                    </CardDescription>
-                    </CardHeader>
-                  <CardContent className="flex-grow p-4 sm:p-6 pt-0">
-                    <div className="flex items-center gap-2 mb-2">
-                      <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                      <span className="font-medium text-sm sm:text-base">{accommodation.rating}</span>
-                      <span className="text-muted-foreground text-sm">({accommodation.reviews} reviews)</span>
-                          </div>
-                    <p className="text-sm text-muted-foreground mb-4">{accommodation.description}</p>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
-                      <div className="flex items-center gap-1">
-                        <Building2 className="h-4 w-4" />
-                        <span>{accommodation.distance}</span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <Users className="h-4 w-4" />
-                        <span>Up to {accommodation.capacity} guests</span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <Calendar className="h-4 w-4" />
-                        <span>{accommodation.checkIn} - {accommodation.checkOut}</span>
-                      </div>
-                    </div>
-                    <div className="mt-4 flex flex-wrap gap-2">
-                      {accommodation.amenities.map((amenity) => {
-                        const icons: { [key: string]: any } = {
-                          wifi: Wifi,
-                          parking: ParkingCircle,
-                          restaurant: Utensils,
-                          gym: Dumbbell,
-                          pool: Waves,
-                          spa: Heart,
-                          casino: DollarSign
-                        }
-                        const Icon = icons[amenity]
-                        return Icon ? (
-                          <Badge key={amenity} variant="secondary" className="flex items-center gap-1 text-xs sm:text-sm">
-                            <Icon className="h-3 w-3" />
-                            {amenity.charAt(0).toUpperCase() + amenity.slice(1)}
-                          </Badge>
-                        ) : null
-                      })}
-                  </div>
-                  </CardContent>
-                  <CardFooter className="flex justify-between items-center p-4 sm:p-6 pt-0">
-                    <div className="flex gap-2">
-                      <Button variant="ghost" size="icon" className="h-8 w-8 sm:h-10 sm:w-10">
-                        <Heart className="h-4 w-4" />
-                      </Button>
-                      <Button variant="ghost" size="icon" className="h-8 w-8 sm:h-10 sm:w-10">
-                        <MessageSquare className="h-4 w-4" />
-                      </Button>
-                      <Button variant="ghost" size="icon" className="h-8 w-8 sm:h-10 sm:w-10">
-                        <Share2 className="h-4 w-4" />
-                      </Button>
-                  </div>
-                    <Button className="text-sm sm:text-base">
-                      Book Now
-                      <ChevronRight className="h-4 w-4 ml-2" />
-                    </Button>
-                  </CardFooter>
-                </Card>
-              )
-            })}
+      {/* Accommodations Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        {filteredAccommodations.map((accommodation) => (
+          <Card key={accommodation.id} className="overflow-hidden hover:shadow-lg transition-shadow">
+            <div className="h-48 overflow-hidden">
+              <img
+                src={accommodation.imageUrl}
+                alt={accommodation.name}
+                className="w-full h-full object-cover"
+              />
+            </div>
+            <CardHeader>
+              <CardTitle>{accommodation.name}</CardTitle>
+              <CardDescription className="flex items-center gap-2">
+                <MapPin className="h-4 w-4" />
+                {accommodation.location}, {accommodation.state}
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <p className="text-gray-600 mb-4">{accommodation.comment}</p>
+              <p className="text-green-600 font-semibold mb-4">{accommodation.price}</p>
+              <div className="flex flex-wrap gap-2">
+                {accommodation.amenities.map((amenity) => (
+                  <Badge key={amenity} variant="secondary">
+                    {amenity}
+                  </Badge>
+                ))}
               </div>
+              <div className="mt-4 flex gap-2">
+                <Button
+                  className="flex-1 bg-green-600 hover:bg-green-700"
+                  onClick={() => window.open(accommodation.bookingLink, "_blank")}
+                >
+                  Book Now
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => window.open(accommodation.googleMapLink, "_blank")}
+                >
+                  View Map
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+
+      {/* Add this section before the final closing div */}
+      <div className="mt-16 bg-gradient-to-r from-green-600 to-yellow-400 rounded-xl shadow-xl overflow-hidden">
+        <div className="p-8 md:p-12 flex flex-col md:flex-row items-center justify-between">
+          <div className="text-white mb-6 md:mb-0 md:mr-8">
+            <h2 className="text-3xl font-bold mb-4">
+              List Your Accommodation
+            </h2>
+            <p className="text-white/90 text-lg mb-6">
+              Do you have dance-friendly accommodation? Get featured in our directory and reach dancers across Australia!
+            </p>
+            <ul className="space-y-3">
+              <li className="flex items-center">
+                <svg className="w-6 h-6 mr-3" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/>
+                </svg>
+                Reach dancers looking for accommodation
+              </li>
+              <li className="flex items-center">
+                <svg className="w-6 h-6 mr-3" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/>
+                </svg>
+                Connect with dance event organizers
+              </li>
+              <li className="flex items-center">
+                <svg className="w-6 h-6 mr-3" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/>
+                </svg>
+                Join Australia's dance community network
+              </li>
+            </ul>
+          </div>
+          <div className="flex flex-col space-y-4">
+            <a
+              href="mailto:contact@bachata.au"
+              className="bg-white text-green-600 px-8 py-3 rounded-full font-semibold hover:bg-green-50 transition-colors duration-200 text-center min-w-[200px]"
+            >
+              Contact Us
+            </a>
+            <a
+              href="https://forms.gle/your-google-form-link"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="bg-yellow-400 text-green-900 px-8 py-3 rounded-full font-semibold hover:bg-yellow-500 transition-colors duration-200 text-center"
+            >
+              Submit via Form
+            </a>
+          </div>
         </div>
       </div>
     </div>

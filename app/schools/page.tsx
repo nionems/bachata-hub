@@ -62,26 +62,75 @@ export default function SchoolsPage() {
           </p>
         </div>
 
-        <div className="mb-8">
-          <Tabs defaultValue="all" className="w-full">
-            <TabsList className="grid w-full grid-cols-2 sm:grid-cols-5">
-              {states.map((state) => (
-                <TabsTrigger
-                  key={state.value}
-                  value={state.value}
-                  onClick={() => setSelectedState(state.value)}
-                >
-                  {state.label}
-            </TabsTrigger>
-              ))}
-            </TabsList>
-          </Tabs>
-            </div>
+        <div className="flex justify-center flex-wrap gap-2 mb-8">
+          {['All', 'NSW', 'VIC', 'QLD', 'WA', 'SA', 'TAS', 'ACT', 'NT'].map((state) => (
+            <button
+              key={state}
+              onClick={() => setSelectedState(state)}
+              className={`px-6 py-2 rounded-full transition-colors duration-200 ${
+                selectedState === state
+                  ? 'bg-green-600 text-white'
+                  : 'bg-green-100 text-green-700 hover:bg-green-200'
+              }`}
+            >
+              {state}
+            </button>
+          ))}
+        </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {filteredSchools.map((school) => (
-                <SchoolCard key={school.id} school={school} />
-              ))}
+            <SchoolCard key={school.id} school={school} />
+          ))}
+        </div>
+
+        <div className="mt-16 bg-gradient-to-r from-green-600 to-yellow-400 rounded-xl shadow-xl overflow-hidden">
+          <div className="p-8 md:p-12 flex flex-col md:flex-row items-center justify-between">
+            <div className="text-white mb-6 md:mb-0 md:mr-8">
+              <h2 className="text-3xl font-bold mb-4">
+                Submit Your Dance School
+              </h2>
+              <p className="text-white/90 text-lg mb-6">
+                Are you a dance school owner? Get featured in our directory and reach students across Australia!
+              </p>
+              <ul className="space-y-3">
+                <li className="flex items-center">
+                  <svg className="w-6 h-6 mr-3" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/>
+                  </svg>
+                  Increase your school's visibility
+                </li>
+                <li className="flex items-center">
+                  <svg className="w-6 h-6 mr-3" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/>
+                  </svg>
+                  Connect with potential students
+                </li>
+                <li className="flex items-center">
+                  <svg className="w-6 h-6 mr-3" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/>
+                  </svg>
+                  Join Australia's dance education network
+                </li>
+              </ul>
+            </div>
+            <div className="flex flex-col space-y-4">
+              <a
+                href="mailto:contact@bachata.au"
+                className="bg-white text-green-600 px-8 py-3 rounded-full font-semibold hover:bg-green-50 transition-colors duration-200 text-center min-w-[200px]"
+              >
+                Contact Us
+              </a>
+              <a
+                href="https://forms.gle/your-google-form-link"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="bg-yellow-400 text-green-900 px-8 py-3 rounded-full font-semibold hover:bg-yellow-500 transition-colors duration-200 text-center"
+              >
+                Submit via Form
+              </a>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -117,7 +166,7 @@ function SchoolCard({ school }: { school: School }) {
       </CardHeader>
       <CardContent>
         <p className="text-gray-600 mb-4">{school.address}</p>
-            <div className="space-y-2">
+        <div className="space-y-2">
           {school.contactInfo && (
             <div className="flex items-center gap-2 text-sm text-gray-500">
               <Users className="h-4 w-4" />
@@ -128,8 +177,8 @@ function SchoolCard({ school }: { school: School }) {
             <div className="flex items-center gap-2 text-sm text-gray-500">
               <Clock className="h-4 w-4" />
               {school.danceStyles.join(", ")}
-          </div>
-        )}
+            </div>
+          )}
         </div>
       </CardContent>
       <CardFooter className="flex flex-col gap-4">

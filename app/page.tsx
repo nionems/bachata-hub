@@ -5,6 +5,9 @@ import { Calendar, Users, Music, School, ShoppingBag, Trophy, MapPin, Clock } fr
 import { Button } from "@/components/ui/button"
 import { useState, useEffect } from 'react'
 import { School as SchoolType } from '@/types/school'
+import Slider from 'react-slick'
+import "slick-carousel/slick/slick.css"
+import "slick-carousel/slick/slick-theme.css"
 
 // Import the server actions at the top of the file
 import { getWeekEvents } from "./actions/calendar-events"
@@ -12,6 +15,56 @@ import { getWeekEvents } from "./actions/calendar-events"
 // Add the imports for our components
 import WeekendEventsHighlight from "@/components/weekend-events-highlight"
 import EventCard from "@/components/event-card"
+
+// Add this interface at the top of your file
+interface Event {
+  id: number | string
+  title: string
+  date: string
+  time: string
+  location: string
+  description: string
+  image: string
+  url: string
+  featured: boolean
+}
+
+// Add these helper functions
+const getUserLocation = async (): Promise<{ city: string; state: string } | null> => {
+  try {
+    const position = await new Promise<GeolocationPosition>((resolve, reject) => {
+      navigator.geolocation.getCurrentPosition(resolve, reject)
+    })
+
+    const { latitude, longitude } = position.coords
+    const response = await fetch(
+      `https://api.opencagedata.com/geocode/v1/json?q=${latitude}+${longitude}&key=YOUR_OPENCAGE_API_KEY`
+    )
+    const data = await response.json()
+
+    if (data.results && data.results.length > 0) {
+      const components = data.results[0].components
+      return {
+        city: components.city || components.suburb || '',
+        state: components.state || ''
+      }
+    }
+    return null
+  } catch (error) {
+    console.error('Error getting location:', error)
+    return null
+  }
+}
+
+const filterEventsByLocation = (events: Event[], userLocation: { city: string; state: string } | null) => {
+  if (!userLocation) return events
+
+  return events.filter(event => {
+    const eventLocation = event.location.toLowerCase()
+    return eventLocation.includes(userLocation.city.toLowerCase()) ||
+           eventLocation.includes(userLocation.state.toLowerCase())
+  })
+}
 
 /**
  * Home Page Component
@@ -22,13 +75,30 @@ import EventCard from "@/components/event-card"
  */
 export default function Home() {
   const [schools, setSchools] = useState<SchoolType[]>([])
-  const [events, setEvents] = useState([])
+  const [events, setEvents] = useState<Event[]>([])
+  const [filteredEvents, setFilteredEvents] = useState<Event[]>([])
+  const [userLocation, setUserLocation] = useState<{ city: string; state: string } | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     fetchData()
+    getUserLocationAndFilterEvents()
   }, [])
+
+  useEffect(() => {
+    if (events.length > 0 && userLocation) {
+      const localEvents = filterEventsByLocation(events, userLocation)
+      setFilteredEvents(localEvents.length > 0 ? localEvents : events)
+    } else {
+      setFilteredEvents(events)
+    }
+  }, [events, userLocation])
+
+  const getUserLocationAndFilterEvents = async () => {
+    const location = await getUserLocation()
+    setUserLocation(location)
+  }
 
   const fetchData = async () => {
     try {
@@ -78,7 +148,7 @@ export default function Home() {
       time: formatEventDateTime(event).time,
       location: event.location || "Location TBA",
       description: event.description || "No description available",
-      image: "/placeholder.svg?height=300&width=600",
+      image: "https://scontent.fsyd6-1.fna.fbcdn.net/v/t39.30808-6/486144426_122117358548781927_7687492644287808260_n.jpg?stp=dst-jpg_p960x960_tt6&_nc_cat=108&ccb=1-7&_nc_sid=75d36f&_nc_ohc=AYj_cyXtmF8Q7kNvwHU23_C&_nc_oc=AdlXmWJ5-or2MDUSIq_0ipplYbpW8AFbfbOcIcX0T4gg5fp8EvBR7COtxOAZn8XwEmk&_nc_zt=23&_nc_ht=scontent.fsyd6-1.fna&_nc_gid=TFKyS0_l4F58My29RaWGVg&oh=00_AfGpFNxv4K3kP3dpAnYo3caEBA1gTxG5nUkewJuI3TCtgA&oe=67FA429E",
       url: event.htmlLink,
       featured: true,
     }))
@@ -126,21 +196,48 @@ export default function Home() {
     ].slice(0, 6) // Limit to 6 events to avoid overcrowding
   }
 
+  // Add this carousel settings object before your Home component
+  const carouselSettings = {
+    dots: true,
+    infinite: true,
+    speed: 500,
+    slidesToShow: 3,
+    slidesToScroll: 1,
+    autoplay: true,
+    autoplaySpeed: 3000,
+    responsive: [
+      {
+        breakpoint: 1024,
+        settings: {
+          slidesToShow: 2,
+          slidesToScroll: 1,
+        }
+      },
+      {
+        breakpoint: 640,
+        settings: {
+          slidesToShow: 1,
+          slidesToScroll: 1
+        }
+      }
+    ]
+  }
+
   if (isLoading) return <div>Loading...</div>
   if (error) return <div>Error: {error}</div>
 
   try {
     return (
-      <div className="min-h-screen bg-gray-50">
-        {/* Hero Section - Main banner with call-to-action buttons */}
-        <section className="relative bg-gradient-to-r from-green-600 to-yellow-500 text-white py-8 min-h-[40vh] flex items-center">
+      <main>
+        {/* Banner Section - Reduced height */}
+        <section className="relative h-[25vh]">
           {/* Background gradient overlay */}
           <div className="absolute inset-0 bg-gradient-to-r from-green-600 to-yellow-500"></div>
-          <div className="container mx-auto px-4 relative z-10">
+          <div className="container mx-auto px-4 relative z-10 h-full flex items-center">
             <div className="max-w-3xl mx-auto text-center">
               {/* Main heading and description */}
-              <h1 className="text-2xl md:text-3xl font-bold mb-3">Bachata Australia</h1>
-              <p className="text-base mb-4">
+              <h1 className="text-2xl md:text-3xl font-bold mb-3 text-white">Bachata Australia</h1>
+              <p className="text-base mb-4 text-white">
                 Your one-stop destination for Bachata events, classes, and community across Australia.
               </p>
               {/* Call-to-action buttons */}
@@ -183,6 +280,22 @@ export default function Home() {
                   Follow us on Instagram
                 </a>
               </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Featured Events This Week - Carousel */}
+        <section className="py-12 bg-white">
+          <div className="container mx-auto px-4">
+            <h2 className="text-3xl font-bold text-center mb-8">Featured Events This Week</h2>
+            <div className="relative">
+              <Slider {...carouselSettings}>
+                {filteredEvents.map((event) => (
+                  <div key={event.id} className="px-2">
+                    <EventCard event={event} />
+                  </div>
+                ))}
+              </Slider>
             </div>
           </div>
         </section>
@@ -245,19 +358,7 @@ export default function Home() {
             </div>
           </div>
         </section>
-
-        {/* Featured Events Section - Display of upcoming events */}
-        <section className="pt-8 pb-16 bg-white">
-          <div className="container mx-auto px-4">
-            <h2 className="text-3xl font-bold text-center mb-12">Featured Events This Week</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {events.map((event) => (
-                <EventCard key={event.id} event={event} />
-              ))}
-            </div>
-          </div>
-        </section>
-      </div>
+      </main>
     )
   } catch (error) {
     // Error handling - Display error message if something goes wrong

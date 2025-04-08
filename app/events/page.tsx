@@ -8,31 +8,62 @@ import Link from "next/link"
 import CollapsibleFilter from "@/components/collapsible-filter"
 import { applyFilters } from "./actions"
 import FestivalMenu from "@/components/festival-menu"
-import { useState } from "react"
+import { useState, useEffect } from "react"
+
+interface Event {
+  id: string
+  name: string
+  date: string
+  location: string
+  state: string
+  address: string
+  eventLink: string
+  price: string
+  ticketLink: string
+  imageUrl: string
+  comment: string
+  googleMapLink: string
+}
 
 export default function EventsPage() {
-  const [selectedState, setSelectedState] = useState("all")
-  const states = [
-    { value: "all", label: "All States" },
-    { value: "nsw", label: "New South Wales" },
-    { value: "vic", label: "Victoria" },
-    { value: "qld", label: "Queensland" },
-    { value: "wa", label: "Western Australia" },
-    { value: "sa", label: "South Australia" },
-  ]
+  const [events, setEvents] = useState<Event[]>([])
+  const [selectedState, setSelectedState] = useState('All')
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
-  // Your calendar IDs
-  const calendarIds = {
-    sydneyBachata: "4ea35178b00a2daa33a492682e866bd67e8b83797a948a31caa8a37e2a982dce@group.calendar.google.com",
-    melbourneBachata: "641b8d8fbee5ff9eb2402997e5990b3e52a737b134ec201748349884985c84f4@group.calendar.google.com",
-    brisbaneBachata: "f0b5764410b23c93087a7d3ef5ed0d0a295ad2b811d10bb772533d7517d2fdc5@group.calendar.google.com",
-    adelaideBachata: "6b95632fc6fe63530bbdd89c944d792009478636f5b2ce7ffc8718ccd500915f@group.calendar.google.com",
-    goldCoastBachata: "c9ed91c3930331387d69631072510838ec9155b75ca697065025d24e34cde78b@group.calendar.google.com",
-    perthBachata: "e521c86aed4060431cf6de7405315790dcca0a10d4779cc333835199f3724c16@group.calendar.google.com",
-    canberraBachata: "3a82a9f1ed5a4e865ed9f13b24a96004fe7c4b2deb07a422f068c70753f421eb@group.calendar.google.com"
+  useEffect(() => {
+    const fetchEvents = async () => {
+      try {
+        const response = await fetch('/api/events')
+        if (!response.ok) throw new Error('Failed to fetch events')
+        const data = await response.json()
+        setEvents(data)
+      } catch (err) {
+        setError('Failed to load events')
+        console.error(err)
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    fetchEvents()
+  }, [])
+
+  const filteredEvents = selectedState === 'All'
+    ? events
+    : events.filter(event => event.state === selectedState)
+
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-green-500"></div>
+      </div>
+    )
   }
 
-  const [selectedCalendar, setSelectedCalendar] = useState(calendarIds.sydneyBachata)
+  if (error) {
+    return <div className="text-center text-red-500 p-4">{error}</div>
+  }
 
   return (
     <div className="container mx-auto py-6 sm:py-12 px-4">
@@ -62,30 +93,20 @@ export default function EventsPage() {
         </div> */}
 
         {/* State Filter */}
-        <div className="mb-8">
-          <CollapsibleFilter title="Filter by State" showApplyButton={false}>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2">
-              {states.map((state) => (
-                <Button
-                  key={state.value}
-                  variant={selectedState === state.value ? "default" : "outline"}
-                  className={`w-full text-sm sm:text-base ${
-                    selectedState === state.value
-                      ? "bg-green-600 text-white hover:bg-green-700"
-                      : "border-green-600 text-green-600 hover:bg-green-50"
-                  }`}
-                  onClick={() => setSelectedState(state.value)}
-                >
-                  {state.label}
-                </Button>
-
-
-
-
-
-              ))}
-            </div>
-          </CollapsibleFilter>
+        <div className="flex justify-center flex-wrap gap-2 mb-8">
+          {['All', 'NSW', 'VIC', 'QLD', 'WA', 'SA', 'TAS', 'ACT', 'NT'].map((state) => (
+            <button
+              key={state}
+              onClick={() => setSelectedState(state)}
+              className={`px-6 py-2 rounded-full transition-colors duration-200 ${
+                selectedState === state
+                  ? 'bg-green-600 text-white'
+                  : 'bg-green-100 text-green-700 hover:bg-green-200'
+              }`}
+            >
+              {state}
+            </button>
+          ))}
         </div>
 
         <FestivalMenu />
@@ -166,23 +187,25 @@ export default function EventsPage() {
                         </Button>
                       </div>
                       <select
-                        value={selectedCalendar}
-                        onChange={(e) => setSelectedCalendar(e.target.value)}
+                        value={selectedState}
+                        onChange={(e) => setSelectedState(e.target.value)}
                         className="bg-white text-green-700 hover:bg-gray-100 text-xs sm:text-sm h-7 sm:h-9 rounded-md border-0 focus:ring-0"
                       >
-                        <option value={calendarIds.sydneyBachata}>Sydney Bachata</option>
-                        <option value={calendarIds.melbourneBachata}>Melbourne Bachata</option>
-                        <option value={calendarIds.brisbaneBachata}>Brisbane Bachata</option>
-                        <option value={calendarIds.adelaideBachata}>Adelaide Bachata</option>
-                        <option value={calendarIds.goldCoastBachata}>Gold Coast Bachata</option>
-                        <option value={calendarIds.perthBachata}>Perth Bachata</option>
-                        <option value={calendarIds.canberraBachata}>Canberra Bachata</option>
+                        <option value="All">All States</option>
+                        <option value="NSW">New South Wales</option>
+                        <option value="VIC">Victoria</option>
+                        <option value="QLD">Queensland</option>
+                        <option value="WA">Western Australia</option>
+                        <option value="SA">South Australia</option>
+                        <option value="TAS">Tasmania</option>
+                        <option value="ACT">Australian Capital Territory</option>
+                        <option value="NT">Northern Territory</option>
                       </select>
                     </div>
                   </div>
                   <iframe
                     src={`https://calendar.google.com/calendar/embed?src=${encodeURIComponent(
-                      selectedCalendar,
+                      selectedState,
                     )}&ctz=Australia%2FSydney&wkst=1&bgcolor=%23ffffff&showTitle=0&showNav=1&showDate=1&showPrint=0&showTabs=1&showCalendars=1&showTz=1`}
                     style={{ borderWidth: 0 }}
                     width="100%"
@@ -306,23 +329,25 @@ export default function EventsPage() {
                     </Button>
                   </div>
                   <select
-                    value={selectedCalendar}
-                    onChange={(e) => setSelectedCalendar(e.target.value)}
+                    value={selectedState}
+                    onChange={(e) => setSelectedState(e.target.value)}
                     className="bg-white text-green-700 hover:bg-gray-100 text-xs sm:text-sm h-7 sm:h-9 rounded-md border-0 focus:ring-0"
                   >
-                    <option value={calendarIds.sydneyBachata}>Sydney Bachata</option>
-                    <option value={calendarIds.melbourneBachata}>Melbourne Bachata</option>
-                    <option value={calendarIds.brisbaneBachata}>Brisbane Bachata</option>
-                    <option value={calendarIds.adelaideBachata}>Adelaide Bachata</option>
-                    <option value={calendarIds.goldCoastBachata}>Gold Coast Bachata</option>
-                    <option value={calendarIds.perthBachata}>Perth Bachata</option>
-                    <option value={calendarIds.canberraBachata}>Canberra Bachata</option>
+                    <option value="All">All States</option>
+                    <option value="NSW">New South Wales</option>
+                    <option value="VIC">Victoria</option>
+                    <option value="QLD">Queensland</option>
+                    <option value="WA">Western Australia</option>
+                    <option value="SA">South Australia</option>
+                    <option value="TAS">Tasmania</option>
+                    <option value="ACT">Australian Capital Territory</option>
+                    <option value="NT">Northern Territory</option>
                   </select>
                 </div>
               </div>
               <iframe
                 src={`https://calendar.google.com/calendar/embed?src=${encodeURIComponent(
-                  selectedCalendar,
+                  selectedState,
                 )}&ctz=Australia%2FSydney&wkst=1&bgcolor=%23ffffff&showTitle=0&showNav=1&showDate=1&showPrint=0&showTabs=1&showCalendars=1&showTz=1&mode=AGENDA`}
                 style={{ borderWidth: 0 }}
                 width="100%"
