@@ -16,6 +16,18 @@ interface InstructorFormData {
   emailLink: string
 }
 
+// List of Australian states and territories
+const AUSTRALIAN_STATES = [
+  { value: 'NSW', label: 'New South Wales' },
+  { value: 'VIC', label: 'Victoria' },
+  { value: 'QLD', label: 'Queensland' },
+  { value: 'WA', label: 'Western Australia' },
+  { value: 'SA', label: 'South Australia' },
+  { value: 'TAS', label: 'Tasmania' },
+  { value: 'ACT', label: 'Australian Capital Territory' },
+  { value: 'NT', label: 'Northern Territory' }
+];
+
 export default function NewInstructorPage() {
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
@@ -41,15 +53,21 @@ export default function NewInstructorPage() {
       formData.append('file', file)
       formData.append('folder', 'instructors') // Store in instructors folder
 
+      console.log('Sending image upload request to API...') // Debug log
       const response = await fetch('/api/upload', {
         method: 'POST',
         body: formData
       })
 
-      if (!response.ok) throw new Error('Failed to upload image')
+      if (!response.ok) {
+        const errorData = await response.json()
+        console.error('Upload API error:', errorData) // Debug log
+        throw new Error('Failed to upload image')
+      }
 
       const data = await response.json()
-      return data.url
+      console.log('Upload API response:', data) // Debug log
+      return data
     } catch (error) {
       console.error('Upload error:', error)
       throw new Error('Failed to upload image')
@@ -65,7 +83,9 @@ export default function NewInstructorPage() {
       let imageUrl = formData.imageUrl
       if (selectedImage) {
         console.log('Uploading image to storage...') // Debug log
-        imageUrl = await handleImageUpload(selectedImage)
+        const uploadResponse = await handleImageUpload(selectedImage)
+        // Extract the imageUrl from the response
+        imageUrl = uploadResponse.imageUrl || uploadResponse
         console.log('Image uploaded successfully:', imageUrl) // Debug log
       }
 
@@ -137,13 +157,19 @@ export default function NewInstructorPage() {
           </div>
           <div>
             <label className="block text-sm font-medium mb-1">State*</label>
-            <input
-              type="text"
+            <select
               value={formData.state}
               onChange={(e) => setFormData({...formData, state: e.target.value})}
               className="w-full p-2 border rounded"
               required
-            />
+            >
+              <option value="">Select a state</option>
+              {AUSTRALIAN_STATES.map(state => (
+                <option key={state.value} value={state.value}>
+                  {state.label}
+                </option>
+              ))}
+            </select>
           </div>
         </div>
 

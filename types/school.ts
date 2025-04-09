@@ -17,4 +17,5 @@ export interface School {
   createdAt: string
   updatedAt: string
   imageFile?: File
+  googleReviewLink?: string
 } 

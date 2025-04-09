@@ -6,6 +6,8 @@ import { Card } from "@/components/ui/card"
 import { MapPin, Instagram, Facebook, Mail } from "lucide-react"
 import { useState, useEffect } from "react"
 import CollapsibleFilter from "@/components/collapsible-filter"
+import { StateFilter } from "@/components/ui/StateFilter"
+import { useStateFilter } from "@/hooks/useStateFilter"
 
 interface Instructor {
   id: string
@@ -22,42 +24,29 @@ interface Instructor {
 }
 
 export default function InstructorsPage() {
-  const [selectedState, setSelectedState] = useState("all")
-  const states = [
-    { value: "all", label: "All States" },
-    { value: "nsw", label: "New South Wales" },
-    { value: "vic", label: "Victoria" },
-    { value: "qld", label: "Queensland" },
-    { value: "wa", label: "Western Australia" },
-    { value: "sa", label: "South Australia" },
-  ]
-
   const [instructors, setInstructors] = useState<Instructor[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  
+  const { selectedState, setSelectedState, filteredItems: filteredInstructors } = useStateFilter(instructors)
 
   useEffect(() => {
+    const fetchInstructors = async () => {
+      try {
+        const response = await fetch('/api/instructors')
+        if (!response.ok) throw new Error('Failed to fetch instructors')
+        const data = await response.json()
+        setInstructors(data)
+      } catch (err) {
+        setError('Failed to load instructors')
+        console.error(err)
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
     fetchInstructors()
   }, [])
-
-  const fetchInstructors = async () => {
-    try {
-      const response = await fetch('/api/instructors')
-      if (!response.ok) throw new Error('Failed to fetch instructors')
-      const data = await response.json()
-      setInstructors(data)
-    } catch (err) {
-      setError('Failed to load instructors')
-      console.error(err)
-    } finally {
-      setIsLoading(false)
-    }
-  }
-
-  // Filter instructors by state
-  const filteredInstructors = instructors.filter(
-    instructor => selectedState === "all" || instructor.state.toLowerCase() === selectedState
-  )
 
   if (isLoading) {
     return <div className="text-center py-8">Loading instructors...</div>
@@ -68,31 +57,21 @@ export default function InstructorsPage() {
   }
 
   return (
-    <div className="container mx-auto py-6 sm:py-12 px-4">
-      <div className="max-w-7xl mx-auto">
-        <div className="text-center mb-4">
-          <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-3 sm:mb-4">Bachata Instructors</h1>
-          <p className="text-lg sm:text-xl text-gray-600 max-w-3xl mx-auto">
-            Find Bachata instructors across Australia. Learn from experienced dancers and improve your skills.
+    <div className="min-h-screen bg-gray-50">
+      <div className="container mx-auto px-4 py-8">
+        <div className="text-center mb-12">
+          <h1 className="text-4xl font-bold bg-gradient-to-r from-green-600 to-yellow-500 bg-clip-text text-transparent mb-4">
+            Bachata Instructors
+          </h1>
+          <p className="text-xl text-gray-600">
+            Find Bachata instructors across Australia
           </p>
         </div>
 
-        {/* State Filter */}
-        <div className="flex justify-center flex-wrap gap-2 mb-8">
-          {['All', 'NSW', 'VIC', 'QLD', 'WA', 'SA', 'TAS', 'ACT', 'NT'].map((state) => (
-            <button
-              key={state}
-              onClick={() => setSelectedState(state)}
-              className={`px-6 py-2 rounded-full transition-colors duration-200 ${
-                selectedState === state
-                  ? 'bg-green-600 text-white'
-                  : 'bg-green-100 text-green-700 hover:bg-green-200'
-              }`}
-            >
-              {state}
-            </button>
-          ))}
-        </div>
+        <StateFilter
+          selectedState={selectedState}
+          onChange={setSelectedState}
+        />
 
         <div className="grid grid-cols-1 gap-6 sm:gap-8 lg:gap-12 mb-12">
           {filteredInstructors.map((instructor) => (

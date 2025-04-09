@@ -1,9 +1,23 @@
-interface SchoolCardProps {
-  school: School
-  layout: 'grid' | 'list'
+import Image from 'next/image'
+import { FaMapMarkerAlt, FaGlobe } from 'react-icons/fa'
+
+interface School {
+  id: string;
+  name: string;
+  location: string;
+  website: string;
+  imageUrl?: string;
+  // ... other properties
 }
 
-const SchoolCard = ({ school, layout }: SchoolCardProps) => {
+interface SchoolCardProps {
+  school: School;
+  layout: 'grid' | 'list';
+  handleEdit: (id: string) => void;
+  handleDelete: (id: string) => void;
+}
+
+const SchoolCard = ({ school, layout, handleEdit, handleDelete }: SchoolCardProps) => {
   return (
     <div className={`
       bg-white rounded-lg shadow-md overflow-hidden
@@ -17,7 +31,7 @@ const SchoolCard = ({ school, layout }: SchoolCardProps) => {
         relative
         ${layout === 'grid'
           ? 'w-full h-48'
-          : 'w-48 h-32'
+          : 'w-48 h-32 flex-shrink-0'
         }
       `}>
         <Image
@@ -39,39 +53,46 @@ const SchoolCard = ({ school, layout }: SchoolCardProps) => {
         <h3 className="text-xl font-semibold mb-2">{school.name}</h3>
         
         <div className="flex items-center gap-2 text-gray-600 mb-2">
-          <FaMapMarkerAlt />
+          <FaMapMarkerAlt className="flex-shrink-0" />
           <span>{school.location}</span>
         </div>
 
         <div className="flex items-center gap-2 text-gray-600 mb-2">
-          <FaGlobe />
-          <a 
-            href={school.website} 
-            target="_blank" 
-            rel="noopener noreferrer"
-            className="text-blue-500 hover:underline"
-          >
-            Visit Website
-          </a>
+          <FaGlobe className="flex-shrink-0" />
+          {school.website ? (
+            <a 
+              href={school.website.startsWith('http') ? school.website : `https://${school.website}`} 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="text-blue-500 hover:underline truncate"
+            >
+              Visit Website
+            </a>
+          ) : (
+            <span>No Website</span>
+          )}
         </div>
+
+        {/* Spacer for list layout */}
+        {layout === 'list' && <div className="flex-grow"></div>}
 
         {/* Admin Actions */}
         <div className={`
-          flex gap-2 mt-auto
+          flex gap-2 
           ${layout === 'grid'
-            ? 'flex-col'
-            : 'flex-row'
+            ? 'mt-auto flex-col'
+            : 'flex-row items-end'
           }
         `}>
           <button
             onClick={() => handleEdit(school.id)}
-            className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+            className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 text-sm"
           >
             Edit
           </button>
           <button
             onClick={() => handleDelete(school.id)}
-            className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
+            className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 text-sm"
           >
             Delete
           </button>
@@ -79,4 +100,6 @@ const SchoolCard = ({ school, layout }: SchoolCardProps) => {
       </div>
     </div>
   )
-} 
+}
+
+export default SchoolCard; 

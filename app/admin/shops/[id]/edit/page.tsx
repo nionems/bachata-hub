@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, ChangeEvent } from 'react'
 import { useRouter } from 'next/navigation'
 
 interface ShopFormData {
@@ -12,6 +12,7 @@ interface ShopFormData {
   websiteLink: string
   comment: string
   imageUrl: string
+  image?: File | null
 }
 
 export default function EditShopPage({ params }: { params: { id: string } }) {
@@ -24,10 +25,12 @@ export default function EditShopPage({ params }: { params: { id: string } }) {
     googleReviewLink: '',
     websiteLink: '',
     comment: '',
-    imageUrl: ''
+    imageUrl: '',
+    image: null
   })
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [imagePreviewUrl, setImagePreviewUrl] = useState<string | null>(null)
 
   useEffect(() => {
     const fetchShop = async () => {
@@ -36,6 +39,9 @@ export default function EditShopPage({ params }: { params: { id: string } }) {
         if (!response.ok) throw new Error('Failed to fetch shop')
         const data = await response.json()
         setFormData(data)
+        if (data.imageUrl) {
+          setImagePreviewUrl(data.imageUrl)
+        }
       } catch (err) {
         setError('Failed to load shop')
         console.error(err)
@@ -47,26 +53,85 @@ export default function EditShopPage({ params }: { params: { id: string } }) {
     fetchShop()
   }, [params.id])
 
+  const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file) {
+      setFormData({ ...formData, image: file })
+      if (imagePreviewUrl && !imagePreviewUrl.includes('http')) {
+        URL.revokeObjectURL(imagePreviewUrl)
+      }
+      setImagePreviewUrl(URL.createObjectURL(file))
+    }
+  }
+
+  useEffect(() => {
+    return () => {
+      if (imagePreviewUrl && !imagePreviewUrl.includes('http')) {
+        URL.revokeObjectURL(imagePreviewUrl)
+      }
+    }
+  }, [imagePreviewUrl])
+
+  const handleImageUpload = async (file: File): Promise<string> => {
+    const uploadFormData = new FormData()
+    uploadFormData.append('file', file)
+    try {
+      const response = await fetch('/api/upload', {
+        method: 'POST',
+        body: uploadFormData,
+      })
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || 'Failed to upload image')
+      }
+      const data = await response.json()
+      return data.imageUrl
+    } catch (uploadError) {
+      console.error("Upload error:", uploadError)
+      throw uploadError
+    }
+  }
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     setIsLoading(true)
     setError(null)
 
     try {
-      const formDataToSend = new FormData()
-      Object.entries(formData).forEach(([key, value]) => {
-        if (value) formDataToSend.append(key, value)
-      })
+      let finalImageUrl = formData.imageUrl
+      
+      if (formData.image) {
+        try {
+          finalImageUrl = await handleImageUpload(formData.image)
+        } catch (uploadError: any) {
+          setError(`Image upload failed: ${uploadError.message || 'Unknown error'}`)
+          setIsLoading(false)
+          return
+        }
+      }
+
+      const shopData = {
+        name: formData.name,
+        location: formData.location,
+        state: formData.state,
+        address: formData.address,
+        googleReviewLink: formData.googleReviewLink,
+        websiteLink: formData.websiteLink,
+        imageUrl: finalImageUrl,
+        comment: formData.comment
+      }
 
       const response = await fetch(`/api/shops/${params.id}`, {
         method: 'PUT',
-        body: formDataToSend,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(shopData),
       })
 
       if (!response.ok) throw new Error('Failed to update shop')
 
-      router.push('/admin/dashboard')
-      router.refresh()
+      router.push('/admin/dashboard?tab=shop')
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to update shop')
     } finally {
@@ -187,15 +252,16 @@ export default function EditShopPage({ params }: { params: { id: string } }) {
             name="image"
             id="image"
             accept="image/*"
+            onChange={handleImageChange}
             className="mt-1 block w-full"
           />
         </div>
 
-        {formData.imageUrl && (
+        {imagePreviewUrl && (
           <div>
             <p className="text-sm text-gray-500 mb-2">Current Image:</p>
             <img
-              src={formData.imageUrl}
+              src={imagePreviewUrl}
               alt="Current shop image"
               className="w-32 h-32 object-cover rounded"
             />
@@ -226,7 +292,7 @@ export default function EditShopPage({ params }: { params: { id: string } }) {
           </button>
           <button
             type="button"
-            onClick={() => router.back()}
+            onClick={() => router.push('/admin/dashboard?tab=shop')}
             className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
           >
             Cancel

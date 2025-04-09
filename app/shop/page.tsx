@@ -16,7 +16,7 @@ interface Shop {
 
 export default function ShopsPage() {
   const [shops, setShops] = useState<Shop[]>([])
-  const [selectedState, setSelectedState] = useState<string>('All')
+  const [selectedState, setSelectedState] = useState<string>('all')
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
@@ -38,7 +38,7 @@ export default function ShopsPage() {
     fetchShops()
   }, [])
 
-  const filteredShops = selectedState === 'All'
+  const filteredShops = selectedState === 'all'
     ? shops
     : shops.filter(shop => shop.state === selectedState)
 
@@ -67,26 +67,31 @@ export default function ShopsPage() {
         </p>
       </div>
 
-      {/* State Filter */}
-      <div className="flex justify-center flex-wrap gap-2 mb-8">
-        {['All', 'NSW', 'VIC', 'QLD', 'WA', 'SA', 'TAS', 'ACT', 'NT'].map((state) => (
-          <button
-            key={state}
-            onClick={() => setSelectedState(state)}
-            className={`px-6 py-2 rounded-full transition-colors duration-200 ${
-              selectedState === state
-                ? 'bg-green-600 text-white'
-                : 'bg-green-100 text-green-700 hover:bg-green-200'
-            }`}
-          >
-            {state}
-          </button>
-        ))}
+      <div className="mb-8">
+        <label htmlFor="state-filter" className="block text-sm font-medium text-gray-700 mb-2">
+          Filter by State
+        </label>
+        <select
+          id="state-filter"
+          value={selectedState}
+          onChange={(e) => setSelectedState(e.target.value)}
+          className="mt-1 block w-full md:w-64 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+        >
+          <option value="all">All States</option>
+          <option value="NSW">New South Wales</option>
+          <option value="VIC">Victoria</option>
+          <option value="QLD">Queensland</option>
+          <option value="WA">Western Australia</option>
+          <option value="SA">South Australia</option>
+          <option value="TAS">Tasmania</option>
+          <option value="ACT">Australian Capital Territory</option>
+          <option value="NT">Northern Territory</option>
+        </select>n
       </div>
 
       {filteredShops.length === 0 ? (
         <div className="text-center text-gray-500 py-8">
-          No shops found in {selectedState === 'All' ? 'any state' : selectedState}.
+          No shops found {selectedState !== 'all' && `in ${selectedState}`}
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">

@@ -17,6 +17,18 @@ interface InstructorFormData {
   emailLink: string
 }
 
+// List of Australian states and territories
+const AUSTRALIAN_STATES = [
+  { value: 'NSW', label: 'New South Wales' },
+  { value: 'VIC', label: 'Victoria' },
+  { value: 'QLD', label: 'Queensland' },
+  { value: 'WA', label: 'Western Australia' },
+  { value: 'SA', label: 'South Australia' },
+  { value: 'TAS', label: 'Tasmania' },
+  { value: 'ACT', label: 'Australian Capital Territory' },
+  { value: 'NT', label: 'Northern Territory' }
+];
+
 export default function EditInstructorPage({ params }: { params: { id: string } }) {
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
@@ -59,15 +71,21 @@ export default function EditInstructorPage({ params }: { params: { id: string } 
       formData.append('file', file)
       formData.append('folder', 'instructors')
 
+      console.log('Sending image upload request to API...') // Debug log
       const response = await fetch('/api/upload', {
         method: 'POST',
         body: formData
       })
 
-      if (!response.ok) throw new Error('Failed to upload image')
+      if (!response.ok) {
+        const errorData = await response.json()
+        console.error('Upload API error:', errorData) // Debug log
+        throw new Error('Failed to upload image')
+      }
 
       const data = await response.json()
-      return data.url
+      console.log('Upload API response:', data) // Debug log
+      return data
     } catch (error) {
       console.error('Upload error:', error)
       throw new Error('Failed to upload image')
@@ -82,8 +100,14 @@ export default function EditInstructorPage({ params }: { params: { id: string } 
     try {
       let imageUrl = formData.imageUrl
       if (selectedImage) {
-        imageUrl = await handleImageUpload(selectedImage)
+        console.log('Uploading image to storage...') // Debug log
+        const uploadResponse = await handleImageUpload(selectedImage)
+        // Extract the imageUrl from the response
+        imageUrl = uploadResponse.imageUrl || uploadResponse
+        console.log('Image uploaded successfully:', imageUrl) // Debug log
       }
+
+      console.log('Updating instructor with data:', { ...formData, imageUrl }) // Debug log
 
       const response = await fetch(`/api/instructors/${params.id}`, {
         method: 'PUT',
@@ -96,10 +120,18 @@ export default function EditInstructorPage({ params }: { params: { id: string } 
         }),
       })
 
-      if (!response.ok) throw new Error('Failed to update instructor')
+      if (!response.ok) {
+        const errorData = await response.json()
+        console.error('Server error:', errorData) // Debug log
+        throw new Error('Failed to update instructor')
+      }
+
+      const result = await response.json()
+      console.log('Instructor updated successfully:', result) // Debug log
 
       router.push('/admin/dashboard')
     } catch (err) {
+      console.error('Error updating instructor:', err) // Debug log
       setError(err instanceof Error ? err.message : 'Failed to update instructor')
     } finally {
       setIsLoading(false)
@@ -143,13 +175,19 @@ export default function EditInstructorPage({ params }: { params: { id: string } 
           </div>
           <div>
             <label className="block text-sm font-medium mb-1">State*</label>
-            <input
-              type="text"
+            <select
               value={formData.state}
               onChange={(e) => setFormData({...formData, state: e.target.value})}
               className="w-full p-2 border rounded"
               required
-            />
+            >
+              <option value="">Select a state</option>
+              {AUSTRALIAN_STATES.map(state => (
+                <option key={state.value} value={state.value}>
+                  {state.label}
+                </option>
+              ))}
+            </select>
           </div>
         </div>
 

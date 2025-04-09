@@ -6,49 +6,77 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { MapPin, Star, Users, Clock, MapIcon } from "lucide-react"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { collection, getDocs } from 'firebase/firestore'
+import { db } from '../../firebase/config'
 
 export default function SchoolsPage() {
   const [schools, setSchools] = useState<School[]>([])
+  const [filteredSchools, setFilteredSchools] = useState<School[]>([])
+  const [selectedState, setSelectedState] = useState<string>('all')
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [selectedState, setSelectedState] = useState("all")
-  
+
+  // Australian states array
   const states = [
-    { value: "all", label: "All States" },
-    { value: "nsw", label: "New South Wales" },
-    { value: "vic", label: "Victoria" },
-    { value: "qld", label: "Queensland" },
-    { value: "wa", label: "Western Australia" },
+    { value: 'all', label: 'All States' },
+    { value: 'NSW', label: 'New South Wales' },
+    { value: 'VIC', label: 'Victoria' },
+    { value: 'QLD', label: 'Queensland' },
+    { value: 'WA', label: 'Western Australia' },
+    { value: 'SA', label: 'South Australia' },
+    { value: 'TAS', label: 'Tasmania' },
+    { value: 'ACT', label: 'Australian Capital Territory' },
+    { value: 'NT', label: 'Northern Territory' },
   ]
 
+  // Fetch schools from Firestore
   useEffect(() => {
+    const fetchSchools = async () => {
+      setIsLoading(true)
+      setError(null)
+      try {
+        const schoolsCollection = collection(db, 'schools')
+        const schoolsSnapshot = await getDocs(schoolsCollection)
+        const schoolsList = schoolsSnapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        })) as School[]
+        
+        setSchools(schoolsList)
+        // Initialize filtered schools with all schools
+        setFilteredSchools(schoolsList)
+      } catch (err) {
+        console.error('Error fetching schools:', err)
+        setError('Failed to load schools')
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
     fetchSchools()
   }, [])
 
-  const fetchSchools = async () => {
-    try {
-      const response = await fetch('/api/schools')
-      if (!response.ok) throw new Error('Failed to fetch schools')
-      const data = await response.json()
-      setSchools(data)
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred')
-    } finally {
-      setIsLoading(false)
+  // Filter schools when state selection changes
+  useEffect(() => {
+    console.log('Filtering schools for state:', selectedState)
+    if (selectedState === 'all') {
+      setFilteredSchools(schools)
+    } else {
+      const filtered = schools.filter(school => 
+        school.state?.toUpperCase() === selectedState.toUpperCase()
+      )
+      setFilteredSchools(filtered)
     }
+  }, [selectedState, schools])
+
+  // Handle state filter change
+  const handleStateChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    console.log('State selected:', e.target.value)
+    setSelectedState(e.target.value)
   }
 
-  if (isLoading) return <div className="p-8 text-center">Loading schools...</div>
-  if (error) return <div className="p-8 text-center text-red-500">Error: {error}</div>
-
-  const allSchools = schools.map(school => ({
-    ...school,
-    state: school.state?.toLowerCase() || 'unknown'
-  }))
-
-  const filteredSchools = selectedState === "all" 
-    ? allSchools 
-    : allSchools.filter(school => school.state === selectedState)
+  if (isLoading) return <div className="text-center py-8">Loading schools...</div>
+  if (error) return <div className="text-center py-8 text-red-500">{error}</div>
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -62,26 +90,34 @@ export default function SchoolsPage() {
           </p>
         </div>
 
-        <div className="flex justify-center flex-wrap gap-2 mb-8">
-          {['All', 'NSW', 'VIC', 'QLD', 'WA', 'SA', 'TAS', 'ACT', 'NT'].map((state) => (
-            <button
-              key={state}
-              onClick={() => setSelectedState(state)}
-              className={`px-6 py-2 rounded-full transition-colors duration-200 ${
-                selectedState === state
-                  ? 'bg-green-600 text-white'
-                  : 'bg-green-100 text-green-700 hover:bg-green-200'
-              }`}
-            >
-              {state}
-            </button>
-          ))}
+        <div className="mb-8">
+          <label htmlFor="state-filter" className="block text-sm font-medium text-gray-700 mb-2">
+            Filter by State
+          </label>
+          <select
+            id="state-filter"
+            value={selectedState}
+            onChange={handleStateChange}
+            className="mt-1 block w-full md:w-64 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+          >
+            {states.map(state => (
+              <option key={state.value} value={state.value}>
+                {state.label}
+              </option>
+            ))}
+          </select>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {filteredSchools.map((school) => (
-            <SchoolCard key={school.id} school={school} />
-          ))}
+          {filteredSchools.length === 0 ? (
+            <div className="col-span-full text-center py-8 text-gray-500">
+              No schools found {selectedState !== 'all' && `in ${states.find(s => s.value === selectedState)?.label}`}
+            </div>
+          ) : (
+            filteredSchools.map((school) => (
+              <SchoolCard key={school.id} school={school} />
+            ))
+          )}
         </div>
 
         <div className="mt-16 bg-gradient-to-r from-green-600 to-yellow-400 rounded-xl shadow-xl overflow-hidden">

@@ -19,6 +19,18 @@ interface FestivalFormData {
   googleMapLink: string
 }
 
+// List of Australian states and territories
+const AUSTRALIAN_STATES = [
+  { value: 'NSW', label: 'New South Wales' },
+  { value: 'VIC', label: 'Victoria' },
+  { value: 'QLD', label: 'Queensland' },
+  { value: 'WA', label: 'Western Australia' },
+  { value: 'SA', label: 'South Australia' },
+  { value: 'TAS', label: 'Tasmania' },
+  { value: 'ACT', label: 'Australian Capital Territory' },
+  { value: 'NT', label: 'Northern Territory' }
+];
+
 export default function NewFestivalPage() {
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
@@ -155,13 +167,19 @@ export default function NewFestivalPage() {
           </div>
           <div>
             <label className="block text-sm font-medium mb-1">State*</label>
-            <input
-              type="text"
+            <select
               value={formData.state}
               onChange={(e) => setFormData({...formData, state: e.target.value})}
               className="w-full p-2 border rounded"
               required
-            />
+            >
+              <option value="">Select a state</option>
+              {AUSTRALIAN_STATES.map(state => (
+                <option key={state.value} value={state.value}>
+                  {state.label}
+                </option>
+              ))}
+            </select>
           </div>
         </div>
 

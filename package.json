@@ -44,6 +44,7 @@
     "firebase": "^11.6.0",
     "firebase-admin": "^13.2.0",
     "glob": "^10.4.5",
+    "google-spreadsheet": "^4.1.4",
     "googleapis": "^148.0.0",
     "lucide-react": "^0.344.0",
     "mongodb": "^6.15.0",
