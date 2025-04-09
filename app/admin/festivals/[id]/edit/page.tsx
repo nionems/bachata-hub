@@ -77,15 +77,21 @@ export default function EditFestivalPage({ params }: { params: { id: string } })
       formData.append('file', file)
       formData.append('folder', 'festivals')
 
+      console.log('Sending image upload request to API...') // Debug log
       const response = await fetch('/api/upload', {
         method: 'POST',
         body: formData
       })
 
-      if (!response.ok) throw new Error('Failed to upload image')
+      if (!response.ok) {
+        const errorData = await response.json()
+        console.error('Upload API error:', errorData) // Debug log
+        throw new Error('Failed to upload image')
+      }
 
       const data = await response.json()
-      return data.url
+      console.log('Upload API response:', data) // Debug log
+      return data.imageUrl // Return imageUrl instead of url
     } catch (error) {
       console.error('Upload error:', error)
       throw new Error('Failed to upload image')

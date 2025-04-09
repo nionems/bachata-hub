@@ -68,7 +68,7 @@ export default function CompetitionsPage() {
     <div className="min-h-screen bg-gray-50">
       <div className="container mx-auto px-4 py-8">
         <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-green-600 to-yellow-500 bg-clip-text text-transparent mb-4">
+          <h1 className="text-4xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent mb-4">
             Bachata Competitions
           </h1>
           <p className="text-xl text-gray-600">
@@ -88,6 +88,7 @@ export default function CompetitionsPage() {
           </TabsList>
 
           <TabsContent value="upcoming" className="w-full">
+            <h2 className="text-2xl font-bold text-primary mb-4">Upcoming Competitions</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               {filteredCompetitions.map((competition) => (
                 <Link href={`/competitions/${competition.id}`} key={competition.id}>
@@ -148,7 +149,7 @@ export default function CompetitionsPage() {
         </Tabs>
 
         <div className="mt-12 bg-green-50 p-8 rounded-lg">
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">Competition Guidelines</h2>
+          <h2 className="text-2xl font-bold text-primary mb-4">Competition Guidelines</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <h3 className="text-lg font-semibold mb-2">Registration Process</h3>
@@ -174,7 +175,7 @@ export default function CompetitionsPage() {
         </div>
 
         {/* Add this section before the final closing div */}
-        <div className="mt-16 bg-gradient-to-r from-green-600 to-yellow-400 rounded-xl shadow-xl overflow-hidden">
+        <div className="mt-16 bg-gradient-to-r from-primary to-secondary rounded-xl shadow-xl overflow-hidden">
           <div className="p-8 md:p-12 flex flex-col md:flex-row items-center justify-between">
             <div className="text-white mb-6 md:mb-0 md:mr-8">
               <h2 className="text-3xl font-bold mb-4">
@@ -207,7 +208,7 @@ export default function CompetitionsPage() {
             <div className="flex flex-col space-y-4">
               <a
                 href="mailto:contact@bachata.au"
-                className="bg-white text-green-600 px-8 py-3 rounded-full font-semibold hover:bg-green-50 transition-colors duration-200 text-center min-w-[200px]"
+                className="bg-white text-primary px-8 py-3 rounded-full font-semibold hover:bg-gray-50 transition-colors duration-200 text-center min-w-[200px]"
               >
                 Contact Us
               </a>
@@ -215,7 +216,7 @@ export default function CompetitionsPage() {
                 href="https://forms.gle/your-google-form-link"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="bg-yellow-400 text-green-900 px-8 py-3 rounded-full font-semibold hover:bg-yellow-500 transition-colors duration-200 text-center"
+                className="bg-secondary text-white px-8 py-3 rounded-full font-semibold hover:bg-secondary/90 transition-colors duration-200 text-center"
               >
                 Submit via Form
               </a>

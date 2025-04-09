@@ -14,13 +14,14 @@ export async function POST(request: Request) {
   try {
     const formData = await request.formData()
     const file = formData.get('file') as File | null
+    const folder = formData.get('folder') as string || 'default' // Get folder from form data
 
     if (!file) {
       console.error("No file found in the request")
       return NextResponse.json({ error: 'No file uploaded' }, { status: 400 })
     }
 
-    console.log("File received:", { name: file.name, type: file.type, size: file.size })
+    console.log("File received:", { name: file.name, type: file.type, size: file.size, folder })
 
     // Convert file to buffer
     const bytes = await file.arrayBuffer()
@@ -30,7 +31,10 @@ export async function POST(request: Request) {
     console.log("API Route (/api/upload): Attempting to upload to Cloudinary...")
     const uploadResponse = await new Promise((resolve, reject) => {
       const uploadStream = cloudinary.uploader.upload_stream(
-        { resource_type: 'auto' }, // Use 'auto' to detect file type
+        { 
+          resource_type: 'auto',
+          folder: folder // Use the folder parameter
+        },
         (error, result) => {
           if (error) {
             console.error("Cloudinary upload error:", error)

@@ -68,8 +68,8 @@ export default function AccommodationPage() {
     <div className="min-h-screen bg-gray-50">
       <div className="container mx-auto px-4 py-8">
         <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-green-600 to-yellow-500 bg-clip-text text-transparent mb-4">
-            Dance Event Accommodation
+          <h1 className="text-4xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent mb-4">
+            Accommodation
           </h1>
           <p className="text-xl text-gray-600">
             Find accommodation near dance events across Australia

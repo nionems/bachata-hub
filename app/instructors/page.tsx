@@ -60,7 +60,7 @@ export default function InstructorsPage() {
     <div className="min-h-screen bg-gray-50">
       <div className="container mx-auto px-4 py-8">
         <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-green-600 to-yellow-500 bg-clip-text text-transparent mb-4">
+          <h1 className="text-4xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent mb-4">
             Bachata Instructors
           </h1>
           <p className="text-xl text-gray-600">
@@ -90,7 +90,7 @@ export default function InstructorsPage() {
                   </div>
                 </div>
                 <div className="md:col-span-2 p-4 sm:p-6">
-                  <h2 className="text-xl sm:text-2xl font-bold text-green-700 mb-2">{instructor.name}</h2>
+                  <h2 className="text-xl sm:text-2xl font-bold text-primary mb-2">{instructor.name}</h2>
                   <div className="flex flex-wrap gap-2 sm:gap-4 mb-3 sm:mb-4">
                     <div className="flex items-center text-gray-600 text-sm sm:text-base">
                       <MapPin className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
@@ -176,14 +176,54 @@ export default function InstructorsPage() {
           </div>
         )}
 
-        <div className="bg-gradient-to-r from-green-600 to-yellow-500 rounded-lg p-4 sm:p-8 text-white text-center">
-          <h2 className="text-xl sm:text-2xl font-bold mb-2 sm:mb-4">Are you a Bachata Instructor?</h2>
-          <p className="text-base sm:text-lg mb-4 sm:mb-6 max-w-2xl mx-auto">
-            Join our directory to connect with students and promote your classes across Australia.
-          </p>
-          <Button size="sm" className="bg-white text-green-700 hover:bg-gray-100 sm:text-base">
-            Join as Instructor
-          </Button>
+
+        <div className="mt-16 bg-gradient-to-r from-primary to-secondary rounded-xl shadow-xl overflow-hidden">
+          <div className="p-8 md:p-12 flex flex-col md:flex-row items-center justify-between">
+            <div className="text-white mb-6 md:mb-0 md:mr-8">
+              <h2 className="text-3xl font-bold mb-4">
+                Join Our Instructor Directory
+              </h2>
+              <p className="text-white/90 text-lg mb-6">
+                Are you a Bachata instructor? Get featured in our directory and connect with students across Australia!
+              </p>
+              <ul className="space-y-3">
+                <li className="flex items-center">
+                  <svg className="w-6 h-6 mr-3" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/>
+                  </svg>
+                  Showcase your teaching experience
+                </li>
+                <li className="flex items-center">
+                  <svg className="w-6 h-6 mr-3" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/>
+                  </svg>
+                  Connect with potential students
+                </li>
+                <li className="flex items-center">
+                  <svg className="w-6 h-6 mr-3" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/>
+                  </svg>
+                  Grow your teaching business
+                </li>
+              </ul>
+            </div>
+            <div className="flex flex-col space-y-4">
+              <a
+                href="mailto:contact@bachata.au"
+                className="bg-white text-primary px-8 py-3 rounded-full font-semibold hover:bg-gray-50 transition-colors duration-200 text-center min-w-[200px]"
+              >
+                Contact Us
+              </a>
+              <a
+                href="https://forms.gle/your-google-form-link"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="bg-secondary text-white px-8 py-3 rounded-full font-semibold hover:bg-secondary/90 transition-colors duration-200 text-center"
+              >
+                Submit via Form
+              </a>
+            </div>
+          </div>
         </div>
       </div>
     </div>

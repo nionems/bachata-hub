@@ -18,6 +18,7 @@ interface EventFormData {
   eventLink: string;
   ticketLink: string;
   image: File | null;
+  imageUrl: string; // Add imageUrl field
 }
 
 export default function NewEventPage() {
@@ -35,6 +36,7 @@ export default function NewEventPage() {
     eventLink: '',
     ticketLink: '',
     image: null,
+    imageUrl: '', // Initialize imageUrl
   });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -79,41 +81,33 @@ export default function NewEventPage() {
     console.log("Event Form: Starting image upload for", file.name);
     const uploadFormData = new FormData();
     uploadFormData.append('file', file);
-    let responseText = '';
+    uploadFormData.append('folder', 'events'); // Store in events folder
 
     try {
-      const response = await fetch('/api/upload', { method: 'POST', body: uploadFormData });
-      console.log(`Event Form: Received response status ${response.status}`);
-      responseText = await response.text();
-      console.log("Event Form: Raw response text:", responseText);
+      console.log('Sending image upload request to API...') // Debug log
+      const response = await fetch('/api/upload', {
+        method: 'POST',
+        body: uploadFormData
+      });
 
       if (!response.ok) {
-        let errorDetails = `HTTP error! status: ${response.status}`;
-        try { const errorData = JSON.parse(responseText); errorDetails = errorData?.error || errorData?.details || errorDetails; } catch (e) {}
-        console.error("Event Form: Upload request failed:", errorDetails);
-        throw new Error(errorDetails);
+        const errorData = await response.json()
+        console.error('Upload API error:', errorData) // Debug log
+        throw new Error(errorData.error || 'Failed to upload image')
       }
 
-      let data;
-      try {
-        data = JSON.parse(responseText);
-        console.log("Event Form: Parsed response JSON:", data);
-      } catch (parseError) {
-        console.error("Event Form: Failed to parse successful response as JSON.", parseError);
-        throw new Error(`Invalid JSON received from upload server: ${responseText}`);
+      const data = await response.json()
+      console.log('Upload API response:', data) // Debug log
+      
+      if (!data.imageUrl) {
+        console.error('Invalid upload response:', data)
+        throw new Error('Invalid upload response: missing imageUrl')
       }
-
-      if (!data || typeof data.imageUrl !== 'string' || data.imageUrl === '') {
-        console.error("Event Form: Invalid response structure from /api/upload:", data);
-        throw new Error('Invalid response structure from upload server');
-      }
-
-      console.log("Event Form: Successfully got imageUrl:", data.imageUrl);
+      
       return data.imageUrl;
-
-    } catch (uploadError) {
-      console.error("Event Form: Error during upload fetch/processing:", uploadError);
-      throw uploadError instanceof Error ? uploadError : new Error(String(uploadError));
+    } catch (error) {
+      console.error('Upload error:', error)
+      throw error instanceof Error ? error : new Error('Failed to upload image')
     }
   };
   // --- End handleImageUpload ---
@@ -125,7 +119,7 @@ export default function NewEventPage() {
     setError(null);
     console.log("Event Form: Starting handleSubmit");
 
-    let uploadedImageUrl = '';
+    let uploadedImageUrl = formData.imageUrl; // Start with existing imageUrl
     if (formData.image) {
       console.log("Event Form: Image selected, attempting upload...");
       try {
@@ -138,11 +132,11 @@ export default function NewEventPage() {
         return; // Stop submission
       }
     } else {
-       console.log("Event Form: No image selected for upload.");
+      console.log("Event Form: No image selected for upload.");
     }
 
-    // Prepare data for the event creation API (e.g., /api/events)
-    const eventSubmissionData = {
+    // Prepare data for the event creation API
+    const eventData = {
       name: formData.name,
       eventDate: formData.eventDate,
       startTime: formData.startTime,
@@ -155,19 +149,16 @@ export default function NewEventPage() {
       danceStyles: formData.danceStyles,
       eventLink: formData.eventLink,
       ticketLink: formData.ticketLink,
-      imageUrl: uploadedImageUrl, // Send the URL string
-      // Add other relevant fields
+      imageUrl: uploadedImageUrl, // Send the URL string from the upload
     };
 
-    console.log("Event Form: Submitting data to /api/events:", eventSubmissionData);
+    console.log("Event Form: Submitting data to /api/events:", eventData);
 
-    // Send data to your event creation API endpoint
     try {
-      // Replace '/api/events' if your endpoint is different
       const response = await fetch('/api/events', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' }, // Assuming API expects JSON
-        body: JSON.stringify(eventSubmissionData),
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(eventData),
       });
 
       console.log(`Event Form: Received response status ${response.status} from /api/events`);
@@ -273,13 +264,41 @@ export default function NewEventPage() {
         {/* Image Input + Preview */}
         <div>
           <label htmlFor="image" className="block text-sm font-medium text-gray-700 mb-1">Event Image</label>
-          <input type="file" id="image" name="image" accept="image/*" onChange={handleChange} className="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100" />
-          {imagePreviewUrl && (
-            <div className="mt-4">
-              <p className="text-sm font-medium text-gray-700 mb-1">Image Preview:</p>
-              <img src={imagePreviewUrl} alt="Preview" className="max-w-xs max-h-48 object-contain border rounded shadow-sm" />
-            </div>
-          )}
+          <div className="space-y-2">
+            {formData.imageUrl && (
+              <div className="w-32 h-32 relative mb-2">
+                <img
+                  src={formData.imageUrl}
+                  alt="Current event image"
+                  className="w-full h-full object-cover rounded"
+                />
+              </div>
+            )}
+            <input
+              type="file"
+              id="image"
+              name="image"
+              accept="image/*"
+              onChange={handleChange}
+              className="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+            />
+            <div className="text-sm text-gray-500">OR</div>
+            <input
+              type="url"
+              id="imageUrl"
+              name="imageUrl"
+              value={formData.imageUrl}
+              onChange={(e) => setFormData({...formData, imageUrl: e.target.value})}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              placeholder="Image URL"
+            />
+            {imagePreviewUrl && (
+              <div className="mt-4">
+                <p className="text-sm font-medium text-gray-700 mb-1">Image Preview:</p>
+                <img src={imagePreviewUrl} alt="Preview" className="max-w-xs max-h-48 object-contain border rounded shadow-sm" />
+              </div>
+            )}
+          </div>
         </div>
         {/* --- End Image Input --- */}
 

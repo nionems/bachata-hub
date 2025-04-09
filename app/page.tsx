@@ -228,7 +228,7 @@ export default function Home() {
         {/* Banner Section - Reduced height */}
         <section className="relative h-[25vh]">
           {/* Background gradient overlay */}
-          <div className="absolute inset-0 bg-gradient-to-r from-green-600 to-yellow-500"></div>
+          <div className="absolute inset-0 bg-gradient-to-r from-primary to-secondary"></div>
           <div className="container mx-auto px-4 relative z-10 h-full flex items-center">
             <div className="max-w-3xl mx-auto text-center">
               {/* Main heading and description */}
@@ -239,7 +239,7 @@ export default function Home() {
               {/* Call-to-action buttons */}
               <div className="flex flex-col sm:flex-row gap-3 justify-center">
                 <Link href="/events">
-                  <Button size="default" className="bg-white text-green-700 hover:bg-gray-100">
+                  <Button size="default" className="bg-white text-primary hover:bg-gray-100">
                     Explore Events
                   </Button>
                 </Link>
@@ -283,7 +283,7 @@ export default function Home() {
         {/* Featured Events This Week - Carousel */}
         <section className="py-12 bg-white">
           <div className="container mx-auto px-4">
-            <h2 className="text-3xl font-bold text-center mb-8">Featured Events This Week</h2>
+            <h2 className="text-3xl font-bold text-center mb-8 bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">Featured Events This Week</h2>
             <div className="relative">
               <Slider {...carouselSettings}>
                 {events.map((event) => (

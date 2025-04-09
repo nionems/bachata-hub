@@ -11,13 +11,10 @@ export async function POST(request: Request) {
         throw new Error("Firestore Admin instance is not available or invalid.");
     }
 
-    const formData = await request.formData();
-    const shopData = Object.fromEntries(formData.entries());
-    console.log("API Route: Shop form data received:", shopData);
+    const shopData = await request.json();
+    console.log("API Route: Shop data received:", shopData);
 
-    const name = shopData.name as string;
-    const location = shopData.location as string;
-    const state = shopData.state as string;
+    const { name, location, state } = shopData;
 
     if (!name || !location || !state) {
       console.error("API Route: Validation Failed - Missing required fields:", { name, location, state });
@@ -25,14 +22,14 @@ export async function POST(request: Request) {
     }
 
     const shopDoc = {
-      name: name,
-      location: location,
-      state: state,
-      address: (shopData.address as string) || "",
-      googleReviewLink: (shopData.googleReviewLink as string) || "",
-      websiteLink: (shopData.websiteLink as string) || "",
-      imageUrl: (shopData.imageUrl as string) || "",
-      comment: (shopData.comment as string) || "",
+      name,
+      location,
+      state,
+      address: shopData.address || "",
+      googleReviewLink: shopData.googleReviewLink || "",
+      websiteLink: shopData.websiteLink || "",
+      imageUrl: shopData.imageUrl || "",
+      comment: shopData.comment || "",
       createdAt: Timestamp.now(),
     };
 

@@ -2,6 +2,7 @@ import { db, storage } from '../../../../firebase/config'
 import { doc, getDoc, deleteDoc, updateDoc } from 'firebase/firestore'
 import { ref, deleteObject, uploadBytes, getDownloadURL } from 'firebase/storage'
 import { NextResponse } from 'next/server'
+import { Timestamp } from 'firebase/firestore'
 
 export async function GET(
   request: Request,
@@ -73,39 +74,67 @@ export async function PUT(
   request: Request,
   { params }: { params: { id: string } }
 ) {
+  console.log("API Route: Received PUT request to /api/shops/[id]");
   try {
-    const shopId = params.id
-    const data = await request.formData()
-    
-    const updateData: any = {
-      name: data.get('name'),
-      location: data.get('location'),
-      state: data.get('state'),
-      address: data.get('address'),
-      googleReviewLink: data.get('googleReviewLink'),
-      websiteLink: data.get('websiteLink'),
-      comment: data.get('comment'),
-      updatedAt: new Date().toISOString()
+    console.log("API Route: Checking imported db object:", typeof db, db && typeof db.collection === 'function' ? 'Looks like Admin DB' : 'Invalid Admin DB');
+    if (!db || typeof db.collection !== 'function') {
+        console.error("API Route: FATAL - Imported 'db' is not a valid Admin Firestore instance!");
+        throw new Error("Firestore Admin instance is not available or invalid.");
     }
 
-    // Handle image upload if a new image is provided
-    const imageFile = data.get('image') as File | null
-    if (imageFile && imageFile.size > 0) {
-      const imageRef = ref(storage, `shops/${Date.now()}-${imageFile.name}`)
-      const imageBuffer = await imageFile.arrayBuffer()
-      await uploadBytes(imageRef, imageBuffer)
-      updateData.imageUrl = await getDownloadURL(imageRef)
+    const shopData = await request.json();
+    console.log("API Route: Shop data received:", shopData);
+
+    const { name, location, state } = shopData;
+
+    if (!name || !location || !state) {
+      console.error("API Route: Validation Failed - Missing required fields:", { name, location, state });
+      return NextResponse.json({ error: 'Missing required fields: Name, Location, and State are required.' }, { status: 400 });
     }
 
-    // Update the shop document
-    await updateDoc(doc(db, 'shops', shopId), updateData)
+    const shopDoc = {
+      name,
+      location,
+      state,
+      address: shopData.address || "",
+      googleReviewLink: shopData.googleReviewLink || "",
+      websiteLink: shopData.websiteLink || "",
+      imageUrl: shopData.imageUrl || "",
+      comment: shopData.comment || "",
+      updatedAt: Timestamp.now(),
+    };
 
-    return NextResponse.json({ message: 'Shop updated successfully' })
+    console.log("API Route: Preparing to update document using Admin SDK:", shopDoc);
+
+    const shopsCollectionRef = db.collection('shops');
+    console.log("API Route: Got Admin collection reference for 'shops'");
+
+    await shopsCollectionRef.doc(params.id).update(shopDoc);
+    console.log("API Route: Document updated successfully using Admin SDK with ID:", params.id);
+
+    return NextResponse.json({ message: 'Shop updated successfully' });
+
   } catch (error) {
-    console.error('Error updating shop:', error)
-    return NextResponse.json(
-      { error: 'Failed to update shop' },
-      { status: 500 }
-    )
+    console.error("API Route: >>> Critical Error in PUT /api/shops/[id] <<<");
+    console.error("API Route: Error:", error);
+
+    let errorMessage = 'Failed to update shop due to an internal server error.';
+    let errorDetails = 'Unknown error';
+
+    if (error instanceof Error) {
+        console.error("API Route: Error Message:", error.message);
+        console.error("API Route: Error Stack:", error.stack);
+        errorMessage = `Failed to update shop: ${error.message}`;
+        errorDetails = error.message;
+        // Check for Firestore specific errors if possible (structure varies)
+        if ((error as any).code) {
+             console.error("API Route: Firestore Error Code:", (error as any).code);
+             errorDetails = `Firestore Error: ${(error as any).code}`;
+        }
+    } else {
+         console.error("API Route: Non-Error object thrown:", error);
+    }
+
+    return NextResponse.json({ error: errorMessage, details: errorDetails }, { status: 500 });
   }
 } 

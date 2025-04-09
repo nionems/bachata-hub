@@ -86,7 +86,7 @@ const SchoolCard = ({ school, layout, handleEdit, handleDelete }: SchoolCardProp
         `}>
           <button
             onClick={() => handleEdit(school.id)}
-            className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 text-sm"
+            className="bg-primary text-white px-4 py-2 rounded hover:bg-secondary text-sm"
           >
             Edit
           </button>

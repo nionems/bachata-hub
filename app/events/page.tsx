@@ -98,7 +98,7 @@ export default function EventsPage() {
     <div className="min-h-screen bg-gray-50">
       <div className="container mx-auto px-4 py-8">
         <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-green-600 to-yellow-500 bg-clip-text text-transparent mb-4">
+          <h1 className="text-4xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent mb-4">
             Bachata Events
           </h1>
           <p className="text-xl text-gray-600">
@@ -145,11 +145,11 @@ export default function EventsPage() {
                     </div>
                     <p className="text-gray-600">{event.comment}</p>
                     <div className="flex gap-2">
-                      <Badge variant="secondary">Price: {event.price}</Badge>
+                      <Badge variant="price">Price: {event.price}</Badge>
                     </div>
                     <div className="flex gap-2 mt-4">
                       <Button
-                        className="flex-1 bg-green-600 hover:bg-green-700"
+                        className="flex-1 bg-primary hover:bg-primary/90"
                         onClick={() => window.open(event.ticketLink, "_blank")}
                       >
                         Get Tickets
@@ -297,19 +297,51 @@ export default function EventsPage() {
         </Card>
 
         {/* Submit Your Event Card */}
-        <div className="bg-green-50 p-4 sm:p-6 rounded-lg text-center mt-8 sm:mt-12">
-          <h2 className="text-xl sm:text-2xl font-bold text-green-800 mb-2 sm:mb-4">Want to add your event?</h2>
-          <p className="text-xs sm:text-sm text-green-700 mb-4 sm:mb-6 max-w-2xl mx-auto">
-            If you're organizing a Bachata event in Australia, we'd love to feature it on our calendar.
-          </p>
-          <Link href="/calendar/add-events">
-            <Button
-              size="sm"
-              className="bg-green-600 hover:bg-green-700 text-white text-xs sm:text-sm sm:text-base sm:h-10"
-            >
-              Submit Your Event
-            </Button>
-          </Link>
+        <div className="mt-16 bg-gradient-to-r from-primary to-secondary rounded-xl shadow-xl overflow-hidden">
+          <div className="p-8 md:p-12 flex flex-col md:flex-row items-center justify-between">
+            <div className="text-white mb-6 md:mb-0 md:mr-8">
+              <h2 className="text-3xl font-bold mb-4">
+                Submit Your Event
+              </h2>
+              <p className="text-white/90 text-lg mb-6">
+                Are you organizing a Bachata event? Get featured in our directory and reach dancers across Australia!
+              </p>
+              <ul className="space-y-3">
+                <li className="flex items-center">
+                  <svg className="w-6 h-6 mr-3" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/>
+                  </svg>
+                  Reach a wider audience of dance enthusiasts
+                </li>
+                <li className="flex items-center">
+                  <svg className="w-6 h-6 mr-3" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/>
+                  </svg>
+                  Promote your event to the dance community
+                </li>
+                <li className="flex items-center">
+                  <svg className="w-6 h-6 mr-3" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/>
+                  </svg>
+                  Connect with dancers across Australia
+                </li>
+              </ul>
+            </div>
+            <div className="flex flex-col space-y-4">
+              <a
+                href="mailto:contact@bachata.au"
+                className="bg-white text-primary px-8 py-3 rounded-full font-semibold hover:bg-gray-50 transition-colors duration-200 text-center min-w-[200px]"
+              >
+                Contact Us
+              </a>
+              <a
+                href="/calendar/add-events"
+                className="bg-secondary text-white px-8 py-3 rounded-full font-semibold hover:bg-secondary/90 transition-colors duration-200 text-center"
+              >
+                Submit via Form
+              </a>
+            </div>
+          </div>
         </div>
       </div>
     </div>

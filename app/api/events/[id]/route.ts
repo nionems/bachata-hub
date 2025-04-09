@@ -105,8 +105,14 @@ export async function PUT(
 
     // Remove fields that shouldn't be directly updated or don't exist
     delete eventData.id // Don't try to update the ID
-    // Potentially convert date/time strings back to Timestamps if stored that way
-    // eventData.eventDate = Timestamp.fromDate(new Date(eventData.eventDate));
+    
+    // Ensure imageUrl is properly handled
+    if (eventData.imageUrl === undefined) {
+      eventData.imageUrl = '' // Default to empty string if undefined
+    }
+    
+    // Add updatedAt timestamp
+    eventData.updatedAt = Timestamp.now()
 
     const eventDocRef = db.collection('events').doc(eventId)
 

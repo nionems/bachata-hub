@@ -25,7 +25,7 @@ export default function CalendarPage() {
     <div className="container mx-auto py-6 sm:py-12 px-4">
       <div className="max-w-7xl mx-auto">
         <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-green-600 to-yellow-500 bg-clip-text text-transparent mb-2">Bachata Calendar</h1>
+          <h1 className="text-4xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent mb-2">Bachata Calendar</h1>
           <p className="text-xl text-gray-600">
             Find all Bachata events in one place
           </p>
@@ -245,7 +245,7 @@ export default function CalendarPage() {
         </div>
 
         <div className="bg-green-50 p-4 sm:p-6 rounded-lg text-center mt-8 sm:mt-12">
-          <h2 className="text-xl sm:text-2xl font-bold text-green-800 mb-2 sm:mb-4">Want to add your event?</h2>
+          <h2 className="text-xl sm:text-2xl font-bold text-primary mb-2 sm:mb-4">Want to add your event?</h2>
           <p className="text-xs sm:text-sm text-green-700 mb-4 sm:mb-6 max-w-2xl mx-auto">
             If you're organizing a Bachata event in Australia, we'd love to feature it on our calendar.
           </p>

@@ -120,8 +120,8 @@ export default function EditEventPage() {
     if (type === 'file') {
       const fileInput = e.target as HTMLInputElement
       const file = fileInput.files?.[0] || null
-      setFormData((prev) => ({ ...prev, image: file, imageUrl: undefined }))
-      if (imagePreviewUrl) URL.revokeObjectURL(imagePreviewUrl)
+      setSelectedImage(file)
+      if (imagePreviewUrl && imagePreviewUrl.startsWith('blob:')) URL.revokeObjectURL(imagePreviewUrl)
       setImagePreviewUrl(file ? URL.createObjectURL(file) : null)
     } else {
       setFormData((prev) => ({ ...prev, [name]: value }))
@@ -133,14 +133,38 @@ export default function EditEventPage() {
   }, [imagePreviewUrl])
 
   const handleImageUpload = async (file: File): Promise<string> => {
-    const formData = new FormData()
-    formData.append('file', file)
-    const response = await fetch('/api/upload', { method: 'POST', body: formData })
-    if (!response.ok) throw new Error('Upload failed')
-    const data = await response.json()
-    if (!data?.imageUrl) throw new Error('Invalid upload response')
-    return data.imageUrl
-  }
+    console.log("Event Form: Starting image upload for", file.name);
+    const uploadFormData = new FormData();
+    uploadFormData.append('file', file);
+    uploadFormData.append('folder', 'events'); // Store in events folder
+
+    try {
+      console.log('Sending image upload request to API...') // Debug log
+      const response = await fetch('/api/upload', {
+        method: 'POST',
+        body: uploadFormData
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        console.error('Upload API error:', errorData) // Debug log
+        throw new Error(errorData.error || 'Failed to upload image')
+      }
+
+      const data = await response.json()
+      console.log('Upload API response:', data) // Debug log
+      
+      if (!data.imageUrl) {
+        console.error('Invalid upload response:', data)
+        throw new Error('Invalid upload response: missing imageUrl')
+      }
+      
+      return data.imageUrl;
+    } catch (error) {
+      console.error('Upload error:', error)
+      throw error instanceof Error ? error : new Error('Failed to upload image')
+    }
+  };
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
@@ -150,10 +174,10 @@ export default function EditEventPage() {
 
     let finalImageUrl = formData.imageUrl || ''
 
-    if (formData.image) {
+    if (selectedImage) {
       console.log("Edit Event: New image selected, attempting upload...")
       try {
-        finalImageUrl = await handleImageUpload(formData.image)
+        finalImageUrl = await handleImageUpload(selectedImage)
         console.log("Edit Event: New image upload successful, URL:", finalImageUrl)
       } catch (uploadError: any) {
         console.error("Edit Event: Image upload failed during submit:", uploadError)
@@ -168,9 +192,7 @@ export default function EditEventPage() {
     const eventUpdateData = {
       ...formData,
       imageUrl: finalImageUrl,
-      image: undefined,
     }
-    delete eventUpdateData.image
 
     console.log(`Edit Event: Submitting data to PUT /api/events/${eventId}:`, eventUpdateData)
 
@@ -362,7 +384,8 @@ export default function EditEventPage() {
             <input
               type="file"
               accept="image/*"
-              onChange={(e) => setSelectedImage(e.target.files?.[0] || null)}
+              onChange={handleChange}
+              name="image"
               className="w-full p-2 border rounded"
             />
             <div className="text-sm text-gray-500">OR</div>
@@ -374,6 +397,12 @@ export default function EditEventPage() {
               className="w-full p-2 border rounded"
               placeholder="Image URL"
             />
+            {imagePreviewUrl && imagePreviewUrl.startsWith('blob:') && (
+              <div className="mt-4">
+                <p className="text-sm font-medium text-gray-700 mb-1">Image Preview:</p>
+                <img src={imagePreviewUrl} alt="Preview" className="max-w-xs max-h-48 object-contain border rounded shadow-sm" />
+              </div>
+            )}
           </div>
         </div>
 

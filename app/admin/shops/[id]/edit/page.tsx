@@ -1,124 +1,104 @@
-'use client'
+"use client"
 
-import { useState, useEffect, ChangeEvent } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import { doc, getDoc } from 'firebase/firestore'
+import { db } from '@/lib/firebase'
 
-interface ShopFormData {
-  name: string
-  location: string
-  state: string
-  address: string
-  googleReviewLink: string
-  websiteLink: string
-  comment: string
-  imageUrl: string
-  image?: File | null
-}
-
-export default function EditShopPage({ params }: { params: { id: string } }) {
+export default function EditShop({ params }: { params: { id: string } }) {
   const router = useRouter()
-  const [formData, setFormData] = useState<ShopFormData>({
-    name: '',
-    location: '',
-    state: '',
-    address: '',
-    googleReviewLink: '',
-    websiteLink: '',
-    comment: '',
-    imageUrl: '',
-    image: null
-  })
-  const [isLoading, setIsLoading] = useState(true)
+  const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [imagePreviewUrl, setImagePreviewUrl] = useState<string | null>(null)
+  const [shop, setShop] = useState<any>(null)
+  const [imagePreview, setImagePreview] = useState<string | null>(null)
+  const [selectedImage, setSelectedImage] = useState<File | null>(null)
 
   useEffect(() => {
     const fetchShop = async () => {
       try {
-        const response = await fetch(`/api/shops/${params.id}`)
-        if (!response.ok) throw new Error('Failed to fetch shop')
-        const data = await response.json()
-        setFormData(data)
-        if (data.imageUrl) {
-          setImagePreviewUrl(data.imageUrl)
+        const shopDoc = await getDoc(doc(db, 'shops', params.id))
+        if (shopDoc.exists()) {
+          const shopData = shopDoc.data()
+          setShop(shopData)
+          if (shopData.imageUrl) {
+            setImagePreview(shopData.imageUrl)
+          }
+        } else {
+          setError('Shop not found')
         }
-      } catch (err) {
-        setError('Failed to load shop')
-        console.error(err)
+      } catch (error) {
+        console.error('Error fetching shop:', error)
+        setError('Failed to fetch shop')
       } finally {
-        setIsLoading(false)
+        setLoading(false)
       }
     }
 
     fetchShop()
   }, [params.id])
 
-  const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (file) {
-      setFormData({ ...formData, image: file })
-      if (imagePreviewUrl && !imagePreviewUrl.includes('http')) {
-        URL.revokeObjectURL(imagePreviewUrl)
+      setSelectedImage(file)
+      const reader = new FileReader()
+      reader.onloadend = () => {
+        setImagePreview(reader.result as string)
       }
-      setImagePreviewUrl(URL.createObjectURL(file))
+      reader.readAsDataURL(file)
     }
   }
 
-  useEffect(() => {
-    return () => {
-      if (imagePreviewUrl && !imagePreviewUrl.includes('http')) {
-        URL.revokeObjectURL(imagePreviewUrl)
-      }
-    }
-  }, [imagePreviewUrl])
-
   const handleImageUpload = async (file: File): Promise<string> => {
-    const uploadFormData = new FormData()
-    uploadFormData.append('file', file)
     try {
+      const formData = new FormData()
+      formData.append('file', file)
+
       const response = await fetch('/api/upload', {
         method: 'POST',
-        body: uploadFormData,
+        body: formData,
       })
+
       if (!response.ok) {
         const errorData = await response.json()
         throw new Error(errorData.error || 'Failed to upload image')
       }
+
       const data = await response.json()
+      if (!data.imageUrl) {
+        console.error('Invalid upload response:', data)
+        throw new Error('Invalid upload response: missing imageUrl')
+      }
+
       return data.imageUrl
-    } catch (uploadError) {
-      console.error("Upload error:", uploadError)
-      throw uploadError
+    } catch (error) {
+      console.error('Error uploading image:', error)
+      throw error instanceof Error ? error : new Error('Failed to upload image')
     }
   }
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    setIsLoading(true)
     setError(null)
 
     try {
-      let finalImageUrl = formData.imageUrl
-      
-      if (formData.image) {
-        try {
-          finalImageUrl = await handleImageUpload(formData.image)
-        } catch (uploadError: any) {
-          setError(`Image upload failed: ${uploadError.message || 'Unknown error'}`)
-          setIsLoading(false)
-          return
-        }
+      let imageUrl = shop.imageUrl
+
+      if (selectedImage) {
+        imageUrl = await handleImageUpload(selectedImage)
       }
 
+      const form = e.target as HTMLFormElement
+      const formElements = form.elements
       const shopData = {
-        name: formData.name,
-        location: formData.location,
-        state: formData.state,
-        address: formData.address,
-        googleReviewLink: formData.googleReviewLink,
-        websiteLink: formData.websiteLink,
-        imageUrl: finalImageUrl,
-        comment: formData.comment
+        name: (formElements.namedItem('name') as HTMLInputElement)?.value || '',
+        location: (formElements.namedItem('location') as HTMLInputElement)?.value || '',
+        state: (formElements.namedItem('state') as HTMLInputElement)?.value || '',
+        address: (formElements.namedItem('address') as HTMLInputElement)?.value || '',
+        googleReviewLink: (formElements.namedItem('googleReviewLink') as HTMLInputElement)?.value || '',
+        websiteLink: (formElements.namedItem('websiteLink') as HTMLInputElement)?.value || '',
+        comment: (formElements.namedItem('comment') as HTMLTextAreaElement)?.value || '',
+        imageUrl,
       }
 
       const response = await fetch(`/api/shops/${params.id}`, {
@@ -129,173 +109,156 @@ export default function EditShopPage({ params }: { params: { id: string } }) {
         body: JSON.stringify(shopData),
       })
 
-      if (!response.ok) throw new Error('Failed to update shop')
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || 'Failed to update shop')
+      }
 
-      router.push('/admin/dashboard?tab=shop')
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to update shop')
-    } finally {
-      setIsLoading(false)
+      router.push('/admin/shops')
+    } catch (error) {
+      console.error('Error updating shop:', error)
+      setError(error instanceof Error ? error.message : 'Failed to update shop')
     }
   }
 
-  if (isLoading) return <div className="p-4">Loading...</div>
-  if (error) return <div className="p-4 text-red-500">Error: {error}</div>
+  if (loading) return <div>Loading...</div>
+  if (error) return <div>Error: {error}</div>
+  if (!shop) return <div>Shop not found</div>
 
   return (
     <div className="container mx-auto px-4 py-8">
       <h1 className="text-2xl font-bold mb-6">Edit Shop</h1>
-      <form onSubmit={handleSubmit} className="max-w-2xl space-y-6">
-        <div>
+      <form onSubmit={handleSubmit} className="max-w-2xl">
+        <div className="mb-4">
           <label htmlFor="name" className="block text-sm font-medium text-gray-700">
             Name
           </label>
           <input
             type="text"
-            name="name"
             id="name"
-            value={formData.name}
-            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+            name="name"
+            defaultValue={shop.name}
             required
-            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
+            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm"
           />
         </div>
 
-        <div>
+        <div className="mb-4">
           <label htmlFor="location" className="block text-sm font-medium text-gray-700">
             Location
           </label>
           <input
             type="text"
-            name="location"
             id="location"
-            value={formData.location}
-            onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+            name="location"
+            defaultValue={shop.location}
             required
-            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
+            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm"
           />
         </div>
 
-        <div>
+        <div className="mb-4">
           <label htmlFor="state" className="block text-sm font-medium text-gray-700">
             State
           </label>
-          <select
-            name="state"
+          <input
+            type="text"
             id="state"
-            value={formData.state}
-            onChange={(e) => setFormData({ ...formData, state: e.target.value })}
+            name="state"
+            defaultValue={shop.state}
             required
-            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
-          >
-            <option value="">Select a state</option>
-            <option value="NSW">New South Wales</option>
-            <option value="VIC">Victoria</option>
-            <option value="QLD">Queensland</option>
-            <option value="WA">Western Australia</option>
-            <option value="SA">South Australia</option>
-            <option value="TAS">Tasmania</option>
-            <option value="ACT">Australian Capital Territory</option>
-            <option value="NT">Northern Territory</option>
-          </select>
+            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm"
+          />
         </div>
 
-        <div>
+        <div className="mb-4">
           <label htmlFor="address" className="block text-sm font-medium text-gray-700">
             Address
           </label>
           <input
             type="text"
-            name="address"
             id="address"
-            value={formData.address}
-            onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-            required
-            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
+            name="address"
+            defaultValue={shop.address}
+            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm"
           />
         </div>
 
-        <div>
+        <div className="mb-4">
           <label htmlFor="googleReviewLink" className="block text-sm font-medium text-gray-700">
             Google Review Link
           </label>
           <input
             type="url"
-            name="googleReviewLink"
             id="googleReviewLink"
-            value={formData.googleReviewLink}
-            onChange={(e) => setFormData({ ...formData, googleReviewLink: e.target.value })}
-            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
+            name="googleReviewLink"
+            defaultValue={shop.googleReviewLink}
+            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm"
           />
         </div>
 
-        <div>
+        <div className="mb-4">
           <label htmlFor="websiteLink" className="block text-sm font-medium text-gray-700">
             Website Link
           </label>
           <input
             type="url"
-            name="websiteLink"
             id="websiteLink"
-            value={formData.websiteLink}
-            onChange={(e) => setFormData({ ...formData, websiteLink: e.target.value })}
-            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
+            name="websiteLink"
+            defaultValue={shop.websiteLink}
+            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm"
           />
         </div>
 
-        <div>
-          <label htmlFor="image" className="block text-sm font-medium text-gray-700">
-            New Image (optional)
-          </label>
-          <input
-            type="file"
-            name="image"
-            id="image"
-            accept="image/*"
-            onChange={handleImageChange}
-            className="mt-1 block w-full"
-          />
-        </div>
-
-        {imagePreviewUrl && (
-          <div>
-            <p className="text-sm text-gray-500 mb-2">Current Image:</p>
-            <img
-              src={imagePreviewUrl}
-              alt="Current shop image"
-              className="w-32 h-32 object-cover rounded"
-            />
-          </div>
-        )}
-
-        <div>
+        <div className="mb-4">
           <label htmlFor="comment" className="block text-sm font-medium text-gray-700">
             Comment
           </label>
           <textarea
-            name="comment"
             id="comment"
-            rows={4}
-            value={formData.comment}
-            onChange={(e) => setFormData({ ...formData, comment: e.target.value })}
-            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
-          ></textarea>
+            name="comment"
+            defaultValue={shop.comment}
+            rows={3}
+            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm"
+          />
         </div>
 
-        <div className="flex gap-4">
-          <button
-            type="submit"
-            disabled={isLoading}
-            className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 disabled:bg-blue-300"
-          >
-            {isLoading ? 'Saving...' : 'Save Changes'}
-          </button>
+        <div className="mb-4">
+          <label htmlFor="image" className="block text-sm font-medium text-gray-700">
+            Image
+          </label>
+          <input
+            type="file"
+            id="image"
+            name="image"
+            accept="image/*"
+            onChange={handleImageChange}
+            className="mt-1 block w-full"
+          />
+          {imagePreview && (
+            <div className="mt-2">
+              <img
+                src={imagePreview}
+                alt="Preview"
+                className="h-32 w-32 object-cover rounded-md"
+              />
+            </div>
+          )}
+        </div>
+
+        <div className="flex justify-end space-x-4">
           <button
             type="button"
-            onClick={() => router.push('/admin/dashboard?tab=shop')}
-            className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
+            onClick={() => router.back()}
+            className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
           >
             Cancel
+          </button>
+          <button
+            type="submit"
+            className="px-4 py-2 text-sm font-medium text-white bg-primary border border-transparent rounded-md shadow-sm hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
+          >
+            Update Shop
           </button>
         </div>
       </form>

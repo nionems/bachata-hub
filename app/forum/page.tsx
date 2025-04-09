@@ -177,7 +177,7 @@ export default function ForumPage() {
     <div className="container mx-auto py-12 px-4">
       <div className="max-w-7xl mx-auto">
         <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-green-600 to-yellow-500 bg-clip-text text-transparent mb-2">Forum</h1>
+          <h1 className="text-4xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent mb-2">Forum</h1>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto">
             Connect with the Australian Bachata community. Ask questions, share experiences, and discuss all things
             Bachata.
@@ -289,8 +289,8 @@ export default function ForumPage() {
           </TabsContent>
         </Tabs>
 
-        <div className="mt-12 bg-gradient-to-r from-green-600 to-yellow-500 rounded-lg p-8 text-white text-center">
-          <h2 className="text-2xl font-bold mb-4">Join Our Community</h2>
+        <div className="mt-12 bg-gradient-to-r from-primary to-secondary rounded-lg p-8 text-white text-center">
+          <h2 className="text-2xl font-bold mb-4 bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">Join Our Community</h2>
           <p className="text-lg mb-6 max-w-2xl mx-auto">
             Sign up to participate in discussions, get help from experienced dancers, and connect with the Australian
             Bachata community.

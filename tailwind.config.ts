@@ -23,14 +23,8 @@ module.exports = {
         ring: "hsl(var(--ring))",
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
-        primary: {
-          DEFAULT: "#006B3F", // Australian green
-          foreground: "hsl(var(--primary-foreground))",
-        },
-        secondary: {
-          DEFAULT: "#FFCD00", // Australian gold/yellow
-          foreground: "hsl(var(--secondary-foreground))",
-        },
+        primary: '#10b981', // Mint green (was secondary)
+        secondary: '#a855f7', // Lavender purple (was primary)
         destructive: {
           DEFAULT: "hsl(var(--destructive))",
           foreground: "hsl(var(--destructive-foreground))",

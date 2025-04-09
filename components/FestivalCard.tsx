@@ -56,7 +56,7 @@ export function FestivalCard({ festival }: FestivalCardProps) {
           )}
           {festival.price && (
             <div className="flex gap-2">
-              <Badge variant="secondary">Price: {festival.price}</Badge>
+              <Badge variant="price">Price: {festival.price}</Badge>
             </div>
           )}
           <div className="flex gap-2 mt-4">
