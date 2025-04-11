@@ -19,6 +19,8 @@ interface SchoolFormData {
   googleReviewsUrl?: string;
   image: File | null;
   imageUrl?: string;
+  socialUrl: string;
+  googleMapLink: string;
 }
 
 // List of Australian states and territories
@@ -54,6 +56,8 @@ export default function EditSchoolPage() {
     googleReviewsUrl: '',
     image: null,
     imageUrl: '',
+    socialUrl: '',
+    googleMapLink: ''
   })
 
   useEffect(() => {
@@ -293,6 +297,37 @@ export default function EditSchoolPage() {
             onChange={handleImageChange}
             className="mt-2 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
           />
+        </div>
+
+        <div className="space-y-4">
+          <div>
+            <label htmlFor="socialUrl" className="block text-sm font-medium text-gray-700">
+              Social Media URL
+            </label>
+            <input
+              type="text"
+              id="socialUrl"
+              name="socialUrl"
+              value={formData.socialUrl}
+              onChange={(e) => setFormData({ ...formData, socialUrl: e.target.value })}
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm"
+            />
+          </div>
+
+          <div>
+            <label htmlFor="googleMapLink" className="block text-sm font-medium text-gray-700">
+              Google Maps Link
+            </label>
+            <input
+              type="text"
+              id="googleMapLink"
+              name="googleMapLink"
+              value={formData.googleMapLink}
+              onChange={(e) => setFormData({ ...formData, googleMapLink: e.target.value })}
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm"
+              placeholder="https://maps.google.com/..."
+            />
+          </div>
         </div>
 
         <div className="flex gap-4">

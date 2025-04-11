@@ -18,6 +18,8 @@ interface SchoolFormData {
   googleReviewsUrl?: string;
   image: File | null;
   imageUrl?: string;
+  googleMapLink: string;
+  socialUrl: string;
 }
 
 // List of Australian states and territories
@@ -49,6 +51,8 @@ export default function NewSchoolPage() {
     googleReviewsCount: 0,
     googleReviewsUrl: '',
     image: null,
+    googleMapLink: '',
+    socialUrl: '',
   })
   const [imagePreviewUrl, setImagePreviewUrl] = useState<string | null>(null)
 
@@ -158,6 +162,8 @@ export default function NewSchoolPage() {
       googleReviewsCount: formData.googleReviewsCount,
       googleReviewsUrl: formData.googleReviewsUrl,
       imageUrl: uploadedImageUrl, // Send the URL string from the upload
+      googleMapLink: formData.googleMapLink,
+      socialUrl: formData.socialUrl,
     }
 
     console.log("School Form: Submitting data to /api/schools:", schoolData)
@@ -364,6 +370,37 @@ export default function NewSchoolPage() {
                 className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
               />
             </div>
+          </div>
+        </div>
+
+        <div className="space-y-4">
+          <div>
+            <label htmlFor="socialUrl" className="block text-sm font-medium text-gray-700">
+              Social Media URL
+            </label>
+            <input
+              type="text"
+              id="socialUrl"
+              name="socialUrl"
+              value={formData.socialUrl}
+              onChange={handleChange}
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm"
+            />
+          </div>
+
+          <div>
+            <label htmlFor="googleMapLink" className="block text-sm font-medium text-gray-700">
+              Google Maps Link
+            </label>
+            <input
+              type="text"
+              id="googleMapLink"
+              name="googleMapLink"
+              value={formData.googleMapLink}
+              onChange={handleChange}
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm"
+              placeholder="https://maps.google.com/..."
+            />
           </div>
         </div>
 

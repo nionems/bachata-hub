@@ -5,7 +5,13 @@ import { useRouter } from 'next/navigation'
 import { doc, getDoc } from 'firebase/firestore'
 import { db } from '@/lib/firebase'
 
-export default function EditShop({ params }: { params: { id: string } }) {
+interface EditShopPageProps {
+  params: {
+    id: string
+  }
+}
+
+export default function EditShopPage({ params }: EditShopPageProps) {
   const router = useRouter()
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)

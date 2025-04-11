@@ -74,25 +74,25 @@ export async function PUT(
   request: Request,
   { params }: { params: { id: string } }
 ) {
-  console.log("API Route: Received PUT request to /api/shops/[id]");
   try {
-    console.log("API Route: Checking imported db object:", typeof db, db && typeof db.collection === 'function' ? 'Looks like Admin DB' : 'Invalid Admin DB');
-    if (!db || typeof db.collection !== 'function') {
-        console.error("API Route: FATAL - Imported 'db' is not a valid Admin Firestore instance!");
-        throw new Error("Firestore Admin instance is not available or invalid.");
-    }
-
     const shopData = await request.json();
     console.log("API Route: Shop data received:", shopData);
 
     const { name, location, state } = shopData;
 
     if (!name || !location || !state) {
-      console.error("API Route: Validation Failed - Missing required fields:", { name, location, state });
       return NextResponse.json({ error: 'Missing required fields: Name, Location, and State are required.' }, { status: 400 });
     }
 
-    const shopDoc = {
+    // First check if the shop exists
+    const shopRef = doc(db, 'shops', params.id);
+    const shopDoc = await getDoc(shopRef);
+    
+    if (!shopDoc.exists()) {
+      return NextResponse.json({ error: 'Shop not found' }, { status: 404 });
+    }
+
+    const updatedShopData = {
       name,
       location,
       state,
@@ -104,37 +104,16 @@ export async function PUT(
       updatedAt: Timestamp.now(),
     };
 
-    console.log("API Route: Preparing to update document using Admin SDK:", shopDoc);
-
-    const shopsCollectionRef = db.collection('shops');
-    console.log("API Route: Got Admin collection reference for 'shops'");
-
-    await shopsCollectionRef.doc(params.id).update(shopDoc);
-    console.log("API Route: Document updated successfully using Admin SDK with ID:", params.id);
+    console.log("API Route: Updating shop with data:", updatedShopData);
+    await updateDoc(shopRef, updatedShopData);
+    console.log("API Route: Shop updated successfully");
 
     return NextResponse.json({ message: 'Shop updated successfully' });
-
   } catch (error) {
-    console.error("API Route: >>> Critical Error in PUT /api/shops/[id] <<<");
-    console.error("API Route: Error:", error);
-
-    let errorMessage = 'Failed to update shop due to an internal server error.';
-    let errorDetails = 'Unknown error';
-
-    if (error instanceof Error) {
-        console.error("API Route: Error Message:", error.message);
-        console.error("API Route: Error Stack:", error.stack);
-        errorMessage = `Failed to update shop: ${error.message}`;
-        errorDetails = error.message;
-        // Check for Firestore specific errors if possible (structure varies)
-        if ((error as any).code) {
-             console.error("API Route: Firestore Error Code:", (error as any).code);
-             errorDetails = `Firestore Error: ${(error as any).code}`;
-        }
-    } else {
-         console.error("API Route: Non-Error object thrown:", error);
-    }
-
-    return NextResponse.json({ error: errorMessage, details: errorDetails }, { status: 500 });
+    console.error('Error updating shop:', error);
+    return NextResponse.json(
+      { error: 'Failed to update shop' },
+      { status: 500 }
+    );
   }
 } 

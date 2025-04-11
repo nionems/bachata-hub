@@ -71,60 +71,60 @@ export default function LeaderboardPage() {
     <div className="container mx-auto py-12 px-4">
       <div className="max-w-7xl mx-auto">
         <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">Jack & Jill Leaderboard</h1>
+          <h1 className="text-4xl font-bold text-primary mb-4">Jack & Jill Leaderboard</h1>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto">
             Track the rankings of Australia's top Bachata dancers in Jack & Jill competitions.
           </p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
-          <Card className="bg-gradient-to-br from-yellow-400 to-yellow-500 text-white">
+          <Card className="bg-gradient-to-br from-primary/90 to-primary text-white">
             <CardHeader>
               <CardTitle className="flex items-center text-2xl">
                 <Trophy className="h-6 w-6 mr-2" />
                 Top Leader
               </CardTitle>
-              <CardDescription className="text-yellow-100">Current season rankings</CardDescription>
+              <CardDescription className="text-white/80">Current season rankings</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="text-center">
                 <div className="text-3xl font-bold mb-2">{leaders[0].name}</div>
                 <div className="text-xl">{leaders[0].points} points</div>
-                <div className="text-yellow-100">{leaders[0].competitions} competitions</div>
+                <div className="text-white/80">{leaders[0].competitions} competitions</div>
               </div>
             </CardContent>
           </Card>
 
-          <Card className="bg-gradient-to-br from-green-600 to-green-700 text-white">
+          <Card className="bg-gradient-to-br from-secondary/90 to-secondary text-white">
             <CardHeader>
               <CardTitle className="flex items-center text-2xl">
                 <Calendar className="h-6 w-6 mr-2" />
                 Next Competition
               </CardTitle>
-              <CardDescription className="text-green-100">Mark your calendar</CardDescription>
+              <CardDescription className="text-white/80">Mark your calendar</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="text-center">
                 <div className="text-3xl font-bold mb-2">{competitions[0].name}</div>
                 <div className="text-xl">{competitions[0].date}</div>
-                <div className="text-green-100">{competitions[0].location}</div>
+                <div className="text-white/80">{competitions[0].location}</div>
               </div>
             </CardContent>
           </Card>
 
-          <Card className="bg-gradient-to-br from-yellow-400 to-yellow-500 text-white">
+          <Card className="bg-gradient-to-br from-primary/90 to-primary text-white">
             <CardHeader>
               <CardTitle className="flex items-center text-2xl">
                 <Trophy className="h-6 w-6 mr-2" />
                 Top Follower
               </CardTitle>
-              <CardDescription className="text-yellow-100">Current season rankings</CardDescription>
+              <CardDescription className="text-white/80">Current season rankings</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="text-center">
                 <div className="text-3xl font-bold mb-2">{followers[0].name}</div>
                 <div className="text-xl">{followers[0].points} points</div>
-                <div className="text-yellow-100">{followers[0].competitions} competitions</div>
+                <div className="text-white/80">{followers[0].competitions} competitions</div>
               </div>
             </CardContent>
           </Card>
@@ -132,14 +132,14 @@ export default function LeaderboardPage() {
 
         <Tabs defaultValue="leaders" className="w-full">
           <TabsList className="grid w-full grid-cols-2 mb-8">
-            <TabsTrigger value="leaders">Leaders</TabsTrigger>
-            <TabsTrigger value="followers">Followers</TabsTrigger>
+            <TabsTrigger value="leaders" className="data-[state=active]:bg-primary data-[state=active]:text-white">Leaders</TabsTrigger>
+            <TabsTrigger value="followers" className="data-[state=active]:bg-primary data-[state=active]:text-white">Followers</TabsTrigger>
           </TabsList>
 
           <TabsContent value="leaders" className="w-full">
             <Card>
               <CardHeader>
-                <CardTitle>Leaders Leaderboard</CardTitle>
+                <CardTitle className="text-primary">Leaders Leaderboard</CardTitle>
                 <CardDescription>Rankings based on Jack & Jill competition results across Australia</CardDescription>
               </CardHeader>
               <CardContent>
@@ -167,7 +167,7 @@ export default function LeaderboardPage() {
                             <Button
                               variant="outline"
                               size="sm"
-                              className="text-green-600 border-green-600 hover:bg-green-50"
+                              className="text-primary border-primary hover:bg-primary/10"
                             >
                               View Profile
                             </Button>
@@ -184,7 +184,7 @@ export default function LeaderboardPage() {
           <TabsContent value="followers" className="w-full">
             <Card>
               <CardHeader>
-                <CardTitle>Followers Leaderboard</CardTitle>
+                <CardTitle className="text-primary">Followers Leaderboard</CardTitle>
                 <CardDescription>Rankings based on Jack & Jill competition results across Australia</CardDescription>
               </CardHeader>
               <CardContent>
@@ -212,7 +212,7 @@ export default function LeaderboardPage() {
                             <Button
                               variant="outline"
                               size="sm"
-                              className="text-green-600 border-green-600 hover:bg-green-50"
+                              className="text-primary border-primary hover:bg-primary/10"
                             >
                               View Profile
                             </Button>
@@ -228,12 +228,12 @@ export default function LeaderboardPage() {
         </Tabs>
 
         <div className="mt-12">
-          <h2 className="text-2xl font-bold text-gray-900 mb-6">Upcoming Competitions</h2>
+          <h2 className="text-2xl font-bold text-primary mb-6">Upcoming Competitions</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {competitions.map((competition) => (
               <Card key={competition.id}>
                 <CardHeader>
-                  <CardTitle>{competition.name}</CardTitle>
+                  <CardTitle className="text-primary">{competition.name}</CardTitle>
                   <CardDescription>
                     {competition.date} • {competition.location}
                   </CardDescription>
@@ -243,7 +243,7 @@ export default function LeaderboardPage() {
                     Join this Jack & Jill competition to earn points and climb the leaderboard.
                   </p>
                   <Button
-                    className="w-full bg-yellow-500 hover:bg-yellow-600 text-black"
+                    className="w-full bg-primary hover:bg-primary/90"
                     onClick={() => window.open(competition.registrationLink, "_blank", "noopener,noreferrer")}
                   >
                     Register Now
@@ -262,7 +262,7 @@ function RankBadge({ rank }: RankBadgeProps) {
   if (rank === 1) {
     return (
       <div className="flex items-center">
-        <Medal className="h-5 w-5 text-yellow-500 mr-1" />
+        <Medal className="h-5 w-5 text-primary mr-1" />
         <span className="font-bold">{rank}</span>
       </div>
     )

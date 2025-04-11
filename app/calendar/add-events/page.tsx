@@ -113,22 +113,22 @@ export default function AddEventPage() {
     <div className="container mx-auto py-6 sm:py-12 px-4">
       <div className="max-w-3xl mx-auto">
         <div className="text-center mb-8">
-          <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">Submit Your Event</h1>
+          <h1 className="text-3xl sm:text-4xl font-bold text-primary mb-4">Submit Your Event</h1>
           <p className="text-lg text-gray-600">
             Fill out the form below to submit your Bachata event. We'll review it and add it to our calendar.
           </p>
         </div>
 
-        <Card>
+        <Card className="bg-gradient-to-br from-primary/10 to-secondary/10">
           <CardHeader>
-            <CardTitle className="text-xl">Event Details</CardTitle>
+            <CardTitle className="text-primary text-xl">Event Details</CardTitle>
             <CardDescription>Please provide all the necessary information about your event.</CardDescription>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="eventName">Event Name</Label>
+                  <Label htmlFor="eventName" className="text-primary">Event Name</Label>
                   <Input
                     id="eventName"
                     name="eventName"
@@ -136,11 +136,12 @@ export default function AddEventPage() {
                     onChange={handleChange}
                     required
                     placeholder="e.g., Bachata Social Night"
+                    className="bg-white/80 backdrop-blur-sm"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="city">City</Label>
+                  <Label htmlFor="city" className="text-primary">City</Label>
                   <Input
                     id="city"
                     name="city"
@@ -148,13 +149,14 @@ export default function AddEventPage() {
                     onChange={handleChange}
                     required
                     placeholder="e.g., Sydney"
+                    className="bg-white/80 backdrop-blur-sm"
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="eventDate">Event Date</Label>
+                  <Label htmlFor="eventDate" className="text-primary">Event Date</Label>
                   <Input
                     id="eventDate"
                     name="eventDate"
@@ -162,12 +164,13 @@ export default function AddEventPage() {
                     value={formData.eventDate}
                     onChange={handleChange}
                     required
+                    className="bg-white/80 backdrop-blur-sm"
                   />
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="eventTime">Start Time</Label>
+                    <Label htmlFor="eventTime" className="text-primary">Start Time</Label>
                     <Input
                       id="eventTime"
                       name="eventTime"
@@ -175,11 +178,12 @@ export default function AddEventPage() {
                       value={formData.eventTime}
                       onChange={handleChange}
                       required
+                      className="bg-white/80 backdrop-blur-sm"
                     />
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="endTime">End Time</Label>
+                    <Label htmlFor="endTime" className="text-primary">End Time</Label>
                     <Input
                       id="endTime"
                       name="endTime"
@@ -187,13 +191,14 @@ export default function AddEventPage() {
                       value={formData.endTime}
                       onChange={handleChange}
                       required
+                      className="bg-white/80 backdrop-blur-sm"
                     />
                   </div>
                 </div>
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="location">Location</Label>
+                <Label htmlFor="location" className="text-primary">Location</Label>
                 <Input
                   id="location"
                   name="location"
@@ -201,19 +206,18 @@ export default function AddEventPage() {
                   onChange={handleChange}
                   required
                   placeholder="Full address or venue name"
+                  className="bg-white/80 backdrop-blur-sm"
                 />
               </div>
 
               <div className="mb-4">
-                <label htmlFor="eventLink" className="block text-sm font-medium text-gray-700 mb-1">
-                  Event Link
-                </label>
-                <input
+                <Label htmlFor="eventLink" className="text-primary">Event Link</Label>
+                <Input
                   type="url"
                   id="eventLink"
                   name="eventLink"
                   placeholder="https://..."
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500"
+                  className="w-full bg-white/80 backdrop-blur-sm"
                 />
                 <p className="mt-1 text-sm text-gray-500">
                   Link to your event page or social media post (optional)
@@ -221,14 +225,12 @@ export default function AddEventPage() {
               </div>
 
               <div className="mb-4">
-                <label htmlFor="state" className="block text-sm font-medium text-gray-700 mb-1">
-                  State
-                </label>
+                <Label htmlFor="state" className="text-primary">State</Label>
                 <select
                   id="state"
                   name="state"
                   required
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500"
+                  className="w-full bg-white/80 backdrop-blur-sm"
                 >
                   <option value="">Select a state</option>
                   {states.map((state) => (
@@ -240,7 +242,7 @@ export default function AddEventPage() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="description">Event Description</Label>
+                <Label htmlFor="description" className="text-primary">Event Description</Label>
                 <Textarea
                   id="description"
                   name="description"
@@ -248,13 +250,13 @@ export default function AddEventPage() {
                   onChange={handleChange}
                   required
                   placeholder="Provide details about your event, including any special features, requirements, or additional information."
-                  className="min-h-[100px]"
+                  className="min-h-[100px] bg-white/80 backdrop-blur-sm"
                 />
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="organizerName">Organizer Name</Label>
+                  <Label htmlFor="organizerName" className="text-primary">Organizer Name</Label>
                   <Input
                     id="organizerName"
                     name="organizerName"
@@ -262,11 +264,12 @@ export default function AddEventPage() {
                     onChange={handleChange}
                     required
                     placeholder="Your name"
+                    className="bg-white/80 backdrop-blur-sm"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="organizerEmail">Organizer Email</Label>
+                  <Label htmlFor="organizerEmail" className="text-primary">Organizer Email</Label>
                   <Input
                     id="organizerEmail"
                     name="organizerEmail"
@@ -275,12 +278,13 @@ export default function AddEventPage() {
                     onChange={handleChange}
                     required
                     placeholder="your@email.com"
+                    className="bg-white/80 backdrop-blur-sm"
                   />
                 </div>
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="ticketLink">Ticket Link (Optional)</Label>
+                <Label htmlFor="ticketLink" className="text-primary">Ticket Link (Optional)</Label>
                 <Input
                   id="ticketLink"
                   name="ticketLink"
@@ -288,91 +292,48 @@ export default function AddEventPage() {
                   value={formData.ticketLink}
                   onChange={handleChange}
                   placeholder="https://..."
+                  className="bg-white/80 backdrop-blur-sm"
                 />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="image">Event Image (Optional)</Label>
-                <div className="flex items-center gap-4">
-                  <Input
-                    id="image"
-                    name="image"
-                    type="file"
-                    accept="image/*"
-                    onChange={handleImageChange}
-                    className="hidden"
-                  />
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => document.getElementById("image")?.click()}
-                    className="w-full sm:w-auto"
-                  >
-                    <ImageIcon className="h-4 w-4 mr-2" />
-                    Choose Image
-                  </Button>
-                  {imagePreview && (
-                    <div className="relative w-20 h-20">
-                      <Image
-                        src={imagePreview}
-                        alt="Event preview"
-                        fill
-                        className="object-cover rounded-lg"
-                      />
-                      <Button
-                        type="button"
-                        variant="destructive"
-                        size="icon"
-                        className="absolute -top-2 -right-2 h-6 w-6"
-                        onClick={() => {
-                          setImagePreview(null)
-                          setFormData((prev) => ({ ...prev, image: null }))
-                        }}
-                      >
-                        ×
-                      </Button>
-                    </div>
-                  )}
-                </div>
-                <p className="text-xs text-gray-500">Maximum file size: 5MB. Supported formats: JPG, PNG, GIF</p>
+                <Label htmlFor="image" className="text-primary">Event Image</Label>
+                <Input
+                  id="image"
+                  name="image"
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageChange}
+                  className="bg-white/80 backdrop-blur-sm"
+                />
+                {imagePreview && (
+                  <div className="mt-2">
+                    <img
+                      src={imagePreview}
+                      alt="Preview"
+                      className="h-32 w-32 object-cover rounded-md"
+                    />
+                  </div>
+                )}
               </div>
 
-              <Button
-                type="submit"
-                className="w-full sm:w-auto"
-                disabled={isSubmitting}
-              >
-                {isSubmitting ? (
-                  <span className="flex items-center">
-                    <svg
-                      className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                    >
-                      <circle
-                        className="opacity-25"
-                        cx="12"
-                        cy="12"
-                        r="10"
-                        stroke="currentColor"
-                        strokeWidth="4"
-                      ></circle>
-                      <path
-                        className="opacity-75"
-                        fill="currentColor"
-                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                      ></path>
-                    </svg>
-                    Submitting...
-                  </span>
-                ) : (
-                  <span className="flex items-center">
-                    <Send className="mr-2 h-4 w-4" />
-                    Submit Event
-                  </span>
-                )}
-              </Button>
+              <div className="flex justify-end gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => window.history.back()}
+                  className="border-primary text-primary hover:bg-primary/10"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="bg-primary hover:bg-primary/90"
+                >
+                  {isSubmitting ? 'Submitting...' : 'Submit Event'}
+                </Button>
+              </div>
             </form>
           </CardContent>
         </Card>

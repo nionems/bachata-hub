@@ -3,14 +3,21 @@
 import Link from "next/link"
 import { Instagram, Home, Calendar, Users, ShoppingBag, MapPin, Music } from "lucide-react"
 import { usePathname } from 'next/navigation'
+import { useState } from 'react'
+import { PrivacyPolicyModal } from "@/components/PrivacyPolicyModal"
+import { TermsOfServiceModal } from "@/components/TermsOfServiceModal"
+import { ContactUsModal } from "@/components/ContactUsModal"
 
 export default function Footer() {
   const pathname = usePathname()
+  const [isPrivacyModalOpen, setIsPrivacyModalOpen] = useState(false)
+  const [isTermsModalOpen, setIsTermsModalOpen] = useState(false)
+  const [isContactModalOpen, setIsContactModalOpen] = useState(false)
   
   return (
     <>
       {/* Mobile Bottom Navigation Bar - Only visible on mobile */}
-      <div className="md:hidden fixed bottom-0 left-0 right-0 bg-primary text-white z-50 border-t border-gray-700">
+      <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white/80 backdrop-blur-lg text-gray-700 z-50 border-t border-gray-200 shadow-lg">
         <div className="flex justify-around items-center py-2">
           <MobileNavLink href="/" icon={<Home size={20} />} label="Home" isActive={pathname === '/'} />
           <MobileNavLink href="/events" icon={<Music size={20} />} label="Events" isActive={pathname === '/events'} />
@@ -60,9 +67,24 @@ export default function Footer() {
               &copy; {new Date().getFullYear()} Bachata Australia. All rights reserved.
             </p>
             <div className="flex flex-wrap justify-center gap-4 sm:gap-6 mt-4 md:mt-0 text-sm">
-              <FooterLink href="/privacy">Privacy Policy</FooterLink>
-              <FooterLink href="/terms">Terms of Service</FooterLink>
-              <FooterLink href="/contact">Contact Us</FooterLink>
+              <button 
+                onClick={() => setIsPrivacyModalOpen(true)}
+                className="text-gray-300 hover:text-secondary transition-colors"
+              >
+                Privacy Policy
+              </button>
+              <button 
+                onClick={() => setIsTermsModalOpen(true)}
+                className="text-gray-300 hover:text-secondary transition-colors"
+              >
+                Terms of Service
+              </button>
+              <button 
+                onClick={() => setIsContactModalOpen(true)}
+                className="text-gray-300 hover:text-secondary transition-colors"
+              >
+                Contact Us
+              </button>
               <div className="flex space-x-1">
                 <SocialIcon icon={<Instagram size={18} />} href="https://instagram.com/bachata.au" />
               </div>
@@ -73,6 +95,19 @@ export default function Footer() {
       
       {/* Add padding to the bottom of the page on mobile to account for the fixed navigation bar */}
       <div className="md:hidden h-16"></div>
+
+      <PrivacyPolicyModal 
+        isOpen={isPrivacyModalOpen}
+        onClose={() => setIsPrivacyModalOpen(false)}
+      />
+      <TermsOfServiceModal 
+        isOpen={isTermsModalOpen}
+        onClose={() => setIsTermsModalOpen(false)}
+      />
+      <ContactUsModal 
+        isOpen={isContactModalOpen}
+        onClose={() => setIsContactModalOpen(false)}
+      />
     </>
   )
 }
@@ -81,12 +116,18 @@ function MobileNavLink({ href, icon, label, isActive }) {
   return (
     <Link 
       href={href} 
-      className={`flex flex-col items-center justify-center py-1 px-2 ${
-        isActive ? 'text-secondary' : 'text-white'
+      className={`flex flex-col items-center justify-center py-1 px-2 transition-all duration-200 ${
+        isActive 
+          ? 'text-primary scale-110' 
+          : 'text-gray-500 hover:text-primary hover:scale-105'
       }`}
     >
-      {icon}
-      <span className="text-xs mt-1">{label}</span>
+      <div className={`${isActive ? 'animate-bounce' : ''}`}>
+        {icon}
+      </div>
+      <span className={`text-xs mt-1 font-medium ${isActive ? 'text-primary' : 'text-gray-500'}`}>
+        {label}
+      </span>
     </Link>
   )
 }

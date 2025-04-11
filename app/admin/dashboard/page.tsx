@@ -65,11 +65,27 @@ interface Shop {
   comment: string;
 }
 
+// Add DJ interface
+interface DJ {
+  id: string
+  name: string
+  location: string
+  state: string
+  contact: string
+  musicStyles: string
+  imageUrl: string
+  comment: string
+  instagramLink: string
+  facebookLink: string
+  emailLink: string
+}
+
 export default function AdminDashboard() {
   const [schools, setSchools] = useState<School[]>([])
   const [events, setEvents] = useState<Event[]>([])
   const [festivals, setFestivals] = useState<Festival[]>([])
   const [instructors, setInstructors] = useState<Instructor[]>([])
+  const [djs, setDJs] = useState<DJ[]>([])
   const [shops, setShops] = useState<Shop[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -103,6 +119,12 @@ export default function AdminDashboard() {
   useEffect(() => {
     if (activeTab === 'instructors') {
       fetchInstructors()
+    }
+  }, [activeTab])
+
+  useEffect(() => {
+    if (activeTab === 'djs') {
+      fetchDJs()
     }
   }, [activeTab])
 
@@ -252,6 +274,21 @@ export default function AdminDashboard() {
     })) as Shop[]
   }
 
+  const fetchDJs = async () => {
+    try {
+      setIsLoading(true)
+      const response = await fetch('/api/djs')
+      if (!response.ok) throw new Error('Failed to fetch DJs')
+      const data = await response.json()
+      setDJs(data)
+    } catch (err) {
+      console.error('Error fetching DJs:', err)
+      setError('Failed to load DJs')
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
   const handleDelete = async (id: string, schoolName: string) => {
     // Show confirmation dialog
     const isConfirmed = window.confirm(`Are you sure you want to delete "${schoolName}"? This action cannot be undone.`)
@@ -351,6 +388,22 @@ export default function AdminDashboard() {
     }
   }
 
+  const handleDeleteDJ = async (djId: string) => {
+    if (!confirm('Are you sure you want to delete this DJ?')) return
+
+    try {
+      const response = await fetch(`/api/djs/${djId}`, {
+        method: 'DELETE',
+      })
+
+      if (!response.ok) throw new Error('Failed to delete DJ')
+      fetchDJs()
+    } catch (err) {
+      console.error('Failed to delete DJ:', err)
+      setError('Failed to delete DJ')
+    }
+  }
+
   const filteredSchools = schools.filter(school =>
     school.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     school.location.toLowerCase().includes(searchTerm.toLowerCase())
@@ -361,6 +414,7 @@ export default function AdminDashboard() {
     { id: 'events', label: 'Events' },
     { id: 'festivals', label: 'Festivals' },
     { id: 'instructors', label: 'Instructors' },
+    { id: 'djs', label: 'DJs' },
     { id: 'competitions', label: 'Competitions' },
     { id: 'shop', label: 'Shop' },
     { id: 'accommodations', label: 'Accommodations' }
@@ -837,6 +891,121 @@ export default function AdminDashboard() {
           </div>
         )}
 
+        {activeTab === 'djs' && (
+          <div>
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-xl font-semibold">DJs Management</h2>
+              <button
+                onClick={() => router.push('/admin/djs/new')}
+                className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+              >
+                Add New DJ
+              </button>
+            </div>
+
+            {isLoading ? (
+              <div className="text-center py-8">Loading DJs...</div>
+            ) : error ? (
+              <div className="text-red-500 text-center py-8">{error}</div>
+            ) : djs.length === 0 ? (
+              <div className="text-center py-8 text-gray-500">
+                No DJs found. Click "Add New DJ" to create one.
+              </div>
+            ) : (
+              <div className={`
+                ${layout === 'grid' 
+                  ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6' 
+                  : 'flex flex-col gap-4'
+                }
+              `}>
+                {djs.map((dj) => (
+                  <div
+                    key={dj.id}
+                    className={`bg-white rounded-lg shadow overflow-hidden ${
+                      layout === 'grid' ? 'flex flex-col' : 'flex flex-row'
+                    }`}
+                  >
+                    {/* Image */}
+                    <div className={`relative ${
+                      layout === 'grid' ? 'w-full h-48' : 'w-32 h-32 flex-shrink-0'
+                    }`}>
+                      <img
+                        src={dj.imageUrl || '/placeholder-dj.jpg'}
+                        alt={dj.name}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+
+                    {/* Content */}
+                    <div className="p-4 flex-1">
+                      <h3 className="text-xl font-semibold mb-2">{dj.name}</h3>
+                      <div className="space-y-2">
+                        <p className="text-gray-600">
+                          <span className="font-medium">Location:</span> {dj.location}, {dj.state}
+                        </p>
+                        <p className="text-gray-600">
+                          <span className="font-medium">Music Styles:</span> {dj.musicStyles}
+                        </p>
+                        <p className="text-gray-600">
+                          <span className="font-medium">Contact:</span> {dj.contact}
+                        </p>
+
+                        {/* Social Links */}
+                        <div className="flex gap-4 mt-2">
+                          {dj.instagramLink && (
+                            <a
+                              href={dj.instagramLink}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-pink-600 hover:text-pink-700"
+                            >
+                              Instagram
+                            </a>
+                          )}
+                          {dj.facebookLink && (
+                            <a
+                              href={dj.facebookLink}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-blue-600 hover:text-blue-700"
+                            >
+                              Facebook
+                            </a>
+                          )}
+                          {dj.emailLink && (
+                            <a
+                              href={`mailto:${dj.emailLink}`}
+                              className="text-gray-600 hover:text-gray-700"
+                            >
+                              Email
+                            </a>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Action Buttons */}
+                      <div className="mt-4 flex gap-2">
+                        <button
+                          onClick={() => router.push(`/admin/djs/${dj.id}/edit`)}
+                          className="bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600"
+                        >
+                          Edit
+                        </button>
+                        <button
+                          onClick={() => handleDeleteDJ(dj.id)}
+                          className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
         {activeTab === 'competitions' && (
           <div>
             <h2 className="text-xl font-semibold mb-4">Competitions Management</h2>
@@ -976,6 +1145,9 @@ export default function AdminDashboard() {
                 break
               case 'instructors':
                 router.push('/admin/instructors/new')
+                break
+              case 'djs':
+                router.push('/admin/djs/new')
                 break
               case 'competitions':
                 router.push('/admin/competitions/new')

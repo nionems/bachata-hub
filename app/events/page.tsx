@@ -4,13 +4,37 @@ import { useState, useEffect } from 'react'
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { MapPin, Calendar, Clock, Users, Info } from "lucide-react"
+import { MapPin, Calendar, Clock, Users, Info, Ticket, ExternalLink } from "lucide-react"
 import { Calendar as UiCalendar } from '@/components/ui/calendar'
 import Link from 'next/link'
 import { StateFilter } from '@/components/ui/StateFilter'
 import { useStateFilter } from '@/hooks/useStateFilter'
 import { collection, getDocs } from 'firebase/firestore'
 import { db } from '../../firebase/config'
+import { format } from "date-fns";
+import { ImageModal } from "@/components/ui/image-modal"
+import { ContactForm } from "@/components/ContactForm"
+import { EventSubmissionForm } from "@/components/EventSubmissionForm"
+
+interface Event {
+  id: string
+  name: string
+  eventDate: string
+  startTime: string
+  endTime: string
+  location: string
+  city: string
+  state: string
+  description: string
+  price?: string
+  danceStyles?: string
+  imageUrl?: string
+  eventLink?: string
+  ticketLink?: string
+  comment?: string
+  date?: string
+  googleMapLink?: string
+}
 
 // Static events data
 export const eventsData = [
@@ -52,6 +76,9 @@ export default function EventsPage() {
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [selectedCalendar, setSelectedCalendar] = useState('all')
+  const [selectedImage, setSelectedImage] = useState<{ url: string; title: string } | null>(null)
+  const [isContactFormOpen, setIsContactFormOpen] = useState(false)
+  const [isFormOpen, setIsFormOpen] = useState(false)
   
   const { selectedState, setSelectedState, filteredItems: filteredEvents } = useStateFilter(events)
 
@@ -98,10 +125,10 @@ export default function EventsPage() {
     <div className="min-h-screen bg-gray-50">
       <div className="container mx-auto px-4 py-8">
         <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent mb-4">
+          <h1 className="text-2xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent mb-4">
             Bachata Events
           </h1>
-          <p className="text-xl text-gray-600">
+          <p className="text-base sm:text-xl text-gray-600">
             Find Bachata events across Australia
           </p>
         </div>
@@ -118,55 +145,104 @@ export default function EventsPage() {
             </div>
           ) : (
             filteredEvents.map((event) => (
-              <Card key={event.id} className="overflow-hidden hover:shadow-lg transition-shadow">
-                <div className="h-48 overflow-hidden">
-                  <img
-                    src={event.imageUrl}
-                    alt={event.name}
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-                <CardHeader>
-                  <CardTitle>{event.name}</CardTitle>
-                  <CardDescription className="flex items-center gap-2">
+              <Card
+                key={event.id}
+                className="relative overflow-hidden h-96 text-white cursor-pointer"
+                onClick={() => event.imageUrl && setSelectedImage({ url: event.imageUrl, title: event.name })}
+              >
+                {/* Full image background */}
+                <img
+                  src={event.imageUrl}
+                  alt={event.name}
+                  className="absolute inset-0 w-full h-full object-cover z-0"
+                />
+
+                {/* Dark overlay for readability */}
+                <div className="absolute inset-0 bg-black bg-opacity-40 z-10" />
+
+                {/* Bottom compact content */}
+                <div className="absolute bottom-0 left-0 right-0 z-20 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-4">
+                  <h3 className="text-lg font-semibold">{event.name}</h3>
+                  <div className="flex items-center gap-2 text-sm text-gray-200 mt-1">
                     <MapPin className="h-4 w-4" />
                     {event.location}
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    <div className="flex items-center gap-2">
-                      <Calendar className="h-4 w-4 text-green-600" />
-                      <span>{event.date}</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Clock className="h-4 w-4 text-green-600" />
-                      <span>{event.time}</span>
-                    </div>
-                    <p className="text-gray-600">{event.comment}</p>
+                  </div>
+                  <div className="flex items-center gap-2 text-sm mt-1">
+                    <Calendar className="h-4 w-4 text-green-300" />
+                    <span>{event.date || event.eventDate}</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-sm mt-1">
+                    <Clock className="h-4 w-4 text-green-300" />
+                    <span>
+                      {event.startTime && event.endTime ? (
+                        <>
+                          {format(new Date(`2000-01-01T${event.startTime}`), 'h:mm a')} –{' '}
+                          {format(new Date(`2000-01-01T${event.endTime}`), 'h:mm a')}
+                        </>
+                      ) : (
+                        'Time TBA'
+                      )}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2 text-sm mt-1">
+                    <Badge variant="price">Price: {event.price}</Badge>
+                    {event.comment && <span className="text-gray-300">{event.comment}</span>}
+                  </div>
+                  <div className="flex flex-col gap-2 mt-3">
+                    {event.ticketLink && (
+                      <Button
+                        className="w-full bg-primary hover:bg-primary/90 text-white text-xs h-8 flex items-center justify-center gap-2"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          window.open(event.ticketLink, '_blank');
+                        }}
+                      >
+                        <Ticket className="h-4 w-4" />
+                        <span>Tickets</span>
+                      </Button>
+                    )}
                     <div className="flex gap-2">
-                      <Badge variant="price">Price: {event.price}</Badge>
-                    </div>
-                    <div className="flex gap-2 mt-4">
-                      <Button
-                        className="flex-1 bg-primary hover:bg-primary/90"
-                        onClick={() => window.open(event.ticketLink, "_blank")}
-                      >
-                        Get Tickets
-                      </Button>
-                      <Button
-                        variant="outline"
-                        onClick={() => window.open(event.googleMapLink, "_blank")}
-                      >
-                        View Map
-                      </Button>
+                      {event.googleMapLink && (
+                        <Button
+                          variant="outline"
+                          className="flex-1 border-primary text-primary hover:bg-primary/10 text-xs h-8 flex items-center justify-center gap-2"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            window.open(event.googleMapLink, '_blank');
+                          }}
+                        >
+                          <MapPin className="h-4 w-4" />
+                          <span>Map</span>
+                        </Button>
+                      )}
+                      {event.eventLink && (
+                        <Button
+                          variant="outline"
+                          className="flex-1 border-primary text-primary hover:bg-primary/10 text-xs h-8 flex items-center justify-center gap-2"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            window.open(event.eventLink, '_blank');
+                          }}
+                        >
+                          <ExternalLink className="h-4 w-4" />
+                          <span>Website</span>
+                        </Button>
+                      )}
                     </div>
                   </div>
-                </CardContent>
+                </div>
               </Card>
             ))
           )}
         </div>
+
+        {/* Image Modal */}
+        <ImageModal
+          isOpen={!!selectedImage}
+          onClose={() => setSelectedImage(null)}
+          imageUrl={selectedImage?.url || ''}
+          title={selectedImage?.title || ''}
+        />
 
         {/* Calendar Section */}
         <Card className="border-0 shadow-none mt-16">
@@ -249,7 +325,7 @@ export default function EventsPage() {
               <iframe
                 src={`https://calendar.google.com/calendar/embed?src=${encodeURIComponent(
                   selectedCalendar,
-                )}&ctz=Australia%2FSydney&wkst=1&bgcolor=%23ffffff&showTitle=0&showNav=1&showDate=1&showPrint=0&showTabs=1&showCalendars=1&showTz=1`}
+                )}&ctz=Australia%2FSydney&wkst=1&bgcolor=%23ffffff&showTitle=0&showNav=1&showDate=1&showPrint=0&showTabs=1&showCalendars=1&showTz=1&color=%23${encodeURIComponent(process.env.NEXT_PUBLIC_PRIMARY_COLOR?.replace('#', '') || '006B3F')}`}
                 style={{ borderWidth: 0 }}
                 width="100%"
                 height="600"
@@ -328,21 +404,31 @@ export default function EventsPage() {
               </ul>
             </div>
             <div className="flex flex-col space-y-4">
-              <a
-                href="mailto:contact@bachata.au"
+              <Button
+                onClick={() => setIsContactFormOpen(true)}
                 className="bg-white text-primary px-8 py-3 rounded-full font-semibold hover:bg-gray-50 transition-colors duration-200 text-center min-w-[200px]"
               >
                 Contact Us
-              </a>
-              <a
-                href="/calendar/add-events"
+              </Button>
+              <Button
+                onClick={() => setIsFormOpen(true)}
                 className="bg-secondary text-white px-8 py-3 rounded-full font-semibold hover:bg-secondary/90 transition-colors duration-200 text-center"
               >
                 Submit via Form
-              </a>
+              </Button>
             </div>
           </div>
         </div>
+
+        <ContactForm
+          isOpen={isContactFormOpen}
+          onClose={() => setIsContactFormOpen(false)}
+        />
+
+        <EventSubmissionForm
+          isOpen={isFormOpen}
+          onClose={() => setIsFormOpen(false)}
+        />
       </div>
     </div>
   )

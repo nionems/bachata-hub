@@ -18,4 +18,6 @@ export interface School {
   updatedAt: string
   imageFile?: File
   googleReviewLink?: string
+  socialUrl?: string  // Add social media URL field
+  googleMapLink?: string  // Add Google Maps link field
 } 

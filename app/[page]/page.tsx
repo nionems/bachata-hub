@@ -6,12 +6,12 @@ import { useStateFilter } from '@/hooks/useStateFilter'
 import { collection, getDocs } from 'firebase/firestore'
 import { db } from '../../firebase/config'
 
-// Replace ItemType with the appropriate interface (Festival, Instructor, etc.)
+// Replace ItemType with the appropriate interface (e.g., Festival, Instructor, DJ)
 export default function PageName() {
   const [items, setItems] = useState<ItemType[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  
+
   const { selectedState, setSelectedState, filteredItems } = useStateFilter(items)
 
   useEffect(() => {
@@ -19,14 +19,13 @@ export default function PageName() {
       setIsLoading(true)
       setError(null)
       try {
-        // Replace 'collection-name' with the appropriate collection
         const itemsCollection = collection(db, 'collection-name')
         const itemsSnapshot = await getDocs(itemsCollection)
         const itemsList = itemsSnapshot.docs.map(doc => ({
           id: doc.id,
           ...doc.data()
         })) as ItemType[]
-        
+
         setItems(itemsList)
       } catch (err) {
         console.error('Error fetching items:', err)
@@ -45,21 +44,23 @@ export default function PageName() {
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="container mx-auto px-4 py-8">
-        <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-green-600 to-yellow-500 bg-clip-text text-transparent mb-4">
-            {/* Update title accordingly */}
+        {/* Page Header */}
+        <div className="text-center mb-8 mt-2 sm:mt-4">
+          <h1 className="text-xl sm:text-2xl md:text-4xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent mb-2 sm:mb-4">
             Bachata [Page Name]
           </h1>
-          <p className="text-xl text-gray-600">
+          <p className="text-sm sm:text-base text-gray-600">
             Find Bachata [items] across Australia
           </p>
         </div>
 
+        {/* State Filter Component */}
         <StateFilter
           selectedState={selectedState}
           onChange={setSelectedState}
         />
 
+        {/* Grid of filtered items */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {filteredItems.length === 0 ? (
             <div className="col-span-full text-center py-8 text-gray-500">
@@ -74,4 +75,4 @@ export default function PageName() {
       </div>
     </div>
   )
-} 
+}

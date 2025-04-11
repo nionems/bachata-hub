@@ -7,7 +7,6 @@ import { useState } from "react"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 
 export default function CalendarMenu() {
-  // Your calendar IDs
   const calendarIds = {
     sydneyBachata: "4ea35178b00a2daa33a492682e866bd67e8b83797a948a31caa8a37e2a982dce@group.calendar.google.com",
     melbourneBachata: "641b8d8fbee5ff9eb2402997e5990b3e52a737b134ec201748349884985c84f4@group.calendar.google.com",
@@ -20,7 +19,6 @@ export default function CalendarMenu() {
 
   const [selectedCalendar, setSelectedCalendar] = useState(calendarIds.sydneyBachata)
 
-  // Get the selected city name
   const getSelectedCityName = () => {
     const cityMap = {
       [calendarIds.sydneyBachata]: "Sydney",
@@ -37,94 +35,69 @@ export default function CalendarMenu() {
   return (
     <Card className="mb-8 sm:mb-12">
       <CardHeader className="p-3 sm:p-6">
-        <CardTitle className="text-lg sm:text-xl text-green-700">Bachata Australia Events Calendar</CardTitle>
+        <CardTitle className="text-lg sm:text-xl text-[#14b8a6]">
+          Bachata Australia Events Calendar
+        </CardTitle>
         <CardDescription className="text-xs sm:text-sm">
           View all upcoming Bachata events in Australia. Click on an event for more details.
         </CardDescription>
       </CardHeader>
+
       <CardContent className="p-3 sm:p-6 pt-0">
         <Tabs defaultValue="calendar" className="w-full mb-8 sm:mb-12">
           <TabsList className="grid w-full grid-cols-2 mb-6 sm:mb-8">
-            <TabsTrigger value="calendar" className="text-xs sm:text-sm">
-              Calendar View
-            </TabsTrigger>
-            <TabsTrigger value="agenda" className="text-xs sm:text-sm">
-              Agenda View
-            </TabsTrigger>
+            <TabsTrigger value="calendar" className="text-xs sm:text-sm">Calendar View</TabsTrigger>
+            <TabsTrigger value="agenda" className="text-xs sm:text-sm">Agenda View</TabsTrigger>
           </TabsList>
 
           <TabsContent value="calendar" className="w-full">
             <div className="rounded-lg overflow-hidden border border-gray-200 shadow-lg">
-              <div className="bg-gradient-to-r from-green-600 to-yellow-500 p-3 sm:p-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+              <div className="bg-gradient-to-r from-[#14b8a6] to-[#a855f7] p-3 sm:p-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
                 <div className="flex items-center gap-2">
                   <Calendar className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
-                  <h3 className="text-white font-bold text-sm sm:text-lg">{getSelectedCityName()} Bachata Events Calendar</h3>
+                  <h3 className="text-white font-bold text-sm sm:text-lg">
+                    {getSelectedCityName()} Bachata Events Calendar
+                  </h3>
                 </div>
+
                 <div className="flex space-x-1 sm:space-x-2">
                   <Button
                     size="sm"
                     variant="secondary"
-                    className="bg-white text-green-700 hover:bg-gray-100 text-xs sm:text-sm h-7 sm:h-9"
+                    className="bg-white text-[#14b8a6] hover:bg-gray-100 text-xs sm:text-sm h-7 sm:h-9"
                   >
                     Today
                   </Button>
+
                   <div className="bg-white/20 rounded-md flex items-center">
                     <Button
                       size="sm"
                       variant="ghost"
                       className="text-white hover:bg-white/20 h-7 sm:h-9 px-1 sm:px-3"
                     >
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="14"
-                        height="14"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        className="lucide lucide-chevron-left"
-                      >
-                        <path d="m15 18-6-6 6-6" />
-                      </svg>
+                      <ChevronLeftIcon />
                     </Button>
                     <Button
                       size="sm"
                       variant="ghost"
                       className="text-white hover:bg-white/20 h-7 sm:h-9 px-1 sm:px-3"
                     >
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="14"
-                        height="14"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        className="lucide lucide-chevron-right"
-                      >
-                        <path d="m9 18 6-6-6-6" />
-                      </svg>
+                      <ChevronRightIcon />
                     </Button>
                   </div>
+
                   <select
                     value={selectedCalendar}
                     onChange={(e) => setSelectedCalendar(e.target.value)}
-                    className="bg-white text-green-700 hover:bg-gray-100 text-xs sm:text-sm h-7 sm:h-9 rounded-md border-0 focus:ring-0"
+                    className="bg-white text-[#14b8a6] hover:bg-gray-100 text-xs sm:text-sm h-7 sm:h-9 rounded-md border-0 focus:ring-0"
                   >
-                    <option value={calendarIds.sydneyBachata}>Sydney Bachata</option>
-                    <option value={calendarIds.melbourneBachata}>Melbourne Bachata</option>
-                    <option value={calendarIds.brisbaneBachata}>Brisbane Bachata</option>
-                    <option value={calendarIds.adelaideBachata}>Adelaide Bachata</option>
-                    <option value={calendarIds.goldCoastBachata}>Gold Coast Bachata</option>
-                    <option value={calendarIds.perthBachata}>Perth Bachata</option>
-                    <option value={calendarIds.canberraBachata}>Canberra Bachata</option>
+                    {Object.entries(calendarIds).map(([key, value]) => (
+                      <option key={key} value={value}>{key.replace("Bachata", "")} Bachata</option>
+                    ))}
                   </select>
                 </div>
               </div>
+
               <iframe
                 src={`https://calendar.google.com/calendar/embed?src=${encodeURIComponent(
                   selectedCalendar,
@@ -140,39 +113,68 @@ export default function CalendarMenu() {
             </div>
 
             <div className="mt-4 sm:mt-6 grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
-              <div className="bg-green-50 rounded-lg p-3 sm:p-4 border border-green-200 flex items-start">
-                <Calendar className="h-4 w-4 sm:h-5 sm:w-5 text-green-600 mr-2 sm:mr-3 mt-0.5 flex-shrink-0" />
-                <div>
-                  <h3 className="font-medium text-green-800 mb-1 text-sm sm:text-base">Add to Your Calendar</h3>
-                  <p className="text-xs sm:text-sm text-green-700">
-                    Click the "+ Google Calendar" button at the bottom right to add this calendar to your own Google Calendar.
-                  </p>
-                </div>
-              </div>
-
-              <div className="bg-blue-50 rounded-lg p-3 sm:p-4 border border-blue-200 flex items-start">
-                <Calendar className="h-4 w-4 sm:h-5 sm:w-5 text-blue-600 mr-2 sm:mr-3 mt-0.5 flex-shrink-0" />
-                <div>
-                  <h3 className="font-medium text-blue-800 mb-1 text-sm sm:text-base">Community Events</h3>
-                  <p className="text-xs sm:text-sm text-blue-700">
-                    This calendar includes events from dance schools, promoters, and the Bachata community across Australia.
-                  </p>
-                </div>
-              </div>
-
-              <div className="bg-yellow-50 rounded-lg p-3 sm:p-4 border border-yellow-200 flex items-start">
-                <Calendar className="h-4 w-4 sm:h-5 sm:w-5 text-yellow-600 mr-2 sm:mr-3 mt-0.5 flex-shrink-0" />
-                <div>
-                  <h3 className="font-medium text-yellow-800 mb-1 text-sm sm:text-base">Submit Your Event</h3>
-                  <p className="text-xs sm:text-sm text-yellow-700">
-                    Have a Bachata event to share? Submit it to be included in our community calendar.
-                  </p>
-                </div>
-              </div>
+              <InfoCard
+                iconColor="#14b8a6"
+                bgColor="bg-[#ecfdfa]"
+                borderColor="border-[#99f6e4]"
+                title="Add to Your Calendar"
+                text="Click the '+ Google Calendar' button at the bottom right to add this calendar to your own Google Calendar."
+              />
+              <InfoCard
+                iconColor="#a855f7"
+                bgColor="bg-[#f3e8ff]"
+                borderColor="border-[#d8b4fe]"
+                title="Community Events"
+                text="This calendar includes events from dance schools, promoters, and the Bachata community across Australia."
+              />
+              <InfoCard
+                iconColor="#facc15"
+                bgColor="bg-[#fefce8]"
+                borderColor="border-[#fde68a]"
+                title="Submit Your Event"
+                text="Have a Bachata event to share? Submit it to be included in our community calendar."
+              />
             </div>
           </TabsContent>
         </Tabs>
       </CardContent>
     </Card>
   )
-} 
+}
+
+// Reusable Icon + Text card
+function InfoCard({ iconColor, bgColor, borderColor, title, text }: {
+  iconColor: string,
+  bgColor: string,
+  borderColor: string,
+  title: string,
+  text: string
+}) {
+  return (
+    <div className={`${bgColor} rounded-lg p-3 sm:p-4 ${borderColor} border flex items-start`}>
+      <Calendar className={`h-4 w-4 sm:h-5 sm:w-5 mr-2 sm:mr-3 mt-0.5 flex-shrink-0`} style={{ color: iconColor }} />
+      <div>
+        <h3 className="font-medium mb-1 text-sm sm:text-base" style={{ color: iconColor }}>{title}</h3>
+        <p className="text-xs sm:text-sm" style={{ color: iconColor }}>{text}</p>
+      </div>
+    </div>
+  )
+}
+
+function ChevronLeftIcon() {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
+      stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-chevron-left">
+      <path d="m15 18-6-6 6-6" />
+    </svg>
+  )
+}
+
+function ChevronRightIcon() {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
+      stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-chevron-right">
+      <path d="m9 18 6-6-6-6" />
+    </svg>
+  )
+}

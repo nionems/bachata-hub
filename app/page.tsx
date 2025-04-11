@@ -224,43 +224,43 @@ export default function Home() {
 
   try {
     return (
-      <main>
-        {/* Banner Section - Reduced height */}
-        <section className="relative h-[25vh]">
+      <main className="min-h-screen">
+        {/* Hero Section - Full height on mobile */}
+        <section className="relative h-[40vh] sm:h-[50vh] md:h-[60vh]">
           {/* Background gradient overlay */}
           <div className="absolute inset-0 bg-gradient-to-r from-primary to-secondary"></div>
           <div className="container mx-auto px-4 relative z-10 h-full flex items-center">
             <div className="max-w-3xl mx-auto text-center">
               {/* Main heading and description */}
-              <h1 className="text-2xl md:text-3xl font-bold mb-3 text-white">Bachata Australia</h1>
-              <p className="text-base mb-4 text-white">
+              <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4 text-white">Bachata Australia</h1>
+              <p className="text-base sm:text-lg md:text-xl mb-6 text-white/90">
                 Your one-stop destination for Bachata events, classes, and community across Australia.
               </p>
               {/* Call-to-action buttons */}
               <div className="flex flex-col sm:flex-row gap-3 justify-center">
                 <Link href="/events">
-                  <Button size="default" className="bg-white text-primary hover:bg-gray-100">
+                  <Button size="lg" className="w-full sm:w-auto bg-white text-primary hover:bg-gray-100 text-base sm:text-lg">
                     Explore Events
                   </Button>
                 </Link>
                 <Link href="/community">
-                  <Button size="default" className="bg-white/20 text-white hover:bg-white/30">
+                  <Button size="lg" className="w-full sm:w-auto bg-white/20 text-white hover:bg-white/30 text-base sm:text-lg">
                     Join the Community
                   </Button>
                 </Link>
               </div>
               {/* Social media link */}
-              <div className="mt-3">
+              <div className="mt-4 sm:mt-6">
                 <a
                   href="https://instagram.com/bachata.au"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-white hover:text-gray-200 flex items-center justify-center gap-2 text-sm"
+                  className="text-white hover:text-gray-200 flex items-center justify-center gap-2 text-sm sm:text-base"
                 >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
-                    width="16"
-                    height="16"
+                    width="20"
+                    height="20"
                     viewBox="0 0 24 24"
                     fill="none"
                     stroke="currentColor"
@@ -281,9 +281,9 @@ export default function Home() {
         </section>
 
         {/* Featured Events This Week - Carousel */}
-        <section className="py-12 bg-white">
+        <section className="py-8 sm:py-12 bg-white">
           <div className="container mx-auto px-4">
-            <h2 className="text-3xl font-bold text-center mb-8 bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">Featured Events This Week</h2>
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-center mb-6 sm:mb-8 bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">Featured Events This Week</h2>
             <div className="relative">
               <Slider {...carouselSettings}>
                 {events.map((event) => (
@@ -292,7 +292,7 @@ export default function Home() {
                       className="bg-white rounded-xl shadow-lg overflow-hidden cursor-pointer hover:shadow-xl transition-shadow"
                       onClick={() => handleEventClick(event)}
                     >
-                      <div className="relative h-48">
+                      <div className="relative h-40 sm:h-48">
                         <Image
                           src={event.imageUrl}
                           alt={event.name}
@@ -307,12 +307,12 @@ export default function Home() {
                           }}
                         />
                       </div>
-                      <div className="p-4">
-                        <h3 className="text-xl font-semibold mb-2">{event.name}</h3>
-                        <p className="text-gray-600 mb-2">
+                      <div className="p-3 sm:p-4">
+                        <h3 className="text-lg sm:text-xl font-semibold mb-1 sm:mb-2">{event.name}</h3>
+                        <p className="text-sm sm:text-base text-gray-600 mb-1 sm:mb-2">
                           {event.date}
                         </p>
-                        <p className="text-gray-600 mb-2">{event.location}</p>
+                        <p className="text-sm sm:text-base text-gray-600">{event.location}</p>
                       </div>
                     </div>
                   </div>
@@ -323,56 +323,54 @@ export default function Home() {
         </section>
 
         {/* Features Section - Grid of feature cards */}
-        <section className="py-16">
+        <section className="py-8 sm:py-12">
           <div className="container mx-auto px-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 sm:gap-6">
               {/* Feature cards for different sections */}
               <FeatureCard
-                icon={<Music className="h-8 w-8 sm:h-10 sm:w-10 text-green-600" />}
+                icon={<Music className="h-6 w-6 sm:h-8 sm:w-8 text-green-600" />}
                 title="Events"
                 description="Find Bachata events"
                 link="/events"
               />
               <FeatureCard
-                icon={<MapPin className="h-8 w-8 sm:h-10 sm:w-10 text-purple-500" />}
+                icon={<MapPin className="h-6 w-6 sm:h-8 sm:w-8 text-purple-500" />}
                 title="Festivals"
                 description="Find Bachata festivals"
                 link="/festivals"
               />
               <FeatureCard
-                icon={<School className="h-8 w-8 sm:h-10 sm:w-10 text-yellow-500" />}
+                icon={<School className="h-6 w-6 sm:h-8 sm:w-8 text-yellow-500" />}
                 title="Schools"
                 description="Find your school"
                 link="/schools"
               />
-                <FeatureCard
-                icon={<Users className="h-8 w-8 sm:h-10 sm:w-10 text-green-600" />}
+              <FeatureCard
+                icon={<Users className="h-6 w-6 sm:h-8 sm:w-8 text-green-600" />}
                 title="Instructors"
                 description="Connect with instructors"
                 link="/instructors"
               />
               <FeatureCard
-                icon={<Trophy className="h-8 w-8 sm:h-10 sm:w-10 text-blue-500" />}
+                icon={<Trophy className="h-6 w-6 sm:h-8 sm:w-8 text-blue-500" />}
                 title="Competitions"
                 description="Show off your skills"
                 link="/competitions"
               />
-              
               <FeatureCard
-                icon={<ShoppingBag className="h-8 w-8 sm:h-10 sm:w-10 text-yellow-500" />}
+                icon={<ShoppingBag className="h-6 w-6 sm:h-8 sm:w-8 text-yellow-500" />}
                 title="Shop"
                 description="Find dance shoes,clothing..."
                 link="/shop"
               />
-
               <FeatureCard
-                icon={<Calendar className="h-8 w-8 sm:h-10 sm:w-10 text-yellow-500" />}
+                icon={<Calendar className="h-6 w-6 sm:h-8 sm:w-8 text-yellow-500" />}
                 title="Calendar"
                 description="Find all events"
                 link="/calendar"
               />
               <FeatureCard
-                icon={<Users className="h-8 w-8 sm:h-10 sm:w-10 text-green-600" />}
+                icon={<Users className="h-6 w-6 sm:h-8 sm:w-8 text-green-600" />}
                 title="Forum"
                 description="Connect with dancers"
                 link="/forum"

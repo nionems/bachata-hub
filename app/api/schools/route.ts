@@ -23,24 +23,49 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
-    const body = await request.json()
-    const schoolsRef = collection(db, 'schools')
-    const docRef = await addDoc(schoolsRef, {
-      ...body,
+    const data = await request.json();
+    const {
+      name,
+      location,
+      state,
+      address,
+      contactInfo,
+      instructors,
+      website,
+      danceStyles,
+      imageUrl,
+      comment,
+      googleReviewsUrl,
+      googleRating,
+      googleReviewsCount,
+      socialUrl,
+      googleMapLink
+    } = data;
+
+    const schoolData = {
+      name,
+      location,
+      state,
+      address,
+      contactInfo,
+      instructors: instructors.split(',').map((i: string) => i.trim()),
+      website,
+      danceStyles: danceStyles.split(',').map((s: string) => s.trim()),
+      imageUrl,
+      comment,
+      googleReviewsUrl,
+      googleRating: Number(googleRating),
+      googleReviewsCount: Number(googleReviewsCount),
+      socialUrl,
+      googleMapLink,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString()
-    })
-    
-    const newSchool = await getDoc(docRef)
-    return NextResponse.json({
-      id: docRef.id,
-      ...newSchool.data()
-    })
+    };
+
+    const docRef = await addDoc(collection(db, 'schools'), schoolData);
+    return NextResponse.json({ id: docRef.id, ...schoolData });
   } catch (error) {
-    console.error('Error creating school:', error)
-    return NextResponse.json(
-      { error: 'Failed to create school' },
-      { status: 500 }
-    )
+    console.error('Error creating school:', error);
+    return NextResponse.json({ error: 'Failed to create school' }, { status: 500 });
   }
 } 

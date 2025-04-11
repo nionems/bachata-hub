@@ -1,10 +1,16 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Card } from "@/components/ui/card"
-import { MapPin, Star, Globe, MessageSquare } from "lucide-react"
+import { Card, CardFooter } from "@/components/ui/card"
+import { MapPin, Star, Globe, MessageSquare, ExternalLink, Instagram, Facebook, Share } from "lucide-react"
 import { collection, getDocs } from 'firebase/firestore'
 import { db } from '../../firebase/config'
+import { ShopSubmissionForm } from '@/components/ShopSubmissionForm'
+import { ContactForm } from "@/components/ContactForm"
+import { Button } from "@/components/ui/button"
+import { StateFilter } from "@/components/StateFilter"
+import { ImageModal } from "@/components/ImageModal"
+import { toast } from "@/components/ui/use-toast"
 
 interface Shop {
   id: string
@@ -16,6 +22,10 @@ interface Shop {
   websiteLink: string
   imageUrl: string
   comment: string
+  website: string
+  instagramLink: string
+  facebookLink: string
+  googleMapLink: string
 }
 
 export default function ShopsPage() {
@@ -23,8 +33,10 @@ export default function ShopsPage() {
   const [selectedState, setSelectedState] = useState<string>('all')
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [isSubmissionFormOpen, setIsSubmissionFormOpen] = useState(false)
+  const [isContactFormOpen, setIsContactFormOpen] = useState(false)
+  const [selectedImage, setSelectedImage] = useState<{ url: string; title: string } | null>(null)
 
-  // Australian states array
   const states = [
     { value: 'all', label: 'All States' },
     { value: 'NSW', label: 'New South Wales' },
@@ -65,7 +77,6 @@ export default function ShopsPage() {
     ? shops
     : shops.filter(shop => shop.state === selectedState)
 
-  // Handle state filter change
   const handleStateChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setSelectedState(e.target.value)
   }
@@ -88,149 +99,206 @@ export default function ShopsPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="container mx-auto px-4 py-8">
-        <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent mb-4">Dance Shops</h1>
-          <p className="text-xl text-gray-600">
+      <div className="container mx-auto px-3 sm:px-4 py-6 sm:py-8">
+        <div className="text-center mb-6 sm:mb-8">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent mb-2 sm:mb-4">
+            Dance Shops
+          </h1>
+          <p className="text-base sm:text-xl text-gray-600">
             Find the best dance shops in Australia for all your dance needs
           </p>
         </div>
 
-        <div className="mb-8">
-          <label htmlFor="state-filter" className="block text-sm font-medium text-gray-700 mb-2">
-            Filter by State
-          </label>
-          <select
-            id="state-filter"
-            value={selectedState}
-            onChange={handleStateChange}
-            className="mt-1 block w-full md:w-64 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-          >
-            {states.map(state => (
-              <option key={state.value} value={state.value}>
-                {state.label}
-              </option>
-            ))}
-          </select>
+        <StateFilter
+          selectedState={selectedState}
+          onChange={setSelectedState}
+        />
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 md:gap-8">
+          {filteredShops.length === 0 ? (
+            <div className="col-span-full text-center py-6 sm:py-8 text-gray-500">
+              No shops found {selectedState !== 'all' && `in ${selectedState}`}
+            </div>
+          ) : (
+            filteredShops.map((shop) => (
+              <Card
+                key={shop.id}
+                className="relative overflow-hidden h-80 sm:h-96 text-white cursor-pointer"
+                onClick={() => shop.imageUrl && setSelectedImage({ url: shop.imageUrl, title: shop.name })}
+              >
+                {/* Full image background */}
+                <img
+                  src={shop.imageUrl}
+                  alt={shop.name}
+                  className="absolute inset-0 w-full h-full object-cover z-0"
+                />
+
+                {/* Dark overlay for readability */}
+                <div className="absolute inset-0 bg-black bg-opacity-40 z-10" />
+
+                {/* Bottom compact content */}
+                <div className="absolute bottom-0 left-0 right-0 z-20 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-3 sm:p-4">
+                  <h3 className="text-base sm:text-lg font-semibold">{shop.name}</h3>
+                  <div className="flex items-center gap-2 text-xs sm:text-sm text-gray-200 mt-1">
+                    <MapPin className="h-3 w-3 sm:h-4 sm:w-4" />
+                    {shop.location}
+                  </div>
+                  {shop.comment && (
+                    <div className="text-xs sm:text-sm text-gray-300 mt-1">
+                      {shop.comment}
+                    </div>
+                  )}
+                  <div className="flex flex-col gap-2 mt-2 sm:mt-3">
+                    {shop.websiteLink && (
+                      <Button
+                        className="w-full bg-primary hover:bg-primary/90 text-white text-xs h-7 sm:h-8 flex items-center justify-center gap-2"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          window.open(shop.websiteLink, '_blank');
+                        }}
+                      >
+                        <Globe className="h-3 w-3 sm:h-4 sm:w-4" />
+                        <span>Website</span>
+                      </Button>
+                    )}
+                    <Button
+                      variant="outline"
+                      className="w-full border-primary text-primary hover:bg-primary/10 text-xs h-7 sm:h-8 flex items-center justify-center gap-2"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        if (navigator.share) {
+                          navigator.share({
+                            title: shop.name,
+                            text: `Check out ${shop.name} - ${shop.location}`,
+                            url: shop.websiteLink || window.location.href
+                          });
+                        } else {
+                          // Fallback for browsers that don't support the Web Share API
+                          navigator.clipboard.writeText(shop.websiteLink || window.location.href);
+                          toast({
+                            title: "Link copied to clipboard",
+                            description: "Share this shop's website with your friends!",
+                          });
+                        }
+                      }}
+                    >
+                      <Share className="h-3 w-3 sm:h-4 sm:w-4" />
+                      <span>Share</span>
+                    </Button>
+                    <div className="flex gap-2">
+                      {shop.instagramLink && (
+                        <Button
+                          variant="outline"
+                          className="flex-1 border-primary text-primary hover:bg-primary/10 text-xs h-7 sm:h-8 flex items-center justify-center gap-2"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            window.open(shop.instagramLink, '_blank');
+                          }}
+                        >
+                          <Instagram className="h-3 w-3 sm:h-4 sm:w-4" />
+                          <span>Instagram</span>
+                        </Button>
+                      )}
+                      {shop.facebookLink && (
+                        <Button
+                          variant="outline"
+                          className="flex-1 border-primary text-primary hover:bg-primary/10 text-xs h-7 sm:h-8 flex items-center justify-center gap-2"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            window.open(shop.facebookLink, '_blank');
+                          }}
+                        >
+                          <Facebook className="h-3 w-3 sm:h-4 sm:w-4" />
+                          <span>Facebook</span>
+                        </Button>
+                      )}
+                      {shop.googleMapLink && (
+                        <Button
+                          variant="outline"
+                          className="flex-1 border-primary text-primary hover:bg-primary/10 text-xs h-7 sm:h-8 flex items-center justify-center gap-2"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            window.open(shop.googleMapLink, '_blank');
+                          }}
+                        >
+                          <MapPin className="h-3 w-3 sm:h-4 sm:w-4" />
+                          <span>Map</span>
+                        </Button>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </Card>
+            ))
+          )}
         </div>
 
-        {filteredShops.length === 0 ? (
-          <div className="text-center text-gray-500 py-8">
-            No shops found {selectedState !== 'all' && `in ${states.find(s => s.value === selectedState)?.label}`}
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {filteredShops.map((shop) => (
-              <ShopCard key={shop.id} shop={shop} />
-            ))}
-          </div>
-        )}
+        {/* Image Modal */}
+        <ImageModal
+          isOpen={!!selectedImage}
+          onClose={() => setSelectedImage(null)}
+          imageUrl={selectedImage?.url || ''}
+          title={selectedImage?.title || ''}
+        />
 
-        <div className="mt-16 bg-gradient-to-r from-primary to-secondary rounded-xl shadow-xl overflow-hidden">
-          <div className="p-8 md:p-12 flex flex-col md:flex-row items-center justify-between">
+        {/* Submit Your Shop Card */}
+        <div className="mt-12 sm:mt-16 bg-gradient-to-r from-primary to-secondary rounded-xl shadow-xl overflow-hidden">
+          <div className="p-6 sm:p-8 md:p-12 flex flex-col md:flex-row items-center justify-between">
             <div className="text-white mb-6 md:mb-0 md:mr-8">
-              <h2 className="text-3xl font-bold mb-4">
+              <h2 className="text-2xl sm:text-3xl font-bold mb-3 sm:mb-4">
                 Submit Your Shop
               </h2>
-              <p className="text-white/90 text-lg mb-6">
+              <p className="text-white/90 text-base sm:text-lg mb-4 sm:mb-6">
                 Are you a dance shop owner? Get featured in our directory and reach dancers across Australia!
               </p>
-              <ul className="space-y-3">
-                <li className="flex items-center">
-                  <svg className="w-6 h-6 mr-3" fill="currentColor" viewBox="0 0 20 20">
+              <ul className="space-y-2 sm:space-y-3">
+                <li className="flex items-center text-sm sm:text-base">
+                  <svg className="w-5 h-5 sm:w-6 sm:h-6 mr-2 sm:mr-3" fill="currentColor" viewBox="0 0 20 20">
                     <path d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/>
                   </svg>
-                  Increase your visibility in the dance community
+                  Reach a wider audience of dance enthusiasts
                 </li>
-                <li className="flex items-center">
-                  <svg className="w-6 h-6 mr-3" fill="currentColor" viewBox="0 0 20 20">
+                <li className="flex items-center text-sm sm:text-base">
+                  <svg className="w-5 h-5 sm:w-6 sm:h-6 mr-2 sm:mr-3" fill="currentColor" viewBox="0 0 20 20">
                     <path d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/>
                   </svg>
-                  Connect with dancers looking for dance wear and accessories
+                  Promote your products to the dance community
                 </li>
-                <li className="flex items-center">
-                  <svg className="w-6 h-6 mr-3" fill="currentColor" viewBox="0 0 20 20">
+                <li className="flex items-center text-sm sm:text-base">
+                  <svg className="w-5 h-5 sm:w-6 sm:h-6 mr-2 sm:mr-3" fill="currentColor" viewBox="0 0 20 20">
                     <path d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/>
                   </svg>
-                  Join Australia's growing dance community
+                  Connect with dancers across Australia
                 </li>
               </ul>
             </div>
-            <div className="flex flex-col space-y-4">
-              <a
-                href="mailto:contact@bachata.au"
-                className="bg-white text-primary px-8 py-3 rounded-full font-semibold hover:bg-gray-50 transition-colors duration-200 text-center min-w-[200px]"
+            <div className="flex flex-col space-y-3 sm:space-y-4 w-full sm:w-auto">
+              <Button
+                onClick={() => setIsContactFormOpen(true)}
+                className="bg-white text-primary px-6 sm:px-8 py-2 sm:py-3 rounded-full font-semibold hover:bg-gray-50 transition-colors duration-200 text-center w-full sm:w-auto"
               >
                 Contact Us
-              </a>
-              <a
-                href="https://forms.gle/your-google-form-link"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="bg-secondary text-white px-8 py-3 rounded-full font-semibold hover:bg-secondary/90 transition-colors duration-200 text-center"
+              </Button>
+              <Button
+                onClick={() => setIsSubmissionFormOpen(true)}
+                className="bg-secondary text-white px-6 sm:px-8 py-2 sm:py-3 rounded-full font-semibold hover:bg-secondary/90 transition-colors duration-200 text-center w-full sm:w-auto"
               >
                 Submit via Form
-              </a>
+              </Button>
             </div>
           </div>
         </div>
-      </div>
-    </div>
-  )
-}
 
-function ShopCard({ shop }: { shop: Shop }) {
-  return (
-    <Card className="overflow-hidden">
-      <div className="relative h-48">
-        <img
-          src={shop.imageUrl || '/placeholder-shop.jpg'}
-          alt={shop.name}
-          className="w-full h-full object-cover"
-          onError={(e) => {
-            console.error('Error loading image:', shop.imageUrl);
-            (e.target as HTMLImageElement).src = '/placeholder-shop.jpg';
-          }}
+        <ContactForm
+          isOpen={isContactFormOpen}
+          onClose={() => setIsContactFormOpen(false)}
+        />
+
+        <ShopSubmissionForm
+          isOpen={isSubmissionFormOpen}
+          onClose={() => setIsSubmissionFormOpen(false)}
         />
       </div>
-      <div className="p-6">
-        <h3 className="text-2xl font-bold mb-2 text-primary">{shop.name}</h3>
-        <p className="text-gray-600 mb-2 flex items-center">
-          <MapPin className="h-4 w-4 mr-1" />
-          {shop.location}, {shop.state}
-        </p>
-        <p className="text-gray-600 mb-2">{shop.address}</p>
-        {shop.comment && (
-          <p className="text-gray-600 mb-4 italic flex items-start">
-            <MessageSquare className="h-4 w-4 mr-1 mt-1 flex-shrink-0" />
-            {shop.comment}
-          </p>
-        )}
-        <div className="flex flex-wrap gap-4 mt-4">
-          {shop.websiteLink && (
-            <a
-              href={shop.websiteLink}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="bg-primary text-white px-4 py-2 rounded-full hover:bg-primary/90 transition-colors duration-200 flex items-center"
-            >
-              <Globe className="h-4 w-4 mr-1" />
-              Visit Website
-            </a>
-          )}
-          {shop.googleReviewLink && (
-            <a
-              href={shop.googleReviewLink}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="bg-secondary text-white px-4 py-2 rounded-full hover:bg-secondary/90 transition-colors duration-200 flex items-center"
-            >
-              <Star className="h-4 w-4 mr-1" />
-              Read Reviews
-            </a>
-          )}
-        </div>
-      </div>
-    </Card>
+    </div>
   )
 }

@@ -16,4 +16,10 @@ const app = initializeApp(firebaseConfig)
 
 // Initialize Firestore and Storage
 export const db = getFirestore(app)
-export const storage = getStorage(app) 
+export const storage = getStorage(app)
+
+// Log initialization
+console.log('Firebase initialized with config:', {
+  projectId: firebaseConfig.projectId,
+  authDomain: firebaseConfig.authDomain
+}) 

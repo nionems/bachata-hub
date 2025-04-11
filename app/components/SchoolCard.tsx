@@ -1,5 +1,8 @@
 import Image from 'next/image'
 import { FaMapMarkerAlt, FaGlobe } from 'react-icons/fa'
+import { Button } from '@/components/ui/button'
+import { ExternalLink, MapPin, Share2 } from 'lucide-react'
+import { CardFooter } from '@/components/ui/card'
 
 interface School {
   id: string;
@@ -7,6 +10,8 @@ interface School {
   location: string;
   website: string;
   imageUrl?: string;
+  googleMapLink?: string;
+  socialUrl?: string;
   // ... other properties
 }
 
@@ -64,7 +69,7 @@ const SchoolCard = ({ school, layout, handleEdit, handleDelete }: SchoolCardProp
               href={school.website.startsWith('http') ? school.website : `https://${school.website}`} 
               target="_blank" 
               rel="noopener noreferrer"
-              className="text-blue-500 hover:underline truncate"
+              className="bg-primary text-white px-3 py-1 rounded-md hover:bg-primary/90 text-sm"
             >
               Visit Website
             </a>
@@ -97,6 +102,44 @@ const SchoolCard = ({ school, layout, handleEdit, handleDelete }: SchoolCardProp
             Delete
           </button>
         </div>
+
+        <CardFooter className="flex flex-col gap-2 pt-0">
+          <div className="flex flex-wrap gap-2">
+            {school.website && (
+              <Button
+                variant="outline"
+                size="sm"
+                className="w-full"
+                onClick={() => window.open(school.website, '_blank')}
+              >
+                <ExternalLink className="h-4 w-4 mr-2" />
+                Website
+              </Button>
+            )}
+            {school.googleMapLink && (
+              <Button
+                variant="outline"
+                size="sm"
+                className="w-full"
+                onClick={() => window.open(school.googleMapLink, '_blank')}
+              >
+                <MapPin className="h-4 w-4 mr-2" />
+                View on Map
+              </Button>
+            )}
+            {school.socialUrl && (
+              <Button
+                variant="outline"
+                size="sm"
+                className="w-full"
+                onClick={() => window.open(school.socialUrl, '_blank')}
+              >
+                <Share2 className="h-4 w-4 mr-2" />
+                Social Media
+              </Button>
+            )}
+          </div>
+        </CardFooter>
       </div>
     </div>
   )

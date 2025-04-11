@@ -3,43 +3,64 @@
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
-import { MapPin, Instagram, Facebook, Mail } from "lucide-react"
+import { Calendar, MapPin, DollarSign, Users, Ticket, Hotel, CheckCircle, Info, Clock, ExternalLink, Instagram, Facebook, Mail } from "lucide-react"
 import { useState, useEffect } from "react"
 import CollapsibleFilter from "@/components/collapsible-filter"
-import { StateFilter } from "@/components/ui/StateFilter"
-import { useStateFilter } from "@/hooks/useStateFilter"
+import { StateFilter } from '@/components/ui/StateFilter'
+import { useStateFilter } from '@/hooks/useStateFilter'
+import { collection, getDocs } from 'firebase/firestore'
+import { db } from '../../firebase/config'
+import { InstructorSubmissionForm } from "@/components/InstructorSubmissionForm"
+import { ContactForm } from "@/components/ContactForm"
+import { ImageModal } from "@/components/ImageModal"
+import { format } from "date-fns"
+import { Badge } from "@/components/ui/badge"
 
 interface Instructor {
   id: string
   name: string
   location: string
   state: string
-  contact: string
+  address: string
+  website: string
+  price: string
   danceStyles: string
   imageUrl: string
   comment: string
-  instagramLink: string
-  facebookLink: string
-  emailLink: string
+  googleMapLink: string
+  socialUrl: string
+  instagramLink?: string
+  facebookLink?: string
+  emailLink?: string
+  contact?: string
 }
 
 export default function InstructorsPage() {
   const [instructors, setInstructors] = useState<Instructor[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [isSubmissionFormOpen, setIsSubmissionFormOpen] = useState(false)
+  const [isContactFormOpen, setIsContactFormOpen] = useState(false)
+  const [selectedImage, setSelectedImage] = useState<{ url: string; title: string } | null>(null)
   
   const { selectedState, setSelectedState, filteredItems: filteredInstructors } = useStateFilter(instructors)
 
   useEffect(() => {
     const fetchInstructors = async () => {
+      setIsLoading(true)
+      setError(null)
       try {
-        const response = await fetch('/api/instructors')
-        if (!response.ok) throw new Error('Failed to fetch instructors')
-        const data = await response.json()
-        setInstructors(data)
+        const instructorsCollection = collection(db, 'instructors')
+        const instructorsSnapshot = await getDocs(instructorsCollection)
+        const instructorsList = instructorsSnapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        })) as Instructor[]
+        
+        setInstructors(instructorsList)
       } catch (err) {
+        console.error('Error fetching instructors:', err)
         setError('Failed to load instructors')
-        console.error(err)
       } finally {
         setIsLoading(false)
       }
@@ -58,12 +79,12 @@ export default function InstructorsPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="container mx-auto px-4 py-8">
-        <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent mb-4">
+      <div className="container mx-auto px-3 sm:px-4 py-6 sm:py-8">
+        <div className="text-center mb-8 sm:mb-12">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent mb-2 sm:mb-4">
             Bachata Instructors
           </h1>
-          <p className="text-xl text-gray-600">
+          <p className="text-base sm:text-xl text-gray-600">
             Find Bachata instructors across Australia
           </p>
         </div>
@@ -73,158 +94,166 @@ export default function InstructorsPage() {
           onChange={setSelectedState}
         />
 
-        <div className="grid grid-cols-1 gap-6 sm:gap-8 lg:gap-12 mb-12">
-          {filteredInstructors.map((instructor) => (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 md:gap-8">
+          {filteredInstructors.length === 0 ? (
+            <div className="col-span-full text-center py-6 sm:py-8 text-gray-500">
+              No instructors found {selectedState !== 'all' && `in ${selectedState}`}
+            </div>
+          ) : (
+            filteredInstructors.map((instructor) => (
             <Card
               key={instructor.id}
-              className="overflow-hidden border-0 shadow-lg"
+                className="relative overflow-hidden h-80 sm:h-96 text-white cursor-pointer"
+                onClick={() => instructor.imageUrl && setSelectedImage({ url: instructor.imageUrl, title: instructor.name })}
             >
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-0">
-                <div className="md:col-span-1 relative">
-                  <div className="h-48 sm:h-full">
+                {/* Full image background */}
                     <img
-                      src={instructor.imageUrl || "/placeholder.svg"}
+                  src={instructor.imageUrl}
                       alt={instructor.name}
-                      className="w-full h-full object-cover"
-                    />
+                  className="absolute inset-0 w-full h-full object-cover z-0"
+                />
+
+                {/* Dark overlay for readability */}
+                <div className="absolute inset-0 bg-black bg-opacity-40 z-10" />
+
+                {/* Bottom compact content */}
+                <div className="absolute bottom-0 left-0 right-0 z-20 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-3 sm:p-4">
+                  <h3 className="text-base sm:text-lg font-semibold">{instructor.name}</h3>
+                  <div className="flex items-center gap-2 text-xs sm:text-sm text-gray-200 mt-1">
+                    <MapPin className="h-3 w-3 sm:h-4 sm:w-4" />
+                    {instructor.location}
                   </div>
-                </div>
-                <div className="md:col-span-2 p-4 sm:p-6">
-                  <h2 className="text-xl sm:text-2xl font-bold text-primary mb-2">{instructor.name}</h2>
-                  <div className="flex flex-wrap gap-2 sm:gap-4 mb-3 sm:mb-4">
-                    <div className="flex items-center text-gray-600 text-sm sm:text-base">
-                      <MapPin className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
-                      <span>{instructor.location}, {instructor.state}</span>
+                  {instructor.comment && (
+                    <div className="text-xs sm:text-sm text-gray-300 mt-1">
+                      {instructor.comment}
                     </div>
-                  </div>
-
-                  <p className="text-gray-700 text-sm sm:text-base mb-3 sm:mb-4">
-                    {instructor.comment}
-                  </p>
-
-                  <div className="mb-3 sm:mb-4">
-                    <h3 className="text-base sm:text-lg font-semibold mb-1 sm:mb-2">Dance Styles</h3>
-                    <div className="flex flex-wrap gap-1 sm:gap-2">
-                      {instructor.danceStyles.split(',').map((style, index) => (
-                        <span
-                          key={index}
-                          className="bg-gray-100 text-gray-800 px-2 sm:px-3 py-0.5 sm:py-1 rounded-full text-xs sm:text-sm"
-                        >
-                          {style.trim()}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div className="flex flex-wrap gap-2 sm:gap-3 mt-4 sm:mt-6">
-                    {instructor.instagramLink && (
-                      <a
-                        href={instructor.instagramLink}
-                        target="_blank"
-                        rel="noopener noreferrer"
+                  )}
+                  <div className="flex flex-col gap-2 mt-2 sm:mt-3">
+                    {instructor.contact && (
+                      <Button
+                        className="w-full bg-primary hover:bg-primary/90 text-white text-xs h-7 sm:h-8 flex items-center justify-center gap-2"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          window.open(`tel:${instructor.contact}`, '_blank');
+                        }}
                       >
-                        <Button
-                          size="sm"
-                          className="bg-pink-600 hover:bg-pink-700 text-white text-xs sm:text-sm h-8 sm:h-10"
-                        >
-                          <Instagram className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
-                          Instagram
-                        </Button>
-                      </a>
+                        <ExternalLink className="h-3 w-3 sm:h-4 sm:w-4" />
+                        <span>Contact</span>
+                      </Button>
                     )}
-
-                    {instructor.facebookLink && (
-                      <a
-                        href={instructor.facebookLink}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
+                    <div className="flex gap-2">
+                      {instructor.instagramLink && (
                         <Button
-                          size="sm"
-                          className="bg-blue-600 hover:bg-blue-700 text-white text-xs sm:text-sm h-8 sm:h-10"
-                        >
-                          <Facebook className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
-                          Facebook
-                        </Button>
-                      </a>
-                    )}
-
-                    {instructor.emailLink && (
-                      <a
-                        href={`mailto:${instructor.emailLink}`}
-                      >
-                        <Button
-                          size="sm"
                           variant="outline"
-                          className="border-gray-500 text-gray-600 hover:bg-gray-50 text-xs sm:text-sm h-8 sm:h-10"
+                          className="flex-1 border-primary text-primary hover:bg-primary/10 text-xs h-7 sm:h-8 flex items-center justify-center gap-2"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            window.open(instructor.instagramLink, '_blank');
+                          }}
                         >
-                          <Mail className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
-                          Contact
+                          <Instagram className="h-3 w-3 sm:h-4 sm:w-4" />
+                          <span>Instagram</span>
                         </Button>
-                      </a>
-                    )}
+                      )}
+                      {instructor.facebookLink && (
+                        <Button
+                          variant="outline"
+                          className="flex-1 border-primary text-primary hover:bg-primary/10 text-xs h-7 sm:h-8 flex items-center justify-center gap-2"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            window.open(instructor.facebookLink, '_blank');
+                          }}
+                        >
+                          <Facebook className="h-3 w-3 sm:h-4 sm:w-4" />
+                          <span>Facebook</span>
+                        </Button>
+                      )}
+                      {instructor.emailLink && (
+                        <Button
+                          variant="outline"
+                          className="flex-1 border-primary text-primary hover:bg-primary/10 text-xs h-7 sm:h-8 flex items-center justify-center gap-2"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            window.open(`mailto:${instructor.emailLink}`, '_blank');
+                          }}
+                        >
+                          <Mail className="h-3 w-3 sm:h-4 sm:w-4" />
+                          <span>Email</span>
+                        </Button>
+                      )}
+                    </div>
                   </div>
                 </div>
-              </div>
-            </Card>
-          ))}
+              </Card>
+            ))
+          )}
         </div>
 
-        {filteredInstructors.length === 0 && (
-          <div className="text-center py-8 text-gray-500">
-            No instructors found in this state.
-          </div>
-        )}
+        {/* Image Modal */}
+        <ImageModal
+          isOpen={!!selectedImage}
+          onClose={() => setSelectedImage(null)}
+          imageUrl={selectedImage?.url || ''}
+          title={selectedImage?.title || ''}
+        />
 
-
-        <div className="mt-16 bg-gradient-to-r from-primary to-secondary rounded-xl shadow-xl overflow-hidden">
-          <div className="p-8 md:p-12 flex flex-col md:flex-row items-center justify-between">
+        {/* Submit Your Instructor Card */}
+        <div className="mt-12 sm:mt-16 bg-gradient-to-r from-primary to-secondary rounded-xl shadow-xl overflow-hidden">
+          <div className="p-6 sm:p-8 md:p-12 flex flex-col md:flex-row items-center justify-between">
             <div className="text-white mb-6 md:mb-0 md:mr-8">
-              <h2 className="text-3xl font-bold mb-4">
-                Join Our Instructor Directory
+              <h2 className="text-2xl sm:text-3xl font-bold mb-3 sm:mb-4">
+                Submit Your Instructor Profile
               </h2>
-              <p className="text-white/90 text-lg mb-6">
-                Are you a Bachata instructor? Get featured in our directory and connect with students across Australia!
+              <p className="text-white/90 text-base sm:text-lg mb-4 sm:mb-6">
+                Are you a Bachata instructor? Get featured in our directory and reach dancers across Australia!
               </p>
-              <ul className="space-y-3">
-                <li className="flex items-center">
-                  <svg className="w-6 h-6 mr-3" fill="currentColor" viewBox="0 0 20 20">
+              <ul className="space-y-2 sm:space-y-3">
+                <li className="flex items-center text-sm sm:text-base">
+                  <svg className="w-5 h-5 sm:w-6 sm:h-6 mr-2 sm:mr-3" fill="currentColor" viewBox="0 0 20 20">
                     <path d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/>
                   </svg>
-                  Showcase your teaching experience
+                  Reach a wider audience of dance enthusiasts
                 </li>
-                <li className="flex items-center">
-                  <svg className="w-6 h-6 mr-3" fill="currentColor" viewBox="0 0 20 20">
+                <li className="flex items-center text-sm sm:text-base">
+                  <svg className="w-5 h-5 sm:w-6 sm:h-6 mr-2 sm:mr-3" fill="currentColor" viewBox="0 0 20 20">
                     <path d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/>
                   </svg>
-                  Connect with potential students
+                  Promote your classes to the dance community
                 </li>
-                <li className="flex items-center">
-                  <svg className="w-6 h-6 mr-3" fill="currentColor" viewBox="0 0 20 20">
+                <li className="flex items-center text-sm sm:text-base">
+                  <svg className="w-5 h-5 sm:w-6 sm:h-6 mr-2 sm:mr-3" fill="currentColor" viewBox="0 0 20 20">
                     <path d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/>
                   </svg>
-                  Grow your teaching business
+                  Connect with dancers across Australia
                 </li>
               </ul>
             </div>
-            <div className="flex flex-col space-y-4">
-              <a
-                href="mailto:contact@bachata.au"
-                className="bg-white text-primary px-8 py-3 rounded-full font-semibold hover:bg-gray-50 transition-colors duration-200 text-center min-w-[200px]"
+            <div className="flex flex-col space-y-3 sm:space-y-4 w-full sm:w-auto">
+              <Button
+                onClick={() => setIsContactFormOpen(true)}
+                className="bg-white text-primary px-6 sm:px-8 py-2 sm:py-3 rounded-full font-semibold hover:bg-gray-50 transition-colors duration-200 text-center w-full sm:w-auto"
               >
                 Contact Us
-              </a>
-              <a
-                href="https://forms.gle/your-google-form-link"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="bg-secondary text-white px-8 py-3 rounded-full font-semibold hover:bg-secondary/90 transition-colors duration-200 text-center"
+              </Button>
+              <Button
+                onClick={() => setIsSubmissionFormOpen(true)}
+                className="bg-secondary text-white px-6 sm:px-8 py-2 sm:py-3 rounded-full font-semibold hover:bg-secondary/90 transition-colors duration-200 text-center w-full sm:w-auto"
               >
                 Submit via Form
-              </a>
+              </Button>
             </div>
           </div>
         </div>
+
+        <ContactForm
+          isOpen={isContactFormOpen}
+          onClose={() => setIsContactFormOpen(false)}
+        />
+
+        <InstructorSubmissionForm
+          isOpen={isSubmissionFormOpen}
+          onClose={() => setIsSubmissionFormOpen(false)}
+        />
       </div>
     </div>
   )
