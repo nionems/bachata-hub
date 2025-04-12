@@ -153,13 +153,75 @@ export default function Home() {
     const formattedWeekEvents = weekEvents.map(event => {
       let imageUrl = '/placeholder.svg'
       
+      // if (event.description) {
+      //   const imageMatch = event.description.match(/\[image:(.*?)\]/)
+      //   if (imageMatch && imageMatch[1]) {
+      //     // Convert the Google Drive URL to the correct format
+      //     imageUrl = convertGoogleDriveUrl(imageMatch[1].trim())
+      //   }
+      // }
       if (event.description) {
         const imageMatch = event.description.match(/\[image:(.*?)\]/)
         if (imageMatch && imageMatch[1]) {
-          // Convert the Google Drive URL to the correct format
           imageUrl = convertGoogleDriveUrl(imageMatch[1].trim())
         }
       }
+      function extractImageUrlFromGoogleRedirect(description?: string): string | null {
+        if (!description) return null;
+        
+        // Match the Google image URL redirect format
+        const googleImageRegex = /https:\/\/www\.google\.com\/url\?sa=i&url=([^&]+)&psig=[^&]+/i;
+        const match = description.match(googleImageRegex);
+        
+        const extractedUrl = match ? decodeURIComponent(match[1]) : null;
+        console.log('Extracted Image URL:', extractedUrl); // Log the URL to inspect
+      
+        return extractedUrl;
+      }
+      
+      
+      const formatEvents = (weekEvents: any[]) => {
+        const formattedWeekEvents = weekEvents.map(event => {
+          let imageUrl = '/placeholder.svg';
+      
+          if (event.description) {
+            const imageMatch = event.description.match(/\[image:(.*?)\]/);
+            if (imageMatch && imageMatch[1]) {
+              // Convert the Google Drive URL to the correct format
+              imageUrl = convertGoogleDriveUrl(imageMatch[1].trim());
+            }
+      
+            // If Google redirect URL is found in the description, use that
+            const extractedImageUrl = extractImageUrlFromGoogleRedirect(event.description);
+            if (extractedImageUrl) {
+              imageUrl = extractedImageUrl;
+            }
+          }
+      
+          return {
+            id: event.id || event.iCalUID,
+            name: event.summary,
+            date: event.start.dateTime ? new Date(event.start.dateTime).toLocaleDateString() : event.start.date,
+            time: event.start.dateTime ? new Date(event.start.dateTime).toLocaleTimeString() : 'All day',
+            start: event.start.dateTime || event.start.date,
+            end: event.end.dateTime || event.end.date,
+            description: event.description?.replace(/\[image:.*?\]/, '').trim() || "No description available",
+            location: event.location || "Location TBA",
+            state: event.location?.split(',').pop()?.trim() || "TBA",
+            address: event.location || "TBA",
+            eventLink: event.htmlLink || "",
+            price: "TBA",
+            ticketLink: "",
+            imageUrl: imageUrl,
+            comment: event.description?.replace(/\[image:.*?\]/, '').trim() || "No description available",
+            googleMapLink: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(event.location || '')}`
+          };
+        });
+      
+        return formattedWeekEvents;
+      };
+      
+      
 
       // Format all events to have the same structure
       return {
