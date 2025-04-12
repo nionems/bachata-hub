@@ -116,7 +116,7 @@ export default function Home() {
     const fetchEvents = async () => {
       try {
         setIsLoading(true)
-        const calendarId = "8d27a79f37a74ab7aedc5c038cc4492cd36b87a71b57fb6d7d141d04e8ffe5c2@group.calendar.google.com"
+        const calendarId = "bachata.au@gmail.com"
         const weekEvents = await getWeekEvents(calendarId)
         const formattedEvents = formatEvents(weekEvents)
         setEvents(formattedEvents)
