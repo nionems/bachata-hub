@@ -4,7 +4,7 @@ import { google, calendar_v3 } from "googleapis"
 
 // Update the getUpcomingEvents function to better handle the API key
 
-export async function getUpcomingEvents(calendarId: string, maxResults = 3): Promise<EventWithImage[]> {
+export async function getUpcomingEvents(calendarId: string, maxResults = 10): Promise<EventWithImage[]> {
   try {
     console.log(`Fetching upcoming events for calendar ID: ${calendarId}`)
 
@@ -54,12 +54,40 @@ export async function getUpcomingEvents(calendarId: string, maxResults = 3): Pro
   }
 }
 
+// Map of cities to their calendar IDs
+const cityCalendarMap = {
+  'sydney': '4ea35178b00a2daa33a492682e866bd67e8b83797a948a31caa8a37e2a982dce@group.calendar.google.com',
+  'melbourne': '641b8d8fbee5ff9eb2402997e5990b3e52a737b134ec201748349884985c84f4@group.calendar.google.com',
+  'brisbane': 'f0b5764410b23c93087a7d3ef5ed0d0a295ad2b811d10bb772533d7517d2fdc5@group.calendar.google.com',
+  'adelaide': '6b95632fc6fe63530bbdd89c944d792009478636f5b2ce7ffc8718ccd500915f@group.calendar.google.com',
+  'gold coast': 'c9ed91c3930331387d69631072510838ec9155b75ca697065025d24e34cde78b@group.calendar.google.com',
+  'perth': 'e521c86aed4060431cf6de7405315790dcca0a10d4779cc333835199f3724c16@group.calendar.google.com',
+  'canberra': '3a82a9f1ed5a4e865ed9f13b24a96004fe7c4b2deb07a422f068c70753f421eb@group.calendar.google.com'
+}
+
+// Function to get the user's city
+export async function getUserCity(): Promise<string> {
+  try {
+    const response = await fetch('https://ipapi.co/json/')
+    const data = await response.json()
+    return data.city.toLowerCase()
+  } catch (error) {
+    console.error('Error getting user location:', error)
+    return 'sydney' // Default to Sydney if location detection fails
+  }
+}
+
+// Function to get the appropriate calendar ID based on user's location
+export async function getLocalCalendarId(): Promise<string> {
+  const userCity = await getUserCity()
+  return cityCalendarMap[userCity as keyof typeof cityCalendarMap] || cityCalendarMap.sydney
+}
+
 // Get events for the current week
 export async function getWeekEvents(calendarId?: string) {
   try {
-    // Use the provided calendarId or fall back to the default
-    const defaultCalendarId = "6b95632fc6fe63530bbdd89c944d792009478636f5b2ce7ffc8718ccd500915f@group.calendar.google.com"
-    const targetCalendarId = calendarId || defaultCalendarId
+    // Use the provided calendarId or get the local calendar ID
+    const targetCalendarId = calendarId || await getLocalCalendarId()
 
     const apiKey = process.env.GOOGLE_API_KEY
     if (!apiKey) {
@@ -69,6 +97,7 @@ export async function getWeekEvents(calendarId?: string) {
 
     console.log("Using Google API Key for authentication")
     console.log("Current time:", new Date().toISOString())
+    console.log("Target calendar ID:", targetCalendarId)
 
     // Get the current date and end of week
     const now = new Date()
@@ -77,16 +106,19 @@ export async function getWeekEvents(calendarId?: string) {
     endOfWeek.setHours(23, 59, 59, 999)
     console.log("End of week:", endOfWeek.toISOString())
 
+    const url = `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(targetCalendarId)}/events?` +
+      `key=${apiKey}&` +
+      `timeMin=${now.toISOString()}&` +
+      `timeMax=${endOfWeek.toISOString()}&` +
+      `singleEvents=true&` +
+      `orderBy=startTime&` +
+      `maxResults=250` // Maximum allowed by Google Calendar API
+
+    console.log("Request URL:", url)
+
     try {
       console.log(`Fetching events for calendar: ${targetCalendarId}`)
-      const response = await fetch(
-        `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(targetCalendarId)}/events?` +
-        `key=${apiKey}&` +
-        `timeMin=${now.toISOString()}&` +
-        `timeMax=${endOfWeek.toISOString()}&` +
-        `singleEvents=true&` +
-        `orderBy=startTime`
-      )
+      const response = await fetch(url)
 
       if (!response.ok) {
         const errorData = await response.json()
@@ -95,8 +127,29 @@ export async function getWeekEvents(calendarId?: string) {
       }
 
       const data = await response.json()
-      console.log(`Found ${data.items?.length || 0} events for the current week`)
-      return data.items || []
+      const events = data.items || []
+      console.log(`Found ${events.length} events for the current week`)
+      
+      // Log each event's details
+      if (events.length > 0) {
+        console.log('Events found:')
+        events.forEach((event: any) => {
+          const startDate = event.start?.dateTime || event.start?.date
+          const endDate = event.end?.dateTime || event.end?.date
+          console.log('Event:', {
+            id: event.id,
+            summary: event.summary,
+            start: startDate,
+            end: endDate,
+            description: event.description,
+            location: event.location
+          })
+        })
+      } else {
+        console.log('No events found in the specified time range')
+      }
+      
+      return events
     } catch (error) {
       console.error(`Error fetching events for calendar ${targetCalendarId}:`, error)
       return []
@@ -109,19 +162,90 @@ export async function getWeekEvents(calendarId?: string) {
 
 // Make this function async to comply with Server Actions requirements
 export async function getEventImage(event: any): Promise<string> {
-  // Check if the event title contains specific keywords
+  console.log('Getting image for event:', event.summary)
+  console.log('Event description:', event.description)
+
+  // First check if there's an image URL in the description
+  if (event.description) {
+    // Look for [image:URL] format
+    const imageMatch = event.description.match(/\[image:(.*?)\]/)
+    if (imageMatch && imageMatch[1]) {
+      const imageUrl = imageMatch[1].trim()
+      console.log('Found [image:URL] format:', imageUrl)
+      // If it's a Facebook image, use the proxy
+      if (imageUrl.includes('fbcdn.net')) {
+        return `/api/proxy-image?url=${encodeURIComponent(imageUrl)}`
+      }
+      return imageUrl
+    }
+
+    // Look for direct image URLs and clean them up
+    const urlMatch = event.description.match(/(https?:\/\/[^\s"<>]+\.(jpg|jpeg|png|gif|webp))/i)
+    if (urlMatch) {
+      let imageUrl = urlMatch[0]
+      // Clean up the URL by removing any trailing characters
+      imageUrl = imageUrl.replace(/["<>]+$/, '')
+      console.log('Found and cleaned direct image URL:', imageUrl)
+      // If it's a Facebook image, use the proxy
+      if (imageUrl.includes('fbcdn.net')) {
+        return `/api/proxy-image?url=${encodeURIComponent(imageUrl)}`
+      }
+      return imageUrl
+    }
+
+    // Look for Facebook URLs specifically
+    const fbMatch = event.description.match(/https:\/\/scontent\.fsyd6-1\.fna\.fbcdn\.net\/[^\s"<>]+/)
+    if (fbMatch) {
+      const fbUrl = fbMatch[0].replace(/["<>]+$/, '')
+      console.log('Found and cleaned Facebook image URL:', fbUrl)
+      return `/api/proxy-image?url=${encodeURIComponent(fbUrl)}`
+    }
+
+    // Look for Google Drive URLs
+    const driveMatch = event.description.match(/https:\/\/drive\.google\.com\/[^\s"<>]+/)
+    if (driveMatch) {
+      const driveUrl = driveMatch[0].replace(/["<>]+$/, '')
+      // Convert Google Drive URL to direct image URL
+      const fileId = driveUrl.match(/\/d\/([^\/]+)/)?.[1] || driveUrl.match(/id=([^&]+)/)?.[1]
+      if (fileId) {
+        const directUrl = `https://drive.google.com/uc?export=view&id=${fileId}`
+        console.log('Converted Google Drive URL to:', directUrl)
+        return directUrl
+      }
+    }
+
+    // Look for TryBooking image URLs
+    const tryBookingMatch = event.description.match(/https:\/\/www\.trybooking\.com\/[^\s"<>]+/)
+    if (tryBookingMatch) {
+      const tryBookingUrl = tryBookingMatch[0].replace(/["<>]+$/, '')
+      console.log('Found TryBooking URL:', tryBookingUrl)
+      // Extract the event ID from the URL
+      const eventId = tryBookingUrl.match(/\/events\/([^\/]+)/)?.[1]
+      if (eventId) {
+        const imageUrl = `https://www.trybooking.com/media/events/${eventId}.jpg`
+        console.log('Generated TryBooking image URL:', imageUrl)
+        return imageUrl
+      }
+    }
+  }
+
+  // If no image found in description, check the title for specific events
   const title = event?.summary?.toLowerCase() || ""
+  console.log('Checking title for specific events:', title)
 
   if (title.includes("sydney") && title.includes("bachata") && title.includes("festival")) {
+    console.log('Using Sydney Bachata Festival image')
     return "/images/sydney-bachata-festival.png"
   }
 
   if (title.includes("world") && title.includes("bachata") && title.includes("melbourne")) {
+    console.log('Using World Bachata Melbourne image')
     return "/images/world_bachata.png"
   }
 
   // Default image for other events
-  return "/placeholder.svg?height=300&width=600"
+  console.log('Using default placeholder image')
+  return "/images/placeholder.svg"
 }
 
 // Define a custom type that extends Schema$Event to include our image property

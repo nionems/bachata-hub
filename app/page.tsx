@@ -108,23 +108,24 @@ export default function Home() {
   const [events, setEvents] = useState<Event[]>([])
   const [filteredEvents, setFilteredEvents] = useState<Event[]>([])
   const [userLocation, setUserLocation] = useState<{ city: string; state: string } | null>(null)
-  const [isLoading, setIsLoading] = useState(true)
+  const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const router = useRouter()
 
   useEffect(() => {
     const fetchEvents = async () => {
       try {
-        setIsLoading(true)
-        const calendarId = "bachata.au@gmail.com"
-        const weekEvents = await getWeekEvents(calendarId)
+        setLoading(true)
+        const weekEvents = await getWeekEvents()
+        console.log('Fetched events:', weekEvents)
         const formattedEvents = formatEvents(weekEvents)
+        console.log('Formatted events:', formattedEvents)
         setEvents(formattedEvents)
       } catch (err) {
-        setError('Failed to fetch events')
         console.error('Error fetching events:', err)
+        setError('Failed to load events')
       } finally {
-        setIsLoading(false)
+        setLoading(false)
       }
     }
 
@@ -150,85 +151,55 @@ export default function Home() {
   }
 
   const formatEvents = (weekEvents: any[]) => {
+    console.log('Raw events:', weekEvents)
     const formattedWeekEvents = weekEvents.map(event => {
+      // Get the image URL from the event
       let imageUrl = '/placeholder.svg'
       
-      // if (event.description) {
-      //   const imageMatch = event.description.match(/\[image:(.*?)\]/)
-      //   if (imageMatch && imageMatch[1]) {
-      //     // Convert the Google Drive URL to the correct format
-      //     imageUrl = convertGoogleDriveUrl(imageMatch[1].trim())
-      //   }
-      // }
       if (event.description) {
+        // Look for [image:URL] format
         const imageMatch = event.description.match(/\[image:(.*?)\]/)
         if (imageMatch && imageMatch[1]) {
-          imageUrl = convertGoogleDriveUrl(imageMatch[1].trim())
+          imageUrl = imageMatch[1].trim()
+          console.log('Found [image:URL] format:', imageUrl)
+        }
+        
+        // Look for direct image URLs
+        const urlMatch = event.description.match(/(https?:\/\/[^\s]+\.(jpg|jpeg|png|gif|webp))/i)
+        if (urlMatch) {
+          imageUrl = urlMatch[0]
+          console.log('Found direct image URL:', imageUrl)
+        }
+        
+        // Look for Google Drive URLs
+        const driveMatch = event.description.match(/https:\/\/drive\.google\.com\/[^\s]+/)
+        if (driveMatch) {
+          const driveUrl = driveMatch[0]
+          // Convert Google Drive URL to direct image URL
+          const fileId = driveUrl.match(/\/d\/([^\/]+)/)?.[1] || driveUrl.match(/id=([^&]+)/)?.[1]
+          if (fileId) {
+            imageUrl = `https://drive.google.com/uc?export=view&id=${fileId}`
+            console.log('Converted Google Drive URL to:', imageUrl)
+          }
         }
       }
-      function extractImageUrlFromGoogleRedirect(description?: string): string | null {
-        if (!description) return null;
-        
-        // Match the Google image URL redirect format
-        const googleImageRegex = /https:\/\/www\.google\.com\/url\?sa=i&url=([^&]+)&psig=[^&]+/i;
-        const match = description.match(googleImageRegex);
-        
-        const extractedUrl = match ? decodeURIComponent(match[1]) : null;
-        console.log('Extracted Image URL:', extractedUrl); // Log the URL to inspect
       
-        return extractedUrl;
-      }
-      
-      
-      const formatEvents = (weekEvents: any[]) => {
-        const formattedWeekEvents = weekEvents.map(event => {
-          let imageUrl = '/placeholder.svg';
-      
-          if (event.description) {
-            const imageMatch = event.description.match(/\[image:(.*?)\]/);
-            if (imageMatch && imageMatch[1]) {
-              // Convert the Google Drive URL to the correct format
-              imageUrl = convertGoogleDriveUrl(imageMatch[1].trim());
-            }
-      
-            // If Google redirect URL is found in the description, use that
-            const extractedImageUrl = extractImageUrlFromGoogleRedirect(event.description);
-            if (extractedImageUrl) {
-              imageUrl = extractedImageUrl;
-            }
-          }
-      
-          return {
-            id: event.id || event.iCalUID,
-            name: event.summary,
-            date: event.start.dateTime ? new Date(event.start.dateTime).toLocaleDateString() : event.start.date,
-            time: event.start.dateTime ? new Date(event.start.dateTime).toLocaleTimeString() : 'All day',
-            start: event.start.dateTime || event.start.date,
-            end: event.end.dateTime || event.end.date,
-            description: event.description?.replace(/\[image:.*?\]/, '').trim() || "No description available",
-            location: event.location || "Location TBA",
-            state: event.location?.split(',').pop()?.trim() || "TBA",
-            address: event.location || "TBA",
-            eventLink: event.htmlLink || "",
-            price: "TBA",
-            ticketLink: "",
-            imageUrl: imageUrl,
-            comment: event.description?.replace(/\[image:.*?\]/, '').trim() || "No description available",
-            googleMapLink: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(event.location || '')}`
-          };
-        });
-      
-        return formattedWeekEvents;
-      };
-      
-      
+      console.log('Using image URL:', imageUrl)
 
       // Format all events to have the same structure
-      return {
+      const formattedEvent = {
         id: event.id || event.iCalUID,
-        name: event.summary,
-        date: event.start.dateTime ? new Date(event.start.dateTime).toLocaleDateString() : event.start.date,
-        time: event.start.dateTime ? new Date(event.start.dateTime).toLocaleTimeString() : 'All day',
+        name: event.summary || 'Untitled Event',
+        date: event.start.dateTime ? new Date(event.start.dateTime).toLocaleDateString('en-AU', { 
+          weekday: 'long', 
+          year: 'numeric', 
+          month: 'long', 
+          day: 'numeric' 
+        }) : event.start.date,
+        time: event.start.dateTime ? new Date(event.start.dateTime).toLocaleTimeString('en-AU', { 
+          hour: '2-digit', 
+          minute: '2-digit' 
+        }) : 'All day',
         start: event.start.dateTime || event.start.date,
         end: event.end.dateTime || event.end.date,
         description: event.description?.replace(/\[image:.*?\]/, '').trim() || "No description available",
@@ -242,14 +213,16 @@ export default function Home() {
         comment: event.description?.replace(/\[image:.*?\]/, '').trim() || "No description available",
         googleMapLink: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(event.location || '')}`
       }
+      console.log('Formatted event:', formattedEvent)
+      return formattedEvent
     })
 
-    // Return only the formatted events from Google Calendar
+    console.log('All formatted events:', formattedWeekEvents)
     return formattedWeekEvents
   }
 
   // Add this carousel settings object before your Home component
-  const carouselSettings = {
+  const settings = {
     dots: true,
     infinite: true,
     speed: 500,
@@ -281,7 +254,7 @@ export default function Home() {
     router.push(`/events/${event.id || event.iCalUID}`)
   }
 
-  if (isLoading) return <div>Loading...</div>
+  if (loading) return <div>Loading...</div>
   if (error) return <div>Error: {error}</div>
 
   try {
@@ -346,41 +319,57 @@ export default function Home() {
         <section className="py-8 sm:py-12 bg-white">
           <div className="container mx-auto px-4">
             <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-center mb-6 sm:mb-8 bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">Featured Events This Week</h2>
-            <div className="relative">
-              <Slider {...carouselSettings}>
+            {events.length > 0 ? (
+              <Slider {...settings}>
                 {events.map((event) => (
                   <div key={event.id} className="px-2">
-                    <div 
-                      className="bg-white rounded-xl shadow-lg overflow-hidden cursor-pointer hover:shadow-xl transition-shadow"
-                      onClick={() => handleEventClick(event)}
-                    >
-                      <div className="relative h-40 sm:h-48">
-                        <Image
-                          src={event.imageUrl}
-                          alt={event.name}
-                          fill
-                          className="object-cover"
-                          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                          priority
-                          unoptimized={true}
-                          referrerPolicy="no-referrer"
-                          onError={(e: any) => {
-                            e.currentTarget.src = '/placeholder.svg'
-                          }}
-                        />
+                    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden">
+                      <div className="relative h-48">
+                        {event.imageUrl && event.imageUrl !== '/images/placeholder.svg' ? (
+                          <img
+                            src={event.imageUrl}
+                            alt={event.name}
+                            className="w-full h-full object-cover"
+                            onError={(e) => {
+                              const target = e.target as HTMLImageElement;
+                              if (!target.src.includes('placeholder.svg')) {
+                                console.log('Error loading image:', event.imageUrl);
+                                target.src = '/images/placeholder.svg';
+                                target.classList.add('opacity-50');
+                              }
+                            }}
+                            onLoad={(e) => {
+                              const target = e.target as HTMLImageElement;
+                              target.classList.remove('opacity-50');
+                            }}
+                          />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center bg-gray-100 dark:bg-gray-700">
+                            <div className="text-center">
+                              <img
+                                src="/images/placeholder.svg"
+                                alt="No image available"
+                                className="w-16 h-16 opacity-50"
+                              />
+                              <p className="text-gray-500 dark:text-gray-400 mt-2 text-sm">No image available</p>
+                            </div>
+                          </div>
+                        )}
                       </div>
-                      <div className="p-3 sm:p-4">
-                        <h3 className="text-lg sm:text-xl font-semibold mb-1 sm:mb-2">{event.name}</h3>
-                        <p className="text-sm sm:text-base text-gray-600 mb-1 sm:mb-2">
-                          {event.date}
-                        </p>
-                        <p className="text-sm sm:text-base text-gray-600">{event.location}</p>
+                      <div className="p-4">
+                        <h3 className="text-lg font-semibold mb-2">{event.name}</h3>
+                        <p className="text-gray-600 dark:text-gray-300 mb-1">{event.date}</p>
+                        <p className="text-gray-600 dark:text-gray-300">{event.location}</p>
                       </div>
                     </div>
                   </div>
                 ))}
               </Slider>
-            </div>
+            ) : (
+              <div className="text-center py-8">
+                <p className="text-gray-600 dark:text-gray-300">No events scheduled for this week. Check back soon!</p>
+              </div>
+            )}
           </div>
         </section>
 
