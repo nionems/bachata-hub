@@ -1,3 +1,8 @@
+import { CardFooter } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { MapPin, ExternalLink, Share2 } from "lucide-react";
+
+
 interface School {
   id: string;
   name: string;

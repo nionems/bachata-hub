@@ -162,11 +162,14 @@ export async function getWeekEvents(calendarId?: string) {
 
 // Make this function async to comply with Server Actions requirements
 export async function getEventImage(event: any): Promise<string> {
-  console.log('Getting image for event:', event.summary)
+  console.log('=== getEventImage Debug ===')
+  console.log('Event summary:', event.summary)
   console.log('Event description:', event.description)
 
   // First check if there's an image URL in the description
   if (event.description) {
+    console.log('Checking description for image URLs...')
+
     // Look for [image:URL] format
     const imageMatch = event.description.match(/\[image:(.*?)\]/)
     if (imageMatch && imageMatch[1]) {
@@ -174,8 +177,10 @@ export async function getEventImage(event: any): Promise<string> {
       console.log('Found [image:URL] format:', imageUrl)
       // If it's a Facebook image, use the proxy
       if (imageUrl.includes('fbcdn.net')) {
+        console.log('Using Facebook proxy for image')
         return `/api/proxy-image?url=${encodeURIComponent(imageUrl)}`
       }
+      console.log('Using direct image URL from [image:URL] format')
       return imageUrl
     }
 
@@ -188,8 +193,10 @@ export async function getEventImage(event: any): Promise<string> {
       console.log('Found and cleaned direct image URL:', imageUrl)
       // If it's a Facebook image, use the proxy
       if (imageUrl.includes('fbcdn.net')) {
+        console.log('Using Facebook proxy for image')
         return `/api/proxy-image?url=${encodeURIComponent(imageUrl)}`
       }
+      console.log('Using direct image URL')
       return imageUrl
     }
 
@@ -198,6 +205,7 @@ export async function getEventImage(event: any): Promise<string> {
     if (fbMatch) {
       const fbUrl = fbMatch[0].replace(/["<>]+$/, '')
       console.log('Found and cleaned Facebook image URL:', fbUrl)
+      console.log('Using Facebook proxy for image')
       return `/api/proxy-image?url=${encodeURIComponent(fbUrl)}`
     }
 
@@ -205,6 +213,7 @@ export async function getEventImage(event: any): Promise<string> {
     const driveMatch = event.description.match(/https:\/\/drive\.google\.com\/[^\s"<>]+/)
     if (driveMatch) {
       const driveUrl = driveMatch[0].replace(/["<>]+$/, '')
+      console.log('Found Google Drive URL:', driveUrl)
       // Convert Google Drive URL to direct image URL
       const fileId = driveUrl.match(/\/d\/([^\/]+)/)?.[1] || driveUrl.match(/id=([^&]+)/)?.[1]
       if (fileId) {
@@ -227,6 +236,10 @@ export async function getEventImage(event: any): Promise<string> {
         return imageUrl
       }
     }
+
+    console.log('No image URLs found in description')
+  } else {
+    console.log('No description found in event')
   }
 
   // If no image found in description, check the title for specific events
@@ -244,7 +257,7 @@ export async function getEventImage(event: any): Promise<string> {
   }
 
   // Default image for other events
-  console.log('Using default placeholder image')
+  console.log('No specific image found, using default placeholder')
   return "/images/placeholder.svg"
 }
 

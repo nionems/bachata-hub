@@ -1,4 +1,9 @@
-          <div className="flex flex-col gap-2 mt-3">
+        
+    import { Button } from "@/components/ui/button";
+    import { MapPin, ExternalLink, Ticket } from "lucide-react";
+        
+      
+        <div className="flex flex-col gap-2 mt-3">
             {event.ticketLink && (
               <Button
                 className="w-full bg-primary hover:bg-primary/90 text-white text-xs h-8 flex items-center justify-center gap-2"
