@@ -60,38 +60,20 @@ export default function EditSchoolPage() {
     googleMapLink: ''
   })
 
-  useEffect(() => {
-    fetchSchool()
-  }, [id])
-
   const fetchSchool = async () => {
     try {
-      const response = await fetch(`/api/schools/${id}`)
+      const response = await fetch(`/api/schools/${params.id}`)
       if (!response.ok) throw new Error('Failed to fetch school')
       const data = await response.json()
-      
-      // Ensure danceStyles is always an array
-      const danceStyles = Array.isArray(data.danceStyles) 
-        ? data.danceStyles 
-        : data.danceStyles 
-          ? data.danceStyles.split(',').map((s: string) => s.trim()).filter(Boolean)
-          : []
-
-      setFormData({
-        ...data,
-        danceStyles,
-        image: null // Reset image since we don't want to keep the File object
-      })
-
-      if (data.imageUrl) {
-        setImagePreviewUrl(data.imageUrl)
-      }
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred')
-    } finally {
-      setIsLoading(false)
+      setFormData(data)
+    } catch (error) {
+      console.error('Error fetching school:', error)
     }
   }
+
+  useEffect(() => {
+    fetchSchool()
+  }, [fetchSchool])
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]

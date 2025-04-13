@@ -5,6 +5,7 @@ import { StateFilter } from '@/components/ui/StateFilter'
 import { useStateFilter } from '@/hooks/useStateFilter'
 import { collection, getDocs } from 'firebase/firestore'
 import { db } from '../../firebase/config'
+import { ItemCard } from '@/components/ItemCard'
 
 // Replace ItemType with the appropriate interface (e.g., Festival, Instructor, DJ)
 export default function PageName() {

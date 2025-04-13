@@ -1,12 +1,14 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, } from 'react'
 import { useRouter } from 'next/navigation'
 import { School } from '@/types/school'
 import { collection, getDocs } from 'firebase/firestore'
 import { db } from '../../../firebase/config'
 import { getWeekEvents } from '@/lib/calendar'
 import { formatEvents } from '@/utils/formatEvents'
+
+
 
 // Add Event type
 interface Event {
@@ -94,9 +96,11 @@ export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState('schools')
   const router = useRouter()
 
-  useEffect(() => {
-    checkAuth()
-  }, [])
+  // useEffect(() => {
+  //   checkAuth()
+  // }, [checkAuth])
+
+  
 
   useEffect(() => {
     if (activeTab === 'schools') {
@@ -140,23 +144,24 @@ export default function AdminDashboard() {
     loadShops()
   }, [])
 
-  const checkAuth = async () => {
-    try {
-      const response = await fetch('/api/auth/check', {
-        credentials: 'include'
-      })
+  // const checkAuth = async () => {
+  //   try {
+  //     const response = await fetch('/api/auth/check', {
+  //       credentials: 'include'
+  //     })
       
-      if (!response.ok) {
-        router.replace('/admin/login')
-        return
-      }
+  //     if (!response.ok) {
+  //       router.replace('/admin/login')
+  //       return
+  //     }
 
-      // Only fetch schools if authenticated
-      fetchSchools()
-    } catch (err) {
-      router.replace('/admin/login')
-    }
-  }
+  //     // Only fetch schools if authenticated
+  //     fetchSchools()
+  //   } catch (err) {
+  //     router.replace('/admin/login')
+  //   }
+  // }
+  
 
   const handleLogout = async () => {
     try {

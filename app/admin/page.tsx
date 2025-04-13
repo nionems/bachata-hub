@@ -13,8 +13,7 @@ export default function AdminPage() {
 
   useEffect(() => {
     checkAuth()
-    fetchSchools()
-  }, [])
+  }, [checkAuth])
 
   const checkAuth = async () => {
     try {

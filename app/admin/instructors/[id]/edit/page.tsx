@@ -27,14 +27,14 @@ const AUSTRALIAN_STATES = [
   { value: 'TAS', label: 'Tasmania' },
   { value: 'ACT', label: 'Australian Capital Territory' },
   { value: 'NT', label: 'Northern Territory' }
-];
+]
 
 export default function EditInstructorPage({ params }: { params: { id: string } }) {
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [selectedImage, setSelectedImage] = useState<File | null>(null)
-  
+
   const [formData, setFormData] = useState<InstructorFormData>({
     id: '',
     name: '',
@@ -50,20 +50,19 @@ export default function EditInstructorPage({ params }: { params: { id: string } 
   })
 
   useEffect(() => {
-    fetchInstructor()
-  }, [])
-
-  const fetchInstructor = async () => {
-    try {
-      const response = await fetch(`/api/instructors/${params.id}`)
-      if (!response.ok) throw new Error('Failed to fetch instructor')
-      const data = await response.json()
-      setFormData(data)
-    } catch (err) {
-      setError('Failed to load instructor')
-      console.error(err)
+    const fetchInstructor = async () => {
+      try {
+        const response = await fetch(`/api/instructors/${params.id}`)
+        if (!response.ok) throw new Error('Failed to fetch instructor')
+        const data = await response.json()
+        setFormData(data)
+      } catch (error) {
+        console.error('Error fetching instructor:', error)
+      }
     }
-  }
+
+    fetchInstructor()
+  }, [params.id])
 
   const handleImageUpload = async (file: File) => {
     try {
@@ -71,7 +70,6 @@ export default function EditInstructorPage({ params }: { params: { id: string } 
       formData.append('file', file)
       formData.append('folder', 'instructors')
 
-      console.log('Sending image upload request to API...') // Debug log
       const response = await fetch('/api/upload', {
         method: 'POST',
         body: formData
@@ -79,12 +77,10 @@ export default function EditInstructorPage({ params }: { params: { id: string } 
 
       if (!response.ok) {
         const errorData = await response.json()
-        console.error('Upload API error:', errorData) // Debug log
         throw new Error('Failed to upload image')
       }
 
       const data = await response.json()
-      console.log('Upload API response:', data) // Debug log
       return data
     } catch (error) {
       console.error('Upload error:', error)
@@ -100,14 +96,9 @@ export default function EditInstructorPage({ params }: { params: { id: string } 
     try {
       let imageUrl = formData.imageUrl
       if (selectedImage) {
-        console.log('Uploading image to storage...') // Debug log
         const uploadResponse = await handleImageUpload(selectedImage)
-        // Extract the imageUrl from the response
         imageUrl = uploadResponse.imageUrl || uploadResponse
-        console.log('Image uploaded successfully:', imageUrl) // Debug log
       }
-
-      console.log('Updating instructor with data:', { ...formData, imageUrl }) // Debug log
 
       const response = await fetch(`/api/instructors/${params.id}`, {
         method: 'PUT',
@@ -122,16 +113,13 @@ export default function EditInstructorPage({ params }: { params: { id: string } 
 
       if (!response.ok) {
         const errorData = await response.json()
-        console.error('Server error:', errorData) // Debug log
         throw new Error('Failed to update instructor')
       }
 
-      const result = await response.json()
-      console.log('Instructor updated successfully:', result) // Debug log
-
+      await response.json()
       router.push('/admin/dashboard')
     } catch (err) {
-      console.error('Error updating instructor:', err) // Debug log
+      console.error('Error updating instructor:', err)
       setError(err instanceof Error ? err.message : 'Failed to update instructor')
     } finally {
       setIsLoading(false)
@@ -155,20 +143,20 @@ export default function EditInstructorPage({ params }: { params: { id: string } 
           <input
             type="text"
             value={formData.name}
-            onChange={(e) => setFormData({...formData, name: e.target.value})}
+            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
             className="w-full p-2 border rounded"
             required
           />
         </div>
 
-        {/* Location Information */}
+        {/* Location */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label className="block text-sm font-medium mb-1">Location*</label>
             <input
               type="text"
               value={formData.location}
-              onChange={(e) => setFormData({...formData, location: e.target.value})}
+              onChange={(e) => setFormData({ ...formData, location: e.target.value })}
               className="w-full p-2 border rounded"
               required
             />
@@ -177,7 +165,7 @@ export default function EditInstructorPage({ params }: { params: { id: string } 
             <label className="block text-sm font-medium mb-1">State*</label>
             <select
               value={formData.state}
-              onChange={(e) => setFormData({...formData, state: e.target.value})}
+              onChange={(e) => setFormData({ ...formData, state: e.target.value })}
               className="w-full p-2 border rounded"
               required
             >
@@ -197,7 +185,7 @@ export default function EditInstructorPage({ params }: { params: { id: string } 
           <input
             type="text"
             value={formData.contact}
-            onChange={(e) => setFormData({...formData, contact: e.target.value})}
+            onChange={(e) => setFormData({ ...formData, contact: e.target.value })}
             className="w-full p-2 border rounded"
             required
           />
@@ -209,7 +197,7 @@ export default function EditInstructorPage({ params }: { params: { id: string } 
           <input
             type="text"
             value={formData.danceStyles}
-            onChange={(e) => setFormData({...formData, danceStyles: e.target.value})}
+            onChange={(e) => setFormData({ ...formData, danceStyles: e.target.value })}
             className="w-full p-2 border rounded"
             placeholder="e.g., Bachata, Salsa, Kizomba"
             required
@@ -239,7 +227,7 @@ export default function EditInstructorPage({ params }: { params: { id: string } 
             <input
               type="url"
               value={formData.imageUrl}
-              onChange={(e) => setFormData({...formData, imageUrl: e.target.value})}
+              onChange={(e) => setFormData({ ...formData, imageUrl: e.target.value })}
               className="w-full p-2 border rounded"
               placeholder="Image URL"
             />
@@ -253,7 +241,7 @@ export default function EditInstructorPage({ params }: { params: { id: string } 
             <input
               type="url"
               value={formData.instagramLink}
-              onChange={(e) => setFormData({...formData, instagramLink: e.target.value})}
+              onChange={(e) => setFormData({ ...formData, instagramLink: e.target.value })}
               className="w-full p-2 border rounded"
               placeholder="https://instagram.com/..."
             />
@@ -263,7 +251,7 @@ export default function EditInstructorPage({ params }: { params: { id: string } 
             <input
               type="url"
               value={formData.facebookLink}
-              onChange={(e) => setFormData({...formData, facebookLink: e.target.value})}
+              onChange={(e) => setFormData({ ...formData, facebookLink: e.target.value })}
               className="w-full p-2 border rounded"
               placeholder="https://facebook.com/..."
             />
@@ -273,7 +261,7 @@ export default function EditInstructorPage({ params }: { params: { id: string } 
             <input
               type="email"
               value={formData.emailLink}
-              onChange={(e) => setFormData({...formData, emailLink: e.target.value})}
+              onChange={(e) => setFormData({ ...formData, emailLink: e.target.value })}
               className="w-full p-2 border rounded"
               placeholder="example@email.com"
             />
@@ -285,7 +273,7 @@ export default function EditInstructorPage({ params }: { params: { id: string } 
           <label className="block text-sm font-medium mb-1">Comment</label>
           <textarea
             value={formData.comment}
-            onChange={(e) => setFormData({...formData, comment: e.target.value})}
+            onChange={(e) => setFormData({ ...formData, comment: e.target.value })}
             className="w-full p-2 border rounded"
             rows={4}
           />
@@ -311,4 +299,4 @@ export default function EditInstructorPage({ params }: { params: { id: string } 
       </form>
     </div>
   )
-} 
+}

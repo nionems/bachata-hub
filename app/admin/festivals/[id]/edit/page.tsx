@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 
 interface Festival {
@@ -20,7 +20,6 @@ interface Festival {
   googleMapLink: string
 }
 
-// List of Australian states and territories
 const AUSTRALIAN_STATES = [
   { value: 'NSW', label: 'New South Wales' },
   { value: 'VIC', label: 'Victoria' },
@@ -30,14 +29,14 @@ const AUSTRALIAN_STATES = [
   { value: 'TAS', label: 'Tasmania' },
   { value: 'ACT', label: 'Australian Capital Territory' },
   { value: 'NT', label: 'Northern Territory' }
-];
+]
 
 export default function EditFestivalPage({ params }: { params: { id: string } }) {
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [selectedImage, setSelectedImage] = useState<File | null>(null)
-  
+
   const [formData, setFormData] = useState<Festival>({
     id: '',
     name: '',
@@ -55,21 +54,21 @@ export default function EditFestivalPage({ params }: { params: { id: string } })
     googleMapLink: ''
   })
 
-  useEffect(() => {
-    fetchFestival()
-  }, [])
-
-  const fetchFestival = async () => {
+  const fetchFestival = useCallback(async () => {
     try {
       const response = await fetch(`/api/festivals/${params.id}`)
       if (!response.ok) throw new Error('Failed to fetch festival')
       const data = await response.json()
       setFormData(data)
-    } catch (err) {
-      setError('Failed to load festival')
-      console.error(err)
+    } catch (error) {
+      console.error('Error fetching festival:', error)
+      setError('Failed to load festival data')
     }
-  }
+  }, [params.id])
+
+  useEffect(() => {
+    fetchFestival()
+  }, [fetchFestival])
 
   const handleImageUpload = async (file: File) => {
     try {
@@ -77,7 +76,6 @@ export default function EditFestivalPage({ params }: { params: { id: string } })
       formData.append('file', file)
       formData.append('folder', 'festivals')
 
-      console.log('Sending image upload request to API...') // Debug log
       const response = await fetch('/api/upload', {
         method: 'POST',
         body: formData
@@ -85,13 +83,12 @@ export default function EditFestivalPage({ params }: { params: { id: string } })
 
       if (!response.ok) {
         const errorData = await response.json()
-        console.error('Upload API error:', errorData) // Debug log
+        console.error('Upload API error:', errorData)
         throw new Error('Failed to upload image')
       }
 
       const data = await response.json()
-      console.log('Upload API response:', data) // Debug log
-      return data.imageUrl // Return imageUrl instead of url
+      return data.imageUrl
     } catch (error) {
       console.error('Upload error:', error)
       throw new Error('Failed to upload image')
@@ -121,7 +118,6 @@ export default function EditFestivalPage({ params }: { params: { id: string } })
       })
 
       if (!response.ok) throw new Error('Failed to update festival')
-
       router.push('/admin/dashboard')
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to update festival')
@@ -141,26 +137,26 @@ export default function EditFestivalPage({ params }: { params: { id: string } })
       )}
 
       <form onSubmit={handleSubmit} className="max-w-2xl space-y-6">
-        {/* Basic Information */}
+        {/* Festival Name */}
         <div>
           <label className="block text-sm font-medium mb-1">Festival Name*</label>
           <input
             type="text"
             value={formData.name}
-            onChange={(e) => setFormData({...formData, name: e.target.value})}
+            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
             className="w-full p-2 border rounded"
             required
           />
         </div>
 
-        {/* Festival Dates */}
+        {/* Dates */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label className="block text-sm font-medium mb-1">Start Date*</label>
             <input
               type="date"
               value={formData.startDate}
-              onChange={(e) => setFormData({...formData, startDate: e.target.value})}
+              onChange={(e) => setFormData({ ...formData, startDate: e.target.value })}
               className="w-full p-2 border rounded"
               required
             />
@@ -170,21 +166,21 @@ export default function EditFestivalPage({ params }: { params: { id: string } })
             <input
               type="date"
               value={formData.endDate}
-              onChange={(e) => setFormData({...formData, endDate: e.target.value})}
+              onChange={(e) => setFormData({ ...formData, endDate: e.target.value })}
               className="w-full p-2 border rounded"
               required
             />
           </div>
         </div>
 
-        {/* Location Information */}
+        {/* Location + State */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label className="block text-sm font-medium mb-1">Location*</label>
             <input
               type="text"
               value={formData.location}
-              onChange={(e) => setFormData({...formData, location: e.target.value})}
+              onChange={(e) => setFormData({ ...formData, location: e.target.value })}
               className="w-full p-2 border rounded"
               required
             />
@@ -193,12 +189,12 @@ export default function EditFestivalPage({ params }: { params: { id: string } })
             <label className="block text-sm font-medium mb-1">State*</label>
             <select
               value={formData.state}
-              onChange={(e) => setFormData({...formData, state: e.target.value})}
+              onChange={(e) => setFormData({ ...formData, state: e.target.value })}
               className="w-full p-2 border rounded"
               required
             >
               <option value="">Select a state</option>
-              {AUSTRALIAN_STATES.map(state => (
+              {AUSTRALIAN_STATES.map((state) => (
                 <option key={state.value} value={state.value}>
                   {state.label}
                 </option>
@@ -207,25 +203,26 @@ export default function EditFestivalPage({ params }: { params: { id: string } })
           </div>
         </div>
 
+        {/* Address */}
         <div>
           <label className="block text-sm font-medium mb-1">Address*</label>
           <input
             type="text"
             value={formData.address}
-            onChange={(e) => setFormData({...formData, address: e.target.value})}
+            onChange={(e) => setFormData({ ...formData, address: e.target.value })}
             className="w-full p-2 border rounded"
             required
           />
         </div>
 
-        {/* Links and Price */}
+        {/* Event Links & Price */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div>
             <label className="block text-sm font-medium mb-1">Event Link</label>
             <input
               type="url"
               value={formData.eventLink}
-              onChange={(e) => setFormData({...formData, eventLink: e.target.value})}
+              onChange={(e) => setFormData({ ...formData, eventLink: e.target.value })}
               className="w-full p-2 border rounded"
             />
           </div>
@@ -234,7 +231,7 @@ export default function EditFestivalPage({ params }: { params: { id: string } })
             <input
               type="number"
               value={formData.price}
-              onChange={(e) => setFormData({...formData, price: e.target.value})}
+              onChange={(e) => setFormData({ ...formData, price: e.target.value })}
               className="w-full p-2 border rounded"
               min="0"
               step="0.01"
@@ -246,7 +243,7 @@ export default function EditFestivalPage({ params }: { params: { id: string } })
             <input
               type="url"
               value={formData.ticketLink}
-              onChange={(e) => setFormData({...formData, ticketLink: e.target.value})}
+              onChange={(e) => setFormData({ ...formData, ticketLink: e.target.value })}
               className="w-full p-2 border rounded"
             />
           </div>
@@ -258,7 +255,7 @@ export default function EditFestivalPage({ params }: { params: { id: string } })
           <input
             type="text"
             value={formData.danceStyles}
-            onChange={(e) => setFormData({...formData, danceStyles: e.target.value})}
+            onChange={(e) => setFormData({ ...formData, danceStyles: e.target.value })}
             className="w-full p-2 border rounded"
             placeholder="e.g., Bachata, Salsa, Kizomba"
             required
@@ -288,19 +285,19 @@ export default function EditFestivalPage({ params }: { params: { id: string } })
             <input
               type="url"
               value={formData.imageUrl}
-              onChange={(e) => setFormData({...formData, imageUrl: e.target.value})}
+              onChange={(e) => setFormData({ ...formData, imageUrl: e.target.value })}
               className="w-full p-2 border rounded"
               placeholder="Image URL"
             />
           </div>
         </div>
 
-        {/* Additional Information */}
+        {/* Comments & Map Link */}
         <div>
           <label className="block text-sm font-medium mb-1">Comment</label>
           <textarea
             value={formData.comment}
-            onChange={(e) => setFormData({...formData, comment: e.target.value})}
+            onChange={(e) => setFormData({ ...formData, comment: e.target.value })}
             className="w-full p-2 border rounded"
             rows={4}
           />
@@ -311,12 +308,12 @@ export default function EditFestivalPage({ params }: { params: { id: string } })
           <input
             type="url"
             value={formData.googleMapLink}
-            onChange={(e) => setFormData({...formData, googleMapLink: e.target.value})}
+            onChange={(e) => setFormData({ ...formData, googleMapLink: e.target.value })}
             className="w-full p-2 border rounded"
           />
         </div>
 
-        {/* Submit Buttons */}
+        {/* Buttons */}
         <div className="flex gap-4 pt-6">
           <button
             type="submit"
@@ -336,4 +333,4 @@ export default function EditFestivalPage({ params }: { params: { id: string } })
       </form>
     </div>
   )
-} 
+}
