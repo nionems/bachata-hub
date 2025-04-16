@@ -1,10 +1,8 @@
 import { Resend } from "resend"
 import { NextResponse } from "next/server"
 import { v2 as cloudinary } from "cloudinary"
-import { google } from "googleapis"
 import { z } from "zod"
 import nodemailer from 'nodemailer'
-import { JWT } from 'google-auth-library'
 
 // Log all environment variables (without sensitive values)
 console.log("Environment variables status:", {
@@ -32,9 +30,9 @@ console.log("Cloudinary configuration:", {
 
 if (cloudName && apiKey && apiSecret) {
   cloudinary.config({
-    cloud_name: "dv5uzk4ka",
-    api_key: process.env.CLOUDINARY_API_KEY,
-    api_secret: process.env.CLOUDINARY_API_SECRET,
+    cloud_name: cloudName,
+    api_key: apiKey,
+    api_secret: apiSecret,
   })
   console.log("Cloudinary configured successfully with:", {
     cloud_name: cloudName,
@@ -49,6 +47,12 @@ if (cloudName && apiKey && apiSecret) {
 type CloudinaryResponse = {
   secure_url: string;
   // ... other cloudinary response fields
+};
+
+// Add this type for email attachments
+type EmailAttachment = {
+  filename: string;
+  content: Buffer;
 };
 
 // Add this function near the top after the cloudinary config
@@ -79,100 +83,11 @@ async function uploadToCloudinary(file: File): Promise<CloudinaryResponse> {
   }
 }
 
-// Calendar IDs for different cities
-const calendarIds = {
-  sydney: "8d27a79f37a74ab7aedc5c038cc4492cd36b87a71b57fb6d7d141d04e8ffe5c2@group.calendar.google.com",
-  melbourne: "ZDg5ODU5MzdkZTBhYmU5YjYwZDg4Zjg2NWJhMjA4YzAwNzc0ZDJlMTNjNDFjOWQ4NmMwMDgzODNkNGRhMzJhOUBncm91cC5jYWxlbmRhci5nb29nbGUuY29t",
-  adelaide: "MTZiOGZlOTYwMDc5NGQ1OTAzMDkwMWE2NzlhODRhNmE3YTgxNmY0YjI5MjM3NzNiYWFmODg2ODcxYjE0YTJkZUBncm91cC5jYWxlbmRhci5nb29nbGUuY29t",
-  brisbane: "YWFhMjIyZjZlZjBhNDNiZTUwOGUyYjVhN2EyYmNhYjIzMmZmMTlmYTlkY2UwZDE2YWViNTQ3MzczZDhkNTI0NUBncm91cC5jYWxlbmRhci5nb29nbGUuY29t",
-  perth: "NDY5ZmIzYmVkMDMwOGIxYThjY2M4ZTlkOTFmYjAyMDBlNmYzYWRlYWZkODE0YzE3NDdiYzk0MDkxZGMxMWFhNUBncm91cC5jYWxlbmRhci5nb29nbGUuY29t"
-}
-
-// Update the addToGoogleSheet function
-async function addToGoogleSheet(formData: FormData, imageUrl: string) {
-  try {
-    console.log('Starting Google Sheet update...');
-    
-    // Log environment variables (safely)
-    console.log('Checking Google Sheets credentials:', {
-      hasSheetId: !!process.env.GOOGLE_SHEET_ID,
-      hasServiceAccount: !!process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
-      hasPrivateKey: !!process.env.GOOGLE_PRIVATE_KEY
-    });
-
-    // Create JWT client
-    const serviceAccountAuth = new JWT({
-      email: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
-      key: process.env.GOOGLE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
-      scopes: ['https://www.googleapis.com/auth/spreadsheets'],
-    });
-
-    const sheets = google.sheets({ version: 'v4', auth: serviceAccountAuth });
-
-    // Format the data
-    const values = [[
-      new Date().toLocaleString('en-AU', { timeZone: 'Australia/Sydney' }), // Timestamp
-      formData.get('eventName')?.toString() || '',
-      formData.get('eventDate')?.toString() || '',
-      formData.get('eventTime')?.toString() || '',
-      formData.get('endTime')?.toString() || '',
-      formData.get('location')?.toString() || '',
-      formData.get('state')?.toString() || '',
-      formData.get('city')?.toString() || '',
-      formData.get('description')?.toString() || '',
-      formData.get('organizerName')?.toString() || '',
-      formData.get('organizerEmail')?.toString() || '',
-      formData.get('eventLink')?.toString() || '',
-      formData.get('ticketLink')?.toString() || '',
-      imageUrl || '',
-      'Pending'
-    ]];
-
-    console.log('Data to be added:', values[0]); // Log the data being added
-
-    try {
-      const response = await sheets.spreadsheets.values.append({
-        spreadsheetId: process.env.GOOGLE_SHEET_ID,
-        range: 'bachata_events!A:O',
-        valueInputOption: 'USER_ENTERED',
-        requestBody: {
-          values,
-        },
-      });
-
-      console.log('Sheet update response:', response.data);
-      return response.data;
-    } catch (appendError) {
-      console.error('Error appending to sheet:', appendError);
-      // Try to get more information about the sheet
-      try {
-        const sheetInfo = await sheets.spreadsheets.get({
-          spreadsheetId: process.env.GOOGLE_SHEET_ID
-        });
-        console.log('Sheet info:', sheetInfo.data);
-      } catch (infoError) {
-        console.error('Error getting sheet info:', infoError);
-      }
-      throw appendError;
-    }
-
-  } catch (error) {
-    console.error('Error in addToGoogleSheet:', error);
-    if (error instanceof Error) {
-      console.error('Error details:', {
-        message: error.message,
-        stack: error.stack
-      });
-    }
-    throw error;
-  }
-}
-
 // Add this function to format the admin email HTML
 function getAdminEmailHtml(formData: FormData, imageUrl: string) {
   return `
-    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-      <h2 style="color: #333;">New Event Submission</h2>
+    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+      <h2 style="color: #333; margin-bottom: 20px;">New Event Submission</h2>
       <div style="background-color: #f5f5f5; padding: 20px; border-radius: 5px; margin: 20px 0;">
         <p><strong>Event Name:</strong> ${formData.get('eventName')}</p>
         <p><strong>Date:</strong> ${formData.get('eventDate')}</p>
@@ -186,101 +101,268 @@ function getAdminEmailHtml(formData: FormData, imageUrl: string) {
         <p><strong>Event Link:</strong> ${formData.get('eventLink')}</p>
         <p><strong>Ticket Link:</strong> ${formData.get('ticketLink')}</p>
       </div>
-      ${imageUrl ? `<img src="${imageUrl}" alt="Event image" style="max-width: 100%; border-radius: 5px;">` : ''}
+      ${imageUrl ? `<img src="${imageUrl}" alt="Event image" style="max-width: 100%; border-radius: 5px; margin-top: 10px;">` : ''}
     </div>
   `
 }
 
 // Add this function to format the organizer email HTML
-function getOrganizerEmailHtml(formData: FormData) {
+function getOrganizerEmailHtml(formData: FormData, imageUrl: string) {
+  const eventName = formData.get('eventName')?.toString() || ''
+  const eventDate = formData.get('eventDate')?.toString() || ''
+  const eventTime = formData.get('eventTime')?.toString() || ''
+  const endTime = formData.get('endTime')?.toString() || ''
+  const location = formData.get('location')?.toString() || ''
+  const description = formData.get('description')?.toString() || ''
+
+  // Format dates for Google Calendar
+  const [year, month, day] = eventDate.split('-')
+  const [startHour, startMinute] = eventTime.split(':')
+  const [endHour, endMinute] = endTime.split(':')
+  
+  // Format: YYYYMMDDTHHMMSSZ
+  const start = `${year}${month}${day}T${startHour}${startMinute}00Z`
+  const end = `${year}${month}${day}T${endHour}${endMinute}00Z`
+  
+  const calendarUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(eventName)}&dates=${start}/${end}&details=${encodeURIComponent(description)}&location=${encodeURIComponent(location)}`
+
   return `
-    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-      <h2 style="color: #333;">Event Submission Received</h2>
-      <p>Thank you for submitting your event to Bachata Hub. We have received your submission and will review it shortly.</p>
-      <div style="background-color: #f5f5f5; padding: 20px; border-radius: 5px; margin: 20px 0;">
-        <h3 style="margin-top: 0;">Event Details:</h3>
-        <p><strong>Event Name:</strong> ${formData.get('eventName')}</p>
-        <p><strong>Date:</strong> ${formData.get('eventDate')}</p>
-        <p><strong>Time:</strong> ${formData.get('eventTime')} - ${formData.get('endTime')}</p>
-        <p><strong>Location:</strong> ${formData.get('location')}</p>
-      </div>
-      <p>We will notify you once your event has been approved and added to our calendar.</p>
-    </div>
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <meta charset="utf-8">
+        <title>Event Submission Received</title>
+      </head>
+      <body style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+        <h2 style="color: #333; margin-bottom: 20px;">Event Submission Received</h2>
+        <p style="margin-bottom: 20px;">Thank you for submitting your event to Bachata Hub. We have received your submission and will review it shortly.</p>
+        
+        <div style="background-color: #f5f5f5; padding: 20px; border-radius: 5px; margin: 20px 0;">
+          <h3 style="margin-top: 0; color: #333;">Event Details:</h3>
+          <p><strong>Event Name:</strong> ${eventName}</p>
+          <p><strong>Date:</strong> ${eventDate}</p>
+          <p><strong>Time:</strong> ${eventTime} - ${endTime}</p>
+          <p><strong>Location:</strong> ${location}</p>
+          ${imageUrl ? `
+            <div style="margin-top: 20px;">
+              <img src="${imageUrl}" alt="Event image" style="max-width: 100%; border-radius: 5px;">
+            </div>
+          ` : ''}
+        </div>
+
+        <div style="margin: 30px 0; text-align: center;">
+          <a href="${calendarUrl}" 
+             style="background-color: #4285F4; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; display: inline-block; font-weight: bold; font-size: 16px;"
+             target="_blank">
+            Add to Google Calendar
+          </a>
+        </div>
+
+        <p style="margin-top: 20px;">We will notify you once your event has been approved and added to our calendar.</p>
+      </body>
+    </html>
   `
+}
+
+// Add this function to download the image
+async function downloadImage(url: string): Promise<Buffer> {
+  const response = await fetch(url);
+  return Buffer.from(await response.arrayBuffer());
+}
+
+// Add this function to verify Resend configuration
+async function verifyResendConfig() {
+  try {
+    if (!process.env.RESEND_API_KEY) {
+      throw new Error('RESEND_API_KEY is not set');
+    }
+    
+    // Test the API key by making a simple request
+    const response = await resend.emails.send({
+      from: "Bachata Hub <onboarding@resend.dev>",
+      to: process.env.ADMIN_EMAIL || '',
+      subject: "Resend API Test",
+      html: "<p>Testing Resend API configuration</p>"
+    });
+    
+    console.log('Resend API test successful:', response);
+    return true;
+  } catch (error) {
+    console.error('Resend API test failed:', error);
+    return false;
+  }
 }
 
 export async function POST(request: Request) {
   try {
+    // Verify Resend configuration first
+    const isResendConfigured = await verifyResendConfig();
+    if (!isResendConfigured) {
+      return Response.json(
+        { 
+          error: 'Email service configuration error', 
+          details: 'Failed to verify email service configuration' 
+        },
+        { status: 500 }
+      );
+    }
+
+    // Validate required environment variables
+    const requiredEnvVars = {
+      RESEND_API_KEY: process.env.RESEND_API_KEY,
+      CLOUDINARY_CLOUD_NAME: process.env.CLOUDINARY_CLOUD_NAME,
+      CLOUDINARY_API_KEY: process.env.CLOUDINARY_API_KEY,
+      CLOUDINARY_API_SECRET: process.env.CLOUDINARY_API_SECRET,
+      ADMIN_EMAIL: process.env.ADMIN_EMAIL
+    }
+
+    const missingVars = Object.entries(requiredEnvVars)
+      .filter(([_, value]) => !value)
+      .map(([key]) => key)
+
+    if (missingVars.length > 0) {
+      console.error('Missing required environment variables:', missingVars);
+      return Response.json(
+        { 
+          error: 'Server configuration error', 
+          details: `Missing environment variables: ${missingVars.join(', ')}` 
+        },
+        { status: 500 }
+      );
+    }
+
     console.log('Starting form submission...');
-    const formData = await request.formData();
-    
-    // Log form data (without sensitive info)
+    const formData = await request.formData()
     console.log('Form data received:', {
       eventName: formData.get('eventName'),
       eventDate: formData.get('eventDate'),
       hasImage: !!formData.get('image')
     });
 
-    // Image upload
-    let imageUrl = '';
-    const imageFile = formData.get('image') as File | null;
+    const imageFile = formData.get('image') as File | null
+    let imageUrl = ''
+
+    // Upload image to Cloudinary if provided
     if (imageFile) {
       try {
         console.log('Uploading image...');
-        const imageData = await uploadToCloudinary(imageFile);
-        imageUrl = imageData.secure_url;
-        console.log('Image uploaded:', imageUrl);
+        const bytes = await imageFile.arrayBuffer()
+        const buffer = Buffer.from(bytes)
+
+        const result = await new Promise((resolve, reject) => {
+          cloudinary.uploader.upload_stream(
+            { resource_type: 'auto' },
+            (error, result) => {
+              if (error) {
+                console.error('Cloudinary upload error:', error);
+                reject(error);
+              } else {
+                console.log('Cloudinary upload success:', result);
+                resolve(result);
+              }
+            }
+          ).end(buffer)
+        }) as any
+
+        imageUrl = result.secure_url
       } catch (uploadError) {
         console.error('Image upload failed:', uploadError);
         // Continue without image if upload fails
       }
     }
 
-    // Google Sheet update
-    try {
-      console.log('Updating Google Sheet...');
-      await addToGoogleSheet(formData, imageUrl);
-    } catch (sheetError) {
-      console.error('Google Sheet update failed:', sheetError);
-      // Continue if sheet update fails
-    }
-
     // Send emails
-    try {
-      // Generate email templates
-      const adminEmailHtml = getAdminEmailHtml(formData, imageUrl);
-      const organizerEmailHtml = getOrganizerEmailHtml(formData);
+    const organizerEmail = formData.get('organizerEmail') as string
+    const adminEmail = process.env.ADMIN_EMAIL as string
 
-      // Send admin email
-      console.log('Sending admin email...');
-      const adminEmailResult = await resend.emails.send({
-        from: "Bachata Hub <onboarding@resend.dev>",
-        to: "bachata.au@gmail.com",
-        subject: `New Event Submission: ${formData.get('eventName')}`,
-        html: adminEmailHtml,
-        attachments: imageUrl ? [{ filename: 'event-image.jpg', path: imageUrl }] : []
-      });
-
-      // Send organizer confirmation email
-      console.log('Sending organizer email...');
-      const organizerEmailResult = await resend.emails.send({
-        from: "Bachata Hub <onboarding@resend.dev>",
-        to: formData.get('organizerEmail') as string,
-        subject: "Event Submission Received - Bachata Hub",
-        html: organizerEmailHtml
-      });
-
-      console.log('Emails sent successfully');
-    } catch (emailError) {
-      console.error('Email sending failed:', emailError);
-      // Continue if email sending fails
+    if (!organizerEmail) {
+      return Response.json(
+        { 
+          error: 'Invalid request', 
+          details: 'Organizer email is required' 
+        },
+        { status: 400 }
+      );
     }
 
-    return NextResponse.json({ 
-      message: 'Event submitted successfully',
-      imageUrl: imageUrl || null
+    console.log('Sending emails to:', {
+      organizerEmail,
+      adminEmail
     });
 
+    // Generate email templates
+    const adminEmailHtml = getAdminEmailHtml(formData, imageUrl)
+    const organizerEmailHtml = getOrganizerEmailHtml(formData, imageUrl)
+
+    // Prepare image attachment if available
+    let imageAttachment: EmailAttachment[] = [];
+    if (imageUrl) {
+      try {
+        console.log('Preparing image attachment...');
+        const imageBuffer = await downloadImage(imageUrl)
+        imageAttachment = [{
+          filename: 'event-image.jpg',
+          content: imageBuffer
+        }]
+      } catch (attachmentError) {
+        console.error('Failed to prepare image attachment:', attachmentError);
+        // Continue without attachment
+      }
+    }
+
+    // Send admin email
+    let adminEmailResponse;
+    try {
+      console.log('Sending admin email...');
+      adminEmailResponse = await resend.emails.send({
+        from: "Bachata Hub <onboarding@resend.dev>",
+        to: adminEmail,
+        subject: `New Event Submission: ${formData.get('eventName')}`,
+        html: adminEmailHtml,
+        attachments: imageAttachment
+      });
+      console.log('Admin email sent successfully:', adminEmailResponse);
+    } catch (adminEmailError) {
+      console.error('Failed to send admin email:', adminEmailError);
+      // Continue with organizer email even if admin email fails
+    }
+
+    // Send organizer confirmation email
+    let organizerEmailResponse;
+    try {
+      console.log('Sending organizer email...');
+      organizerEmailResponse = await resend.emails.send({
+        from: "Bachata Hub <onboarding@resend.dev>",
+        to: organizerEmail,
+        subject: "Event Submission Received - Bachata Hub",
+        html: organizerEmailHtml,
+        attachments: imageAttachment
+      });
+      console.log('Organizer email sent successfully:', organizerEmailResponse);
+    } catch (organizerEmailError) {
+      console.error('Failed to send organizer email:', organizerEmailError);
+      return Response.json(
+        { 
+          error: 'Failed to send confirmation email', 
+          details: organizerEmailError instanceof Error ? organizerEmailError.message : 'Unknown error',
+          debug: {
+            organizerEmail,
+            adminEmail,
+            adminEmailResponse,
+            organizerEmailResponse
+          }
+        },
+        { status: 500 }
+      );
+    }
+
+    return Response.json({ 
+      success: true,
+      debug: {
+        adminEmailResponse,
+        organizerEmailResponse
+      }
+    }, { status: 200 });
   } catch (error) {
     console.error('Error in form submission:', error);
     if (error instanceof Error) {
@@ -289,8 +371,11 @@ export async function POST(request: Request) {
         stack: error.stack
       });
     }
-    return NextResponse.json(
-      { error: 'Failed to submit event', details: error instanceof Error ? error.message : 'Unknown error' },
+    return Response.json(
+      { 
+        error: 'Failed to submit event', 
+        details: error instanceof Error ? error.message : 'Unknown error' 
+      },
       { status: 500 }
     );
   }
