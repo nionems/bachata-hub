@@ -1,68 +1,104 @@
 "use client"
 
+import { useState, useEffect } from 'react'
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Calendar, MapPin, Users, Trophy, Clock } from "lucide-react"
 import Link from "next/link"
+import { StateFilter } from '@/components/ui/StateFilter'
+import { useStateFilter } from '@/hooks/useStateFilter'
+
+interface Competition {
+  id: string
+  name: string
+  organizer: string
+  contactInfo: string
+  email: string
+  startDate: string
+  endDate: string
+  location: string
+  state: string
+  address: string
+  eventLink: string
+  price: string
+  ticketLink: string
+  danceStyles: string
+  imageUrl: string
+  comment: string
+  googleMapLink: string
+  categories: string[]
+  level: string[]
+  status: string
+  socialLink: string
+  createdAt: string
+  updatedAt: string
+}
 
 export default function CompetitionPage() {
-  const competitions = [
-    {
-      id: 1,
-      name: "NSW Jack & Jill Championship",
-      date: "April 13, 2025",
-      time: "2:00 PM",
-      location: "Sydney Dance Company",
-      description: "Annual NSW Jack & Jill competition featuring the best dancers from across the state.",
-      categories: ["Open", "Advanced", "Intermediate"],
-      registrationLink: "https://www.facebook.com/groups/1268854410845691",
-      image: "/placeholder.svg?height=300&width=600",
-    },
-    {
-      id: 2,
-      name: "Australia Bachata Championship",
-      date: "March 15, 2025",
-      time: "3:00 PM",
-      location: "Sydney Convention Centre",
-      description: "The biggest Bachata competition in Australia, featuring national and international competitors.",
-      categories: ["Open", "Advanced", "Intermediate", "Amateur"],
-      registrationLink: "https://www.facebook.com/BachataChamp/",
-      image: "/placeholder.svg?height=300&width=600",
-    },
-    {
-      id: 3,
-      name: "Melbourne Bachata Open",
-      date: "April 22, 2025",
-      time: "1:00 PM",
-      location: "Melbourne Convention Centre",
-      description: "Melbourne's premier Bachata competition with multiple categories and workshops.",
-      categories: ["Open", "Advanced", "Intermediate"],
-      registrationLink: "https://events.bachata-australia.com/melbourne-open",
-      image: "/placeholder.svg?height=300&width=600",
-    },
-    {
-      id: 4,
-      name: "Brisbane Bachata Festival Competition",
-      date: "May 10, 2025",
-      time: "2:30 PM",
-      location: "Brisbane Convention Centre",
-      description: "Part of the Brisbane Bachata Festival, featuring exciting competitions and performances.",
-      categories: ["Open", "Advanced", "Intermediate", "Amateur"],
-      registrationLink: "https://events.bachata-australia.com/brisbane-festival",
-      image: "/placeholder.svg?height=300&width=600",
-    },
-  ]
+  const [competitions, setCompetitions] = useState<Competition[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  
+  const { selectedState, setSelectedState, filteredItems: filteredCompetitions } = useStateFilter(competitions)
+
+  useEffect(() => {
+    const fetchCompetitions = async () => {
+      try {
+        const response = await fetch('/api/competitions')
+        if (!response.ok) {
+          throw new Error('Failed to fetch competitions')
+        }
+        const data = await response.json()
+        setCompetitions(data)
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Failed to fetch competitions')
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    fetchCompetitions()
+  }, [])
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading competitions...</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-red-500 mb-4">Error: {error}</p>
+          <Button onClick={() => window.location.reload()}>Try Again</Button>
+        </div>
+      </div>
+    )
+  }
 
   return (
-    <div className="container mx-auto py-12 px-4">
-      <div className="max-w-7xl mx-auto">
+    <div className="min-h-screen bg-gray-50">
+      <div className="container mx-auto px-4 py-8">
         <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">Bachata Competitions</h1>
-          <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-            Discover and participate in Bachata competitions across Australia. Show off your skills and compete with the best dancers in the country.
+          <h1 className="text-4xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent mb-4">
+            Bachata Competitions
+          </h1>
+          <p className="text-xl text-gray-600">
+            Find dance competitions across Australia
           </p>
         </div>
+
+        <StateFilter
+          selectedState={selectedState}
+          onChange={setSelectedState}
+        />
 
         <Tabs defaultValue="upcoming" className="w-full">
           <TabsList className="grid w-full grid-cols-2 mb-8">
@@ -71,13 +107,16 @@ export default function CompetitionPage() {
           </TabsList>
 
           <TabsContent value="upcoming" className="w-full">
+            <h2 className="text-2xl font-bold text-primary mb-4">Upcoming Competitions</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              {competitions.map((competition) => (
+              {filteredCompetitions
+                .filter(comp => comp.status === 'Upcoming')
+                .map((competition) => (
                 <Link href={`/competition/${competition.id}`} key={competition.id}>
                   <Card className="overflow-hidden hover:shadow-lg transition-shadow cursor-pointer">
                     <div className="relative h-48">
                       <img
-                        src={competition.image}
+                        src={competition.imageUrl || '/placeholder.svg'}
                         alt={competition.name}
                         className="w-full h-full object-cover"
                       />
@@ -87,11 +126,11 @@ export default function CompetitionPage() {
                       <CardDescription className="flex items-center gap-4">
                         <span className="flex items-center">
                           <Calendar className="h-4 w-4 mr-1" />
-                          {competition.date}
+                          {new Date(competition.startDate).toLocaleDateString()} - {new Date(competition.endDate).toLocaleDateString()}
                         </span>
                         <span className="flex items-center">
                           <Clock className="h-4 w-4 mr-1" />
-                          {competition.time}
+                          {competition.danceStyles}
                         </span>
                       </CardDescription>
                     </CardHeader>
@@ -99,9 +138,9 @@ export default function CompetitionPage() {
                       <div className="space-y-4">
                         <div className="flex items-center text-gray-600">
                           <MapPin className="h-4 w-4 mr-1" />
-                          {competition.location}
+                          {competition.location}, {competition.state}
                         </div>
-                        <p className="text-gray-600">{competition.description}</p>
+                        <p className="text-gray-600">{competition.comment}</p>
                         <div className="flex flex-wrap gap-2">
                           {competition.categories.map((category) => (
                             <span
@@ -116,7 +155,7 @@ export default function CompetitionPage() {
                           className="w-full bg-green-600 hover:bg-green-700"
                           onClick={(e) => {
                             e.preventDefault()
-                            window.open(competition.registrationLink, "_blank", "noopener,noreferrer")
+                            window.open(competition.eventLink, "_blank", "noopener,noreferrer")
                           }}
                         >
                           Register Now
@@ -130,41 +169,67 @@ export default function CompetitionPage() {
           </TabsContent>
 
           <TabsContent value="past" className="w-full">
-            <div className="text-center py-12">
-              <Trophy className="h-12 w-12 mx-auto mb-4 text-gray-400" />
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">Past Competitions</h3>
-              <p className="text-gray-600">
-                Results and highlights from previous competitions will be available here soon.
-              </p>
+            <h2 className="text-2xl font-bold text-primary mb-4">Past Competitions</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              {filteredCompetitions
+                .filter(comp => comp.status === 'Completed')
+                .map((competition) => (
+                <Link href={`/competition/${competition.id}`} key={competition.id}>
+                  <Card className="overflow-hidden hover:shadow-lg transition-shadow cursor-pointer">
+                    <div className="relative h-48">
+                      <img
+                        src={competition.imageUrl || '/placeholder.svg'}
+                        alt={competition.name}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                    <CardHeader>
+                      <CardTitle>{competition.name}</CardTitle>
+                      <CardDescription className="flex items-center gap-4">
+                        <span className="flex items-center">
+                          <Calendar className="h-4 w-4 mr-1" />
+                          {new Date(competition.startDate).toLocaleDateString()} - {new Date(competition.endDate).toLocaleDateString()}
+                        </span>
+                        <span className="flex items-center">
+                          <Clock className="h-4 w-4 mr-1" />
+                          {competition.danceStyles}
+                        </span>
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-4">
+                        <div className="flex items-center text-gray-600">
+                          <MapPin className="h-4 w-4 mr-1" />
+                          {competition.location}, {competition.state}
+                        </div>
+                        <p className="text-gray-600">{competition.comment}</p>
+                        <div className="flex flex-wrap gap-2">
+                          {competition.categories.map((category) => (
+                            <span
+                              key={category}
+                              className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm"
+                            >
+                              {category}
+                            </span>
+                          ))}
+                        </div>
+                        <Button
+                          className="w-full bg-green-600 hover:bg-green-700"
+                          onClick={(e) => {
+                            e.preventDefault()
+                            window.open(competition.eventLink, "_blank", "noopener,noreferrer")
+                          }}
+                        >
+                          View Results
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </Link>
+              ))}
             </div>
           </TabsContent>
         </Tabs>
-
-        <div className="mt-12 bg-green-50 p-8 rounded-lg">
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">Competition Guidelines</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <h3 className="text-lg font-semibold mb-2">Registration Process</h3>
-              <ul className="list-disc list-inside space-y-2 text-gray-600">
-                <li>Click "Register Now" on your chosen competition</li>
-                <li>Fill out the registration form with your details</li>
-                <li>Select your competition category</li>
-                <li>Complete payment if required</li>
-                <li>Receive confirmation email with details</li>
-              </ul>
-            </div>
-            <div>
-              <h3 className="text-lg font-semibold mb-2">Competition Rules</h3>
-              <ul className="list-disc list-inside space-y-2 text-gray-600">
-                <li>Arrive at least 30 minutes before start time</li>
-                <li>Bring valid ID for registration</li>
-                <li>Follow dress code requirements</li>
-                <li>Respect judges and fellow competitors</li>
-                <li>Have fun and enjoy the experience!</li>
-              </ul>
-            </div>
-          </div>
-        </div>
       </div>
     </div>
   )

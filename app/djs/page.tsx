@@ -3,7 +3,7 @@
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
-import { Calendar, MapPin, DollarSign, Users, Ticket, Hotel, CheckCircle, Info, Clock, ExternalLink, Instagram, Facebook, Mail } from "lucide-react"
+import { Calendar, MapPin, DollarSign, Users, Ticket, Hotel, CheckCircle, Info, Clock, ExternalLink, Instagram, Facebook, Music } from "lucide-react"
 import { useState, useEffect } from "react"
 import CollapsibleFilter from "@/components/collapsible-filter"
 import { StateFilter } from '@/components/ui/StateFilter'
@@ -30,6 +30,7 @@ interface DJ {
   musicStyles: string | string[]
   createdAt: string
   updatedAt: string
+  musicLink: string
 }
 
 export default function DJsPage() {
@@ -39,6 +40,7 @@ export default function DJsPage() {
   const [isSubmissionFormOpen, setIsSubmissionFormOpen] = useState(false)
   const [isContactFormOpen, setIsContactFormOpen] = useState(false)
   const [selectedImage, setSelectedImage] = useState<{ url: string; title: string } | null>(null)
+  const [expandedComments, setExpandedComments] = useState<Record<string, boolean>>({})
   
   const { selectedState, setSelectedState, filteredItems: filteredDJs } = useStateFilter(djs)
 
@@ -73,7 +75,8 @@ export default function DJsPage() {
             comment: data.comment || '',
             musicStyles: data.musicStyles || [],
             createdAt: data.createdAt || '',
-            updatedAt: data.updatedAt || ''
+            updatedAt: data.updatedAt || '',
+            musicLink: data.musicLink || ''
           }
         }) as DJ[]
         
@@ -96,6 +99,13 @@ export default function DJsPage() {
 
     fetchDJs()
   }, [])
+
+  const toggleComment = (djId: string) => {
+    setExpandedComments(prev => ({
+      ...prev,
+      [djId]: !prev[djId]
+    }))
+  }
 
   if (isLoading) {
     return <div className="text-center py-8">Loading DJs...</div>
@@ -153,7 +163,20 @@ export default function DJsPage() {
                   </div>
                   {dj.comment && (
                     <div className="text-xs sm:text-sm text-gray-300 mt-1">
-                      {dj.comment}
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          toggleComment(dj.id);
+                        }}
+                        className="text-left w-full hover:text-white transition-colors"
+                      >
+                        {expandedComments[dj.id] ? dj.comment : `${dj.comment.substring(0, 100)}${dj.comment.length > 100 ? '...' : ''}`}
+                        {dj.comment.length > 100 && (
+                          <span className="text-primary ml-1">
+                            {expandedComments[dj.id] ? 'Show less' : 'Show more'}
+                          </span>
+                        )}
+                      </button>
                     </div>
                   )}
                   <div className="flex flex-col gap-2 mt-2 sm:mt-3">
@@ -196,17 +219,17 @@ export default function DJsPage() {
                           <span>Facebook</span>
                         </Button>
                       )}
-                      {dj.emailLink && (
+                      {dj.musicLink && (
                         <Button
                           variant="outline"
                           className="flex-1 border-primary text-primary hover:bg-primary/10 text-xs h-7 sm:h-8 flex items-center justify-center gap-2"
                           onClick={(e) => {
                             e.stopPropagation();
-                            window.open(`mailto:${dj.emailLink}`, '_blank');
+                            window.open(dj.musicLink, '_blank');
                           }}
                         >
-                          <Mail className="h-3 w-3 sm:h-4 sm:w-4" />
-                          <span>Email</span>
+                          <Music className="h-3 w-3 sm:h-4 sm:w-4" />
+                          <span>Music</span>
                         </Button>
                       )}
                     </div>

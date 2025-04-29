@@ -420,12 +420,6 @@ export default function Home() {
                 description="Find all events"
                 link="/calendar"
               />
-              <FeatureCard
-                icon={<Users className="h-6 w-6 sm:h-8 sm:w-8 text-green-600" />}
-                title="Forum"
-                description="Connect with dancers"
-                link="/forum"
-              />
             </div>
           </div>
         </section>

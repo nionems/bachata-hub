@@ -15,6 +15,7 @@ interface DJFormData {
   instagramLink: string
   facebookLink: string
   emailLink: string
+  musicLink: string
 }
 
 export default function EditDJPage({ params }: { params: { id: string } }) {
@@ -29,7 +30,8 @@ export default function EditDJPage({ params }: { params: { id: string } }) {
     comment: '',
     instagramLink: '',
     facebookLink: '',
-    emailLink: ''
+    emailLink: '',
+    musicLink: ''
   })
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -263,6 +265,18 @@ export default function EditDJPage({ params }: { params: { id: string } }) {
               value={formData.emailLink}
               onChange={handleInputChange}
               className="mt-0.5 sm:mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700">Music Link</label>
+            <input
+              type="url"
+              name="musicLink"
+              value={formData.musicLink}
+              onChange={handleInputChange}
+              className="mt-0.5 sm:mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+              placeholder="https://soundcloud.com/username or https://mixcloud.com/username"
             />
           </div>
 

@@ -2,20 +2,29 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { doc, getDoc } from 'firebase/firestore'
+import { doc, getDoc, updateDoc } from 'firebase/firestore'
 import { db } from '@/lib/firebase'
 
-interface EditShopPageProps {
-  params: {
-    id: string
-  }
+interface Shop {
+  id: string
+  name: string
+  location: string
+  state: string
+  address: string
+  contactInfo: string
+  email: string
+  website: string
+  price: string
+  imageUrl: string
+  comment: string
+  googleMapLink: string
 }
 
-export default function EditShopPage({ params }: EditShopPageProps) {
+export default function EditShopPage({ params }: { params: { id: string } }) {
   const router = useRouter()
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [shop, setShop] = useState<any>(null)
+  const [shop, setShop] = useState<Shop | null>(null)
   const [imagePreview, setImagePreview] = useState<string | null>(null)
   const [selectedImage, setSelectedImage] = useState<File | null>(null)
 
@@ -24,7 +33,7 @@ export default function EditShopPage({ params }: EditShopPageProps) {
       try {
         const shopDoc = await getDoc(doc(db, 'shops', params.id))
         if (shopDoc.exists()) {
-          const shopData = shopDoc.data()
+          const shopData = shopDoc.data() as Shop
           setShop(shopData)
           if (shopData.imageUrl) {
             setImagePreview(shopData.imageUrl)
@@ -88,7 +97,7 @@ export default function EditShopPage({ params }: EditShopPageProps) {
     setError(null)
 
     try {
-      let imageUrl = shop.imageUrl
+      let imageUrl = shop?.imageUrl
 
       if (selectedImage) {
         imageUrl = await handleImageUpload(selectedImage)
@@ -98,13 +107,12 @@ export default function EditShopPage({ params }: EditShopPageProps) {
       const formElements = form.elements
       const shopData = {
         name: (formElements.namedItem('name') as HTMLInputElement)?.value || '',
+        description: (formElements.namedItem('comment') as HTMLTextAreaElement)?.value || '',
         location: (formElements.namedItem('location') as HTMLInputElement)?.value || '',
-        state: (formElements.namedItem('state') as HTMLInputElement)?.value || '',
-        address: (formElements.namedItem('address') as HTMLInputElement)?.value || '',
-        googleReviewLink: (formElements.namedItem('googleReviewLink') as HTMLInputElement)?.value || '',
-        websiteLink: (formElements.namedItem('websiteLink') as HTMLInputElement)?.value || '',
-        comment: (formElements.namedItem('comment') as HTMLTextAreaElement)?.value || '',
-        imageUrl,
+        image: imageUrl,
+        website: (formElements.namedItem('websiteLink') as HTMLInputElement)?.value || '',
+        phone: (formElements.namedItem('contactInfo') as HTMLInputElement)?.value || '',
+        email: (formElements.namedItem('email') as HTMLInputElement)?.value || '',
       }
 
       const response = await fetch(`/api/shops/${params.id}`, {
@@ -134,122 +142,118 @@ export default function EditShopPage({ params }: EditShopPageProps) {
   return (
     <div className="container mx-auto px-4 py-8">
       <h1 className="text-2xl font-bold mb-6">Edit Shop</h1>
-      <form onSubmit={handleSubmit} className="max-w-2xl">
-        <div className="mb-4">
-          <label htmlFor="name" className="block text-sm font-medium text-gray-700">
-            Name
-          </label>
-          <input
-            type="text"
-            id="name"
-            name="name"
-            defaultValue={shop.name}
-            required
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm"
-          />
-        </div>
+      <form onSubmit={handleSubmit} className="space-y-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <label className="block text-sm font-medium mb-1">Name</label>
+            <input
+              type="text"
+              name="name"
+              value={shop.name}
+              onChange={(e) => setShop({ ...shop, name: e.target.value })}
+              className="w-full p-2 border rounded"
+              required
+            />
+          </div>
 
-        <div className="mb-4">
-          <label htmlFor="location" className="block text-sm font-medium text-gray-700">
-            Location
-          </label>
-          <input
-            type="text"
-            id="location"
-            name="location"
-            defaultValue={shop.location}
-            required
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm"
-          />
-        </div>
+          <div>
+            <label className="block text-sm font-medium mb-1">Location</label>
+            <input
+              type="text"
+              name="location"
+              value={shop.location}
+              onChange={(e) => setShop({ ...shop, location: e.target.value })}
+              className="w-full p-2 border rounded"
+              required
+            />
+          </div>
 
-        <div className="mb-4">
-          <label htmlFor="state" className="block text-sm font-medium text-gray-700">
-            State
-          </label>
-          <input
-            type="text"
-            id="state"
-            name="state"
-            defaultValue={shop.state}
-            required
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm"
-          />
-        </div>
+          <div>
+            <label className="block text-sm font-medium mb-1">State</label>
+            <input
+              type="text"
+              name="state"
+              value={shop.state}
+              onChange={(e) => setShop({ ...shop, state: e.target.value })}
+              className="w-full p-2 border rounded"
+              required
+            />
+          </div>
 
-        <div className="mb-4">
-          <label htmlFor="address" className="block text-sm font-medium text-gray-700">
-            Address
-          </label>
-          <input
-            type="text"
-            id="address"
-            name="address"
-            defaultValue={shop.address}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm"
-          />
-        </div>
+          <div>
+            <label className="block text-sm font-medium mb-1">Address</label>
+            <input
+              type="text"
+              name="address"
+              value={shop.address}
+              onChange={(e) => setShop({ ...shop, address: e.target.value })}
+              className="w-full p-2 border rounded"
+              required
+            />
+          </div>
 
-        <div className="mb-4">
-          <label htmlFor="googleReviewLink" className="block text-sm font-medium text-gray-700">
-            Google Review Link
-          </label>
-          <input
-            type="url"
-            id="googleReviewLink"
-            name="googleReviewLink"
-            defaultValue={shop.googleReviewLink}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm"
-          />
-        </div>
+          <div>
+            <label className="block text-sm font-medium mb-1">Contact Info</label>
+            <input
+              type="text"
+              name="contactInfo"
+              value={shop.contactInfo}
+              onChange={(e) => setShop({ ...shop, contactInfo: e.target.value })}
+              className="w-full p-2 border rounded"
+            />
+          </div>
 
-        <div className="mb-4">
-          <label htmlFor="websiteLink" className="block text-sm font-medium text-gray-700">
-            Website Link
-          </label>
-          <input
-            type="url"
-            id="websiteLink"
-            name="websiteLink"
-            defaultValue={shop.websiteLink}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm"
-          />
-        </div>
+          <div>
+            <label className="block text-sm font-medium mb-1">Email</label>
+            <input
+              type="email"
+              name="email"
+              value={shop.email}
+              onChange={(e) => setShop({ ...shop, email: e.target.value })}
+              className="w-full p-2 border rounded"
+            />
+          </div>
 
-        <div className="mb-4">
-          <label htmlFor="comment" className="block text-sm font-medium text-gray-700">
-            Comment
-          </label>
-          <textarea
-            id="comment"
-            name="comment"
-            defaultValue={shop.comment}
-            rows={3}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm"
-          />
-        </div>
+          <div>
+            <label className="block text-sm font-medium mb-1">Website</label>
+            <input
+              type="url"
+              name="websiteLink"
+              value={shop.website}
+              onChange={(e) => setShop({ ...shop, website: e.target.value })}
+              className="w-full p-2 border rounded"
+            />
+          </div>
 
-        <div className="mb-4">
-          <label htmlFor="image" className="block text-sm font-medium text-gray-700">
-            Image
-          </label>
-          <input
-            type="file"
-            id="image"
-            name="image"
-            accept="image/*"
-            onChange={handleImageChange}
-            className="mt-1 block w-full"
-          />
-          {imagePreview && (
-            <div className="mt-2">
-              <img
-                src={imagePreview}
-                alt="Preview"
-                className="h-32 w-32 object-cover rounded-md"
-              />
-            </div>
-          )}
+          <div>
+            <label className="block text-sm font-medium mb-1">Comment</label>
+            <textarea
+              name="comment"
+              value={shop.comment}
+              onChange={(e) => setShop({ ...shop, comment: e.target.value })}
+              className="w-full p-2 border rounded"
+              rows={3}
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium mb-1">Image</label>
+            <input
+              type="file"
+              accept="image/*"
+              onChange={handleImageChange}
+              className="w-full p-2 border rounded"
+            />
+            {imagePreview && (
+              <div className="mt-2">
+                <img
+                  src={imagePreview}
+                  alt="Preview"
+                  className="h-32 w-32 object-cover rounded-md"
+                />
+              </div>
+            )}
+          </div>
         </div>
 
         <div className="flex justify-end space-x-4">

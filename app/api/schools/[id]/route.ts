@@ -41,6 +41,13 @@ export async function PUT(
 
     // Validate required fields
     if (!data.name || !data.location || !data.state || !data.address || !data.contactInfo) {
+      console.error('Missing required fields:', {
+        hasName: !!data.name,
+        hasLocation: !!data.location,
+        hasState: !!data.state,
+        hasAddress: !!data.address,
+        hasContactInfo: !!data.contactInfo
+      });
       return NextResponse.json(
         { error: 'Missing required fields' },
         { status: 400 }
@@ -53,26 +60,23 @@ export async function PUT(
       state,
       address,
       contactInfo,
-      instructors,
       website,
       danceStyles,
       imageUrl,
-      comment,
       googleReviewsUrl,
       googleRating,
       googleReviewsCount,
       socialUrl,
-      googleMapLink
+      googleMapLink,
+      googleReviewLink
     } = data;
 
-    // Validate and process instructors and danceStyles
-    const processedInstructors = typeof instructors === 'string' 
-      ? instructors.split(',').map((i: string) => i.trim())
-      : Array.isArray(instructors) ? instructors : [];
-
-    const processedDanceStyles = typeof danceStyles === 'string'
-      ? danceStyles.split(',').map((s: string) => s.trim())
-      : Array.isArray(danceStyles) ? danceStyles : [];
+    // Process danceStyles
+    const processedDanceStyles = Array.isArray(danceStyles) 
+      ? danceStyles 
+      : typeof danceStyles === 'string' 
+        ? danceStyles.split(',').map((s: string) => s.trim()).filter(Boolean)
+        : [];
 
     const schoolData = {
       name,
@@ -80,16 +84,15 @@ export async function PUT(
       state,
       address,
       contactInfo,
-      instructors: processedInstructors,
-      website,
+      website: website || '',
       danceStyles: processedDanceStyles,
-      imageUrl,
-      comment,
-      googleReviewsUrl,
+      imageUrl: imageUrl || '',
+      googleReviewsUrl: googleReviewsUrl || '',
+      googleReviewLink: googleReviewLink || '',
       googleRating: Number(googleRating) || 0,
       googleReviewsCount: Number(googleReviewsCount) || 0,
-      socialUrl,
-      googleMapLink,
+      socialUrl: socialUrl || '',
+      googleMapLink: googleMapLink || '',
       updatedAt: new Date().toISOString()
     };
 
@@ -99,6 +102,7 @@ export async function PUT(
     const schoolDoc = await getDoc(schoolRef);
     
     if (!schoolDoc.exists()) {
+      console.error('School not found with ID:', params.id);
       return NextResponse.json(
         { error: 'School not found' },
         { status: 404 }
@@ -106,9 +110,16 @@ export async function PUT(
     }
 
     await updateDoc(schoolRef, schoolData);
+    console.log('School updated successfully');
     return NextResponse.json({ id: params.id, ...schoolData });
   } catch (error) {
     console.error('Detailed error updating school:', error);
+    if (error instanceof Error) {
+      console.error('Error details:', {
+        message: error.message,
+        stack: error.stack
+      });
+    }
     return NextResponse.json(
       { 
         error: 'Failed to update school',

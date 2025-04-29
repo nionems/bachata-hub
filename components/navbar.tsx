@@ -24,9 +24,8 @@ export default function Navbar() {
     { name: "Instructors", href: "/instructors" },
     { name: "DJs", href: "/djs" },
     { name: "Competitions", href: "/competitions" },
-    { name: "Shop", href: "/shop" },
-    { name: "Accommodation", href: "/accommodation" },
-    { name: "Forum", href: "/forum" },
+    { name: "Shops", href: "/shop" },
+    { name: "Accommodations", href: "/accommodations" },
     { name: "Calendar", href: "/calendar" },
   ]
 
@@ -54,7 +53,7 @@ export default function Navbar() {
               </Link>
             ))}
             <Button size="sm" className="bg-primary hover:bg-primary/90 text-white" onClick={handleLoginClick}>
-              Login
+              Join the Community
             </Button>
           </nav>
 
@@ -90,7 +89,7 @@ export default function Navbar() {
                 {item.name}
               </Link>
             ))}
-            <Button className="w-full mt-4 bg-primary hover:bg-primary/90 text-white" onClick={handleLoginClick}>Login</Button>
+            <Button className="w-full mt-4 bg-primary hover:bg-primary/90 text-white" onClick={handleLoginClick}>Join the Community</Button>
           </div>
         </div>
       )}

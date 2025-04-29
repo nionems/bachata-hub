@@ -1,12 +1,11 @@
 import { NextResponse } from 'next/server'
 import { v2 as cloudinary } from 'cloudinary'
 
-// Ensure Cloudinary is configured correctly using environment variables
+// Configure Cloudinary
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
   api_key: process.env.CLOUDINARY_API_KEY,
   api_secret: process.env.CLOUDINARY_API_SECRET,
-  secure: true, // Make sure secure is true
 })
 
 export async function POST(request: Request) {
@@ -14,7 +13,7 @@ export async function POST(request: Request) {
   try {
     const formData = await request.formData()
     const file = formData.get('file') as File | null
-    const folder = formData.get('folder') as string || 'default' // Get folder from form data
+    const folder = formData.get('folder') as string || 'default'
 
     if (!file) {
       console.error("No file found in the request")
@@ -23,46 +22,41 @@ export async function POST(request: Request) {
 
     console.log("File received:", { name: file.name, type: file.type, size: file.size, folder })
 
-    // Convert file to buffer
+    // Convert file to base64
     const bytes = await file.arrayBuffer()
-    const buffer = Buffer.from(bytes)
+    const base64 = Buffer.from(bytes).toString('base64')
+    const base64Data = `data:${file.type};base64,${base64}`
 
-    // Upload to Cloudinary using upload_stream
-    console.log("API Route (/api/upload): Attempting to upload to Cloudinary...")
-    const uploadResponse = await new Promise((resolve, reject) => {
-      const uploadStream = cloudinary.uploader.upload_stream(
-        { 
+    // Upload to Cloudinary
+    console.log("Uploading to Cloudinary...")
+    const result = await new Promise((resolve, reject) => {
+      cloudinary.uploader.upload(
+        base64Data,
+        {
+          folder: folder,
           resource_type: 'auto',
-          folder: folder // Use the folder parameter
         },
-        (error, result) => {
+        (error: any, result: any) => {
           if (error) {
             console.error("Cloudinary upload error:", error)
-            reject(new Error('Cloudinary upload failed'))
+            reject(error)
           } else {
-            console.log("Cloudinary upload successful:", result)
             resolve(result)
           }
         }
       )
-      uploadStream.end(buffer)
     })
 
-    // Type assertion for the result
-    const result = uploadResponse as { secure_url: string }
-
-    // --- Log the exact object being returned ---
-    const responsePayload = { imageUrl: result.secure_url }
-    console.log("API Route (/api/upload): Upload successful. Sending response payload:", responsePayload)
-    // --- End log ---
-
-    return NextResponse.json(responsePayload)
+    console.log("Cloudinary upload result:", result)
+    return NextResponse.json({ imageUrl: (result as any).secure_url })
   } catch (error) {
     console.error("Error in POST /api/upload:", error)
     if (error instanceof Error) {
       console.error("Error details:", { message: error.message, stack: error.stack })
     }
-    console.error("API Route (/api/upload): Error during upload:", error)
-    return NextResponse.json({ error: 'Failed to upload image', details: error instanceof Error ? error.message : 'Unknown error' }, { status: 500 })
+    return NextResponse.json(
+      { error: 'Failed to upload image', details: error instanceof Error ? error.message : 'Unknown error' },
+      { status: 500 }
+    )
   }
 } 

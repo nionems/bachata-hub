@@ -115,10 +115,7 @@ export async function PUT(
     eventData.updatedAt = Timestamp.now()
 
     const eventDocRef = db.collection('events').doc(eventId)
-
-    // Use update() or set() with merge option
-    await eventDocRef.update(eventData)
-    // or await eventDocRef.set(eventData, { merge: true });
+    await eventDocRef.set(eventData, { merge: true })
 
     console.log(`API Route (PUT /api/events/${eventId}): Event updated successfully in Firestore.`)
     return NextResponse.json({ message: 'Event updated successfully' })

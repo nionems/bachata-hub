@@ -15,6 +15,7 @@ interface DJFormData {
   instagramLink: string
   facebookLink: string
   emailLink: string
+  musicLink: string
 }
 
 export default function NewDJPage() {
@@ -29,7 +30,8 @@ export default function NewDJPage() {
     comment: '',
     instagramLink: '',
     facebookLink: '',
-    emailLink: ''
+    emailLink: '',
+    musicLink: ''
   })
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -247,6 +249,18 @@ export default function NewDJPage() {
               placeholder="example@email.com"
             />
           </div>
+        </div>
+
+        {/* Music Link */}
+        <div>
+          <label className="block text-sm font-medium mb-1">Music Link</label>
+          <input
+            type="url"
+            value={formData.musicLink}
+            onChange={(e) => setFormData({...formData, musicLink: e.target.value})}
+            className="w-full p-2 border rounded"
+            placeholder="https://soundcloud.com/username or https://mixcloud.com/username"
+          />
         </div>
 
         {/* Comment */}

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import { School } from '@/types/school'
 import { StateSelect } from '@/components/ui/StateSelect'
@@ -60,16 +60,19 @@ export default function EditSchoolPage() {
     googleMapLink: ''
   })
 
-  const fetchSchool = async () => {
+  const fetchSchool = useCallback(async () => {
     try {
       const response = await fetch(`/api/schools/${params.id}`)
       if (!response.ok) throw new Error('Failed to fetch school')
       const data = await response.json()
       setFormData(data)
+      setIsLoading(false)
     } catch (error) {
       console.error('Error fetching school:', error)
+      setError('Failed to fetch school')
+      setIsLoading(false)
     }
-  }
+  }, [params.id])
 
   useEffect(() => {
     fetchSchool()

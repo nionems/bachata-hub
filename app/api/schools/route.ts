@@ -23,24 +23,35 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
+    console.log('Received school creation request');
     const data = await request.json();
+    console.log('Received data:', data);
+
     const {
       name,
       location,
       state,
       address,
       contactInfo,
-      instructors,
       website,
       danceStyles,
       imageUrl,
-      comment,
       googleReviewsUrl,
       googleRating,
       googleReviewsCount,
       socialUrl,
-      googleMapLink
+      googleMapLink,
+      googleReviewLink
     } = data;
+
+    // Validate required fields
+    if (!name || !location || !state || !address || !contactInfo) {
+      console.error('Missing required fields');
+      return NextResponse.json(
+        { error: 'Missing required fields' },
+        { status: 400 }
+      );
+    }
 
     const schoolData = {
       name,
@@ -48,24 +59,36 @@ export async function POST(request: Request) {
       state,
       address,
       contactInfo,
-      instructors: instructors.split(',').map((i: string) => i.trim()),
-      website,
-      danceStyles: danceStyles.split(',').map((s: string) => s.trim()),
-      imageUrl,
-      comment,
-      googleReviewsUrl,
-      googleRating: Number(googleRating),
-      googleReviewsCount: Number(googleReviewsCount),
-      socialUrl,
-      googleMapLink,
+      website: website || '',
+      danceStyles: Array.isArray(danceStyles) ? danceStyles : [],
+      imageUrl: imageUrl || '',
+      googleReviewsUrl: googleReviewsUrl || '',
+      googleReviewLink: googleReviewLink || '',
+      googleRating: Number(googleRating) || 0,
+      googleReviewsCount: Number(googleReviewsCount) || 0,
+      socialUrl: socialUrl || '',
+      googleMapLink: googleMapLink || '',
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString()
     };
 
+    console.log('Processed school data:', schoolData);
+
     const docRef = await addDoc(collection(db, 'schools'), schoolData);
+    console.log('School created with ID:', docRef.id);
+    
     return NextResponse.json({ id: docRef.id, ...schoolData });
   } catch (error) {
     console.error('Error creating school:', error);
-    return NextResponse.json({ error: 'Failed to create school' }, { status: 500 });
+    if (error instanceof Error) {
+      console.error('Error details:', {
+        message: error.message,
+        stack: error.stack
+      });
+    }
+    return NextResponse.json({ 
+      error: 'Failed to create school',
+      details: error instanceof Error ? error.message : 'Unknown error'
+    }, { status: 500 });
   }
 } 

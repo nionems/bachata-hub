@@ -7,6 +7,8 @@ import { collection, getDocs } from 'firebase/firestore'
 import { db } from '../../../firebase/config'
 import { getWeekEvents } from '@/lib/calendar'
 import { formatEvents } from '@/utils/formatEvents'
+import { Calendar, MapPin, Users } from 'lucide-react'
+import { toast } from 'sonner'
 
 
 
@@ -80,6 +82,54 @@ interface DJ {
   instagramLink: string
   facebookLink: string
   emailLink: string
+  musicLink: string
+}
+
+// Add Competition interface
+interface Competition {
+  id: string
+  name: string
+  organizer: string
+  contactInfo: string
+  email: string
+  startDate: string
+  endDate: string
+  location: string
+  state: string
+  address: string
+  eventLink: string
+  price: string
+  ticketLink: string
+  danceStyles: string
+  imageUrl: string
+  comment: string
+  googleMapLink: string
+  categories: string[]
+  level: string[]
+  status: string
+  socialLink: string
+  createdAt: string
+  updatedAt: string
+}
+
+// Add Accommodation interface
+interface Accommodation {
+  id: string
+  name: string
+  location: string
+  state: string
+  address: string
+  contactInfo: string
+  email: string
+  website: string
+  price: string
+  rooms: string
+  capacity: string
+  imageUrl: string
+  comment: string
+  googleMapLink: string
+  createdAt: string
+  updatedAt: string
 }
 
 export default function AdminDashboard() {
@@ -89,6 +139,8 @@ export default function AdminDashboard() {
   const [instructors, setInstructors] = useState<Instructor[]>([])
   const [djs, setDJs] = useState<DJ[]>([])
   const [shops, setShops] = useState<Shop[]>([])
+  const [competitions, setCompetitions] = useState<Competition[]>([])
+  const [accommodations, setAccommodations] = useState<Accommodation[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [searchTerm, setSearchTerm] = useState('')
@@ -143,6 +195,18 @@ export default function AdminDashboard() {
     }
     loadShops()
   }, [])
+
+  useEffect(() => {
+    if (activeTab === 'competitions') {
+      fetchCompetitions()
+    }
+  }, [activeTab])
+
+  useEffect(() => {
+    if (activeTab === 'accommodations') {
+      fetchAccommodations()
+    }
+  }, [activeTab])
 
   // const checkAuth = async () => {
   //   try {
@@ -294,33 +358,72 @@ export default function AdminDashboard() {
     }
   }
 
-  const handleDelete = async (id: string, schoolName: string) => {
-    // Show confirmation dialog
-    const isConfirmed = window.confirm(`Are you sure you want to delete "${schoolName}"? This action cannot be undone.`)
-    
-    if (!isConfirmed) {
-      return // User cancelled the deletion
-    }
-
+  const fetchCompetitions = async () => {
     try {
-      const response = await fetch(`/api/schools/${id}`, {
-        method: 'DELETE',
-      })
-      
-      if (!response.ok) {
-        throw new Error('Failed to delete school')
-      }
-
-      // Remove the school from the state
-      setSchools(schools.filter(school => school.id !== id))
-      
-      // Show success message
-      alert(`"${schoolName}" has been successfully deleted.`)
+      setIsLoading(true)
+      const response = await fetch('/api/competitions')
+      if (!response.ok) throw new Error('Failed to fetch competitions')
+      const data = await response.json()
+      setCompetitions(data)
     } catch (err) {
-      console.error('Delete failed:', err)
-      setError('Failed to delete school. Please try again.')
+      setError(err instanceof Error ? err.message : 'Failed to load competitions')
+      console.error(err)
+    } finally {
+      setIsLoading(false)
     }
   }
+
+  const fetchAccommodations = async () => {
+    setIsLoading(true)
+    setError(null)
+    try {
+      console.log('Starting to fetch accommodations...')
+      const response = await fetch('/api/accommodations')
+      console.log('API Response status:', response.status)
+      
+      if (!response.ok) {
+        console.error('API Response not OK:', response.status, response.statusText)
+        throw new Error('Failed to fetch accommodations')
+      }
+      
+      const data = await response.json()
+      console.log('Fetched accommodations data:', data)
+      console.log('Number of accommodations:', data.length)
+      
+      if (!Array.isArray(data)) {
+        console.error('Received data is not an array:', data)
+        throw new Error('Invalid data format received')
+      }
+      
+      setAccommodations(data)
+      console.log('Accommodations state updated')
+    } catch (err) {
+      console.error('Error in fetchAccommodations:', err)
+      setError('Failed to load accommodations: ' + (err instanceof Error ? err.message : 'Unknown error'))
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const handleDelete = async (id: string) => {
+    if (window.confirm('Are you sure you want to delete this accommodation?')) {
+      try {
+        const response = await fetch(`/api/accommodations?id=${id}`, {
+          method: 'DELETE',
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to delete accommodation');
+        }
+
+        setAccommodations(accommodations.filter(acc => acc.id !== id));
+        toast.success('Accommodation deleted successfully');
+      } catch (error) {
+        console.error('Error deleting accommodation:', error);
+        toast.error('Failed to delete accommodation');
+      }
+    }
+  };
 
   const handleDeleteEvent = async (eventId: string) => {
     if (!confirm('Are you sure you want to delete this event?')) return
@@ -409,6 +512,24 @@ export default function AdminDashboard() {
     }
   }
 
+  const handleDeleteCompetition = async (competitionId: string) => {
+    if (!confirm('Are you sure you want to delete this competition?')) return
+
+    try {
+      const response = await fetch(`/api/competitions/${competitionId}`, {
+        method: 'DELETE',
+      })
+
+      if (!response.ok) throw new Error('Failed to delete competition')
+      
+      // Refresh competitions list
+      fetchCompetitions()
+    } catch (err) {
+      console.error('Failed to delete competition:', err)
+      setError('Failed to delete competition')
+    }
+  }
+
   const filteredSchools = schools.filter(school =>
     school.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     school.location.toLowerCase().includes(searchTerm.toLowerCase())
@@ -421,7 +542,7 @@ export default function AdminDashboard() {
     { id: 'instructors', label: 'Instructors' },
     { id: 'djs', label: 'DJs' },
     { id: 'competitions', label: 'Competitions' },
-    { id: 'shop', label: 'Shop' },
+    { id: 'shops', label: 'Shops' },
     { id: 'accommodations', label: 'Accommodations' }
   ]
 
@@ -699,7 +820,7 @@ export default function AdminDashboard() {
                       Edit
                     </button>
                     <button
-                      onClick={() => handleDelete(school.id, school.name)}
+                      onClick={() => handleDelete(school.id)}
                       className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"
                     >
                       Delete
@@ -1013,12 +1134,109 @@ export default function AdminDashboard() {
 
         {activeTab === 'competitions' && (
           <div>
-            <h2 className="text-xl font-semibold mb-4">Competitions Management</h2>
-            {/* Competitions content will go here */}
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-xl font-semibold">Competitions Management</h2>
+              <button
+                onClick={() => router.push('/admin/competitions/new')}
+                className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
+              >
+                Add New Competition
+              </button>
+            </div>
+
+            {isLoading ? (
+              <div className="text-center py-8">Loading competitions...</div>
+            ) : error ? (
+              <div className="text-red-500 text-center py-8">{error}</div>
+            ) : competitions.length === 0 ? (
+              <div className="text-center py-8 text-gray-500">
+                No competitions found. Click "Add New Competition" to create one.
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {competitions.map((competition) => (
+                  <div
+                    key={competition.id}
+                    className="bg-white rounded-lg shadow-md overflow-hidden"
+                  >
+                    <div className="relative h-48">
+                      <img
+                        src={competition.imageUrl || '/placeholder.svg'}
+                        alt={competition.name}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                    <div className="p-4">
+                      <h3 className="text-lg font-semibold mb-2">{competition.name}</h3>
+                      <div className="space-y-2 text-sm text-gray-600">
+                        <div className="flex items-center">
+                          <Calendar className="h-4 w-4 mr-2" />
+                          {new Date(competition.startDate).toLocaleDateString()} - {new Date(competition.endDate).toLocaleDateString()}
+                        </div>
+                        <div className="flex items-center">
+                          <MapPin className="h-4 w-4 mr-2" />
+                          {competition.location}, {competition.state}
+                        </div>
+                        <div className="flex items-center">
+                          <Users className="h-4 w-4 mr-2" />
+                          {competition.organizer}
+                        </div>
+                        <div className="flex flex-wrap gap-2">
+                          {(competition.categories || []).map((category) => (
+                            <span
+                              key={category}
+                              className="px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs"
+                            >
+                              {category}
+                            </span>
+                          ))}
+                        </div>
+                        <div className="flex flex-wrap gap-2">
+                          {(competition.level || []).map((level) => (
+                            <span
+                              key={level}
+                              className="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs"
+                            >
+                              {level}
+                            </span>
+                          ))}
+                        </div>
+                        <div className="flex items-center">
+                          <span className={`px-2 py-1 rounded-full text-xs ${
+                            competition.status === 'Upcoming' ? 'bg-yellow-100 text-yellow-800' :
+                            competition.status === 'Ongoing' ? 'bg-green-100 text-green-800' :
+                            competition.status === 'Completed' ? 'bg-gray-100 text-gray-800' :
+                            'bg-red-100 text-red-800'
+                          }`}>
+                            {competition.status}
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Action Buttons */}
+                      <div className="mt-4 flex gap-2">
+                        <button
+                          onClick={() => router.push(`/admin/competitions/${competition.id}/edit`)}
+                          className="bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600"
+                        >
+                          Edit
+                        </button>
+                        <button
+                          onClick={() => handleDeleteCompetition(competition.id)}
+                          className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         )}
 
-        {activeTab === 'shop' && (
+        {activeTab === 'shops' && (
           <div>
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-xl font-semibold">Shops Management</h2>
@@ -1130,7 +1348,105 @@ export default function AdminDashboard() {
         {activeTab === 'accommodations' && (
           <div>
             <h2 className="text-xl font-semibold mb-4">Accommodations Management</h2>
-            {/* Accommodations content will go here */}
+            {isLoading ? (
+              <div className="text-center py-8">Loading accommodations...</div>
+            ) : error ? (
+              <div className="text-red-500 text-center py-8">{error}</div>
+            ) : accommodations.length === 0 ? (
+              <div className="text-center py-8 text-gray-500">
+                No accommodations found. Click "Add New Accommodation" to create one.
+              </div>
+            ) : (
+              <div className={`
+                ${layout === 'grid' 
+                  ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6' 
+                  : 'flex flex-col gap-4'
+                }
+              `}>
+                {accommodations.map((accommodation) => (
+                  <div
+                    key={accommodation.id}
+                    className={`bg-white rounded-lg shadow overflow-hidden ${
+                      layout === 'grid' ? 'flex flex-col' : 'flex flex-row'
+                    }`}
+                  >
+                    {/* Image */}
+                    <div className={`relative ${
+                      layout === 'grid' ? 'w-full h-48' : 'w-32 h-32 flex-shrink-0'
+                    }`}>
+                      <img
+                        src={accommodation.imageUrl || '/placeholder-accommodation.jpg'}
+                        alt={accommodation.name}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+
+                    {/* Content */}
+                    <div className="p-4 flex-1">
+                      <h3 className="text-xl font-semibold mb-2">{accommodation.name}</h3>
+                      <div className="space-y-2">
+                        <p className="text-gray-600">
+                          <span className="font-medium">Location:</span> {accommodation.location}, {accommodation.state}
+                        </p>
+                        <p className="text-gray-600">
+                          <span className="font-medium">Address:</span> {accommodation.address}
+                        </p>
+                        <p className="text-gray-600">
+                          <span className="font-medium">Price:</span> {accommodation.price}
+                        </p>
+                        <p className="text-gray-600">
+                          <span className="font-medium">Rooms:</span> {accommodation.rooms}
+                        </p>
+                        <p className="text-gray-600">
+                          <span className="font-medium">Capacity:</span> {accommodation.capacity}
+                        </p>
+                        {accommodation.comment && (
+                          <p className="text-gray-600">
+                            <span className="font-medium">Comment:</span> {accommodation.comment}
+                          </p>
+                        )}
+
+                        {/* Contact Info */}
+                        <div className="space-y-1">
+                          <p className="text-gray-600">
+                            <span className="font-medium">Contact:</span> {accommodation.contactInfo}
+                          </p>
+                          <p className="text-gray-600">
+                            <span className="font-medium">Email:</span> {accommodation.email}
+                          </p>
+                          {accommodation.website && (
+                            <a
+                              href={accommodation.website}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-blue-600 hover:text-blue-700"
+                            >
+                              Website
+                            </a>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Action Buttons */}
+                      <div className="mt-4 flex gap-2">
+                        <button
+                          onClick={() => router.push(`/admin/accommodations/${accommodation.id}/edit`)}
+                          className="bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600"
+                        >
+                          Edit
+                        </button>
+                        <button
+                          onClick={() => handleDelete(accommodation.id)}
+                          className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         )}
       </div>
@@ -1157,7 +1473,7 @@ export default function AdminDashboard() {
               case 'competitions':
                 router.push('/admin/competitions/new')
                 break
-              case 'shop':
+              case 'shops':
                 router.push('/admin/shops/new')
                 break
               case 'accommodations':

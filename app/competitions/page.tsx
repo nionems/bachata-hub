@@ -9,69 +9,96 @@ import Link from "next/link"
 import { StateFilter } from '@/components/ui/StateFilter'
 import { useStateFilter } from '@/hooks/useStateFilter'
 
-// Hardcoded competitions data
-const competitionsData = [
-  {
-    id: "1",
-    name: "Australian Bachata Championships",
-    date: "June 15-16, 2024",
-    location: "Sydney",
-    state: "NSW",
-    address: "Sydney Olympic Park",
-    eventLink: "6:00 PM",
-    price: "$50",
-    registrationLink: "https://example.com/register",
-    imageUrl: "/competitions/sydney-comp.jpg",
-    comment: "Australia's premier Bachata competition featuring amateur and professional divisions.",
-    googleMapLink: "https://goo.gl/maps/example"
-  },
-  {
-    id: "2",
-    name: "Melbourne Bachata Showdown",
-    date: "July 20-21, 2024",
-    location: "Melbourne",
-    state: "VIC",
-    address: "Melbourne Convention Centre",
-    eventLink: "7:00 PM",
-    price: "$45",
-    registrationLink: "https://example.com/register",
-    imageUrl: "/competitions/melbourne-comp.jpg",
-    comment: "Victoria's largest Bachata competition with special guest judges.",
-    googleMapLink: "https://goo.gl/maps/example"
-  },
-  // Add more hardcoded competitions as needed
-]
-
 interface Competition {
-  id: string;
-  name: string;
-  state: string;
-  // ... other competition properties
+  id: string
+  name: string
+  organizer: string
+  contactInfo: string
+  email: string
+  startDate: string
+  endDate: string
+  location: string
+  state: string
+  address: string
+  eventLink: string
+  price: string
+  ticketLink: string
+  danceStyles: string
+  imageUrl: string
+  comment: string
+  googleMapLink: string
+  categories: string[]
+  level: string[]
+  status: string
+  socialLink: string
+  createdAt: string
+  updatedAt: string
 }
 
 export default function CompetitionsPage() {
   const [competitions, setCompetitions] = useState<Competition[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [expandedComments, setExpandedComments] = useState<Record<string, boolean>>({})
   
   const { selectedState, setSelectedState, filteredItems: filteredCompetitions } = useStateFilter(competitions)
 
+  const toggleComment = (id: string) => {
+    setExpandedComments(prev => ({
+      ...prev,
+      [id]: !prev[id]
+    }))
+  }
+
   useEffect(() => {
     const fetchCompetitions = async () => {
-      // ... (similar fetch logic using 'competitions' collection)
+      try {
+        const response = await fetch('/api/competitions')
+        if (!response.ok) {
+          throw new Error('Failed to fetch competitions')
+        }
+        const data = await response.json()
+        setCompetitions(data)
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Failed to fetch competitions')
+      } finally {
+        setIsLoading(false)
+      }
     }
 
     fetchCompetitions()
   }, [])
 
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading competitions...</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-red-500 mb-4">Error: {error}</p>
+          <Button onClick={() => window.location.reload()}>Try Again</Button>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="container mx-auto px-4 py-8">
-        <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent mb-4">
+      <div className="container mx-auto px-2 md:px-4 py-4 md:py-8">
+        <div className="text-center mb-8 md:mb-12">
+          <h1 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent mb-4">
             Bachata Competitions
           </h1>
-          <p className="text-xl text-gray-600">
+          <p className="text-lg md:text-xl text-gray-600">
             Find dance competitions across Australia
           </p>
         </div>
@@ -82,68 +109,198 @@ export default function CompetitionsPage() {
         />
 
         <Tabs defaultValue="upcoming" className="w-full">
-          <TabsList className="grid w-full grid-cols-2 mb-8">
+          <TabsList className="grid w-full grid-cols-2 mb-4 md:mb-8">
             <TabsTrigger value="upcoming">Upcoming Competitions</TabsTrigger>
             <TabsTrigger value="past">Past Competitions</TabsTrigger>
           </TabsList>
 
           <TabsContent value="upcoming" className="w-full">
-            <h2 className="text-2xl font-bold text-primary mb-4">Upcoming Competitions</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              {filteredCompetitions.map((competition) => (
-                <Link href={`/competitions/${competition.id}`} key={competition.id}>
-                  <Card className="overflow-hidden hover:shadow-lg transition-shadow cursor-pointer">
-                    <div className="relative h-48">
-                      <img
-                        src={competition.imageUrl}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
+              {filteredCompetitions
+                .filter(comp => comp.status === 'Upcoming')
+                .map((competition) => (
+                <Card key={competition.id} className="overflow-hidden hover:shadow-lg transition-shadow">
+                  <div className="relative aspect-video">
+                    <img
+                      src={competition.imageUrl || '/placeholder.svg'}
                         alt={competition.name}
-                        className="w-full h-full object-cover"
+                      className="w-full h-full object-contain"
                       />
                     </div>
-                    <CardHeader>
-                      <CardTitle>{competition.name}</CardTitle>
-                      <CardDescription className="flex items-center gap-4">
-                        <span className="flex items-center">
+                  <CardHeader className="p-2 md:p-3">
+                    <CardTitle className="truncate text-lg md:text-xl text-center">{competition.name}</CardTitle>
+                    <CardDescription className="flex flex-col gap-2">
+                      <span className="flex items-center justify-center">
                           <Calendar className="h-4 w-4 mr-1" />
-                          {competition.date}
+                        {new Date(competition.startDate).toLocaleDateString()} - {new Date(competition.endDate).toLocaleDateString()}
                         </span>
-                        <span className="flex items-center">
-                          <Clock className="h-4 w-4 mr-1" />
-                          {competition.eventLink}
+                      <span className="flex items-center justify-center">
+                        <MapPin className="h-4 w-4 mr-1" />
+                        {competition.location}, {competition.state}
                         </span>
                       </CardDescription>
                     </CardHeader>
-                    <CardContent>
-                      <div className="space-y-4">
-                        <div className="flex items-center text-gray-600">
-                          <MapPin className="h-4 w-4 mr-1" />
-                          {competition.location}
+                  <CardContent className="p-2 md:p-3">
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-center">
+                        <span className="font-semibold">Price:</span>
+                        <span className="ml-2">{competition.price || 'Contact for pricing'}</span>
+                      </div>
+                      <div className="relative">
+                        <p className={`text-gray-600 ${!expandedComments[competition.id] ? 'line-clamp-2' : ''}`}>
+                          {competition.comment}
+                        </p>
+                        {competition.comment && competition.comment.length > 100 && (
+                          <button
+                            onClick={(e) => {
+                              e.preventDefault()
+                              toggleComment(competition.id)
+                            }}
+                            className="text-primary hover:text-primary/80 text-sm mt-1"
+                          >
+                            {expandedComments[competition.id] ? 'Show Less' : 'Read More'}
+                          </button>
+                        )}
+                      </div>
+                      <div className="flex flex-wrap gap-2">
+                        {competition.categories.map((category) => (
+                          <span
+                            key={category}
+                            className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm"
+                          >
+                            {category}
+                          </span>
+                        ))}
+                      </div>
+                      <div className="flex flex-wrap gap-2">
+                        {competition.level.map((level) => (
+                          <span
+                            key={level}
+                            className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm"
+                          >
+                            {level}
+                          </span>
+                        ))}
                         </div>
-                        <p className="text-gray-600">{competition.comment}</p>
+                      <div className="flex gap-2">
                         <Button
-                          className="w-full bg-green-600 hover:bg-green-700"
+                          className="flex-1 bg-primary hover:bg-primary/90"
                           onClick={(e) => {
                             e.preventDefault()
-                            window.open(competition.registrationLink, "_blank", "noopener,noreferrer")
+                            window.open(competition.eventLink, "_blank", "noopener,noreferrer")
                           }}
                         >
-                          Register Now
+                          Competition Link
                         </Button>
+                        <Button
+                          className="flex-1 bg-secondary hover:bg-secondary/90"
+                          onClick={(e) => {
+                            e.preventDefault()
+                            window.open(competition.ticketLink, "_blank", "noopener,noreferrer")
+                          }}
+                        >
+                          Results
+                        </Button>
+                      </div>
                       </div>
                     </CardContent>
                   </Card>
-                </Link>
               ))}
             </div>
           </TabsContent>
 
           <TabsContent value="past" className="w-full">
-            <div className="text-center py-12">
-              <Trophy className="h-12 w-12 mx-auto mb-4 text-gray-400" />
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">Past Competitions</h3>
-              <p className="text-gray-600">
-                Results and highlights from previous competitions will be available here soon.
-              </p>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
+              {filteredCompetitions
+                .filter(comp => comp.status === 'Completed')
+                .map((competition) => (
+                <Card key={competition.id} className="overflow-hidden hover:shadow-lg transition-shadow">
+                  <div className="relative aspect-video">
+                    <img
+                      src={competition.imageUrl || '/placeholder.svg'}
+                      alt={competition.name}
+                      className="w-full h-full object-contain"
+                    />
+                  </div>
+                  <CardHeader className="p-2 md:p-3">
+                    <CardTitle className="truncate text-lg md:text-xl text-center">{competition.name}</CardTitle>
+                    <CardDescription className="flex flex-col gap-2">
+                      <span className="flex items-center justify-center">
+                        <Calendar className="h-4 w-4 mr-1" />
+                        {new Date(competition.startDate).toLocaleDateString()} - {new Date(competition.endDate).toLocaleDateString()}
+                      </span>
+                      <span className="flex items-center justify-center">
+                        <MapPin className="h-4 w-4 mr-1" />
+                        {competition.location}, {competition.state}
+                      </span>
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="p-2 md:p-3">
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-center">
+                        <span className="font-semibold">Price:</span>
+                        <span className="ml-2">{competition.price || 'Contact for pricing'}</span>
+                      </div>
+                      <div className="relative">
+                        <p className={`text-gray-600 ${!expandedComments[competition.id] ? 'line-clamp-2' : ''}`}>
+                          {competition.comment}
+                        </p>
+                        {competition.comment && competition.comment.length > 100 && (
+                          <button
+                            onClick={(e) => {
+                              e.preventDefault()
+                              toggleComment(competition.id)
+                            }}
+                            className="text-primary hover:text-primary/80 text-sm mt-1"
+                          >
+                            {expandedComments[competition.id] ? 'Show Less' : 'Read More'}
+                          </button>
+                        )}
+                      </div>
+                      <div className="flex flex-wrap gap-2">
+                        {competition.categories.map((category) => (
+                          <span
+                            key={category}
+                            className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm"
+                          >
+                            {category}
+                          </span>
+                        ))}
+                      </div>
+                      <div className="flex flex-wrap gap-2">
+                        {competition.level.map((level) => (
+                          <span
+                            key={level}
+                            className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm"
+                          >
+                            {level}
+                          </span>
+                        ))}
+                      </div>
+                      <div className="flex gap-2">
+                        <Button
+                          className="flex-1 bg-primary hover:bg-primary/90"
+                          onClick={(e) => {
+                            e.preventDefault()
+                            window.open(competition.eventLink, "_blank", "noopener,noreferrer")
+                          }}
+                        >
+                          Competition Link
+                        </Button>
+                        <Button
+                          className="flex-1 bg-secondary hover:bg-secondary/90"
+                          onClick={(e) => {
+                            e.preventDefault()
+                            window.open(competition.ticketLink, "_blank", "noopener,noreferrer")
+                          }}
+                        >
+                          Results
+                        </Button>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
             </div>
           </TabsContent>
         </Tabs>
@@ -174,7 +331,6 @@ export default function CompetitionsPage() {
           </div>
         </div>
 
-        {/* Add this section before the final closing div */}
         <div className="mt-16 bg-gradient-to-r from-primary to-secondary rounded-xl shadow-xl overflow-hidden">
           <div className="p-8 md:p-12 flex flex-col md:flex-row items-center justify-between">
             <div className="text-white mb-6 md:mb-0 md:mr-8">

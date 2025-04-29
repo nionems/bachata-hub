@@ -26,6 +26,7 @@ interface DJFormData {
   instagramLink: string
   facebookLink: string
   emailLink: string
+  musicLink: string
 }
 
 export function DJSubmissionForm({ isOpen, onClose }: DJSubmissionFormProps) {
@@ -39,7 +40,8 @@ export function DJSubmissionForm({ isOpen, onClose }: DJSubmissionFormProps) {
     comment: '',
     instagramLink: '',
     facebookLink: '',
-    emailLink: ''
+    emailLink: '',
+    musicLink: ''
   })
 
   const [isLoading, setIsLoading] = useState(false)
@@ -78,7 +80,8 @@ export function DJSubmissionForm({ isOpen, onClose }: DJSubmissionFormProps) {
         comment: '',
         instagramLink: '',
         facebookLink: '',
-        emailLink: ''
+        emailLink: '',
+        musicLink: ''
       })
     } catch (error) {
       console.error('Error submitting DJ:', error)
@@ -216,6 +219,19 @@ export function DJSubmissionForm({ isOpen, onClose }: DJSubmissionFormProps) {
                 value={formData.emailLink}
                 onChange={handleInputChange}
                 placeholder="your@email.com"
+                className="bg-white/80 backdrop-blur-sm"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="musicLink" className="text-primary">Music Link</Label>
+              <Input
+                id="musicLink"
+                name="musicLink"
+                type="url"
+                value={formData.musicLink}
+                onChange={handleInputChange}
+                placeholder="https://soundcloud.com/username or https://mixcloud.com/username"
                 className="bg-white/80 backdrop-blur-sm"
               />
             </div>

@@ -77,6 +77,7 @@ export default function NewSchoolPage() {
     console.log("School Form: Starting image upload for", file.name)
     const uploadFormData = new FormData()
     uploadFormData.append('file', file)
+    uploadFormData.append('folder', 'schools') // Add the folder name for Firebase Storage
     let responseText = '' // To store raw text for debugging
 
     try {

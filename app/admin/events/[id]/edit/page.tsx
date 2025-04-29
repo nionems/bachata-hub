@@ -171,12 +171,156 @@ export default function EditEventPage() {
   if (isLoading) return <div className="container mx-auto px-4 py-8 text-center">Loading event data...</div>
   if (error && !formData.name) return <div className="container mx-auto px-4 py-8 text-center text-red-500">Error loading event: {error}</div>
 
-  // ... form rendering remains unchanged
   return (
     <div className="container mx-auto px-4 py-8 max-w-2xl">
       <h1 className="text-2xl font-bold mb-6">Edit Event: {formData.name || '...'}</h1>
-      {/* Rest of the form remains as you have it */}
-      {/* No change needed to form rendering, so I kept it out to avoid redundancy */}
+      
+      {error && (
+        <div className="bg-red-50 text-red-500 p-4 rounded mb-4">
+          {error}
+        </div>
+      )}
+
+      <form onSubmit={handleSubmit} className="space-y-6">
+        {/* Name */}
+        <div>
+          <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">Event Name <span className="text-red-500">*</span></label>
+          <input type="text" id="name" name="name" value={formData.name} onChange={handleChange} required className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" placeholder="e.g., Sydney Bachata Gala"/>
+        </div>
+
+        {/* Date */}
+        <div>
+          <label htmlFor="date" className="block text-sm font-medium text-gray-700 mb-1">Date <span className="text-red-500">*</span></label>
+          <input type="date" id="date" name="date" value={formData.date} onChange={handleChange} required className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"/>
+        </div>
+
+        {/* Start/End Time */}
+        <div className="grid grid-cols-2 gap-6">
+          <div>
+            <label htmlFor="startTime" className="block text-sm font-medium text-gray-700 mb-1">Start Time <span className="text-red-500">*</span></label>
+            <input type="time" id="startTime" name="startTime" value={formData.startTime} onChange={handleChange} required className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"/>
+          </div>
+          <div>
+            <label htmlFor="endTime" className="block text-sm font-medium text-gray-700 mb-1">End Time <span className="text-red-500">*</span></label>
+            <input type="time" id="endTime" name="endTime" value={formData.endTime} onChange={handleChange} required className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"/>
+          </div>
+        </div>
+
+        {/* Location */}
+        <div>
+          <label htmlFor="location" className="block text-sm font-medium text-gray-700 mb-1">Location <span className="text-red-500">*</span></label>
+          <input type="text" id="location" name="location" value={formData.location} onChange={handleChange} required className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" placeholder="e.g., Sydney Dance Studio"/>
+        </div>
+
+        {/* State */}
+        <div>
+          <label htmlFor="state" className="block text-sm font-medium text-gray-700 mb-1">State <span className="text-red-500">*</span></label>
+          <select id="state" name="state" value={formData.state} onChange={handleChange} required className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-white">
+            <option value="">Select State</option>
+            {AUSTRALIAN_STATES.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
+          </select>
+        </div>
+
+        {/* Address */}
+        <div>
+          <label htmlFor="address" className="block text-sm font-medium text-gray-700 mb-1">Address <span className="text-red-500">*</span></label>
+          <input type="text" id="address" name="address" value={formData.address} onChange={handleChange} required className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" placeholder="e.g., 123 Dance Street, Sydney NSW 2000"/>
+        </div>
+
+        {/* Event Link */}
+        <div>
+          <label htmlFor="eventLink" className="block text-sm font-medium text-gray-700 mb-1">Event Link</label>
+          <input type="url" id="eventLink" name="eventLink" value={formData.eventLink} onChange={handleChange} className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" placeholder="https://..."/>
+        </div>
+
+        {/* Price */}
+        <div>
+          <label htmlFor="price" className="block text-sm font-medium text-gray-700 mb-1">Price</label>
+          <input type="text" id="price" name="price" value={formData.price} onChange={handleChange} className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" placeholder="e.g., $25 or Free"/>
+        </div>
+
+        {/* Ticket Link */}
+        <div>
+          <label htmlFor="ticketLink" className="block text-sm font-medium text-gray-700 mb-1">Ticket Link</label>
+          <input type="url" id="ticketLink" name="ticketLink" value={formData.ticketLink} onChange={handleChange} className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" placeholder="https://..."/>
+        </div>
+
+        {/* Dance Styles */}
+        <div>
+          <label htmlFor="danceStyles" className="block text-sm font-medium text-gray-700 mb-1">Dance Styles</label>
+          <input type="text" id="danceStyles" name="danceStyles" value={formData.danceStyles} onChange={handleChange} className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" placeholder="e.g., Bachata, Salsa"/>
+        </div>
+
+        {/* Image Upload */}
+        <div>
+          <label htmlFor="image" className="block text-sm font-medium text-gray-700 mb-1">Event Image</label>
+          <div className="space-y-2">
+            {formData.imageUrl && (
+              <div className="w-32 h-32 relative mb-2">
+                <img
+                  src={formData.imageUrl}
+                  alt="Current event image"
+                  className="w-full h-full object-cover rounded"
+                />
+              </div>
+            )}
+            <input
+              type="file"
+              id="image"
+              name="image"
+              accept="image/*"
+              onChange={handleChange}
+              className="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+            />
+            <div className="text-sm text-gray-500">OR</div>
+            <input
+              type="url"
+              id="imageUrl"
+              name="imageUrl"
+              value={formData.imageUrl}
+              onChange={(e) => setFormData({...formData, imageUrl: e.target.value})}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              placeholder="Image URL"
+            />
+            {imagePreviewUrl && (
+              <div className="mt-4">
+                <p className="text-sm font-medium text-gray-700 mb-1">Image Preview:</p>
+                <img src={imagePreviewUrl} alt="Preview" className="max-w-xs max-h-48 object-contain border rounded shadow-sm" />
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Comment */}
+        <div>
+          <label htmlFor="comment" className="block text-sm font-medium text-gray-700 mb-1">Comment</label>
+          <textarea id="comment" name="comment" rows={4} value={formData.comment} onChange={handleChange} className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" placeholder="Additional information about the event..."></textarea>
+        </div>
+
+        {/* Google Map Link */}
+        <div>
+          <label htmlFor="googleMapLink" className="block text-sm font-medium text-gray-700 mb-1">Google Map Link</label>
+          <input type="url" id="googleMapLink" name="googleMapLink" value={formData.googleMapLink} onChange={handleChange} className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" placeholder="https://..."/>
+        </div>
+
+        {/* Submit Button */}
+        <div className="flex justify-end gap-4">
+          <button
+            type="button"
+            onClick={() => router.back()}
+            className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+          >
+            Cancel
+          </button>
+          <button
+            type="submit"
+            disabled={isSubmitting}
+            className="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
+          >
+            {isSubmitting ? 'Saving...' : 'Save Changes'}
+          </button>
+        </div>
+      </form>
     </div>
   )
 }
