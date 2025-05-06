@@ -67,8 +67,10 @@ export async function PUT(
       googleRating,
       googleReviewsCount,
       socialUrl,
+      socialUrl2,
       googleMapLink,
-      googleReviewLink
+      googleReviewLink,
+      comment
     } = data;
 
     // Process danceStyles
@@ -92,7 +94,9 @@ export async function PUT(
       googleRating: Number(googleRating) || 0,
       googleReviewsCount: Number(googleReviewsCount) || 0,
       socialUrl: socialUrl || '',
+      socialUrl2: socialUrl2 || '',
       googleMapLink: googleMapLink || '',
+      comment: comment || '',
       updatedAt: new Date().toISOString()
     };
 

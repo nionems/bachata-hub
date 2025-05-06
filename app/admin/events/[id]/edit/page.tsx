@@ -20,6 +20,9 @@ interface Event {
   image?: File | null
   comment: string
   googleMapLink: string
+  isWeekly: boolean
+  recurrence: string
+  isWorkshop: boolean
 }
 
 const AUSTRALIAN_STATES = [
@@ -59,7 +62,10 @@ export default function EditEventPage() {
     danceStyles: '',
     imageUrl: '',
     comment: '',
-    googleMapLink: ''
+    googleMapLink: '',
+    isWeekly: false,
+    recurrence: '',
+    isWorkshop: false
   })
 
   const fetchEvent = useCallback(async () => {
@@ -302,6 +308,67 @@ export default function EditEventPage() {
           <label htmlFor="googleMapLink" className="block text-sm font-medium text-gray-700 mb-1">Google Map Link</label>
           <input type="url" id="googleMapLink" name="googleMapLink" value={formData.googleMapLink} onChange={handleChange} className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" placeholder="https://..."/>
         </div>
+
+        {/* Workshop Checkbox */}
+        <div className="flex items-center space-x-2">
+          <input
+            type="checkbox"
+            id="isWorkshop"
+            name="isWorkshop"
+            checked={formData.isWorkshop}
+            onChange={(e) => setFormData(prev => ({ ...prev, isWorkshop: e.target.checked }))}
+            className="h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded"
+          />
+          <label htmlFor="isWorkshop" className="text-sm font-medium text-gray-700">
+            This is a workshop
+          </label>
+        </div>
+
+        {/* Weekly Event Checkbox */}
+        <div className="flex items-center space-x-2">
+          <input
+            type="checkbox"
+            id="isWeekly"
+            name="isWeekly"
+            checked={formData.isWeekly}
+            onChange={(e) => setFormData(prev => ({ ...prev, isWeekly: e.target.checked }))}
+            className="h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded"
+          />
+          <label htmlFor="isWeekly" className="text-sm font-medium text-gray-700">
+            This is a recurring event
+          </label>
+        </div>
+
+        {/* Recurrence Pattern */}
+        {formData.isWeekly && (
+          <div>
+            <label htmlFor="recurrence" className="block text-sm font-medium text-gray-700 mb-1">
+              Recurrence Pattern
+            </label>
+            <select
+              id="recurrence"
+              name="recurrence"
+              value={formData.recurrence}
+              onChange={(e) => setFormData(prev => ({ ...prev, recurrence: e.target.value }))}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary"
+            >
+              <option value="">Select pattern</option>
+              <option value="every monday">Every Monday</option>
+              <option value="every tuesday">Every Tuesday</option>
+              <option value="every wednesday">Every Wednesday</option>
+              <option value="every thursday">Every Thursday</option>
+              <option value="every friday">Every Friday</option>
+              <option value="every saturday">Every Saturday</option>
+              <option value="every sunday">Every Sunday</option>
+              <option value="fortnightly">Fortnightly</option>
+              <option value="first monday of month">First Monday Of Month</option>
+              <option value="last friday of month">Last Friday Of Month</option>
+              <option value="monthly">Monthly</option>
+              <option value="2nd and 4th saturday">Every 2nd & 4th Saturday Of The Month</option>
+              <option value="2nd and 4th sunday">Every 2nd & 4th Sunday Of The Month</option>
+            </select>
+          </div>
+        )}
 
         {/* Submit Button */}
         <div className="flex justify-end gap-4">

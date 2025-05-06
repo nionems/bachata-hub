@@ -123,7 +123,7 @@ export default function DJsPage() {
             Bachata DJs
           </h1>
           <p className="text-base sm:text-xl text-gray-600">
-            Find Bachata DJs across Australia
+          Discover Bachata DJs across Australia for socials, festivals, or private events.
           </p>
         </div>
 
@@ -148,7 +148,7 @@ export default function DJsPage() {
                 <img
                   src={dj.imageUrl}
                   alt={dj.name}
-                  className="absolute inset-0 w-full h-full object-cover z-0"
+                  className="absolute inset-0 w-full h-full object-cover object-top z-0"
                 />
 
                 {/* Dark overlay for readability */}

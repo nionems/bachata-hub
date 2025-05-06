@@ -1,6 +1,7 @@
 import { initializeApp } from 'firebase/app'
 import { getFirestore } from 'firebase/firestore'
 import { getStorage } from 'firebase/storage'
+import { getAuth } from 'firebase/auth'
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
@@ -26,6 +27,10 @@ console.log('Firebase Config:', {
 const app = initializeApp(firebaseConfig);
 console.log('Firebase app initialized')
 
+// Initialize Auth
+const auth = getAuth(app);
+console.log('Auth initialized')
+
 // Initialize Firestore
 const db = getFirestore(app)
 console.log('Firestore initialized')
@@ -34,4 +39,4 @@ console.log('Firestore initialized')
 const storage = getStorage(app);
 console.log('Storage initialized successfully')
 
-export { db, storage } 
+export { db, storage, auth } 

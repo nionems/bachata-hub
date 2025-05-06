@@ -18,8 +18,10 @@ interface SchoolFormData {
   googleReviewsUrl?: string;
   image: File | null;
   imageUrl?: string;
+  instagramUrl: string;
+  facebookUrl: string;
   googleMapLink: string;
-  socialUrl: string;
+  comment: string;
 }
 
 // List of Australian states and territories
@@ -51,8 +53,11 @@ export default function NewSchoolPage() {
     googleReviewsCount: 0,
     googleReviewsUrl: '',
     image: null,
+    imageUrl: '',
+    instagramUrl: '',
+    facebookUrl: '',
     googleMapLink: '',
-    socialUrl: '',
+    comment: ''
   })
   const [imagePreviewUrl, setImagePreviewUrl] = useState<string | null>(null)
 
@@ -163,8 +168,10 @@ export default function NewSchoolPage() {
       googleReviewsCount: formData.googleReviewsCount,
       googleReviewsUrl: formData.googleReviewsUrl,
       imageUrl: uploadedImageUrl, // Send the URL string from the upload
+      instagramUrl: formData.instagramUrl,
+      facebookUrl: formData.facebookUrl,
       googleMapLink: formData.googleMapLink,
-      socialUrl: formData.socialUrl,
+      comment: formData.comment
     }
 
     console.log("School Form: Submitting data to /api/schools:", schoolData)
@@ -374,18 +381,44 @@ export default function NewSchoolPage() {
           </div>
         </div>
 
+        <div>
+          <label className="block text-sm font-medium text-gray-700">Comment</label>
+          <textarea
+            value={formData.comment}
+            onChange={(e) => setFormData({ ...formData, comment: e.target.value })}
+            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+            rows={3}
+          />
+        </div>
+
         <div className="space-y-4">
           <div>
-            <label htmlFor="socialUrl" className="block text-sm font-medium text-gray-700">
-              Social Media URL
+            <label htmlFor="instagramUrl" className="block text-sm font-medium text-gray-700">
+              Instagram URL
             </label>
             <input
               type="text"
-              id="socialUrl"
-              name="socialUrl"
-              value={formData.socialUrl}
+              id="instagramUrl"
+              name="instagramUrl"
+              value={formData.instagramUrl}
               onChange={handleChange}
               className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm"
+              placeholder="https://instagram.com/..."
+            />
+          </div>
+
+          <div>
+            <label htmlFor="facebookUrl" className="block text-sm font-medium text-gray-700">
+              Facebook URL
+            </label>
+            <input
+              type="text"
+              id="facebookUrl"
+              name="facebookUrl"
+              value={formData.facebookUrl}
+              onChange={handleChange}
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm"
+              placeholder="https://facebook.com/..."
             />
           </div>
 

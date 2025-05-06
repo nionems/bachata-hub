@@ -42,8 +42,16 @@ export default function InstructorsPage() {
   const [isSubmissionFormOpen, setIsSubmissionFormOpen] = useState(false)
   const [isContactFormOpen, setIsContactFormOpen] = useState(false)
   const [selectedImage, setSelectedImage] = useState<{ url: string; title: string } | null>(null)
+  const [expandedComments, setExpandedComments] = useState<Record<string, boolean>>({})
   
   const { selectedState, setSelectedState, filteredItems: filteredInstructors } = useStateFilter(instructors)
+
+  const toggleComment = (instructorId: string) => {
+    setExpandedComments(prev => ({
+      ...prev,
+      [instructorId]: !prev[instructorId]
+    }))
+  }
 
   useEffect(() => {
     const fetchInstructors = async () => {
@@ -85,7 +93,7 @@ export default function InstructorsPage() {
             Bachata Instructors
           </h1>
           <p className="text-base sm:text-xl text-gray-600">
-            Find Bachata instructors across Australia
+          Find Bachata instructors across Australia for private lessons, group workshops, or exciting collaborations.
           </p>
         </div>
 
@@ -110,7 +118,7 @@ export default function InstructorsPage() {
                     <img
                   src={instructor.imageUrl}
                       alt={instructor.name}
-                  className="absolute inset-0 w-full h-full object-cover z-0"
+                  className="absolute inset-0 w-full h-full object-cover object-top z-0"
                 />
 
                 {/* Dark overlay for readability */}
@@ -125,7 +133,20 @@ export default function InstructorsPage() {
                   </div>
                   {instructor.comment && (
                     <div className="text-xs sm:text-sm text-gray-300 mt-1">
-                      {instructor.comment}
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          toggleComment(instructor.id);
+                        }}
+                        className="text-left w-full hover:text-white transition-colors"
+                      >
+                        {expandedComments[instructor.id] ? instructor.comment : `${instructor.comment.substring(0, 100)}${instructor.comment.length > 100 ? '...' : ''}`}
+                        {instructor.comment.length > 100 && (
+                          <span className="text-primary ml-1">
+                            {expandedComments[instructor.id] ? 'Show less' : 'Show more'}
+                          </span>
+                        )}
+                      </button>
                     </div>
                   )}
                   <div className="flex flex-col gap-2 mt-2 sm:mt-3">

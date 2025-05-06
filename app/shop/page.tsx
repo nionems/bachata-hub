@@ -105,7 +105,7 @@ export default function ShopsPage() {
             Dance Shops
           </h1>
           <p className="text-base sm:text-xl text-gray-600">
-            Find the best dance shops in Australia for all your dance needs
+          Shop from the best dance stores across Australia — every purchase supports bachata.au
           </p>
         </div>
 

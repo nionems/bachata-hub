@@ -19,8 +19,10 @@ interface SchoolFormData {
   googleReviewsUrl?: string;
   image: File | null;
   imageUrl?: string;
-  socialUrl: string;
+  socialUrl1: string;
+  socialUrl2: string;
   googleMapLink: string;
+  comment: string;
 }
 
 // List of Australian states and territories
@@ -56,8 +58,10 @@ export default function EditSchoolPage() {
     googleReviewsUrl: '',
     image: null,
     imageUrl: '',
-    socialUrl: '',
-    googleMapLink: ''
+    socialUrl1: '',
+    socialUrl2: '',
+    googleMapLink: '',
+    comment: ''
   })
 
   const fetchSchool = useCallback(async () => {
@@ -65,7 +69,11 @@ export default function EditSchoolPage() {
       const response = await fetch(`/api/schools/${params.id}`)
       if (!response.ok) throw new Error('Failed to fetch school')
       const data = await response.json()
-      setFormData(data)
+      setFormData({
+        ...data,
+        socialUrl1: data.socialUrl || '',
+        socialUrl2: data.socialUrl2 || ''
+      })
       setIsLoading(false)
     } catch (error) {
       console.error('Error fetching school:', error)
@@ -115,8 +123,22 @@ export default function EditSchoolPage() {
       }
 
       const updatedSchool = {
-        ...formData,
+        name: formData.name,
+        location: formData.location,
+        state: formData.state,
+        address: formData.address,
+        website: formData.website,
+        googleReviewLink: formData.googleReviewLink,
+        contactInfo: formData.contactInfo,
+        danceStyles: formData.danceStyles,
+        googleRating: formData.googleRating,
+        googleReviewsCount: formData.googleReviewsCount,
+        googleReviewsUrl: formData.googleReviewsUrl,
         imageUrl: finalImageUrl,
+        socialUrl: formData.socialUrl1,
+        socialUrl2: formData.socialUrl2,
+        googleMapLink: formData.googleMapLink,
+        comment: formData.comment
       }
 
       const response = await fetch(`/api/schools/${id}`, {
@@ -284,18 +306,44 @@ export default function EditSchoolPage() {
           />
         </div>
 
+        <div>
+          <label className="block text-sm font-medium text-gray-700">Comment</label>
+          <textarea
+            value={formData.comment}
+            onChange={(e) => setFormData({ ...formData, comment: e.target.value })}
+            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+            rows={3}
+          />
+        </div>
+
         <div className="space-y-4">
           <div>
-            <label htmlFor="socialUrl" className="block text-sm font-medium text-gray-700">
-              Social Media URL
+            <label htmlFor="socialUrl1" className="block text-sm font-medium text-gray-700">
+              Social Media URL 1
             </label>
             <input
               type="text"
-              id="socialUrl"
-              name="socialUrl"
-              value={formData.socialUrl}
-              onChange={(e) => setFormData({ ...formData, socialUrl: e.target.value })}
+              id="socialUrl1"
+              name="socialUrl1"
+              value={formData.socialUrl1}
+              onChange={(e) => setFormData({ ...formData, socialUrl1: e.target.value })}
               className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm"
+              placeholder="https://instagram.com/..."
+            />
+          </div>
+
+          <div>
+            <label htmlFor="socialUrl2" className="block text-sm font-medium text-gray-700">
+              Social Media URL 2
+            </label>
+            <input
+              type="text"
+              id="socialUrl2"
+              name="socialUrl2"
+              value={formData.socialUrl2}
+              onChange={(e) => setFormData({ ...formData, socialUrl2: e.target.value })}
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm"
+              placeholder="https://facebook.com/..."
             />
           </div>
 

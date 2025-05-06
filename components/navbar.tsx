@@ -13,7 +13,7 @@ export default function Navbar() {
   }
 
   const handleLoginClick = () => {
-    alert("Login functionality is under construction. Please check back later!")
+    window.location.href = '/community'
   }
 
   const navItems = [

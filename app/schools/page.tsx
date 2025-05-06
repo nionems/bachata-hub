@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import { Calendar, MapPin, DollarSign, Users, Ticket, Hotel, CheckCircle, Info, Clock, ExternalLink, Star, MapIcon, Share2 } from "lucide-react"
+import { Calendar, MapPin, DollarSign, Users, Ticket, Hotel, CheckCircle, Info, Clock, ExternalLink, Star, MapIcon, Share2, Instagram, Facebook } from "lucide-react"
 import { useState, useEffect } from "react"
 import CollapsibleFilter from "@/components/collapsible-filter"
 import { StateFilter } from '@/components/ui/StateFilter'
@@ -14,6 +14,7 @@ import { ContactForm } from "@/components/ContactForm"
 import { ImageModal } from "@/components/ImageModal"
 import { format } from "date-fns"
 import { Badge } from "@/components/ui/badge"
+import Image from "next/image"
 
 import {
   Card,
@@ -32,7 +33,6 @@ interface School {
   state: string
   address: string
   website: string
-  price: string
   danceStyles: string
   imageUrl: string
   comment: string
@@ -40,6 +40,8 @@ interface School {
   googleReviewsUrl: string
   googleRating: number
   googleReviewsCount: number
+  socialUrl: string
+  socialUrl2: string
 }
 
 export default function SchoolsPage() {
@@ -92,7 +94,7 @@ export default function SchoolsPage() {
             Bachata Schools
           </h1>
           <p className="text-base sm:text-xl text-gray-600">
-            Find Bachata schools across Australia
+          Find Bachata schools near you — classes for all levels, every week.
           </p>
         </div>
 
@@ -108,11 +110,7 @@ export default function SchoolsPage() {
             </div>
           ) : (
             filteredSchools.map((school) => (
-              <Card
-                key={school.id}
-                className="relative overflow-hidden h-80 sm:h-96 text-white cursor-pointer"
-                onClick={() => school.imageUrl && setSelectedImage({ url: school.imageUrl, title: school.name })}
-              >
+              <Card key={school.id} className="relative overflow-hidden h-80 sm:h-96 text-white cursor-pointer">
                 {/* Full image background */}
                 <img
                   src={school.imageUrl}
@@ -130,11 +128,12 @@ export default function SchoolsPage() {
                     <MapPin className="h-3 w-3 sm:h-4 sm:w-4" />
                     {school.location}
                   </div>
-                  <div className="flex items-center gap-2 text-xs sm:text-sm mt-1">
-                    <Badge variant="price">Price: {school.price}</Badge>
-                    {school.comment && <span className="text-gray-300">{school.comment}</span>}
-                  </div>
-                  <div className="flex flex-col gap-2 mt-2 sm:mt-3">
+                  {school.comment && (
+                    <div className="flex items-center gap-2 text-xs sm:text-sm mt-1">
+                      <span className="text-gray-300 line-clamp-2">{school.comment}</span>
+                    </div>
+                  )}
+                  <div className="flex flex-col gap-1 mt-2">
                     {school.website && (
                       <Button
                         className="w-full bg-primary hover:bg-primary/90 text-white text-xs h-7 sm:h-8 flex items-center justify-center gap-2"
@@ -147,34 +146,75 @@ export default function SchoolsPage() {
                         <span>Website</span>
                       </Button>
                     )}
-                    <div className="flex gap-2">
-                      {school.googleMapLink && (
+                    <div className="grid grid-cols-2 gap-1">
+                      {school.socialUrl && (
                         <Button
                           variant="outline"
-                          className="flex-1 border-primary text-primary hover:bg-primary/10 text-xs h-7 sm:h-8 flex items-center justify-center gap-2"
+                          className="w-full border-primary text-primary hover:bg-primary/10 text-xs h-7 sm:h-8 flex items-center justify-center gap-2"
                           onClick={(e) => {
                             e.stopPropagation();
-                            window.open(school.googleMapLink, '_blank');
+                            window.open(school.socialUrl, '_blank');
                           }}
                         >
-                          <MapPin className="h-3 w-3 sm:h-4 sm:w-4" />
-                          <span>Map</span>
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="16"
+                            height="16"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            className="h-3 w-3 sm:h-4 sm:w-4"
+                          >
+                            <rect width="20" height="20" x="2" y="2" rx="5" ry="5" />
+                            <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
+                            <line x1="17.5" x2="17.51" y1="6.5" y2="6.5" />
+                          </svg>
+                          <span>Instagram</span>
                         </Button>
                       )}
-                      {school.googleReviewsUrl && (
+                      {school.socialUrl2 && (
                         <Button
                           variant="outline"
-                          className="flex-1 border-primary text-primary hover:bg-primary/10 text-xs h-7 sm:h-8 flex items-center justify-center gap-2"
+                          className="w-full border-primary text-primary hover:bg-primary/10 text-xs h-7 sm:h-8 flex items-center justify-center gap-2"
                           onClick={(e) => {
                             e.stopPropagation();
-                            window.open(school.googleReviewsUrl, '_blank');
+                            window.open(school.socialUrl2, '_blank');
                           }}
                         >
-                          <Users className="h-3 w-3 sm:h-4 sm:w-4" />
-                          <span>Reviews</span>
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="16"
+                            height="16"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            className="h-3 w-3 sm:h-4 sm:w-4"
+                          >
+                            <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z" />
+                          </svg>
+                          <span>Facebook</span>
                         </Button>
                       )}
                     </div>
+                    {school.googleMapLink && (
+                      <Button
+                        variant="outline"
+                        className="w-full border-primary text-primary hover:bg-primary/10 text-xs h-7 sm:h-8 flex items-center justify-center gap-2 mt-1"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          window.open(school.googleMapLink, '_blank');
+                        }}
+                      >
+                        <MapPin className="h-3 w-3 sm:h-4 sm:w-4" />
+                        <span>View on Map</span>
+                      </Button>
+                    )}
                   </div>
                 </div>
               </Card>
@@ -301,44 +341,88 @@ function SchoolCard({ school }: { school: School }) {
           <MapIcon className="h-3 w-3" />
           {school.address}
         </div>
-        <div className="flex flex-col gap-2 mt-2 w-full">
+        <div className="flex flex-col gap-1 mt-2">
           {school.website && (
-            <Button 
-              className="w-full bg-primary hover:bg-primary/90 text-white text-xs h-8 flex items-center justify-center gap-2" 
-              asChild
+            <Button
+              className="w-full bg-primary hover:bg-primary/90 text-white text-xs h-7 sm:h-8 flex items-center justify-center gap-2"
+              onClick={(e) => {
+                e.stopPropagation();
+                window.open(school.website, '_blank');
+              }}
             >
-              <a href={school.website} target="_blank" rel="noopener noreferrer" className="w-full">
-                <ExternalLink className="h-4 w-4" />
-                <span>Visit Website</span>
-              </a>
+              <ExternalLink className="h-3 w-3 sm:h-4 sm:w-4" />
+              <span>Website</span>
             </Button>
           )}
-          <div className="flex gap-2 w-full">
-            {school.googleMapLink && (
-              <Button 
+          <div className="grid grid-cols-2 gap-1">
+            {school.socialUrl && (
+              <Button
                 variant="outline"
-                className="w-full border-primary text-primary hover:bg-primary/10 text-xs h-8 flex items-center justify-center gap-2"
-                asChild
+                className="w-full border-primary text-primary hover:bg-primary/10 text-xs h-7 sm:h-8 flex items-center justify-center gap-2"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  window.open(school.socialUrl, '_blank');
+                }}
               >
-                <a href={school.googleMapLink} target="_blank" rel="noopener noreferrer" className="w-full">
-                  <MapPin className="h-4 w-4" />
-                  <span>Map</span>
-                </a>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="h-3 w-3 sm:h-4 sm:w-4"
+                >
+                  <rect width="20" height="20" x="2" y="2" rx="5" ry="5" />
+                  <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
+                  <line x1="17.5" x2="17.51" y1="6.5" y2="6.5" />
+                </svg>
+                <span>Instagram</span>
               </Button>
             )}
-            {school.socialUrl && (
-              <Button 
+            {school.socialUrl2 && (
+              <Button
                 variant="outline"
-                className="w-full border-primary text-primary hover:bg-primary/10 text-xs h-8 flex items-center justify-center gap-2"
-                asChild
+                className="w-full border-primary text-primary hover:bg-primary/10 text-xs h-7 sm:h-8 flex items-center justify-center gap-2"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  window.open(school.socialUrl2, '_blank');
+                }}
               >
-                <a href={school.socialUrl} target="_blank" rel="noopener noreferrer" className="w-full">
-                  <Share2 className="h-4 w-4" />
-                  <span>Social</span>
-                </a>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="h-3 w-3 sm:h-4 sm:w-4"
+                >
+                  <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z" />
+                </svg>
+                <span>Facebook</span>
               </Button>
             )}
           </div>
+          {school.googleMapLink && (
+            <Button
+              variant="outline"
+              className="w-full border-primary text-primary hover:bg-primary/10 text-xs h-7 sm:h-8 flex items-center justify-center gap-2 mt-1"
+              onClick={(e) => {
+                e.stopPropagation();
+                window.open(school.googleMapLink, '_blank');
+              }}
+            >
+              <MapPin className="h-3 w-3 sm:h-4 sm:w-4" />
+              <span>View on Map</span>
+            </Button>
+          )}
         </div>
       </CardFooter>
     </Card>

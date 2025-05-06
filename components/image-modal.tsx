@@ -1,4 +1,4 @@
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { Dialog, DialogContent } from "@/components/ui/dialog"
 import Image from "next/image"
 
 interface ImageModalProps {
@@ -11,17 +11,14 @@ interface ImageModalProps {
 export function ImageModal({ isOpen, onClose, imageUrl, title }: ImageModalProps) {
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl p-0">
-        <DialogHeader className="sr-only">
-          <DialogTitle>{title}</DialogTitle>
-        </DialogHeader>
-        <div className="relative w-full max-h-[80vh]">
+      <DialogContent className="max-w-4xl w-full p-0 bg-transparent border-none">
+        <div className="relative w-full h-[80vh]">
           <Image
             src={imageUrl}
             alt={title}
-            width={1200}
-            height={800}
-            className="w-full h-full object-contain"
+            fill
+            className="object-contain"
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 70vw"
             priority
           />
         </div>

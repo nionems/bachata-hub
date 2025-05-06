@@ -62,7 +62,9 @@ const cityCalendarMap = {
   'adelaide': '6b95632fc6fe63530bbdd89c944d792009478636f5b2ce7ffc8718ccd500915f@group.calendar.google.com',
   'gold coast': 'c9ed91c3930331387d69631072510838ec9155b75ca697065025d24e34cde78b@group.calendar.google.com',
   'perth': 'e521c86aed4060431cf6de7405315790dcca0a10d4779cc333835199f3724c16@group.calendar.google.com',
-  'canberra': '3a82a9f1ed5a4e865ed9f13b24a96004fe7c4b2deb07a422f068c70753f421eb@group.calendar.google.com'
+  'canberra': '3a82a9f1ed5a4e865ed9f13b24a96004fe7c4b2deb07a422f068c70753f421eb@group.calendar.google.com',
+  'darwin': '27319882e504521ffd07dca62fdf7a55f835bfb4233f4c096e787fa8e8fb881b@group.calendar.google.com',
+  'hobart': '2f92a58bc97f58a3285a05a474f222d22aaed327af7431f21c2ad1a681c9607b@group.calendar.google.com'
 }
 
 // Function to get the user's city
@@ -162,103 +164,58 @@ export async function getWeekEvents(calendarId?: string) {
 
 // Make this function async to comply with Server Actions requirements
 export async function getEventImage(event: any): Promise<string> {
-  console.log('=== getEventImage Debug ===')
-  console.log('Event summary:', event.summary)
-  console.log('Event description:', event.description)
-
+  const title = event?.summary?.toLowerCase() || ""
+  
   // First check if there's an image URL in the description
-  if (event.description) {
-    console.log('Checking description for image URLs...')
-
-    // Look for [image:URL] format
-    const imageMatch = event.description.match(/\[image:(.*?)\]/)
-    if (imageMatch && imageMatch[1]) {
-      const imageUrl = imageMatch[1].trim()
-      console.log('Found [image:URL] format:', imageUrl)
-      // If it's a Facebook image, use the proxy
-      if (imageUrl.includes('fbcdn.net')) {
-        console.log('Using Facebook proxy for image')
-        return `/api/proxy-image?url=${encodeURIComponent(imageUrl)}`
-      }
-      console.log('Using direct image URL from [image:URL] format')
-      return imageUrl
-    }
-
-    // Look for direct image URLs and clean them up
-    const urlMatch = event.description.match(/(https?:\/\/[^\s"<>]+\.(jpg|jpeg|png|gif|webp))/i)
-    if (urlMatch) {
-      let imageUrl = urlMatch[0]
-      // Clean up the URL by removing any trailing characters
-      imageUrl = imageUrl.replace(/["<>]+$/, '')
-      console.log('Found and cleaned direct image URL:', imageUrl)
-      // If it's a Facebook image, use the proxy
-      if (imageUrl.includes('fbcdn.net')) {
-        console.log('Using Facebook proxy for image')
-        return `/api/proxy-image?url=${encodeURIComponent(imageUrl)}`
-      }
-      console.log('Using direct image URL')
-      return imageUrl
-    }
-
-    // Look for Facebook URLs specifically
-    const fbMatch = event.description.match(/https:\/\/scontent\.fsyd6-1\.fna\.fbcdn\.net\/[^\s"<>]+/)
-    if (fbMatch) {
-      const fbUrl = fbMatch[0].replace(/["<>]+$/, '')
-      console.log('Found and cleaned Facebook image URL:', fbUrl)
-      console.log('Using Facebook proxy for image')
-      return `/api/proxy-image?url=${encodeURIComponent(fbUrl)}`
-    }
-
-    // Look for Google Drive URLs
-    const driveMatch = event.description.match(/https:\/\/drive\.google\.com\/[^\s"<>]+/)
+  if (event?.description) {
+    // Clean the description of any HTML tags
+    const cleanDescription = event.description.replace(/<[^>]*>/g, '')
+    
+    // Look for Google Drive URLs first
+    const driveMatch = cleanDescription.match(/https:\/\/drive\.google\.com\/[^\s"']+/)
     if (driveMatch) {
-      const driveUrl = driveMatch[0].replace(/["<>]+$/, '')
-      console.log('Found Google Drive URL:', driveUrl)
+      const driveUrl = driveMatch[0].trim()
       // Convert Google Drive URL to direct image URL
       const fileId = driveUrl.match(/\/d\/([^\/]+)/)?.[1] || driveUrl.match(/id=([^&]+)/)?.[1]
       if (fileId) {
-        const directUrl = `https://drive.google.com/uc?export=view&id=${fileId}`
-        console.log('Converted Google Drive URL to:', directUrl)
-        return directUrl
+        return `https://drive.google.com/uc?export=view&id=${fileId}`
       }
     }
 
-    // Look for TryBooking image URLs
-    const tryBookingMatch = event.description.match(/https:\/\/www\.trybooking\.com\/[^\s"<>]+/)
-    if (tryBookingMatch) {
-      const tryBookingUrl = tryBookingMatch[0].replace(/["<>]+$/, '')
-      console.log('Found TryBooking URL:', tryBookingUrl)
-      // Extract the event ID from the URL
-      const eventId = tryBookingUrl.match(/\/events\/([^\/]+)/)?.[1]
-      if (eventId) {
-        const imageUrl = `https://www.trybooking.com/media/events/${eventId}.jpg`
-        console.log('Generated TryBooking image URL:', imageUrl)
-        return imageUrl
-      }
+    // Look for direct image URLs
+    const urlMatch = cleanDescription.match(/(https?:\/\/[^\s"']+\.(jpg|jpeg|png|gif|webp))/i)
+    if (urlMatch) {
+      return urlMatch[0].trim()
     }
 
-    console.log('No image URLs found in description')
-  } else {
-    console.log('No description found in event')
+    // Look for [image:URL] format
+    const imageMatch = cleanDescription.match(/\[image:(.*?)\]/)
+    if (imageMatch && imageMatch[1]) {
+      return imageMatch[1].trim()
+    }
   }
 
-  // If no image found in description, check the title for specific events
-  const title = event?.summary?.toLowerCase() || ""
-  console.log('Checking title for specific events:', title)
-
-  if (title.includes("sydney") && title.includes("bachata") && title.includes("festival")) {
-    console.log('Using Sydney Bachata Festival image')
-    return "/images/sydney-bachata-festival.png"
+  // Fallback to local images
+  if (title.includes('team latin central')) {
+    return '/images/placeholder.svg'
+  }
+  if (title.includes('sydney') && title.includes('bachata') && title.includes('festival')) {
+    return '/images/SIBF2025.jpg'
+  }
+  if (title.includes('world') && title.includes('bachata')) {
+    return '/images/world_bachata.png'
+  }
+  if (title.includes('suave')) {
+    return '/images/suave.jpeg'
+  }
+  if (title.includes('ts')) {
+    return '/images/ts.png'
+  }
+  if (title.includes('vivaz')) {
+    return '/images/vivaz.webp'
   }
 
-  if (title.includes("world") && title.includes("bachata") && title.includes("melbourne")) {
-    console.log('Using World Bachata Melbourne image')
-    return "/images/world_bachata.png"
-  }
-
-  // Default image for other events
-  console.log('No specific image found, using default placeholder')
-  return "/images/placeholder.svg"
+  return '/images/placeholder.svg'
 }
 
 // Define a custom type that extends Schema$Event to include our image property

@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { MapPin, Calendar, Clock, ArrowLeft } from "lucide-react"
 import Image from 'next/image'
 import { useEffect, useState } from 'react'
+import { CloudinaryImage } from "@/components/cloudinary-image"
 
 interface Event {
   id: string
@@ -89,15 +90,17 @@ export default function EventDetailsPage() {
 
       <Card className="overflow-hidden">
         <div className="relative h-96">
-          <Image
+          <CloudinaryImage
             src={event.imageUrl}
             alt={event.name}
             fill
             className="object-cover"
             priority
-            unoptimized={true}
-            referrerPolicy="no-referrer"
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+            quality={90}
+            format="auto"
+            crop="fill"
+            gravity="auto"
             onError={(e: any) => {
               e.currentTarget.src = '/placeholder.svg'
             }}

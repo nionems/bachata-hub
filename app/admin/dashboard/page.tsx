@@ -1355,7 +1355,7 @@ export default function AdminDashboard() {
             ) : accommodations.length === 0 ? (
               <div className="text-center py-8 text-gray-500">
                 No accommodations found. Click "Add New Accommodation" to create one.
-              </div>
+          </div>
             ) : (
               <div className={`
                 ${layout === 'grid' 

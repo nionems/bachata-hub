@@ -10,6 +10,8 @@ import "slick-carousel/slick/slick.css"
 import "slick-carousel/slick/slick-theme.css"
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
+import { CloudinaryImage } from "@/components/cloudinary-image"
+import { ImageModal } from "@/components/image-modal"
 
 // Import the server actions at the top of the file
 import { getWeekEvents } from "./actions/calendar-events"
@@ -17,6 +19,7 @@ import { getWeekEvents } from "./actions/calendar-events"
 // Add the imports for our components
 import WeekendEventsHighlight from "@/components/weekend-events-highlight"
 import EventCard from "@/components/event-card"
+import { getEventImage } from '@/lib/event-images'
 
 // Add this interface at the top of your file
 interface Event {
@@ -111,6 +114,7 @@ export default function Home() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const router = useRouter()
+  const [selectedImage, setSelectedImage] = useState<{ url: string; title: string } | null>(null)
 
   useEffect(() => {
     const fetchEvents = async () => {
@@ -154,37 +158,39 @@ export default function Home() {
     console.log('Raw events:', weekEvents)
     const formattedWeekEvents = weekEvents.map(event => {
       // Get the image URL from the event
-      let imageUrl = '/placeholder.svg'
-      
-      if (event.description) {
-        // Look for [image:URL] format
-        const imageMatch = event.description.match(/\[image:(.*?)\]/)
-        if (imageMatch && imageMatch[1]) {
-          imageUrl = imageMatch[1].trim()
-          console.log('Found [image:URL] format:', imageUrl)
-        }
-        
-        // Look for direct image URLs
-        const urlMatch = event.description.match(/(https?:\/\/[^\s]+\.(jpg|jpeg|png|gif|webp))/i)
-        if (urlMatch) {
-          imageUrl = urlMatch[0]
-          console.log('Found direct image URL:', imageUrl)
-        }
-        
+      let imageUrl = event.image || ''
+      console.log('Original image URL:', imageUrl)
+
+      // Check description for Google Drive URL if no image URL exists
+      if (!imageUrl && event.description) {
         // Look for Google Drive URLs
-        const driveMatch = event.description.match(/https:\/\/drive\.google\.com\/[^\s]+/)
+        const driveMatch = event.description.match(/https:\/\/drive\.google\.com\/[^\s"']+/)
         if (driveMatch) {
-          const driveUrl = driveMatch[0]
+          const driveUrl = driveMatch[0].trim()
           // Convert Google Drive URL to direct image URL
           const fileId = driveUrl.match(/\/d\/([^\/]+)/)?.[1] || driveUrl.match(/id=([^&]+)/)?.[1]
           if (fileId) {
-            imageUrl = `https://drive.google.com/uc?export=view&id=${fileId}`
-            console.log('Converted Google Drive URL to:', imageUrl)
+            // Use the correct Google Drive image URL format
+            imageUrl = `https://drive.google.com/thumbnail?id=${fileId}&sz=w1000`
+            console.log('Found and converted Google Drive URL:', imageUrl)
           }
         }
       }
-      
-      console.log('Using image URL:', imageUrl)
+
+      // Clean the image URL if it exists
+      if (imageUrl) {
+        // Remove any HTML tags
+        imageUrl = imageUrl.replace(/<[^>]*>/g, '')
+        // Remove any URL-encoded characters
+        imageUrl = imageUrl.replace(/%3E/g, '')
+        // Remove any quotes
+        imageUrl = imageUrl.replace(/["']/g, '')
+        // Trim whitespace
+        imageUrl = imageUrl.trim()
+        // Take only the first part if there are multiple URLs
+        imageUrl = imageUrl.split(' ')[0]
+        console.log('Cleaned image URL:', imageUrl)
+      }
 
       // Format all events to have the same structure
       const formattedEvent = {
@@ -209,7 +215,7 @@ export default function Home() {
         eventLink: event.htmlLink || "",
         price: "TBA",
         ticketLink: "",
-        imageUrl: imageUrl,
+        imageUrl: imageUrl || '/images/placeholder.svg',
         comment: event.description?.replace(/\[image:.*?\]/, '').trim() || "No description available",
         googleMapLink: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(event.location || '')}`
       }
@@ -254,25 +260,44 @@ export default function Home() {
     router.push(`/events/${event.id || event.iCalUID}`)
   }
 
+  // Add this function to handle image clicks
+  const handleImageClick = (event: Event) => {
+    if (event.imageUrl && event.imageUrl !== '/images/placeholder.svg') {
+      setSelectedImage({ url: event.imageUrl, title: event.name })
+    }
+  }
+
   if (loading) return <div>Loading...</div>
   if (error) return <div>Error: {error}</div>
 
   try {
     return (
       <main className="min-h-screen">
+        
         {/* Hero Section - Full height on mobile */}
-        <section className="relative h-[40vh] sm:h-[50vh] md:h-[60vh]">
+        <section className="relative h-[50vh] sm:h-[50vh] md:h-[60vh]">
           {/* Background gradient overlay */}
           <div className="absolute inset-0 bg-gradient-to-r from-primary to-secondary"></div>
-          <div className="container mx-auto px-4 relative z-10 h-full flex items-center">
-            <div className="max-w-3xl mx-auto text-center">
-              {/* Main heading and description */}
-              <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4 text-white">Bachata Australia</h1>
-              <p className="text-base sm:text-lg md:text-xl mb-6 text-white/90">
+          <div className="container mx-auto px-4 relative z-10 h-full flex flex-col items-center justify-start">
+            
+            {/* Logo at the very top of the banner */}
+            <div className="w-full flex flex-col items-center mt-4">
+              <p className="text-base sm:text-lg md:text-xl mb-2 text-white/90 text-center comic-neue">
                 Your one-stop destination for Bachata events, classes, and community across Australia.
               </p>
-              {/* Call-to-action buttons */}
-              <div className="flex flex-col sm:flex-row gap-3 justify-center">
+              <Image
+                src="/images/newlogo99911-Photoroom.png"
+                alt="Bachata Australia Logo"
+                width={300}
+                height={300}
+                className="mx-auto mb-2 w-32 h-32 sm:w-48 sm:h-48 md:w-72 md:h-72"
+                priority
+              />
+            </div>
+            <div className="max-w-3xl mx-auto text-center">
+              {/* Main heading and description */}
+              {/* <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4 text-white">Bachata Australia</h1> */}
+              <div className="flex flex-col gap-3 justify-center items-center">
                 <Link href="/events">
                   <Button size="lg" className="w-full sm:w-auto bg-white text-primary hover:bg-gray-100 text-base sm:text-lg">
                     Explore Events
@@ -284,8 +309,34 @@ export default function Home() {
                   </Button>
                 </Link>
               </div>
-              {/* Social media link */}
-              <div className="mt-4 sm:mt-6">
+              {/* Social media and support links */}
+              <div className="mt-4 sm:mt-6 flex flex-col items-center gap-2">
+                <a
+                  href="https://buymeacoffee.com/bachata.au"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-white hover:text-yellow-300 flex items-center justify-center gap-2 text-sm sm:text-base"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="20"
+                    height="20"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className="lucide lucide-coffee"
+                  >
+                    <path d="M17 8h1a4 4 0 1 1 0 8h-1" />
+                    <path d="M3 8h14v9a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4Z" />
+                    <line x1="6" x2="6" y1="2" y2="4" />
+                    <line x1="10" x2="10" y1="2" y2="4" />
+                    <line x1="14" x2="14" y1="2" y2="4" />
+                  </svg>
+                  Buy Me a Coffee
+                </a>
                 <a
                   href="https://instagram.com/bachata.au"
                   target="_blank"
@@ -323,37 +374,38 @@ export default function Home() {
               <Slider {...settings}>
                 {events.map((event) => (
                   <div key={event.id} className="px-2">
-                    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden">
-                      <div className="relative h-48">
+                    <div 
+                      className="bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden cursor-pointer hover:shadow-xl transition-shadow"
+                      onClick={() => handleEventClick(event)}
+                    >
+                      <div 
+                        className="relative h-48"
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          handleImageClick(event)
+                        }}
+                      >
                         {event.imageUrl && event.imageUrl !== '/images/placeholder.svg' ? (
-                          <img
+                          <Image
                             src={event.imageUrl}
                             alt={event.name}
-                            className="w-full h-full object-cover"
+                            fill
+                            className="object-cover object-center"
+                            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                             onError={(e) => {
-                              const target = e.target as HTMLImageElement;
-                              if (!target.src.includes('placeholder.svg')) {
-                                console.log('Error loading image:', event.imageUrl);
-                                target.src = '/images/placeholder.svg';
-                                target.classList.add('opacity-50');
-                              }
-                            }}
-                            onLoad={(e) => {
-                              const target = e.target as HTMLImageElement;
-                              target.classList.remove('opacity-50');
+                              console.error('Error loading image:', event.imageUrl)
+                              const target = e.target as HTMLImageElement
+                              target.src = '/images/placeholder.svg'
                             }}
                           />
                         ) : (
-                          <div className="w-full h-full flex items-center justify-center bg-gray-100 dark:bg-gray-700">
-                            <div className="text-center">
-                              <img
-                                src="/images/placeholder.svg"
-                                alt="No image available"
-                                className="w-16 h-16 opacity-50"
-                              />
-                              <p className="text-gray-500 dark:text-gray-400 mt-2 text-sm">No image available</p>
-                            </div>
-                          </div>
+                          <Image
+                            src="/images/placeholder.svg"
+                            alt="No image available"
+                            fill
+                            className="object-contain p-8"
+                            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                          />
                         )}
                       </div>
                       <div className="p-4">
@@ -410,7 +462,7 @@ export default function Home() {
               />
               <FeatureCard
                 icon={<ShoppingBag className="h-6 w-6 sm:h-8 sm:w-8 text-yellow-500" />}
-                title="Shop"
+                title="Shops"
                 description="Find dance shoes,clothing..."
                 link="/shop"
               />
@@ -420,9 +472,29 @@ export default function Home() {
                 description="Find all events"
                 link="/calendar"
               />
+              <FeatureCard
+                icon={<Music className="h-6 w-6 sm:h-8 sm:w-8 text-red-500" />}
+                title="DJs"
+                description="Find Bachata DJs"
+                link="/djs"
+              />
+              <FeatureCard
+                icon={<MapPin className="h-6 w-6 sm:h-8 sm:w-8 text-indigo-500" />}
+                title="Accommodations"
+                description="Find places to stay"
+                link="/accommodations"
+              />
             </div>
           </div>
         </section>
+
+        {/* Add the ImageModal component */}
+        <ImageModal
+          isOpen={!!selectedImage}
+          onClose={() => setSelectedImage(null)}
+          imageUrl={selectedImage?.url || ''}
+          title={selectedImage?.title || ''}
+        />
       </main>
     )
   } catch (error) {
@@ -446,10 +518,10 @@ export default function Home() {
 function FeatureCard({ icon, title, description, link }: { icon: React.ReactNode; title: string; description: string; link: string }) {
   return (
     <Link href={link}>
-      <div className="bg-white p-6 rounded-lg shadow-sm hover:shadow-md transition-shadow cursor-pointer">
-        <div className="mb-4">{icon}</div>
-        <h3 className="text-xl font-semibold mb-2">{title}</h3>
-        <p className="text-gray-600">{description}</p>
+      <div className="bg-white p-6 rounded-lg shadow-sm hover:shadow-md transition-shadow cursor-pointer text-center">
+        <div className="mb-4 flex justify-center">{icon}</div>
+        <h3 className="text-lg sm:text-xl font-semibold mb-2">{title}</h3>
+        <p className="text-gray-600 hidden sm:block text-sm">{description}</p>
       </div>
     </Link>
   )

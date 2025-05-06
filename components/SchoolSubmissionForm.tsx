@@ -20,7 +20,8 @@ interface SchoolFormData {
   state: string
   address: string
   website: string
-  socialUrl: string
+  instagramUrl: string
+  facebookUrl: string
   contactInfo: string
   danceStyles: string
   description: string
@@ -34,7 +35,8 @@ export function SchoolSubmissionForm({ isOpen, onClose }: SchoolSubmissionFormPr
     state: '',
     address: '',
     website: '',
-    socialUrl: '',
+    instagramUrl: '',
+    facebookUrl: '',
     contactInfo: '',
     danceStyles: '',
     description: '',
@@ -74,7 +76,8 @@ export function SchoolSubmissionForm({ isOpen, onClose }: SchoolSubmissionFormPr
           state: '',
           address: '',
           website: '',
-          socialUrl: '',
+          instagramUrl: '',
+          facebookUrl: '',
           contactInfo: '',
           danceStyles: '',
           description: '',
@@ -170,14 +173,27 @@ export function SchoolSubmissionForm({ isOpen, onClose }: SchoolSubmissionFormPr
             </div>
 
             <div className="space-y-1 sm:space-y-2">
-              <Label htmlFor="socialUrl" className="text-primary text-sm sm:text-base">Social Media URL</Label>
+              <Label htmlFor="instagramUrl" className="text-primary text-sm sm:text-base">Instagram URL</Label>
               <Input
-                id="socialUrl"
-                name="socialUrl"
+                id="instagramUrl"
+                name="instagramUrl"
                 type="url"
-                value={formData.socialUrl}
+                value={formData.instagramUrl}
                 onChange={handleInputChange}
-                placeholder="https://"
+                placeholder="https://instagram.com/..."
+                className="bg-white/80 backdrop-blur-sm text-sm sm:text-base"
+              />
+            </div>
+
+            <div className="space-y-1 sm:space-y-2">
+              <Label htmlFor="facebookUrl" className="text-primary text-sm sm:text-base">Facebook URL</Label>
+              <Input
+                id="facebookUrl"
+                name="facebookUrl"
+                type="url"
+                value={formData.facebookUrl}
+                onChange={handleInputChange}
+                placeholder="https://facebook.com/..."
                 className="bg-white/80 backdrop-blur-sm text-sm sm:text-base"
               />
             </div>

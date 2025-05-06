@@ -148,7 +148,7 @@ export default function FestivalsPage() {
             Bachata Festivals
           </h1>
           <p className="text-base sm:text-xl text-gray-600">
-            Find Bachata festivals across Australia
+          Australia’s top Bachata festivals — all in one place.
           </p>
         </div>
 

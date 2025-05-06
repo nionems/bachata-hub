@@ -22,7 +22,7 @@ export default function Footer() {
           <MobileNavLink href="/" icon={<Home size={20} />} label="Home" isActive={pathname === '/'} />
           <MobileNavLink href="/events" icon={<Music size={20} />} label="Events" isActive={pathname === '/events'} />
           <MobileNavLink href="/calendar" icon={<Calendar size={20} />} label="Calendar" isActive={pathname === '/calendar'} />
-          <MobileNavLink href="/shop" icon={<ShoppingBag size={20} />} label="Shop" isActive={pathname === '/shop'} />
+          <MobileNavLink href="/shop" icon={<ShoppingBag size={20} />} label="Shops" isActive={pathname === '/shop'} />
           <MobileNavLink href="/schools" icon={<MapPin size={20} />} label="Schools" isActive={pathname === '/schools'} />
         </div>
       </div>
@@ -52,7 +52,7 @@ export default function Footer() {
               <ul className="space-y-1 sm:space-y-2">
                 <FooterLink href="/leaderboard">Jack & Jill Leaderboard</FooterLink>
                 <FooterLink href="/calendar">Calendar</FooterLink>
-                <FooterLink href="/shop">Shop</FooterLink>
+                <FooterLink href="/shop">Shops</FooterLink>
                 <FooterLink href="/accommodation">Accommodation</FooterLink>
               </ul>
             </div>

@@ -90,8 +90,8 @@ export default function CompetitionPage() {
           <h1 className="text-4xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent mb-4">
             Bachata Competitions
           </h1>
-          <p className="text-xl text-gray-600">
-            Find dance competitions across Australia
+          <p className="text-xl text-gray-600">n
+          Explore dance competitions across Australia for all levels and styles.
           </p>
         </div>
 

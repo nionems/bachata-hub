@@ -33,6 +33,7 @@ const nextConfig = {
         pathname: '/**',
       }
     ],
+    domains: ['firebasestorage.googleapis.com'],
   },
   async rewrites() {
     return [

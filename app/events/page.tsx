@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { MapPin, Calendar, Clock, Users, Info, Ticket, ExternalLink } from "lucide-react"
+import { MapPin, Calendar, Clock, Users, Info, Ticket, ExternalLink, ChevronDown, ChevronUp } from "lucide-react"
 import { Calendar as UiCalendar } from '@/components/ui/calendar'
 import Link from 'next/link'
 import { StateFilter } from '@/components/ui/StateFilter'
@@ -15,6 +15,7 @@ import { format } from "date-fns";
 import { ImageModal } from "@/components/ui/image-modal"
 import { ContactForm } from "@/components/ContactForm"
 import { EventSubmissionForm } from "@/components/EventSubmissionForm"
+import CalendarMenu from "@/components/calendar-menu"
 
 interface Event {
   id: string
@@ -34,6 +35,9 @@ interface Event {
   comment?: string
   date?: string
   googleMapLink?: string
+  isWeekly?: boolean
+  recurrence?: string
+  isWorkshop?: boolean
 }
 
 // Static events data
@@ -75,24 +79,19 @@ export default function EventsPage() {
   const [events, setEvents] = useState<Event[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [selectedCalendar, setSelectedCalendar] = useState('all')
   const [selectedImage, setSelectedImage] = useState<{ url: string; title: string } | null>(null)
   const [isContactFormOpen, setIsContactFormOpen] = useState(false)
   const [isFormOpen, setIsFormOpen] = useState(false)
+  const [expandedComments, setExpandedComments] = useState<Record<string, boolean>>({})
   
   const { selectedState, setSelectedState, filteredItems: filteredEvents } = useStateFilter(events)
 
-  const calendarOptions = [
-    { value: "4ea35178b00a2daa33a492682e866bd67e8b83797a948a31caa8a37e2a982dce@group.calendar.google.com", label: "Sydney Bachata" },
-    { value: "641b8d8fbee5ff9eb2402997e5990b3e52a737b134ec201748349884985c84f4@group.calendar.google.com", label: "Melbourne Bachata" },
-    { value: "f0b5764410b23c93087a7d3ef5ed0d0a295ad2b811d10bb772533d7517d2fdc5@group.calendar.google.com", label: "Brisbane Bachata" },
-    { value: "6b95632fc6fe63530bbdd89c944d792009478636f5b2ce7ffc8718ccd500915f@group.calendar.google.com", label: "Adelaide Bachata" },
-    { value: "c9ed91c3930331387d69631072510838ec9155b75ca697065025d24e34cde78b@group.calendar.google.com", label: "Gold Coast Bachata" },
-    { value: "e521c86aed4060431cf6de7405315790dcca0a10d4779cc333835199f3724c16@group.calendar.google.com", label: "Perth Bachata" },
-    { value: "3a82a9f1ed5a4e865ed9f13b24a96004fe7c4b2deb07a422f068c70753f421eb@group.calendar.google.com", label: "Canberra Bachata" }
-  ];
-
-  const selectedCalendarLabel = calendarOptions.find(option => option.value === selectedCalendar)?.label || "Bachata Hub Calendar";
+  const toggleComment = (eventId: string) => {
+    setExpandedComments(prev => ({
+      ...prev,
+      [eventId]: !prev[eventId]
+    }))
+  }
 
   useEffect(() => {
     const fetchEvents = async () => {
@@ -129,7 +128,7 @@ export default function EventsPage() {
             Bachata Events
           </h1>
           <p className="text-base sm:text-xl text-gray-600">
-            Find Bachata events across Australia
+          Find Bachata events across Australia — weekly socials, monthly parties, and special gatherings.
           </p>
         </div>
 
@@ -147,85 +146,132 @@ export default function EventsPage() {
             filteredEvents.map((event) => (
               <Card
                 key={event.id}
-                className="relative overflow-hidden h-96 text-white cursor-pointer"
+                className="relative overflow-hidden h-80 sm:h-96 text-white cursor-pointer"
                 onClick={() => event.imageUrl && setSelectedImage({ url: event.imageUrl, title: event.name })}
               >
+                {/* Weekly Event Sticker */}
+                {event.isWeekly && (
+                  <div className="absolute top-3 right-3 z-20 bg-primary text-white text-xs font-semibold px-2 py-1 rounded-md shadow-lg">
+                    {event.recurrence && event.recurrence.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
+                  </div>
+                )}
+
+                {/* Dance Style Stickers */}
+                {event.danceStyles && (
+                  <div className="absolute top-12 right-3 z-20 flex flex-col gap-1">
+                    {event.danceStyles.split(',').map((style, index) => (
+                      <div 
+                        key={index}
+                        className="bg-primary/80 text-white text-xs font-semibold px-2 py-1 rounded-md shadow-lg"
+                      >
+                        {style.trim()}
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {/* Workshop Sticker */}
+                {event.isWorkshop && (
+                  <div className="absolute top-20 right-3 z-20 bg-yellow-500 text-black text-xs font-semibold px-2 py-1 rounded-md shadow-lg">
+                    + Workshop
+                  </div>
+                )}
+
                 {/* Full image background */}
-                <img
-                  src={event.imageUrl}
-                  alt={event.name}
-                  className="absolute inset-0 w-full h-full object-cover z-0"
-                />
+                <div className="absolute inset-0 w-full h-full">
+                  <img
+                    src={event.imageUrl}
+                    alt={event.name}
+                    className="w-full h-full object-cover object-center"
+                  />
+                </div>
 
                 {/* Dark overlay for readability */}
                 <div className="absolute inset-0 bg-black bg-opacity-40 z-10" />
 
                 {/* Bottom compact content */}
-                <div className="absolute bottom-0 left-0 right-0 z-20 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-4">
-                  <h3 className="text-lg font-semibold">{event.name}</h3>
-                  <div className="flex items-center gap-2 text-sm text-gray-200 mt-1">
-                    <MapPin className="h-4 w-4" />
+                <div className="absolute bottom-0 left-0 right-0 z-20 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-3 sm:p-4">
+                  <h3 className="text-base sm:text-lg font-semibold">{event.name}</h3>
+                  <div className="flex items-center gap-2 text-xs sm:text-sm text-gray-200 mt-1">
+                    <MapPin className="h-3 w-3 sm:h-4 sm:w-4" />
                     {event.location}
+                    {event.price && (
+                      <span className="bg-yellow-500 text-black text-xs font-semibold px-2 py-0.5 rounded ml-2">
+                        {event.price}
+                      </span>
+                    )}
                   </div>
-                  <div className="flex items-center gap-2 text-sm mt-1">
-                    <Calendar className="h-4 w-4 text-green-300" />
-                    <span>{event.date || event.eventDate}</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-sm mt-1">
-                    <Clock className="h-4 w-4 text-green-300" />
-                    <span>
-                      {event.startTime && event.endTime ? (
-                        <>
-                          {format(new Date(`2000-01-01T${event.startTime}`), 'h:mm a')} –{' '}
-                          {format(new Date(`2000-01-01T${event.endTime}`), 'h:mm a')}
-                        </>
-                      ) : (
-                        'Time TBA'
+                  {event.comment && (
+                    <div className="mt-1">
+                      <p className={`text-xs sm:text-sm text-gray-300 ${expandedComments[event.id] ? '' : 'line-clamp-1'}`}>
+                        {event.comment}
+                      </p>
+                      {event.comment.length > 50 && (
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            toggleComment(event.id);
+                          }}
+                          className="text-xs text-primary hover:text-primary/80 mt-1 flex items-center gap-1"
+                        >
+                          {expandedComments[event.id] ? (
+                            <>
+                              Show Less
+                              <ChevronUp className="h-3 w-3" />
+                            </>
+                          ) : (
+                            <>
+                              Show More
+                              <ChevronDown className="h-3 w-3" />
+                            </>
+                          )}
+                        </button>
                       )}
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-2 text-sm mt-1">
-                    <Badge variant="price">Price: {event.price}</Badge>
-                    {event.comment && <span className="text-gray-300">{event.comment}</span>}
-                  </div>
-                  <div className="flex flex-col gap-2 mt-3">
-                    {event.ticketLink && (
+                    </div>
+                  )}
+                  <div className="flex flex-col gap-1 mt-2">
+                    {event.ticketLink ? (
                       <Button
-                        className="w-full bg-primary hover:bg-primary/90 text-white text-xs h-8 flex items-center justify-center gap-2"
+                        className="w-full bg-primary hover:bg-primary/90 text-white text-xs h-7 sm:h-8 flex items-center justify-center gap-2"
                         onClick={(e) => {
                           e.stopPropagation();
                           window.open(event.ticketLink, '_blank');
                         }}
                       >
-                        <Ticket className="h-4 w-4" />
+                        <Ticket className="h-3 w-3 sm:h-4 sm:w-4" />
                         <span>Tickets</span>
                       </Button>
+                    ) : (
+                      <div className="w-full bg-primary/80 text-white text-xs h-7 sm:h-8 flex items-center justify-center gap-2 rounded-md">
+                        <Ticket className="h-3 w-3 sm:h-4 sm:w-4" />
+                        <span>Tickets at the Door</span>
+                      </div>
                     )}
-                    <div className="flex gap-2">
-                      {event.googleMapLink && (
-                        <Button
-                          variant="outline"
-                          className="flex-1 border-primary text-primary hover:bg-primary/10 text-xs h-8 flex items-center justify-center gap-2"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            window.open(event.googleMapLink, '_blank');
-                          }}
-                        >
-                          <MapPin className="h-4 w-4" />
-                          <span>Map</span>
-                        </Button>
-                      )}
+                    <div className="grid grid-cols-2 gap-1">
                       {event.eventLink && (
                         <Button
                           variant="outline"
-                          className="flex-1 border-primary text-primary hover:bg-primary/10 text-xs h-8 flex items-center justify-center gap-2"
+                          className="w-full border-primary text-primary hover:bg-primary/10 text-xs h-7 sm:h-8 flex items-center justify-center gap-2"
                           onClick={(e) => {
                             e.stopPropagation();
                             window.open(event.eventLink, '_blank');
                           }}
                         >
-                          <ExternalLink className="h-4 w-4" />
-                          <span>Website</span>
+                          <ExternalLink className="h-3 w-3 sm:h-4 sm:w-4" />
+                          <span>Event Link</span>
+                        </Button>
+                      )}
+                      {event.googleMapLink && (
+                        <Button
+                          variant="outline"
+                          className="w-full border-primary text-primary hover:bg-primary/10 text-xs h-7 sm:h-8 flex items-center justify-center gap-2"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            window.open(event.googleMapLink, '_blank');
+                          }}
+                        >
+                          <MapPin className="h-3 w-3 sm:h-4 sm:w-4" />
+                          <span>View on Map</span>
                         </Button>
                       )}
                     </div>
@@ -245,132 +291,7 @@ export default function EventsPage() {
         />
 
         {/* Calendar Section */}
-        <Card className="border-0 shadow-none mt-16">
-          <CardHeader className="p-3 sm:p-6 pb-0">
-            <CardTitle className="text-lg sm:text-xl text-green-700">Bachata Australia Events Calendar</CardTitle>
-            <CardDescription className="text-xs sm:text-sm">
-              View all upcoming Bachata events in Australia. Click on an event for more details.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="p-3 sm:p-6">
-            <div className="rounded-lg overflow-hidden border border-gray-200 shadow-lg">
-              <div className="bg-gradient-to-r from-green-600 to-yellow-500 p-3 sm:p-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
-                <div className="flex items-center gap-2">
-                  <Calendar className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
-                  <h3 className="text-white font-bold text-sm sm:text-lg">{selectedCalendarLabel}</h3>
-                </div>
-                <div className="flex flex-wrap gap-2 items-center">
-                  <Button
-                    size="sm"
-                    variant="secondary"
-                    className="bg-white text-green-700 hover:bg-gray-100 text-xs sm:text-sm h-7 sm:h-9"
-                  >
-                    Today
-                  </Button>
-                  <div className="bg-white/20 rounded-md flex items-center">
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      className="text-white hover:bg-white/20 h-7 sm:h-9 px-1 sm:px-3"
-                    >
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="14"
-                        height="14"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        className="lucide lucide-chevron-left"
-                      >
-                        <path d="m15 18-6-6 6-6" />
-                      </svg>
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      className="text-white hover:bg-white/20 h-7 sm:h-9 px-1 sm:px-3"
-                    >
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="14"
-                        height="14"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        className="lucide lucide-chevron-right"
-                      >
-                        <path d="m9 18 6-6-6-6" />
-                      </svg>
-                    </Button>
-                  </div>
-                  <select
-                    value={selectedCalendar}
-                    onChange={(e) => setSelectedCalendar(e.target.value)}
-                    className="bg-white text-green-700 hover:bg-gray-100 text-xs sm:text-sm h-7 sm:h-9 rounded-md border-0 focus:ring-0"
-                  >
-                    {calendarOptions.map((option) => (
-                      <option key={option.value} value={option.value}>
-                        {option.label}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-              <iframe
-                src={`https://calendar.google.com/calendar/embed?src=${encodeURIComponent(
-                  selectedCalendar,
-                )}&ctz=Australia%2FSydney&wkst=1&bgcolor=%23ffffff&showTitle=0&showNav=1&showDate=1&showPrint=0&showTabs=1&showCalendars=1&showTz=1&color=%23${encodeURIComponent(process.env.NEXT_PUBLIC_PRIMARY_COLOR?.replace('#', '') || '006B3F')}`}
-                style={{ borderWidth: 0 }}
-                width="100%"
-                height="600"
-                frameBorder="0"
-                scrolling="no"
-                title="Bachata Australia Events Calendar"
-                className="border-t border-gray-200"
-              ></iframe>
-            </div>
-
-            <div className="mt-4 sm:mt-6 grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
-              <div className="bg-green-50 rounded-lg p-3 sm:p-4 border border-green-200 flex items-start">
-                <Calendar className="h-4 w-4 sm:h-5 sm:w-5 text-green-600 mr-2 sm:mr-3 mt-0.5 flex-shrink-0" />
-                <div>
-                  <h3 className="font-medium text-green-800 mb-1 text-sm sm:text-base">Add to Your Calendar</h3>
-                  <p className="text-xs sm:text-sm text-green-700">
-                    Click the "+ Google Calendar" button at the bottom right to add this calendar to your own Google
-                    Calendar.
-                  </p>
-                </div>
-              </div>
-
-              <div className="bg-blue-50 rounded-lg p-3 sm:p-4 border border-blue-200 flex items-start">
-                <Users className="h-4 w-4 sm:h-5 sm:w-5 text-blue-600 mr-2 sm:mr-3 mt-0.5 flex-shrink-0" />
-                <div>
-                  <h3 className="font-medium text-blue-800 mb-1 text-sm sm:text-base">Community Events</h3>
-                  <p className="text-xs sm:text-sm text-blue-700">
-                    This calendar includes events from dance schools, promoters, and the Bachata community across
-                    Australia.
-                  </p>
-                </div>
-              </div>
-
-              <div className="bg-yellow-50 rounded-lg p-3 sm:p-4 border border-yellow-200 flex items-start">
-                <Info className="h-4 w-4 sm:h-5 sm:w-5 text-yellow-600 mr-2 sm:mr-3 mt-0.5 flex-shrink-0" />
-                <div>
-                  <h3 className="font-medium text-yellow-800 mb-1 text-sm sm:text-base">Submit Your Event</h3>
-                  <p className="text-xs sm:text-sm text-yellow-700">
-                    Have a Bachata event to share? Submit it to be included in our community calendar.
-                  </p>
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+        <CalendarMenu />
 
         {/* Submit Your Event Card */}
         <div className="mt-16 bg-gradient-to-r from-primary to-secondary rounded-xl shadow-xl overflow-hidden">

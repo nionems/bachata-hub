@@ -97,3 +97,27 @@ body {
     @apply bg-background text-foreground;
   }
 }
+
+/* Sigmar font class */
+.sigmar-regular {
+  font-family: "Sigmar", sans-serif;
+  font-weight: 400;
+  font-style: normal;
+}
+
+/* Comic Neue font class */
+.comic-neue {
+  font-family: "Comic Neue", cursive, sans-serif;
+}
+
+h1 {
+  font-family: "Fredoka", Arial, Helvetica, sans-serif;
+  font-weight: 700;
+  font-size: 2.25rem;      /* Tailwind text-4xl */
+  line-height: 2.5rem;     /* Tailwind leading-tight */
+}
+
+h2, h3, h4, h5, h6, p, li, span, a, label, input, textarea, button {
+  font-family: "Comic Neue", cursive, sans-serif;
+  font-weight: 400;
+}
