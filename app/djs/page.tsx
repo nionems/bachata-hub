@@ -6,7 +6,7 @@ import { Card } from "@/components/ui/card"
 import { Calendar, MapPin, DollarSign, Users, Ticket, Hotel, CheckCircle, Info, Clock, ExternalLink, Instagram, Facebook, Music } from "lucide-react"
 import { useState, useEffect } from "react"
 import CollapsibleFilter from "@/components/collapsible-filter"
-import { StateFilter } from '@/components/ui/StateFilter'
+import { StateFilter } from '@/components/StateFilter'
 import { useStateFilter } from '@/hooks/useStateFilter'
 import { collection, getDocs } from 'firebase/firestore'
 import { db } from '../../firebase/config'
@@ -15,6 +15,7 @@ import { ContactForm } from "@/components/ContactForm"
 import { ImageModal } from "@/components/ImageModal"
 import { format } from "date-fns"
 import { Badge } from "@/components/ui/badge"
+import { DJCard } from '@/components/DJCard'
 
 interface DJ {
   id: string
@@ -139,103 +140,7 @@ export default function DJsPage() {
             </div>
           ) : (
             filteredDJs.map((dj) => (
-              <Card
-                key={dj.id}
-                className="relative overflow-hidden h-80 sm:h-96 text-white cursor-pointer"
-                onClick={() => dj.imageUrl && setSelectedImage({ url: dj.imageUrl, title: dj.name })}
-              >
-                {/* Full image background */}
-                <img
-                  src={dj.imageUrl}
-                  alt={dj.name}
-                  className="absolute inset-0 w-full h-full object-cover object-top z-0"
-                />
-
-                {/* Dark overlay for readability */}
-                <div className="absolute inset-0 bg-black bg-opacity-40 z-10" />
-
-                {/* Bottom compact content */}
-                <div className="absolute bottom-0 left-0 right-0 z-20 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-3 sm:p-4">
-                  <h3 className="text-base sm:text-lg font-semibold">{dj.name}</h3>
-                  <div className="flex items-center gap-2 text-xs sm:text-sm text-gray-200 mt-1">
-                    <MapPin className="h-3 w-3 sm:h-4 sm:w-4" />
-                    {dj.location}
-                  </div>
-                  {dj.comment && (
-                    <div className="text-xs sm:text-sm text-gray-300 mt-1">
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          toggleComment(dj.id);
-                        }}
-                        className="text-left w-full hover:text-white transition-colors"
-                      >
-                        {expandedComments[dj.id] ? dj.comment : `${dj.comment.substring(0, 100)}${dj.comment.length > 100 ? '...' : ''}`}
-                        {dj.comment.length > 100 && (
-                          <span className="text-primary ml-1">
-                            {expandedComments[dj.id] ? 'Show less' : 'Show more'}
-                          </span>
-                        )}
-                      </button>
-                    </div>
-                  )}
-                  <div className="flex flex-col gap-2 mt-2 sm:mt-3">
-                    {dj.contact && (
-                      <Button
-                        className="w-full bg-primary hover:bg-primary/90 text-white text-xs h-7 sm:h-8 flex items-center justify-center gap-2"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          window.open(`tel:${dj.contact}`, '_blank');
-                        }}
-                      >
-                        <ExternalLink className="h-3 w-3 sm:h-4 sm:w-4" />
-                        <span>Contact</span>
-                      </Button>
-                    )}
-                    <div className="flex gap-2">
-                      {dj.instagramLink && (
-                        <Button
-                          variant="outline"
-                          className="flex-1 border-primary text-primary hover:bg-primary/10 text-xs h-7 sm:h-8 flex items-center justify-center gap-2"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            window.open(dj.instagramLink, '_blank');
-                          }}
-                        >
-                          <Instagram className="h-3 w-3 sm:h-4 sm:w-4" />
-                          <span>Instagram</span>
-                        </Button>
-                      )}
-                      {dj.facebookLink && (
-                        <Button
-                          variant="outline"
-                          className="flex-1 border-primary text-primary hover:bg-primary/10 text-xs h-7 sm:h-8 flex items-center justify-center gap-2"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            window.open(dj.facebookLink, '_blank');
-                          }}
-                        >
-                          <Facebook className="h-3 w-3 sm:h-4 sm:w-4" />
-                          <span>Facebook</span>
-                        </Button>
-                      )}
-                      {dj.musicLink && (
-                        <Button
-                          variant="outline"
-                          className="flex-1 border-primary text-primary hover:bg-primary/10 text-xs h-7 sm:h-8 flex items-center justify-center gap-2"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            window.open(dj.musicLink, '_blank');
-                          }}
-                        >
-                          <Music className="h-3 w-3 sm:h-4 sm:w-4" />
-                          <span>Music</span>
-                        </Button>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              </Card>
+              <DJCard key={dj.id} dj={dj} />
             ))
           )}
         </div>

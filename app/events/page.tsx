@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge"
 import { MapPin, Calendar, Clock, Users, Info, Ticket, ExternalLink, ChevronDown, ChevronUp } from "lucide-react"
 import { Calendar as UiCalendar } from '@/components/ui/calendar'
 import Link from 'next/link'
-import { StateFilter } from '@/components/ui/StateFilter'
+import { StateFilter } from '@/components/StateFilter'
 import { useStateFilter } from '@/hooks/useStateFilter'
 import { collection, getDocs } from 'firebase/firestore'
 import { db } from '../../firebase/config'
@@ -16,6 +16,7 @@ import { ImageModal } from "@/components/ui/image-modal"
 import { ContactForm } from "@/components/ContactForm"
 import { EventSubmissionForm } from "@/components/EventSubmissionForm"
 import CalendarMenu from "@/components/calendar-menu"
+import { EventCard } from '@/components/EventCard'
 
 interface Event {
   id: string
@@ -125,15 +126,15 @@ export default function EventsPage() {
       <div className="container mx-auto px-4 py-8">
         <div className="text-center mb-12">
           <h1 className="text-2xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent mb-4">
-            Bachata Events
+            All Recuring Bachata Events in Australia
           </h1>
           <p className="text-base sm:text-xl text-gray-600">
           Find Bachata events across Australia — weekly socials, monthly parties, and special gatherings.
           </p>
         </div>
-
+ 
         <StateFilter
-          selectedState={selectedState}
+          selectedState={selectedState}n
           onChange={setSelectedState}
         />
 

@@ -6,7 +6,7 @@ import { Card } from "@/components/ui/card"
 import { Calendar, MapPin, DollarSign, Users, Ticket, Hotel, CheckCircle, Info, Clock, ExternalLink, Instagram, Facebook, Mail } from "lucide-react"
 import { useState, useEffect } from "react"
 import CollapsibleFilter from "@/components/collapsible-filter"
-import { StateFilter } from '@/components/ui/StateFilter'
+import { StateFilter } from '@/components/StateFilter'
 import { useStateFilter } from '@/hooks/useStateFilter'
 import { collection, getDocs } from 'firebase/firestore'
 import { db } from '../../firebase/config'
@@ -15,6 +15,7 @@ import { ContactForm } from "@/components/ContactForm"
 import { ImageModal } from "@/components/ImageModal"
 import { format } from "date-fns"
 import { Badge } from "@/components/ui/badge"
+import { InstructorCard } from '@/components/InstructorCard'
 
 interface Instructor {
   id: string
@@ -24,7 +25,7 @@ interface Instructor {
   address: string
   website: string
   price: string
-  danceStyles: string
+  danceStyles: string[]
   imageUrl: string
   comment: string
   googleMapLink: string
@@ -32,7 +33,6 @@ interface Instructor {
   instagramLink?: string
   facebookLink?: string
   emailLink?: string
-  contact?: string
 }
 
 export default function InstructorsPage() {
@@ -41,17 +41,8 @@ export default function InstructorsPage() {
   const [error, setError] = useState<string | null>(null)
   const [isSubmissionFormOpen, setIsSubmissionFormOpen] = useState(false)
   const [isContactFormOpen, setIsContactFormOpen] = useState(false)
-  const [selectedImage, setSelectedImage] = useState<{ url: string; title: string } | null>(null)
-  const [expandedComments, setExpandedComments] = useState<Record<string, boolean>>({})
   
   const { selectedState, setSelectedState, filteredItems: filteredInstructors } = useStateFilter(instructors)
-
-  const toggleComment = (instructorId: string) => {
-    setExpandedComments(prev => ({
-      ...prev,
-      [instructorId]: !prev[instructorId]
-    }))
-  }
 
   useEffect(() => {
     const fetchInstructors = async () => {
@@ -60,10 +51,19 @@ export default function InstructorsPage() {
       try {
         const instructorsCollection = collection(db, 'instructors')
         const instructorsSnapshot = await getDocs(instructorsCollection)
-        const instructorsList = instructorsSnapshot.docs.map(doc => ({
-          id: doc.id,
-          ...doc.data()
-        })) as Instructor[]
+        const instructorsList = instructorsSnapshot.docs.map(doc => {
+          const data = doc.data()
+          return {
+            id: doc.id,
+            ...data,
+            // Convert danceStyles to array if it's a string
+            danceStyles: typeof data.danceStyles === 'string' 
+              ? data.danceStyles.split(',').map(style => style.trim())
+              : Array.isArray(data.danceStyles) 
+                ? data.danceStyles 
+                : []
+          }
+        }) as Instructor[]
         
         setInstructors(instructorsList)
       } catch (err) {
@@ -109,114 +109,10 @@ export default function InstructorsPage() {
             </div>
           ) : (
             filteredInstructors.map((instructor) => (
-            <Card
-              key={instructor.id}
-                className="relative overflow-hidden h-80 sm:h-96 text-white cursor-pointer"
-                onClick={() => instructor.imageUrl && setSelectedImage({ url: instructor.imageUrl, title: instructor.name })}
-            >
-                {/* Full image background */}
-                    <img
-                  src={instructor.imageUrl}
-                      alt={instructor.name}
-                  className="absolute inset-0 w-full h-full object-cover object-top z-0"
-                />
-
-                {/* Dark overlay for readability */}
-                <div className="absolute inset-0 bg-black bg-opacity-40 z-10" />
-
-                {/* Bottom compact content */}
-                <div className="absolute bottom-0 left-0 right-0 z-20 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-3 sm:p-4">
-                  <h3 className="text-base sm:text-lg font-semibold">{instructor.name}</h3>
-                  <div className="flex items-center gap-2 text-xs sm:text-sm text-gray-200 mt-1">
-                    <MapPin className="h-3 w-3 sm:h-4 sm:w-4" />
-                    {instructor.location}
-                  </div>
-                  {instructor.comment && (
-                    <div className="text-xs sm:text-sm text-gray-300 mt-1">
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          toggleComment(instructor.id);
-                        }}
-                        className="text-left w-full hover:text-white transition-colors"
-                      >
-                        {expandedComments[instructor.id] ? instructor.comment : `${instructor.comment.substring(0, 100)}${instructor.comment.length > 100 ? '...' : ''}`}
-                        {instructor.comment.length > 100 && (
-                          <span className="text-primary ml-1">
-                            {expandedComments[instructor.id] ? 'Show less' : 'Show more'}
-                          </span>
-                        )}
-                      </button>
-                    </div>
-                  )}
-                  <div className="flex flex-col gap-2 mt-2 sm:mt-3">
-                    {instructor.contact && (
-                      <Button
-                        className="w-full bg-primary hover:bg-primary/90 text-white text-xs h-7 sm:h-8 flex items-center justify-center gap-2"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          window.open(`tel:${instructor.contact}`, '_blank');
-                        }}
-                      >
-                        <ExternalLink className="h-3 w-3 sm:h-4 sm:w-4" />
-                        <span>Contact</span>
-                      </Button>
-                    )}
-                    <div className="flex gap-2">
-                      {instructor.instagramLink && (
-                        <Button
-                          variant="outline"
-                          className="flex-1 border-primary text-primary hover:bg-primary/10 text-xs h-7 sm:h-8 flex items-center justify-center gap-2"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            window.open(instructor.instagramLink, '_blank');
-                          }}
-                        >
-                          <Instagram className="h-3 w-3 sm:h-4 sm:w-4" />
-                          <span>Instagram</span>
-                        </Button>
-                      )}
-                      {instructor.facebookLink && (
-                        <Button
-                          variant="outline"
-                          className="flex-1 border-primary text-primary hover:bg-primary/10 text-xs h-7 sm:h-8 flex items-center justify-center gap-2"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            window.open(instructor.facebookLink, '_blank');
-                          }}
-                        >
-                          <Facebook className="h-3 w-3 sm:h-4 sm:w-4" />
-                          <span>Facebook</span>
-                        </Button>
-                      )}
-                      {instructor.emailLink && (
-                        <Button
-                          variant="outline"
-                          className="flex-1 border-primary text-primary hover:bg-primary/10 text-xs h-7 sm:h-8 flex items-center justify-center gap-2"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            window.open(`mailto:${instructor.emailLink}`, '_blank');
-                          }}
-                        >
-                          <Mail className="h-3 w-3 sm:h-4 sm:w-4" />
-                          <span>Email</span>
-                        </Button>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              </Card>
+              <InstructorCard key={instructor.id} instructor={instructor} />
             ))
           )}
         </div>
-
-        {/* Image Modal */}
-        <ImageModal
-          isOpen={!!selectedImage}
-          onClose={() => setSelectedImage(null)}
-          imageUrl={selectedImage?.url || ''}
-          title={selectedImage?.title || ''}
-        />
 
         {/* Submit Your Instructor Card */}
         <div className="mt-12 sm:mt-16 bg-gradient-to-r from-primary to-secondary rounded-xl shadow-xl overflow-hidden">

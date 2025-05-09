@@ -18,7 +18,7 @@ export default function CalendarPage() {
         <div className="text-center mb-6 sm:mb-8">
           <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent mb-2 sm:mb-4">Bachata Calendar</h1>
           <p className="text-base sm:text-xl text-gray-600">
-            Never miss a beat — explore every Bachata event across Australia in one calendar.
+          Never miss a beat — explore every Bachata event across Australia in one calendar.
           </p>
         </div>
 

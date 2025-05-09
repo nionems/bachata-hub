@@ -335,7 +335,7 @@ export default function Home() {
                     <line x1="10" x2="10" y1="2" y2="4" />
                     <line x1="14" x2="14" y1="2" y2="4" />
                   </svg>
-                  Buy Me a Coffee
+                  Keep the Server Running
                 </a>
                 <a
                   href="https://instagram.com/bachata.au"
@@ -503,7 +503,7 @@ export default function Home() {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <h1 className="text-2xl font-bold text-gray-900 mb-4">Something went wrong</h1>
+n          <h1 className="text-2xl font-bold text-gray-900 mb-4">Something went wrong</h1>
           <p className="text-gray-600">Please try again later</p>
         </div>
       </div>

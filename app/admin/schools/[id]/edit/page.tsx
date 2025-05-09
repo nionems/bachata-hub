@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import { School } from '@/types/school'
 import { StateSelect } from '@/components/ui/StateSelect'
+import { toast } from 'sonner'
 
 interface SchoolFormData {
   name: string;
@@ -111,6 +112,7 @@ export default function EditSchoolPage() {
     try {
       let finalImageUrl = formData.imageUrl
       if (formData.image) {
+        toast.loading('Uploading image...')
         const uploadFormData = new FormData()
         uploadFormData.append('file', formData.image)
         const uploadResponse = await fetch('/api/upload', {
@@ -120,8 +122,11 @@ export default function EditSchoolPage() {
         if (!uploadResponse.ok) throw new Error('Failed to upload image')
         const uploadData = await uploadResponse.json()
         finalImageUrl = uploadData.imageUrl
+        toast.dismiss()
+        toast.success('Image uploaded successfully')
       }
 
+      toast.loading('Updating school...')
       const updatedSchool = {
         name: formData.name,
         location: formData.location,
@@ -150,8 +155,12 @@ export default function EditSchoolPage() {
       })
 
       if (!response.ok) throw new Error('Failed to update school')
+      toast.dismiss()
+      toast.success('School updated successfully')
       router.push('/admin/dashboard')
     } catch (err) {
+      toast.dismiss()
+      toast.error(err instanceof Error ? err.message : 'Failed to update school')
       setError(err instanceof Error ? err.message : 'Failed to update school')
     } finally {
       setIsLoading(false)

@@ -6,7 +6,7 @@ import { Card } from "@/components/ui/card"
 import { Calendar, MapPin, DollarSign, Users, Ticket, Hotel, CheckCircle, Info, Clock, ExternalLink } from "lucide-react"
 import { useState, useEffect } from "react"
 import CollapsibleFilter from "@/components/collapsible-filter"
-import { StateFilter } from '@/components/ui/StateFilter'
+import { StateFilter } from '@/components/StateFilter'
 import { useStateFilter } from '@/hooks/useStateFilter'
 import { collection, getDocs } from 'firebase/firestore'
 import { db } from '../../firebase/config'
@@ -15,6 +15,7 @@ import { ContactForm } from "@/components/ContactForm"
 import { ImageModal } from "@/components/ImageModal"
 import { format } from "date-fns"
 import { Badge } from "@/components/ui/badge"
+import { FestivalCard } from '@/components/FestivalCard'
 
 interface Festival {
   id: string
@@ -148,7 +149,7 @@ export default function FestivalsPage() {
             Bachata Festivals
           </h1>
           <p className="text-base sm:text-xl text-gray-600">
-          Australia’s top Bachata festivals — all in one place.
+          Australia's top Bachata festivals — all in one place.
           </p>
         </div>
 

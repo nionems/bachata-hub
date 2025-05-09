@@ -530,6 +530,25 @@ export default function AdminDashboard() {
     }
   }
 
+  const handleDeleteSchool = async (schoolId: string) => {
+    if (!confirm('Are you sure you want to delete this school?')) return
+
+    try {
+      const response = await fetch(`/api/schools/${schoolId}`, {
+        method: 'DELETE',
+      })
+
+      if (!response.ok) throw new Error('Failed to delete school')
+      
+      // Refresh schools list
+      fetchSchools()
+      toast.success('School deleted successfully')
+    } catch (err) {
+      console.error('Failed to delete school:', err)
+      toast.error('Failed to delete school')
+    }
+  }
+
   const filteredSchools = schools.filter(school =>
     school.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     school.location.toLowerCase().includes(searchTerm.toLowerCase())
@@ -670,14 +689,15 @@ export default function AdminDashboard() {
       <div className="mb-6">
         <h1 className="text-2xl font-bold mb-4">Admin Dashboard</h1>
         
+        {/* Mobile-friendly tab navigation */}
         <div className="border-b border-gray-200">
-          <nav className="-mb-px flex space-x-8" aria-label="Tabs">
+          <nav className="-mb-px flex flex-wrap gap-2 sm:gap-8" aria-label="Tabs">
             {tabs.map((tab) => (
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
                 className={`
-                  whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm
+                  whitespace-nowrap py-2 sm:py-4 px-2 sm:px-1 border-b-2 font-medium text-sm
                   ${activeTab === tab.id
                     ? 'border-blue-500 text-blue-600'
                     : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
@@ -691,23 +711,24 @@ export default function AdminDashboard() {
         </div>
       </div>
 
-      <div className="flex justify-between items-center mb-6">
+      {/* Mobile-friendly search and layout controls */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
         {activeTab === 'schools' && (
-           <div className="flex-1 mr-4">
-             <input
-               type="text"
-               placeholder="Search schools..."
-               value={searchTerm}
-               onChange={(e) => setSearchTerm(e.target.value)}
-               className="w-full p-2 border rounded"
-             />
-           </div>
+          <div className="w-full sm:flex-1 sm:mr-4">
+            <input
+              type="text"
+              placeholder="Search schools..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full p-2 border rounded"
+            />
+          </div>
         )}
 
-        <div className="flex items-center gap-2 bg-gray-100 p-2 rounded-lg flex-shrink-0">
+        <div className="flex items-center gap-2 bg-gray-100 p-2 rounded-lg w-full sm:w-auto justify-center sm:justify-end">
           <button
             onClick={() => setLayout('grid')}
-            className={`p-2 rounded ${
+            className={`p-2 rounded flex-1 sm:flex-none ${
               layout === 'grid' 
                 ? 'bg-white shadow-sm' 
                 : 'hover:bg-gray-200'
@@ -720,7 +741,7 @@ export default function AdminDashboard() {
           </button>
           <button
             onClick={() => setLayout('list')}
-            className={`p-2 rounded ${
+            className={`p-2 rounded flex-1 sm:flex-none ${
               layout === 'list' 
                 ? 'bg-white shadow-sm' 
                 : 'hover:bg-gray-200'
@@ -820,7 +841,7 @@ export default function AdminDashboard() {
                       Edit
                     </button>
                     <button
-                      onClick={() => handleDelete(school.id)}
+                      onClick={() => handleDeleteSchool(school.id)}
                       className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"
                     >
                       Delete
@@ -1451,7 +1472,8 @@ export default function AdminDashboard() {
         )}
       </div>
 
-      <div className="fixed bottom-8 right-8">
+      {/* Mobile-friendly floating action button */}
+      <div className="fixed bottom-4 right-4 sm:bottom-8 sm:right-8">
         <button
           onClick={() => {
             switch(activeTab) {
@@ -1481,12 +1503,13 @@ export default function AdminDashboard() {
                 break
             }
           }}
-          className="bg-blue-500 text-white px-6 py-3 rounded-full shadow-lg hover:bg-blue-600 flex items-center gap-2"
+          className="bg-blue-500 text-white px-4 sm:px-6 py-2 sm:py-3 rounded-full shadow-lg hover:bg-blue-600 flex items-center gap-2 text-sm sm:text-base"
         >
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
           </svg>
-          Add New {activeTab.slice(0, -1)}
+          <span className="hidden sm:inline">Add New {activeTab.slice(0, -1)}</span>
+          <span className="sm:hidden">Add</span>
         </button>
       </div>
     </div>

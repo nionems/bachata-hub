@@ -3,20 +3,20 @@
 import { useState } from 'react'
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Calendar, MapPin, Clock, ChevronDown, ChevronUp, X } from "lucide-react"
-import { Event } from "@/types/event"
+import { Calendar, MapPin, Clock, Trophy, ChevronDown, ChevronUp, X } from "lucide-react"
+import { Competition } from "@/types/competition"
 
-interface EventCardProps {
-  event: Event
+interface CompetitionCardProps {
+  competition: Competition
 }
 
-export function EventCard({ event }: EventCardProps) {
+export function CompetitionCard({ competition }: CompetitionCardProps) {
   const [isCommentExpanded, setIsCommentExpanded] = useState(false)
   const [isImageModalOpen, setIsImageModalOpen] = useState(false)
 
   const handleImageClick = (e: React.MouseEvent) => {
     e.stopPropagation();
-    if (event.imageUrl) {
+    if (competition.imageUrl) {
       setIsImageModalOpen(true);
     }
   }
@@ -29,29 +29,35 @@ export function EventCard({ event }: EventCardProps) {
           onClick={handleImageClick}
         >
           <img
-            src={event.imageUrl}
-            alt={event.name}
+            src={competition.imageUrl}
+            alt={competition.name}
             className="object-cover w-full h-full"
           />
           <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
+          {competition.status === 'Upcoming' && (
+            <div className="absolute top-4 right-4 bg-primary text-white px-3 py-1 rounded-full text-sm font-semibold flex items-center gap-1 shadow-lg transform rotate-3 hover:rotate-0 transition-transform duration-200">
+              <Trophy className="h-4 w-4" />
+              Upcoming
+            </div>
+          )}
         </div>
 
         <div className="absolute bottom-0 left-0 right-0 z-20 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-3 sm:p-4">
-          <h3 className="text-base sm:text-lg font-semibold text-primary line-clamp-1">{event.name}</h3>
+          <h3 className="text-base sm:text-lg font-semibold text-primary line-clamp-1">{competition.name}</h3>
           <div className="flex items-center gap-2 text-xs sm:text-sm text-gray-200 mt-1">
             <Calendar className="h-3 w-3 sm:h-4 sm:w-4" />
-            {new Date(event.startDate).toLocaleDateString()} - {new Date(event.endDate).toLocaleDateString()}
+            {new Date(competition.startDate).toLocaleDateString()} - {new Date(competition.endDate).toLocaleDateString()}
           </div>
           <div className="flex items-center gap-2 text-xs sm:text-sm text-gray-200 mt-1">
             <MapPin className="h-3 w-3 sm:h-4 sm:w-4" />
-            {event.location}, {event.state}
+            {competition.location}, {competition.state}
           </div>
-          {event.comment && (
+          {competition.comment && (
             <div className="mt-1">
               <div className={`text-xs sm:text-sm text-gray-300 ${!isCommentExpanded ? 'line-clamp-2' : ''}`}>
-                {event.comment}
+                {competition.comment}
               </div>
-              {event.comment.length > 100 && (
+              {competition.comment.length > 100 && (
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
@@ -77,19 +83,19 @@ export function EventCard({ event }: EventCardProps) {
               className="w-full bg-primary hover:bg-primary/90 text-white text-xs h-7 sm:h-8 flex items-center justify-center gap-2"
               onClick={(e) => {
                 e.stopPropagation();
-                window.open(event.eventLink, '_blank');
+                window.open(competition.eventLink, '_blank');
               }}
             >
               <Clock className="h-3 w-3 sm:h-4 sm:w-4" />
-              <span>Register Now</span>
+              <span>{competition.status === 'Upcoming' ? 'Register Now' : 'View Results'}</span>
             </Button>
             <div className="flex flex-wrap gap-2">
-              {event.danceStyles.map((style) => (
+              {competition.categories.map((category) => (
                 <span
-                  key={style}
+                  key={category}
                   className="px-2 py-1 bg-primary/20 text-primary rounded-full text-xs"
                 >
-                  {style}
+                  {category}
                 </span>
               ))}
             </div>
@@ -110,8 +116,8 @@ export function EventCard({ event }: EventCardProps) {
             <X className="h-8 w-8" />
           </button>
           <img
-            src={event.imageUrl}
-            alt={event.name}
+            src={competition.imageUrl}
+            alt={competition.name}
             className="max-h-[90vh] max-w-[90vw] object-contain"
             onClick={(e) => e.stopPropagation()}
           />

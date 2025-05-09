@@ -59,9 +59,19 @@ export async function PUT(
   try {
     const { id } = params
     const body = await request.json()
-    const { name, description, location, image, website, phone, email } = body
+    const {
+      name,
+      location,
+      state,
+      address,
+      comment,
+      googleReviewLink,
+      imageUrl,
+      websiteLink,
+      discountCode
+    } = body
 
-    if (!name || !description || !location || !image) {
+    if (!name || !location || !state) {
       return NextResponse.json(
         { error: 'Missing required fields' },
         { status: 400 }
@@ -71,12 +81,14 @@ export async function PUT(
     const docRef = doc(db, 'shops', id)
     await updateDoc(docRef, {
       name,
-      description,
       location,
-      image,
-      website,
-      phone,
-      email,
+      state,
+      address,
+      comment,
+      googleReviewLink,
+      imageUrl,
+      websiteLink,
+      discountCode,
       updatedAt: new Date().toISOString(),
     })
 

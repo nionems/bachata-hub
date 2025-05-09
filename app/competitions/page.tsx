@@ -6,34 +6,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Calendar, MapPin, Users, Trophy, Clock } from "lucide-react"
 import Link from "next/link"
-import { StateFilter } from '@/components/ui/StateFilter'
+import { StateFilter } from '@/components/StateFilter'
 import { useStateFilter } from '@/hooks/useStateFilter'
-
-interface Competition {
-  id: string
-  name: string
-  organizer: string
-  contactInfo: string
-  email: string
-  startDate: string
-  endDate: string
-  location: string
-  state: string
-  address: string
-  eventLink: string
-  price: string
-  ticketLink: string
-  danceStyles: string
-  imageUrl: string
-  comment: string
-  googleMapLink: string
-  categories: string[]
-  level: string[]
-  status: string
-  socialLink: string
-  createdAt: string
-  updatedAt: string
-}
+import { CompetitionCard } from '@/components/CompetitionCard'
+import { Competition } from '@/types/competition'
+import { collection, getDocs } from 'firebase/firestore'
+import { db } from '@/lib/firebase'
 
 export default function CompetitionsPage() {
   const [competitions, setCompetitions] = useState<Competition[]>([])
@@ -52,15 +30,20 @@ export default function CompetitionsPage() {
 
   useEffect(() => {
     const fetchCompetitions = async () => {
+      setIsLoading(true)
+      setError(null)
       try {
-        const response = await fetch('/api/competitions')
-        if (!response.ok) {
-          throw new Error('Failed to fetch competitions')
-        }
-        const data = await response.json()
-        setCompetitions(data)
+        const competitionsCollection = collection(db, 'competitions')
+        const competitionsSnapshot = await getDocs(competitionsCollection)
+        const competitionsList = competitionsSnapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        })) as Competition[]
+        
+        setCompetitions(competitionsList)
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'Failed to fetch competitions')
+        console.error('Error fetching competitions:', err)
+        setError('Failed to load competitions')
       } finally {
         setIsLoading(false)
       }
@@ -119,92 +102,7 @@ export default function CompetitionsPage() {
               {filteredCompetitions
                 .filter(comp => comp.status === 'Upcoming')
                 .map((competition) => (
-                <Card key={competition.id} className="overflow-hidden hover:shadow-lg transition-shadow">
-                  <div className="relative aspect-video">
-                    <img
-                      src={competition.imageUrl || '/placeholder.svg'}
-                        alt={competition.name}
-                      className="w-full h-full object-contain"
-                      />
-                    </div>
-                  <CardHeader className="p-2 md:p-3">
-                    <CardTitle className="truncate text-lg md:text-xl text-center">{competition.name}</CardTitle>
-                    <CardDescription className="flex flex-col gap-2">
-                      <span className="flex items-center justify-center">
-                          <Calendar className="h-4 w-4 mr-1" />
-                        {new Date(competition.startDate).toLocaleDateString()} - {new Date(competition.endDate).toLocaleDateString()}
-                        </span>
-                      <span className="flex items-center justify-center">
-                        <MapPin className="h-4 w-4 mr-1" />
-                        {competition.location}, {competition.state}
-                        </span>
-                      </CardDescription>
-                    </CardHeader>
-                  <CardContent className="p-2 md:p-3">
-                    <div className="space-y-2">
-                      <div className="flex items-center justify-center">
-                        <span className="font-semibold">Price:</span>
-                        <span className="ml-2">{competition.price || 'Contact for pricing'}</span>
-                      </div>
-                      <div className="relative">
-                        <p className={`text-gray-600 ${!expandedComments[competition.id] ? 'line-clamp-2' : ''}`}>
-                          {competition.comment}
-                        </p>
-                        {competition.comment && competition.comment.length > 100 && (
-                          <button
-                            onClick={(e) => {
-                              e.preventDefault()
-                              toggleComment(competition.id)
-                            }}
-                            className="text-primary hover:text-primary/80 text-sm mt-1"
-                          >
-                            {expandedComments[competition.id] ? 'Show Less' : 'Read More'}
-                          </button>
-                        )}
-                      </div>
-                      <div className="flex flex-wrap gap-2">
-                        {competition.categories.map((category) => (
-                          <span
-                            key={category}
-                            className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm"
-                          >
-                            {category}
-                          </span>
-                        ))}
-                      </div>
-                      <div className="flex flex-wrap gap-2">
-                        {competition.level.map((level) => (
-                          <span
-                            key={level}
-                            className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm"
-                          >
-                            {level}
-                          </span>
-                        ))}
-                        </div>
-                      <div className="flex gap-2">
-                        <Button
-                          className="flex-1 bg-primary hover:bg-primary/90"
-                          onClick={(e) => {
-                            e.preventDefault()
-                            window.open(competition.eventLink, "_blank", "noopener,noreferrer")
-                          }}
-                        >
-                          Competition Link
-                        </Button>
-                        <Button
-                          className="flex-1 bg-secondary hover:bg-secondary/90"
-                          onClick={(e) => {
-                            e.preventDefault()
-                            window.open(competition.ticketLink, "_blank", "noopener,noreferrer")
-                          }}
-                        >
-                          Results
-                        </Button>
-                      </div>
-                      </div>
-                    </CardContent>
-                  </Card>
+                  <CompetitionCard key={competition.id} competition={competition} />
               ))}
             </div>
           </TabsContent>
@@ -214,92 +112,7 @@ export default function CompetitionsPage() {
               {filteredCompetitions
                 .filter(comp => comp.status === 'Completed')
                 .map((competition) => (
-                <Card key={competition.id} className="overflow-hidden hover:shadow-lg transition-shadow">
-                  <div className="relative aspect-video">
-                    <img
-                      src={competition.imageUrl || '/placeholder.svg'}
-                      alt={competition.name}
-                      className="w-full h-full object-contain"
-                    />
-                  </div>
-                  <CardHeader className="p-2 md:p-3">
-                    <CardTitle className="truncate text-lg md:text-xl text-center">{competition.name}</CardTitle>
-                    <CardDescription className="flex flex-col gap-2">
-                      <span className="flex items-center justify-center">
-                        <Calendar className="h-4 w-4 mr-1" />
-                        {new Date(competition.startDate).toLocaleDateString()} - {new Date(competition.endDate).toLocaleDateString()}
-                      </span>
-                      <span className="flex items-center justify-center">
-                        <MapPin className="h-4 w-4 mr-1" />
-                        {competition.location}, {competition.state}
-                      </span>
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent className="p-2 md:p-3">
-                    <div className="space-y-2">
-                      <div className="flex items-center justify-center">
-                        <span className="font-semibold">Price:</span>
-                        <span className="ml-2">{competition.price || 'Contact for pricing'}</span>
-                      </div>
-                      <div className="relative">
-                        <p className={`text-gray-600 ${!expandedComments[competition.id] ? 'line-clamp-2' : ''}`}>
-                          {competition.comment}
-                        </p>
-                        {competition.comment && competition.comment.length > 100 && (
-                          <button
-                            onClick={(e) => {
-                              e.preventDefault()
-                              toggleComment(competition.id)
-                            }}
-                            className="text-primary hover:text-primary/80 text-sm mt-1"
-                          >
-                            {expandedComments[competition.id] ? 'Show Less' : 'Read More'}
-                          </button>
-                        )}
-                      </div>
-                      <div className="flex flex-wrap gap-2">
-                        {competition.categories.map((category) => (
-                          <span
-                            key={category}
-                            className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm"
-                          >
-                            {category}
-                          </span>
-                        ))}
-                      </div>
-                      <div className="flex flex-wrap gap-2">
-                        {competition.level.map((level) => (
-                          <span
-                            key={level}
-                            className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm"
-                          >
-                            {level}
-                          </span>
-                        ))}
-                      </div>
-                      <div className="flex gap-2">
-                        <Button
-                          className="flex-1 bg-primary hover:bg-primary/90"
-                          onClick={(e) => {
-                            e.preventDefault()
-                            window.open(competition.eventLink, "_blank", "noopener,noreferrer")
-                          }}
-                        >
-                          Competition Link
-                        </Button>
-                        <Button
-                          className="flex-1 bg-secondary hover:bg-secondary/90"
-                          onClick={(e) => {
-                            e.preventDefault()
-                            window.open(competition.ticketLink, "_blank", "noopener,noreferrer")
-                          }}
-                        >
-                          Results
-                        </Button>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
+                  <CompetitionCard key={competition.id} competition={competition} />
               ))}
             </div>
           </TabsContent>

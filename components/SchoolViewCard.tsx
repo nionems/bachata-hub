@@ -1,22 +1,21 @@
 'use client'
 
-import { useState } from 'react'
 import { Card } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Calendar, MapPin, Clock, ChevronDown, ChevronUp, X } from "lucide-react"
-import { Event } from "@/types/event"
+import { MapPin, ChevronDown, ChevronUp, X, Instagram, Facebook, Globe } from "lucide-react"
+import { useState } from "react"
+import { School } from "@/types/school"
 
-interface EventCardProps {
-  event: Event
+interface SchoolViewCardProps {
+  school: School
 }
 
-export function EventCard({ event }: EventCardProps) {
+export function SchoolViewCard({ school }: SchoolViewCardProps) {
   const [isCommentExpanded, setIsCommentExpanded] = useState(false)
   const [isImageModalOpen, setIsImageModalOpen] = useState(false)
 
   const handleImageClick = (e: React.MouseEvent) => {
     e.stopPropagation();
-    if (event.imageUrl) {
+    if (school.imageUrl) {
       setIsImageModalOpen(true);
     }
   }
@@ -25,33 +24,29 @@ export function EventCard({ event }: EventCardProps) {
     <>
       <Card className="relative overflow-hidden group cursor-pointer h-[400px]">
         <div 
-          className="aspect-w-16 aspect-h-9 relative h-[200px] cursor-pointer"
+          className="relative h-full cursor-pointer"
           onClick={handleImageClick}
         >
           <img
-            src={event.imageUrl}
-            alt={event.name}
+            src={school.imageUrl}
+            alt={school.name}
             className="object-cover w-full h-full"
           />
           <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
         </div>
 
         <div className="absolute bottom-0 left-0 right-0 z-20 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-3 sm:p-4">
-          <h3 className="text-base sm:text-lg font-semibold text-primary line-clamp-1">{event.name}</h3>
-          <div className="flex items-center gap-2 text-xs sm:text-sm text-gray-200 mt-1">
-            <Calendar className="h-3 w-3 sm:h-4 sm:w-4" />
-            {new Date(event.startDate).toLocaleDateString()} - {new Date(event.endDate).toLocaleDateString()}
-          </div>
+          <h3 className="text-base sm:text-lg font-bold text-white line-clamp-1">{school.name}</h3>
           <div className="flex items-center gap-2 text-xs sm:text-sm text-gray-200 mt-1">
             <MapPin className="h-3 w-3 sm:h-4 sm:w-4" />
-            {event.location}, {event.state}
+            {school.location}, {school.state}
           </div>
-          {event.comment && (
+          {school.comment && (
             <div className="mt-1">
               <div className={`text-xs sm:text-sm text-gray-300 ${!isCommentExpanded ? 'line-clamp-2' : ''}`}>
-                {event.comment}
+                {school.comment}
               </div>
-              {event.comment.length > 100 && (
+              {school.comment.length > 100 && (
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
@@ -72,19 +67,44 @@ export function EventCard({ event }: EventCardProps) {
               )}
             </div>
           )}
-          <div className="flex flex-col gap-2 mt-2 sm:mt-3">
-            <Button
-              className="w-full bg-primary hover:bg-primary/90 text-white text-xs h-7 sm:h-8 flex items-center justify-center gap-2"
-              onClick={(e) => {
-                e.stopPropagation();
-                window.open(event.eventLink, '_blank');
-              }}
-            >
-              <Clock className="h-3 w-3 sm:h-4 sm:w-4" />
-              <span>Register Now</span>
-            </Button>
+          <div className="flex items-center justify-between gap-4 mt-3 sm:mt-2">
+            <div className="flex gap-4">
+              {school.instagramLink && (
+                <a
+                  href={school.instagramLink}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={(e) => e.stopPropagation()}
+                  className="text-white hover:text-primary transition-colors p-1"
+                >
+                  <Instagram className="h-6 w-6 sm:h-5 sm:w-5" />
+                </a>
+              )}
+              {school.facebookLink && (
+                <a
+                  href={school.facebookLink}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={(e) => e.stopPropagation()}
+                  className="text-white hover:text-primary transition-colors p-1"
+                >
+                  <Facebook className="h-6 w-6 sm:h-5 sm:w-5" />
+                </a>
+              )}
+              {school.website && (
+                <a
+                  href={school.website}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={(e) => e.stopPropagation()}
+                  className="text-white hover:text-primary transition-colors p-1"
+                >
+                  <Globe className="h-6 w-6 sm:h-5 sm:w-5" />
+                </a>
+              )}
+            </div>
             <div className="flex flex-wrap gap-2">
-              {event.danceStyles.map((style) => (
+              {school.danceStyles.map((style) => (
                 <span
                   key={style}
                   className="px-2 py-1 bg-primary/20 text-primary rounded-full text-xs"
@@ -110,8 +130,8 @@ export function EventCard({ event }: EventCardProps) {
             <X className="h-8 w-8" />
           </button>
           <img
-            src={event.imageUrl}
-            alt={event.name}
+            src={school.imageUrl}
+            alt={school.name}
             className="max-h-[90vh] max-w-[90vw] object-contain"
             onClick={(e) => e.stopPropagation()}
           />

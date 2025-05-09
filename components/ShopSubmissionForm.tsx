@@ -1,323 +1,311 @@
 "use client"
 
-import { useState, ChangeEvent, FormEvent } from 'react'
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
+import { useState } from 'react'
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
-import { X } from "lucide-react"
+import { toast } from "sonner"
 
 interface ShopSubmissionFormProps {
   isOpen: boolean
   onClose: () => void
 }
 
-interface ShopFormData {
-  name: string
-  location: string
-  state: string
-  address: string
-  googleReviewLink: string
-  websiteLink: string
-  image: File | null
-  comment: string
-}
-
 export function ShopSubmissionForm({ isOpen, onClose }: ShopSubmissionFormProps) {
-  const [formData, setFormData] = useState<ShopFormData>({
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [formData, setFormData] = useState({
     name: '',
     location: '',
     state: '',
     address: '',
-    googleReviewLink: '',
-    websiteLink: '',
-    image: null,
+    website: '',
+    instagramLink: '',
+    facebookLink: '',
+    googleMapLink: '',
     comment: '',
+    contactName: '',
+    contactEmail: '',
+    contactPhone: '',
+    additionalInfo: ''
   })
-  const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-  const [imagePreview, setImagePreview] = useState<string | null>(null)
 
-  const states = [
-    { value: 'NSW', label: 'New South Wales' },
-    { value: 'VIC', label: 'Victoria' },
-    { value: 'QLD', label: 'Queensland' },
-    { value: 'WA', label: 'Western Australia' },
-    { value: 'SA', label: 'South Australia' },
-    { value: 'TAS', label: 'Tasmania' },
-    { value: 'ACT', label: 'Australian Capital Territory' },
-    { value: 'NT', label: 'Northern Territory' },
-  ]
-
-  const handleChange = (
-    e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
-  ) => {
-    const { name, value, type } = e.target
-
-    if (type === 'file') {
-      const fileInput = e.target as HTMLInputElement
-      const file = fileInput.files?.[0] || null
-
-      setFormData((prev) => ({
-        ...prev,
-        image: file,
-      }))
-
-      if (imagePreview) {
-        URL.revokeObjectURL(imagePreview)
-      }
-
-      if (file) {
-        const newPreviewUrl = URL.createObjectURL(file)
-        setImagePreview(newPreviewUrl)
-      } else {
-        setImagePreview(null)
-      }
-    } else {
-      setFormData((prev) => ({
-        ...prev,
-        [name]: value,
-      }))
-    }
-  }
-
-  const handleImageUpload = async (file: File): Promise<string> => {
-    const formData = new FormData()
-    formData.append('file', file)
-
-    const response = await fetch('/api/upload', {
-      method: 'POST',
-      body: formData,
-    })
-
-    if (!response.ok) {
-      const errorData = await response.json()
-      throw new Error(errorData.error || 'Failed to upload image')
-    }
-
-    const data = await response.json()
-    return data.imageUrl
-  }
-
-  const handleSubmit = async (e: FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    setIsLoading(true)
-    setError(null)
+    setIsSubmitting(true)
 
     try {
-      let imageUrl = ''
-      if (formData.image) {
-        imageUrl = await handleImageUpload(formData.image)
-      }
-
-      const shopData = {
-        name: formData.name,
-        location: formData.location,
-        state: formData.state,
-        address: formData.address,
-        googleReviewLink: formData.googleReviewLink,
-        websiteLink: formData.websiteLink,
-        imageUrl,
-        comment: formData.comment,
-      }
-
-      const response = await fetch('/api/shops', {
+      const response = await fetch('/api/contact', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(shopData),
+        body: JSON.stringify({
+          subject: 'New Shop Submission',
+          message: `
+New Shop Submission Details:
+
+Shop Information:
+- Name: ${formData.name}
+- Location: ${formData.location}
+- State: ${formData.state}
+- Address: ${formData.address}
+- Website: ${formData.website}
+- Instagram: ${formData.instagramLink}
+- Facebook: ${formData.facebookLink}
+- Google Maps: ${formData.googleMapLink}
+- Additional Comments: ${formData.comment}
+
+Contact Information:
+- Name: ${formData.contactName}
+- Email: ${formData.contactEmail}
+- Phone: ${formData.contactPhone}
+
+Additional Information:
+${formData.additionalInfo}
+          `,
+          email: formData.contactEmail,
+          name: formData.contactName
+        }),
       })
 
       if (!response.ok) {
-        const errorData = await response.json()
-        throw new Error(errorData.error || 'Failed to submit shop')
+        throw new Error('Failed to submit form')
       }
 
+      toast.success('Thank you for your submission! We will review it and get back to you soon.')
       onClose()
-      // Reset form
       setFormData({
         name: '',
         location: '',
         state: '',
         address: '',
-        googleReviewLink: '',
-        websiteLink: '',
-        image: null,
+        website: '',
+        instagramLink: '',
+        facebookLink: '',
+        googleMapLink: '',
         comment: '',
+        contactName: '',
+        contactEmail: '',
+        contactPhone: '',
+        additionalInfo: ''
       })
-      setImagePreview(null)
     } catch (error) {
-      console.error('Error submitting shop:', error)
-      setError(error instanceof Error ? error.message : 'Failed to submit shop')
+      console.error('Error submitting form:', error)
+      toast.error('Failed to submit form. Please try again.')
     } finally {
-      setIsLoading(false)
+      setIsSubmitting(false)
     }
+  }
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    const { name, value } = e.target
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }))
   }
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-[95vw] sm:max-w-[600px] bg-gradient-to-br from-primary/10 to-secondary/10 max-h-[90vh] overflow-y-auto">
-        <DialogHeader className="sticky top-0 z-10 bg-white/80 backdrop-blur-sm">
-          <DialogTitle className="text-primary text-lg sm:text-xl flex justify-between items-center">
-            Submit Your Shop
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={onClose}
-              className="h-8 w-8 p-0"
-            >
-              <X className="h-4 w-4" />
-            </Button>
-          </DialogTitle>
-          <DialogDescription className="text-sm sm:text-base">
-            Fill out the form below to submit your dance shop for review.
-          </DialogDescription>
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle className="text-2xl font-bold text-center">Submit Your Shop</DialogTitle>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4">
-          {error && (
-            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative">
-              {error}
-            </div>
-          )}
-
-          <div className="space-y-2">
-            <Label htmlFor="name" className="text-primary">Shop Name *</Label>
-            <Input
-              id="name"
-              name="name"
-              value={formData.name}
-              onChange={handleChange}
-              required
-              placeholder="Enter shop name"
-              className="bg-white/80 backdrop-blur-sm"
-            />
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="location" className="text-primary">Location (City/Suburb) *</Label>
-              <Input
-                id="location"
-                name="location"
-                value={formData.location}
-                onChange={handleChange}
-                required
-                placeholder="e.g., Sydney"
-                className="bg-white/80 backdrop-blur-sm"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="state" className="text-primary">State *</Label>
-              <select
-                id="state"
-                name="state"
-                value={formData.state}
-                onChange={handleChange}
-                required
-                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary bg-white/80 backdrop-blur-sm"
-              >
-                <option value="">Select State</option>
-                {states.map(s => (
-                  <option key={s.value} value={s.value}>
-                    {s.label}
-                  </option>
-                ))}
-              </select>
-            </div>
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="address" className="text-primary">Address</Label>
-            <Input
-              id="address"
-              name="address"
-              value={formData.address}
-              onChange={handleChange}
-              placeholder="Enter shop address"
-              className="bg-white/80 backdrop-blur-sm"
-            />
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="googleReviewLink" className="text-primary">Google Review Link</Label>
-              <Input
-                id="googleReviewLink"
-                name="googleReviewLink"
-                type="url"
-                value={formData.googleReviewLink}
-                onChange={handleChange}
-                placeholder="https://maps.google.com/..."
-                className="bg-white/80 backdrop-blur-sm"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="websiteLink" className="text-primary">Website Link</Label>
-              <Input
-                id="websiteLink"
-                name="websiteLink"
-                type="url"
-                value={formData.websiteLink}
-                onChange={handleChange}
-                placeholder="https://www.exampleshop.com"
-                className="bg-white/80 backdrop-blur-sm"
-              />
-            </div>
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="image" className="text-primary">Shop Image</Label>
-            <Input
-              id="image"
-              name="image"
-              type="file"
-              accept="image/*"
-              onChange={handleChange}
-              className="bg-white/80 backdrop-blur-sm"
-            />
-            {imagePreview && (
-              <div className="mt-2">
-                <img
-                  src={imagePreview}
-                  alt="Preview"
-                  className="h-32 w-32 object-cover rounded-md"
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-4">
+              <div>
+                <Label htmlFor="name">Shop Name *</Label>
+                <Input
+                  id="name"
+                  name="name"
+                  value={formData.name}
+                  onChange={handleChange}
+                  required
+                  placeholder="Enter shop name"
                 />
               </div>
-            )}
+
+              <div>
+                <Label htmlFor="location">Location *</Label>
+                <Input
+                  id="location"
+                  name="location"
+                  value={formData.location}
+                  onChange={handleChange}
+                  required
+                  placeholder="Enter location"
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="state">State *</Label>
+                <select
+                  id="state"
+                  name="state"
+                  value={formData.state}
+                  onChange={handleChange}
+                  required
+                  className="w-full rounded-md border border-input bg-background px-3 py-2"
+                >
+                  <option value="">Select a state</option>
+                  <option value="NSW">New South Wales</option>
+                  <option value="VIC">Victoria</option>
+                  <option value="QLD">Queensland</option>
+                  <option value="WA">Western Australia</option>
+                  <option value="SA">South Australia</option>
+                  <option value="TAS">Tasmania</option>
+                  <option value="ACT">Australian Capital Territory</option>
+                  <option value="NT">Northern Territory</option>
+                </select>
+              </div>
+
+              <div>
+                <Label htmlFor="address">Address</Label>
+                <Input
+                  id="address"
+                  name="address"
+                  value={formData.address}
+                  onChange={handleChange}
+                  placeholder="Enter address"
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="website">Website</Label>
+                <Input
+                  id="website"
+                  name="website"
+                  type="url"
+                  value={formData.website}
+                  onChange={handleChange}
+                  placeholder="https://example.com"
+                />
+              </div>
+            </div>
+
+            <div className="space-y-4">
+              <div>
+                <Label htmlFor="instagramLink">Instagram Link</Label>
+                <Input
+                  id="instagramLink"
+                  name="instagramLink"
+                  type="url"
+                  value={formData.instagramLink}
+                  onChange={handleChange}
+                  placeholder="https://instagram.com/..."
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="facebookLink">Facebook Link</Label>
+                <Input
+                  id="facebookLink"
+                  name="facebookLink"
+                  type="url"
+                  value={formData.facebookLink}
+                  onChange={handleChange}
+                  placeholder="https://facebook.com/..."
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="googleMapLink">Google Maps Link</Label>
+                <Input
+                  id="googleMapLink"
+                  name="googleMapLink"
+                  type="url"
+                  value={formData.googleMapLink}
+                  onChange={handleChange}
+                  placeholder="https://maps.google.com/..."
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="comment">Additional Comments</Label>
+                <Textarea
+                  id="comment"
+                  name="comment"
+                  value={formData.comment}
+                  onChange={handleChange}
+                  placeholder="Tell us about your shop..."
+                  className="h-24"
+                />
+              </div>
+            </div>
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="comment" className="text-primary">Comment</Label>
+          <div className="border-t pt-6">
+            <h3 className="text-lg font-semibold mb-4">Contact Information</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <Label htmlFor="contactName">Your Name *</Label>
+                <Input
+                  id="contactName"
+                  name="contactName"
+                  value={formData.contactName}
+                  onChange={handleChange}
+                  required
+                  placeholder="Enter your name"
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="contactEmail">Email Address *</Label>
+                <Input
+                  id="contactEmail"
+                  name="contactEmail"
+                  type="email"
+                  value={formData.contactEmail}
+                  onChange={handleChange}
+                  required
+                  placeholder="Enter your email"
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="contactPhone">Phone Number</Label>
+                <Input
+                  id="contactPhone"
+                  name="contactPhone"
+                  type="tel"
+                  value={formData.contactPhone}
+                  onChange={handleChange}
+                  placeholder="Enter your phone number"
+                />
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <Label htmlFor="additionalInfo">Additional Information</Label>
             <Textarea
-              id="comment"
-              name="comment"
-              value={formData.comment}
+              id="additionalInfo"
+              name="additionalInfo"
+              value={formData.additionalInfo}
               onChange={handleChange}
-              rows={3}
-              placeholder="Add any additional information about the shop"
-              className="bg-white/80 backdrop-blur-sm"
+              placeholder="Any other information you'd like to share..."
+              className="h-24"
             />
           </div>
 
-          <div className="flex justify-end space-x-4">
+          <div className="flex justify-end gap-4">
             <Button
               type="button"
               variant="outline"
               onClick={onClose}
-              disabled={isLoading}
-              className="border-primary text-primary hover:bg-primary/10"
+              disabled={isSubmitting}
             >
               Cancel
             </Button>
-            <Button 
-              type="submit" 
-              disabled={isLoading}
-              className="bg-primary hover:bg-primary/90"
+            <Button
+              type="submit"
+              disabled={isSubmitting}
             >
-              {isLoading ? 'Submitting...' : 'Submit Shop'}
+              {isSubmitting ? 'Submitting...' : 'Submit'}
             </Button>
           </div>
         </form>

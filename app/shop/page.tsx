@@ -5,37 +5,25 @@ import { Card, CardFooter } from "@/components/ui/card"
 import { MapPin, Star, Globe, MessageSquare, ExternalLink, Instagram, Facebook, Share } from "lucide-react"
 import { collection, getDocs } from 'firebase/firestore'
 import { db } from '../../firebase/config'
-import { ShopSubmissionForm } from '@/components/ShopSubmissionForm'
 import { ContactForm } from "@/components/ContactForm"
+import { ShopSubmissionForm } from "@/components/ShopSubmissionForm"
 import { Button } from "@/components/ui/button"
 import { StateFilter } from "@/components/StateFilter"
 import { ImageModal } from "@/components/ImageModal"
 import { toast } from "@/components/ui/use-toast"
-
-interface Shop {
-  id: string
-  name: string
-  location: string
-  state: string
-  address: string
-  googleReviewLink: string
-  websiteLink: string
-  imageUrl: string
-  comment: string
-  website: string
-  instagramLink: string
-  facebookLink: string
-  googleMapLink: string
-}
+import { ShopCard } from '@/components/ShopCard'
+import { useStateFilter } from '@/hooks/useStateFilter'
+import { Shop } from '@/types/shop'
 
 export default function ShopsPage() {
   const [shops, setShops] = useState<Shop[]>([])
-  const [selectedState, setSelectedState] = useState<string>('all')
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [isSubmissionFormOpen, setIsSubmissionFormOpen] = useState(false)
   const [isContactFormOpen, setIsContactFormOpen] = useState(false)
+  const [isSubmissionFormOpen, setIsSubmissionFormOpen] = useState(false)
   const [selectedImage, setSelectedImage] = useState<{ url: string; title: string } | null>(null)
+
+  const { selectedState, setSelectedState, filteredItems: filteredShops } = useStateFilter(shops)
 
   const states = [
     { value: 'all', label: 'All States' },
@@ -63,8 +51,8 @@ export default function ShopsPage() {
         
         setShops(shopsList)
       } catch (err) {
+        console.error('Error fetching shops:', err)
         setError('Failed to load shops')
-        console.error(err)
       } finally {
         setIsLoading(false)
       }
@@ -73,12 +61,8 @@ export default function ShopsPage() {
     fetchShops()
   }, [])
 
-  const filteredShops = selectedState === 'all'
-    ? shops
-    : shops.filter(shop => shop.state === selectedState)
-
-  const handleStateChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setSelectedState(e.target.value)
+  const handleStateChange = (value: string) => {
+    setSelectedState(value)
   }
 
   if (isLoading) {
@@ -91,8 +75,10 @@ export default function ShopsPage() {
 
   if (error) {
     return (
-      <div className="text-center text-red-500 p-4">
-        {error}
+      <div className="container mx-auto px-4 py-8">
+        <div className="text-center text-red-500">
+          {error}
+        </div>
       </div>
     )
   }
@@ -100,12 +86,12 @@ export default function ShopsPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="container mx-auto px-3 sm:px-4 py-6 sm:py-8">
-        <div className="text-center mb-6 sm:mb-8">
+        <div className="text-center mb-8 sm:mb-12">
           <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent mb-2 sm:mb-4">
             Dance Shops
           </h1>
           <p className="text-base sm:text-xl text-gray-600">
-          Shop from the best dance stores across Australia — every purchase supports bachata.au
+            Find dance shops across Australia
           </p>
         </div>
 
@@ -121,125 +107,10 @@ export default function ShopsPage() {
             </div>
           ) : (
             filteredShops.map((shop) => (
-              <Card
-                key={shop.id}
-                className="relative overflow-hidden h-80 sm:h-96 text-white cursor-pointer"
-                onClick={() => shop.imageUrl && setSelectedImage({ url: shop.imageUrl, title: shop.name })}
-              >
-                {/* Full image background */}
-                <img
-                  src={shop.imageUrl}
-                  alt={shop.name}
-                  className="absolute inset-0 w-full h-full object-cover z-0"
-                />
-
-                {/* Dark overlay for readability */}
-                <div className="absolute inset-0 bg-black bg-opacity-40 z-10" />
-
-                {/* Bottom compact content */}
-                <div className="absolute bottom-0 left-0 right-0 z-20 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-3 sm:p-4">
-                  <h3 className="text-base sm:text-lg font-semibold">{shop.name}</h3>
-                  <div className="flex items-center gap-2 text-xs sm:text-sm text-gray-200 mt-1">
-                    <MapPin className="h-3 w-3 sm:h-4 sm:w-4" />
-                    {shop.location}
-                  </div>
-                  {shop.comment && (
-                    <div className="text-xs sm:text-sm text-gray-300 mt-1">
-                      {shop.comment}
-                    </div>
-                  )}
-                  <div className="flex flex-col gap-2 mt-2 sm:mt-3">
-                    {shop.websiteLink && (
-                      <Button
-                        className="w-full bg-primary hover:bg-primary/90 text-white text-xs h-7 sm:h-8 flex items-center justify-center gap-2"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          window.open(shop.websiteLink, '_blank');
-                        }}
-                      >
-                        <Globe className="h-3 w-3 sm:h-4 sm:w-4" />
-                        <span>Website</span>
-                      </Button>
-                    )}
-                    <Button
-                      variant="outline"
-                      className="w-full border-primary text-primary hover:bg-primary/10 text-xs h-7 sm:h-8 flex items-center justify-center gap-2"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        if (navigator.share) {
-                          navigator.share({
-                            title: shop.name,
-                            text: `Check out ${shop.name} - ${shop.location}`,
-                            url: shop.websiteLink || window.location.href
-                          });
-                        } else {
-                          // Fallback for browsers that don't support the Web Share API
-                          navigator.clipboard.writeText(shop.websiteLink || window.location.href);
-                          toast({
-                            title: "Link copied to clipboard",
-                            description: "Share this shop's website with your friends!",
-                          });
-                        }
-                      }}
-                    >
-                      <Share className="h-3 w-3 sm:h-4 sm:w-4" />
-                      <span>Share</span>
-                    </Button>
-                    <div className="flex gap-2">
-                      {shop.instagramLink && (
-                        <Button
-                          variant="outline"
-                          className="flex-1 border-primary text-primary hover:bg-primary/10 text-xs h-7 sm:h-8 flex items-center justify-center gap-2"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            window.open(shop.instagramLink, '_blank');
-                          }}
-                        >
-                          <Instagram className="h-3 w-3 sm:h-4 sm:w-4" />
-                          <span>Instagram</span>
-                        </Button>
-                      )}
-                      {shop.facebookLink && (
-                        <Button
-                          variant="outline"
-                          className="flex-1 border-primary text-primary hover:bg-primary/10 text-xs h-7 sm:h-8 flex items-center justify-center gap-2"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            window.open(shop.facebookLink, '_blank');
-                          }}
-                        >
-                          <Facebook className="h-3 w-3 sm:h-4 sm:w-4" />
-                          <span>Facebook</span>
-                        </Button>
-                      )}
-                      {shop.googleMapLink && (
-                        <Button
-                          variant="outline"
-                          className="flex-1 border-primary text-primary hover:bg-primary/10 text-xs h-7 sm:h-8 flex items-center justify-center gap-2"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            window.open(shop.googleMapLink, '_blank');
-                          }}
-                        >
-                          <MapPin className="h-3 w-3 sm:h-4 sm:w-4" />
-                          <span>Map</span>
-                        </Button>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              </Card>
+              <ShopCard key={shop.id} shop={shop} />
             ))
           )}
         </div>
-
-        {/* Image Modal */}
-        <ImageModal
-          isOpen={!!selectedImage}
-          onClose={() => setSelectedImage(null)}
-          imageUrl={selectedImage?.url || ''}
-          title={selectedImage?.title || ''}
-        />
 
         {/* Submit Your Shop Card */}
         <div className="mt-12 sm:mt-16 bg-gradient-to-r from-primary to-secondary rounded-xl shadow-xl overflow-hidden">
@@ -288,6 +159,14 @@ export default function ShopsPage() {
             </div>
           </div>
         </div>
+
+        {/* Image Modal */}
+        <ImageModal
+          isOpen={!!selectedImage}
+          onClose={() => setSelectedImage(null)}
+          imageUrl={selectedImage?.url || ''}
+          title={selectedImage?.title || ''}
+        />
 
         <ContactForm
           isOpen={isContactFormOpen}

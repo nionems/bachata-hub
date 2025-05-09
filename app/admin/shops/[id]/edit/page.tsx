@@ -18,6 +18,10 @@ interface Shop {
   imageUrl: string
   comment: string
   googleMapLink: string
+  googleReviewLink: string
+  createdAt: string
+  updatedAt: string
+  discountCode: string
 }
 
 export default function EditShopPage({ params }: { params: { id: string } }) {
@@ -96,23 +100,29 @@ export default function EditShopPage({ params }: { params: { id: string } }) {
     e.preventDefault()
     setError(null)
 
+    if (!shop) {
+      setError('Shop data not found')
+      return
+    }
+
     try {
-      let imageUrl = shop?.imageUrl
+      let imageUrl = shop.imageUrl
 
       if (selectedImage) {
         imageUrl = await handleImageUpload(selectedImage)
       }
 
-      const form = e.target as HTMLFormElement
-      const formElements = form.elements
       const shopData = {
-        name: (formElements.namedItem('name') as HTMLInputElement)?.value || '',
-        description: (formElements.namedItem('comment') as HTMLTextAreaElement)?.value || '',
-        location: (formElements.namedItem('location') as HTMLInputElement)?.value || '',
-        image: imageUrl,
-        website: (formElements.namedItem('websiteLink') as HTMLInputElement)?.value || '',
-        phone: (formElements.namedItem('contactInfo') as HTMLInputElement)?.value || '',
-        email: (formElements.namedItem('email') as HTMLInputElement)?.value || '',
+        name: shop.name,
+        location: shop.location,
+        state: shop.state,
+        address: shop.address,
+        comment: shop.comment,
+        googleReviewLink: shop.googleReviewLink,
+        imageUrl: imageUrl,
+        websiteLink: shop.websiteLink,
+        discountCode: shop.discountCode,
+        updatedAt: new Date().toISOString()
       }
 
       const response = await fetch(`/api/shops/${params.id}`, {
@@ -233,6 +243,18 @@ export default function EditShopPage({ params }: { params: { id: string } }) {
               onChange={(e) => setShop({ ...shop, comment: e.target.value })}
               className="w-full p-2 border rounded"
               rows={3}
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium mb-1">Discount Code</label>
+            <input
+              type="text"
+              name="discountCode"
+              value={shop.discountCode}
+              onChange={(e) => setShop({ ...shop, discountCode: e.target.value })}
+              className="w-full p-2 border rounded"
+              placeholder="Enter discount code"
             />
           </div>
 
