@@ -44,6 +44,7 @@ export default function Footer() {
                 <FooterLink href="/festivals">Festivals</FooterLink>
                 <FooterLink href="/schools">Schools</FooterLink>
                 <FooterLink href="/instructors">Instructors</FooterLink>
+                <FooterLink href="/media">Media</FooterLink>
               </ul>
             </div>
 

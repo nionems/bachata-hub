@@ -132,7 +132,7 @@ export default function EventsPage() {
           Find Bachata events across Australia — weekly socials, monthly parties, and special gatherings.
           </p>
         </div>
- 
+
         <StateFilter
           selectedState={selectedState}n
           onChange={setSelectedState}
@@ -180,11 +180,11 @@ export default function EventsPage() {
 
                 {/* Full image background */}
                 <div className="absolute inset-0 w-full h-full">
-                  <img
-                    src={event.imageUrl}
-                    alt={event.name}
+                <img
+                  src={event.imageUrl}
+                  alt={event.name}
                     className="w-full h-full object-cover object-center"
-                  />
+                />
                 </div>
 
                 {/* Dark overlay for readability */}
@@ -219,8 +219,8 @@ export default function EventsPage() {
                             <>
                               Show Less
                               <ChevronUp className="h-3 w-3" />
-                            </>
-                          ) : (
+                        </>
+                      ) : (
                             <>
                               Show More
                               <ChevronDown className="h-3 w-3" />
@@ -228,7 +228,7 @@ export default function EventsPage() {
                           )}
                         </button>
                       )}
-                    </div>
+                  </div>
                   )}
                   <div className="flex flex-col gap-1 mt-2">
                     {event.ticketLink ? (

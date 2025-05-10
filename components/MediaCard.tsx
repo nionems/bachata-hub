@@ -1,59 +1,65 @@
 'use client'
 
 import { Card } from "@/components/ui/card"
-import { MapPin, ExternalLink, Instagram, Facebook, Music, ChevronDown, ChevronUp, X } from "lucide-react"
+import { MapPin, ExternalLink, Instagram, Facebook, Mail, ChevronDown, ChevronUp, X } from "lucide-react"
 import { useState } from "react"
-import { Dj } from "@/types/dj"
+import { Media } from "@/types/media"
+import { useRouter } from 'next/navigation'
 
-interface DJCardProps {
-  dj: Dj
+interface MediaCardProps {
+  media: Media
+  layout?: 'grid' | 'list'
+  onDelete?: (id: string) => void
+  isAdmin?: boolean
 }
 
-export function DJCard({ dj }: DJCardProps) {
+export function MediaCard({ media, layout = 'grid', onDelete, isAdmin = false }: MediaCardProps) {
   const [isCommentExpanded, setIsCommentExpanded] = useState(false)
   const [isImageModalOpen, setIsImageModalOpen] = useState(false)
+  const router = useRouter()
 
   const handleImageClick = (e: React.MouseEvent) => {
     e.stopPropagation();
-    if (dj.imageUrl) {
+    if (media.imageUrl) {
       setIsImageModalOpen(true);
     }
   }
 
-  // Convert danceStyles to array if it's a string
-  const danceStyles = typeof dj.danceStyles === 'string' 
-    ? [dj.danceStyles] 
-    : Array.isArray(dj.danceStyles) 
-      ? dj.danceStyles 
-      : []
-
   return (
     <>
-      <Card className="relative overflow-hidden group cursor-pointer h-[400px]">
+      <Card className={`relative overflow-hidden group cursor-pointer ${
+        layout === 'grid' ? 'h-[400px]' : 'h-auto'
+      }`}>
         <div 
-          className="relative h-full cursor-pointer"
+          className={`relative cursor-pointer ${
+            layout === 'grid' ? 'h-full' : 'h-32'
+          }`}
           onClick={handleImageClick}
         >
           <img
-            src={dj.imageUrl}
-            alt={dj.name}
+            src={media.imageUrl}
+            alt={media.name}
             className="object-cover w-full h-full"
           />
           <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
         </div>
 
-        <div className="absolute bottom-0 left-0 right-0 z-20 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-3 sm:p-4">
-          <h3 className="text-base sm:text-lg font-bold text-white line-clamp-1">{dj.name}</h3>
+        <div className={`${
+          layout === 'grid' 
+            ? 'absolute bottom-0 left-0 right-0 z-20 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-3 sm:p-4'
+            : 'p-4'
+        }`}>
+          <h3 className="text-base sm:text-lg font-bold text-white line-clamp-1">{media.name}</h3>
           <div className="flex items-center gap-2 text-xs sm:text-sm text-gray-200 mt-1">
             <MapPin className="h-3 w-3 sm:h-4 sm:w-4" />
-            {dj.location}, {dj.state}
+            {media.location}, {media.state}
           </div>
-          {dj.comment && (
+          {media.comment && (
             <div className="mt-1">
               <div className={`text-xs sm:text-sm text-gray-300 ${!isCommentExpanded ? 'line-clamp-2' : ''}`}>
-                {dj.comment}
+                {media.comment}
               </div>
-              {dj.comment.length > 100 && (
+              {media.comment.length > 100 && (
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
@@ -74,22 +80,10 @@ export function DJCard({ dj }: DJCardProps) {
               )}
             </div>
           )}
-          {danceStyles.length > 0 && (
-            <div className="flex flex-wrap gap-2 mt-2 sm:mt-3">
-              {danceStyles.map((style) => (
-                <span
-                  key={style}
-                  className="px-2 py-1 bg-primary/20 text-primary rounded-full text-xs"
-                >
-                  {style}
-                </span>
-              ))}
-            </div>
-          )}
           <div className="flex gap-4 mt-3 sm:mt-2">
-            {dj.websiteLink && (
+            {media.mediaLink && (
               <a
-                href={dj.websiteLink}
+                href={media.mediaLink}
                 target="_blank"
                 rel="noopener noreferrer"
                 onClick={(e) => e.stopPropagation()}
@@ -98,9 +92,9 @@ export function DJCard({ dj }: DJCardProps) {
                 <ExternalLink className="h-6 w-6 sm:h-5 sm:w-5" />
               </a>
             )}
-            {dj.instagramLink && (
+            {media.instagramLink && (
               <a
-                href={dj.instagramLink}
+                href={media.instagramLink}
                 target="_blank"
                 rel="noopener noreferrer"
                 onClick={(e) => e.stopPropagation()}
@@ -109,9 +103,9 @@ export function DJCard({ dj }: DJCardProps) {
                 <Instagram className="h-6 w-6 sm:h-5 sm:w-5" />
               </a>
             )}
-            {dj.facebookLink && (
+            {media.facebookLink && (
               <a
-                href={dj.facebookLink}
+                href={media.facebookLink}
                 target="_blank"
                 rel="noopener noreferrer"
                 onClick={(e) => e.stopPropagation()}
@@ -120,18 +114,39 @@ export function DJCard({ dj }: DJCardProps) {
                 <Facebook className="h-6 w-6 sm:h-5 sm:w-5" />
               </a>
             )}
-            {dj.musicLink && (
+            {media.emailLink && (
               <a
-                href={dj.musicLink}
-                target="_blank"
-                rel="noopener noreferrer"
+                href={`mailto:${media.emailLink}`}
                 onClick={(e) => e.stopPropagation()}
                 className="text-white hover:text-primary transition-colors p-1"
               >
-                <Music className="h-6 w-6 sm:h-5 sm:w-5" />
+                <Mail className="h-6 w-6 sm:h-5 sm:w-5" />
               </a>
             )}
           </div>
+
+          {isAdmin && (
+            <div className="flex gap-2 mt-4">
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  router.push(`/admin/media/${media.id}/edit`);
+                }}
+                className="bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600 text-sm"
+              >
+                Edit
+              </button>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onDelete?.(media.id);
+                }}
+                className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 text-sm"
+              >
+                Delete
+              </button>
+            </div>
+          )}
         </div>
       </Card>
 
@@ -148,8 +163,8 @@ export function DJCard({ dj }: DJCardProps) {
             <X className="h-8 w-8" />
           </button>
           <img
-            src={dj.imageUrl}
-            alt={dj.name}
+            src={media.imageUrl}
+            alt={media.name}
             className="max-h-[90vh] max-w-[90vw] object-contain"
             onClick={(e) => e.stopPropagation()}
           />
@@ -158,3 +173,6 @@ export function DJCard({ dj }: DJCardProps) {
     </>
   )
 } 
+ 
+ 
+ 

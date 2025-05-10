@@ -14,7 +14,7 @@ export function SchoolCard({ school }: SchoolCardProps) {
   const [isImageModalOpen, setIsImageModalOpen] = useState(false)
 
   const handleImageClick = (e: React.MouseEvent) => {
-    e.stopPropagation();
+          e.stopPropagation();
     if (school.imageUrl) {
       setIsImageModalOpen(true);
     }
@@ -48,8 +48,8 @@ export function SchoolCard({ school }: SchoolCardProps) {
               </div>
               {school.comment.length > 100 && (
                 <button
-                  onClick={(e) => {
-                    e.stopPropagation();
+          onClick={(e) => {
+            e.stopPropagation();
                     setIsCommentExpanded(!isCommentExpanded);
                   }}
                   className="text-primary hover:text-primary/80 text-xs mt-1 flex items-center gap-1"

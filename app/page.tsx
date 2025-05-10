@@ -1,7 +1,7 @@
 'use client'
 
 import Link from "next/link"
-import { Calendar, Users, Music, School, ShoppingBag, Trophy, MapPin, Clock } from "lucide-react"
+import { Calendar, Users, Music, School, ShoppingBag, Trophy, MapPin, Clock, Video } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useState, useEffect } from 'react'
 import { School as SchoolType } from '@/types/school'
@@ -275,42 +275,95 @@ export default function Home() {
       <main className="min-h-screen">
         
         {/* Hero Section - Full height on mobile */}
-        <section className="relative h-[50vh] sm:h-[50vh] md:h-[60vh]">
+        <section className="relative h-[40vh] sm:h-[50vh] md:h-[60vh]">
           {/* Background gradient overlay */}
           <div className="absolute inset-0 bg-gradient-to-r from-primary to-secondary"></div>
           <div className="container mx-auto px-4 relative z-10 h-full flex flex-col items-center justify-start">
             
             {/* Logo at the very top of the banner */}
             <div className="w-full flex flex-col items-center mt-4">
-              <p className="text-base sm:text-lg md:text-xl mb-2 text-white/90 text-center comic-neue">
+              <p className="text-base sm:text-lg md:text-xl mb-0 text-white/90 text-center comic-neue">
                 Your one-stop destination for Bachata events, classes, and community across Australia.
               </p>
-              <Image
-                src="/images/newlogo99911-Photoroom.png"
-                alt="Bachata Australia Logo"
-                width={300}
-                height={300}
-                className="mx-auto mb-2 w-32 h-32 sm:w-48 sm:h-48 md:w-72 md:h-72"
-                priority
-              />
-            </div>
-            <div className="max-w-3xl mx-auto text-center">
-              {/* Main heading and description */}
-              {/* <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4 text-white">Bachata Australia</h1> */}
-              <div className="flex flex-col gap-3 justify-center items-center">
-                <Link href="/events">
-                  <Button size="lg" className="w-full sm:w-auto bg-white text-primary hover:bg-gray-100 text-base sm:text-lg">
-                    Explore Events
-                  </Button>
-                </Link>
-                <Link href="/community">
-                  <Button size="lg" className="w-full sm:w-auto bg-white/20 text-white hover:bg-white/30 text-base sm:text-lg">
-                    Join the Community
-                  </Button>
-                </Link>
+              <div className="flex flex-col items-center justify-center gap-4 sm:gap-8 relative">
+                <Image
+                  src="/images/BACHATA.AU (13).png"
+                  alt="Bachata Australia Logo"
+                  width={600}
+                  height={600}
+                  className="mx-auto -mt-24 sm:mt-16 mb-0 w-48 h-48 sm:w-72 sm:h-72 md:w-[432px] md:h-[432px] absolute z-0"
+                  priority
+                  style={{ objectFit: 'contain', mixBlendMode: 'multiply' }}
+                />
+                <div className="flex flex-row gap-8 sm:gap-32 mt-32 sm:mt-80 relative z-10">
+                  <Link href="/events" className="w-32 sm:w-40">
+                    <Button size="lg" className="w-full bg-white text-primary hover:bg-gray-100 text-base sm:text-lg">
+                      Explore Events
+                    </Button>
+                  </Link>
+                  <Link href="/community" className="w-32 sm:w-40">
+                    <Button size="lg" className="w-full bg-white/20 text-white hover:bg-white/30 text-base sm:text-lg">
+                      Join the Community
+                    </Button>
+                  </Link>
+                </div>
+                <div className="flex flex-col items-center gap-2 sm:hidden relative z-20 mt-8">
+                  <a
+                    href="https://buymeacoffee.com/bachata.au"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-white hover:text-yellow-300 flex items-center justify-center gap-2 text-sm sm:text-base"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="20"
+                      height="20"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      className="lucide lucide-coffee"
+                    >
+                      <path d="M17 8h1a4 4 0 1 1 0 8h-1" />
+                      <path d="M3 8h14v9a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4Z" />
+                      <line x1="6" x2="6" y1="2" y2="4" />
+                      <line x1="10" x2="10" y1="2" y2="4" />
+                      <line x1="14" x2="14" y1="2" y2="4" />
+                    </svg>
+                    Keep the Server Running
+                  </a>
+                  <a
+                    href="https://instagram.com/bachata.au"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-white hover:text-gray-200 flex items-center justify-center gap-2 text-sm sm:text-base"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="20"
+                      height="20"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      className="lucide lucide-instagram"
+                    >
+                      <rect width="20" height="20" x="2" y="2" rx="5" ry="5" />
+                      <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
+                      <line x1="17.5" x2="17.51" y1="6.5" y2="6.5" />
+                    </svg>
+                    Follow us on Instagram
+                  </a>
+                </div>
               </div>
-              {/* Social media and support links */}
-              <div className="mt-4 sm:mt-6 flex flex-col items-center gap-2">
+            </div>
+            <div className="max-w-3xl mx-auto text-center -mt-8">
+              {/* Social media and support links - Hidden on mobile */}
+              <div className="mt-4 sm:mt-16 hidden sm:flex flex-col items-center gap-2">
                 <a
                   href="https://buymeacoffee.com/bachata.au"
                   target="_blank"
@@ -479,6 +532,12 @@ export default function Home() {
                 link="/djs"
               />
               <FeatureCard
+                icon={<Video className="h-6 w-6 sm:h-8 sm:w-8 text-purple-500" />}
+                title="Media"
+                description="Watch Bachata videos"
+                link="/media"
+              />
+              <FeatureCard
                 icon={<MapPin className="h-6 w-6 sm:h-8 sm:w-8 text-indigo-500" />}
                 title="Accommodations"
                 description="Find places to stay"
@@ -503,7 +562,7 @@ export default function Home() {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-n          <h1 className="text-2xl font-bold text-gray-900 mb-4">Something went wrong</h1>
+          <h1 className="text-2xl font-bold text-gray-900 mb-4">Something went wrong</h1>
           <p className="text-gray-600">Please try again later</p>
         </div>
       </div>

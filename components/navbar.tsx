@@ -4,6 +4,7 @@ import { useState } from "react"
 import Link from "next/link"
 import { Menu, X } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import Image from "next/image"
 
 export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
@@ -23,6 +24,7 @@ export default function Navbar() {
     { name: "Schools", href: "/schools" },
     { name: "Instructors", href: "/instructors" },
     { name: "DJs", href: "/djs" },
+    { name: "Media", href: "/media" },
     { name: "Competitions", href: "/competitions" },
     { name: "Shops", href: "/shop" },
     { name: "Accommodations", href: "/accommodations" },
@@ -31,13 +33,19 @@ export default function Navbar() {
 
   return (
     <header className="bg-white shadow-sm sticky top-0 z-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-6">
-        <div className="flex justify-between h-14 sm:h-16">
+      <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-4">
+        <div className="flex justify-between h-12 sm:h-14">
           <div className="flex items-center">
             <Link href="/" className="flex-shrink-0 flex items-center">
-              <span className="text-lg sm:text-xl font-bold bg-gradient-to-r from-green-600 to-yellow-500 bg-clip-text text-transparent">
-                Bachata.Au
-              </span>
+              <Image
+                src="/images/BACHATA.AU (13).png"
+                alt="Bachata Australia Logo"
+                width={200}
+                height={200}
+                className="h-12 w-12 sm:h-24 sm:w-24"
+                priority
+                style={{ objectFit: 'contain' }}
+              />
             </Link>
           </div>
 
@@ -77,8 +85,8 @@ export default function Navbar() {
 
       {/* Mobile menu */}
       {isMenuOpen && (
-        <div className="md:hidden">
-          <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3 bg-white shadow-lg max-h-[80vh] overflow-y-auto">
+        <div className="md:hidden absolute top-full left-0 right-0 bg-white shadow-lg">
+          <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3 max-h-[80vh] overflow-y-auto">
             {navItems.map((item) => (
               <Link
                 key={item.name}
@@ -89,10 +97,11 @@ export default function Navbar() {
                 {item.name}
               </Link>
             ))}
-            <Button className="w-full mt-4 bg-primary hover:bg-primary/90 text-white" onClick={handleLoginClick}>Join the Community</Button>
+            <Button className="w-full mt-4 bg-primary hover:bg-primary/90 text-white" onClick={handleLoginClick}>
+              Join the Community
+            </Button>
           </div>
         </div>
       )}
     </header>
-  )
-}
+  )}

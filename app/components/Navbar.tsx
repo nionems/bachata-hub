@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import { useState } from 'react'
+import Image from 'next/image'
 
 export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
@@ -15,12 +16,18 @@ export default function Navbar() {
   }
 
   return (
-    <nav className="bg-primary p-4">
+    <nav className="bg-primary p-2">
       <div className="container mx-auto flex justify-between items-center">
-        <Link href="/" className="text-white text-xl font-bold">
-          <span className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-secondary to-primary bg-clip-text text-transparent hover:opacity-80 transition-opacity">
-            Bachata.au
-          </span>
+        <Link href="/" className="flex-shrink-0 flex items-center">
+          <Image
+            src="/images/BACHATA.AU (13).png"
+            alt="Bachata Australia Logo"
+            width={200}
+            height={200}
+            className="h-12 w-12 sm:h-16 sm:w-16"
+            priority
+            style={{ objectFit: 'contain' }}
+          />
         </Link>
         
         {/* Mobile menu button */}
@@ -133,4 +140,3 @@ export default function Navbar() {
       )}
     </nav>
   )
-} 
