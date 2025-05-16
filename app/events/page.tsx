@@ -41,41 +41,6 @@ interface Event {
   isWorkshop?: boolean
 }
 
-// Static events data
-export const eventsData = [
-  {
-    id: "1",
-    name: "Sydney Bachata Festival 2025",
-    date: "April 18-20, 2025",
-    time: "All day",
-    location: "West HQ, Rooty Hill",
-    state: "NSW",
-    address: "55 Sherbrooke St, Rooty Hill NSW 2766",
-    eventLink: "https://example.com",
-    price: "$85",
-    ticketLink: "https://example.com",
-    imageUrl: "/placeholder.svg",
-    comment: "Australia's premier Bachata festival featuring world-class workshops, performances, and a live Bachata concert with international artists.",
-    googleMapLink: "https://goo.gl/maps/example"
-  },
-  {
-    id: "2",
-    name: "Melbourne Bachata Congress",
-    date: "May 15-17, 2025",
-    time: "All day",
-    location: "Melbourne Convention Centre",
-    state: "VIC",
-    address: "1 Convention Centre Pl, South Wharf VIC 3006",
-    eventLink: "https://example.com",
-    price: "$75",
-    ticketLink: "https://example.com",
-    imageUrl: "/placeholder.svg",
-    comment: "Three days of workshops, social dancing, and performances with international Bachata artists.",
-    googleMapLink: "https://goo.gl/maps/example"
-  },
-  // Add more static events as needed
-]
-
 export default function EventsPage() {
   const [events, setEvents] = useState<Event[]>([])
   const [isLoading, setIsLoading] = useState(true)
@@ -86,6 +51,44 @@ export default function EventsPage() {
   const [expandedComments, setExpandedComments] = useState<Record<string, boolean>>({})
   
   const { selectedState, setSelectedState, filteredItems: filteredEvents } = useStateFilter(events)
+
+  // Static events data
+  const staticEvents: Event[] = [
+    {
+      id: "1",
+      name: "Sydney Bachata Festival 2025",
+      eventDate: "2025-04-18",
+      startTime: "09:00",
+      endTime: "23:00",
+      location: "West HQ, Rooty Hill",
+      city: "Sydney",
+      state: "NSW",
+      description: "Australia's premier Bachata festival",
+      eventLink: "https://example.com",
+      price: "$85",
+      ticketLink: "https://example.com",
+      imageUrl: "/placeholder.svg",
+      comment: "Australia's premier Bachata festival featuring world-class workshops, performances, and a live Bachata concert with international artists.",
+      googleMapLink: "https://goo.gl/maps/example"
+    },
+    {
+      id: "2",
+      name: "Melbourne Bachata Congress",
+      eventDate: "2025-05-15",
+      startTime: "09:00",
+      endTime: "23:00",
+      location: "Melbourne Convention Centre",
+      city: "Melbourne",
+      state: "VIC",
+      description: "Three days of Bachata workshops and social dancing",
+      eventLink: "https://example.com",
+      price: "$75",
+      ticketLink: "https://example.com",
+      imageUrl: "/placeholder.svg",
+      comment: "Three days of workshops, social dancing, and performances with international Bachata artists.",
+      googleMapLink: "https://goo.gl/maps/example"
+    }
+  ]
 
   const toggleComment = (eventId: string) => {
     setExpandedComments(prev => ({
@@ -106,7 +109,8 @@ export default function EventsPage() {
           ...doc.data()
         })) as Event[]
         
-        setEvents(eventsList)
+        // Combine static events with fetched events
+        setEvents([...staticEvents, ...eventsList])
       } catch (err) {
         console.error('Error fetching events:', err)
         setError('Failed to load events')
@@ -129,12 +133,12 @@ export default function EventsPage() {
             All Recuring Bachata Events in Australia
           </h1>
           <p className="text-base sm:text-xl text-gray-600">
-          Find Bachata events across Australia — weekly socials, monthly parties, and special gatherings.
+            Find Bachata events across Australia — weekly socials, monthly parties, and special gatherings.
           </p>
         </div>
 
         <StateFilter
-          selectedState={selectedState}n
+          selectedState={selectedState}
           onChange={setSelectedState}
         />
 

@@ -36,21 +36,21 @@ export default function AdminPage() {
   const router = useRouter()
 
   useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const response = await fetch('/api/auth/check')
+        if (!response.ok) {
+          router.push('/admin/login')
+        }
+      } catch (err) {
+        router.push('/admin/login')
+      }
+    }
+
     checkAuth()
     fetchSchools()
     fetchAccommodations()
-  }, [])
-
-  const checkAuth = async () => {
-    try {
-      const response = await fetch('/api/auth/check')
-      if (!response.ok) {
-        router.push('/admin/login')
-      }
-    } catch (err) {
-      router.push('/admin/login')
-    }
-  }
+  }, [router])
 
   const fetchSchools = async () => {
     try {

@@ -1,11 +1,9 @@
-import type React from "react"
 import type { Metadata } from "next"
-import { Inter } from "next/font/google"
+import { Inter, Comic_Neue, Fredoka } from "next/font/google"
 import "./global.css"
-import { ThemeProvider } from "@/components/theme-provider"
+import { Toaster } from "sonner"
 import Navbar from "@/components/navbar"
 import Footer from "@/components/footer"
-import { Toaster } from "sonner"
 import { AIAssistant } from "@/components/AIAssistant"
 
 const inter = Inter({
@@ -15,40 +13,40 @@ const inter = Inter({
   variable: "--font-inter",
 })
 
+const comicNeue = Comic_Neue({
+  weight: ['400', '700'],
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-comic-neue',
+})
+
+const fredoka = Fredoka({
+  weight: ['400', '700'],
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-fredoka',
+})
+
 export const metadata: Metadata = {
-  title: "Bachata Australia - Your Ultimate Bachata Hub",
-  description:
-    "The ultimate hub for Bachata dancing in Australia featuring events, festivals, schools, instructors, and more.",
-  generator: 'v0.dev'
+  title: "Bachata Hub - Find Bachata Events in Australia",
+  description: "Discover Bachata events, classes, and socials across Australia. Connect with the Bachata community and find your next dance event.",
 }
 
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode
-}>) {
+}) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <head>
-        <link href="https://fonts.googleapis.com/css2?family=Comic+Neue&display=swap" rel="stylesheet" />
-        <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;700&display=swap" rel="stylesheet" />
-      </head>
-      <body className={`${inter.variable}`} suppressHydrationWarning>
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="light"
-          enableSystem
-          disableTransitionOnChange
-          storageKey="bachata-hub-theme"
-        >
-          <div className="flex flex-col min-h-screen">
-            <Navbar />
-            <main className="flex-grow">{children}</main>
-            <Footer />
-            <AIAssistant />
-          </div>
-        </ThemeProvider>
-        <Toaster position="top-center" />
+    <html lang="en">
+      <body className={`${inter.variable} ${comicNeue.variable} ${fredoka.variable} min-h-screen flex flex-col`}>
+        <Navbar />
+        <main className="flex-grow">
+          {children}
+        </main>
+        <Footer />
+        <AIAssistant />
+        <Toaster />
       </body>
     </html>
   )
