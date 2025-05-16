@@ -129,10 +129,10 @@ export default function AdminPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {schools.map((school) => (
               <Card key={school.id} className="overflow-hidden">
-                {school.image && (
+                {school.imageUrl && (
                   <div className="relative aspect-video">
                     <Image
-                      src={school.image}
+                      src={school.imageUrl}
                       alt={school.name}
                       fill
                       className="object-cover"
