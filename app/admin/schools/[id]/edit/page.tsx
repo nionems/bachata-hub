@@ -228,6 +228,16 @@ export default function EditSchoolPage() {
           />
         </div>
 
+        <div className="space-y-2">
+          <Label htmlFor="comment">Description</Label>
+          <Textarea
+            id="comment"
+            value={school.comment}
+            onChange={(e) => setSchool({ ...school, comment: e.target.value })}
+            required
+          />
+        </div>
+
         <div className="flex gap-4">
           <Button type="submit">Save Changes</Button>
           <Button

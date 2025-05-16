@@ -52,51 +52,6 @@ export default function EventsPage() {
   
   const { selectedState, setSelectedState, filteredItems: filteredEvents } = useStateFilter(events)
 
-  // Static events data
-  const staticEvents: Event[] = [
-    {
-      id: "1",
-      name: "Sydney Bachata Festival 2025",
-      eventDate: "2025-04-18",
-      startTime: "09:00",
-      endTime: "23:00",
-      location: "West HQ, Rooty Hill",
-      city: "Sydney",
-      state: "NSW",
-      description: "Australia's premier Bachata festival",
-      eventLink: "https://example.com",
-      price: "$85",
-      ticketLink: "https://example.com",
-      imageUrl: "/placeholder.svg",
-      comment: "Australia's premier Bachata festival featuring world-class workshops, performances, and a live Bachata concert with international artists.",
-      googleMapLink: "https://goo.gl/maps/example"
-    },
-    {
-      id: "2",
-      name: "Melbourne Bachata Congress",
-      eventDate: "2025-05-15",
-      startTime: "09:00",
-      endTime: "23:00",
-      location: "Melbourne Convention Centre",
-      city: "Melbourne",
-      state: "VIC",
-      description: "Three days of Bachata workshops and social dancing",
-      eventLink: "https://example.com",
-      price: "$75",
-      ticketLink: "https://example.com",
-      imageUrl: "/placeholder.svg",
-      comment: "Three days of workshops, social dancing, and performances with international Bachata artists.",
-      googleMapLink: "https://goo.gl/maps/example"
-    }
-  ]
-
-  const toggleComment = (eventId: string) => {
-    setExpandedComments(prev => ({
-      ...prev,
-      [eventId]: !prev[eventId]
-    }))
-  }
-
   useEffect(() => {
     const fetchEvents = async () => {
       setIsLoading(true)
@@ -109,6 +64,44 @@ export default function EventsPage() {
           ...doc.data()
         })) as Event[]
         
+        // Static events data
+        const staticEvents: Event[] = [
+          {
+            id: "1",
+            name: "Sydney Bachata Festival 2025",
+            eventDate: "2025-04-18",
+            startTime: "09:00",
+            endTime: "23:00",
+            location: "West HQ, Rooty Hill",
+            city: "Sydney",
+            state: "NSW",
+            description: "Australia's premier Bachata festival",
+            eventLink: "https://example.com",
+            price: "$85",
+            ticketLink: "https://example.com",
+            imageUrl: "/placeholder.svg",
+            comment: "Australia's premier Bachata festival featuring world-class workshops, performances, and a live Bachata concert with international artists.",
+            googleMapLink: "https://goo.gl/maps/example"
+          },
+          {
+            id: "2",
+            name: "Melbourne Bachata Congress",
+            eventDate: "2025-05-15",
+            startTime: "09:00",
+            endTime: "23:00",
+            location: "Melbourne Convention Centre",
+            city: "Melbourne",
+            state: "VIC",
+            description: "Three days of Bachata workshops and social dancing",
+            eventLink: "https://example.com",
+            price: "$75",
+            ticketLink: "https://example.com",
+            imageUrl: "/placeholder.svg",
+            comment: "Three days of workshops, social dancing, and performances with international Bachata artists.",
+            googleMapLink: "https://goo.gl/maps/example"
+          }
+        ]
+        
         // Combine static events with fetched events
         setEvents([...staticEvents, ...eventsList])
       } catch (err) {
@@ -120,7 +113,14 @@ export default function EventsPage() {
     }
 
     fetchEvents()
-  }, [staticEvents])
+  }, [])
+
+  const toggleComment = (eventId: string) => {
+    setExpandedComments(prev => ({
+      ...prev,
+      [eventId]: !prev[eventId]
+    }))
+  }
 
   if (isLoading) return <div className="text-center py-8">Loading events...</div>
   if (error) return <div className="text-center py-8 text-red-500">{error}</div>
