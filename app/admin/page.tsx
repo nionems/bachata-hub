@@ -144,7 +144,7 @@ export default function AdminPage() {
                   <CardDescription>{school.location}</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-sm text-gray-600">{school.description}</p>
+                  <p className="text-sm text-gray-600">{school.comment}</p>
                   {school.website && (
                     <a 
                       href={school.website} 
