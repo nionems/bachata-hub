@@ -120,7 +120,7 @@ export default function EventsPage() {
     }
 
     fetchEvents()
-  }, [])
+  }, [staticEvents])
 
   if (isLoading) return <div className="text-center py-8">Loading events...</div>
   if (error) return <div className="text-center py-8 text-red-500">{error}</div>
