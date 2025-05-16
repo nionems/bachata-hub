@@ -219,12 +219,12 @@ export default function EditSchoolPage() {
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="image">Image URL (optional)</Label>
+          <Label htmlFor="imageUrl">Image URL (optional)</Label>
           <Input
-            id="image"
+            id="imageUrl"
             type="url"
-            value={school.image || ''}
-            onChange={(e) => setSchool({ ...school, image: e.target.value })}
+            value={school.imageUrl || ''}
+            onChange={(e) => setSchool({ ...school, imageUrl: e.target.value })}
           />
         </div>
 
