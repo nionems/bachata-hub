@@ -199,11 +199,11 @@ export default function EditSchoolPage() {
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="description">Description</Label>
+          <Label htmlFor="comment">Description</Label>
           <Textarea
-            id="description"
-            value={school.description}
-            onChange={(e) => setSchool({ ...school, description: e.target.value })}
+            id="comment"
+            value={school.comment}
+            onChange={(e) => setSchool({ ...school, comment: e.target.value })}
             required
           />
         </div>
@@ -225,16 +225,6 @@ export default function EditSchoolPage() {
             type="url"
             value={school.image || ''}
             onChange={(e) => setSchool({ ...school, image: e.target.value })}
-          />
-        </div>
-
-        <div className="space-y-2">
-          <Label htmlFor="comment">Description</Label>
-          <Textarea
-            id="comment"
-            value={school.comment}
-            onChange={(e) => setSchool({ ...school, comment: e.target.value })}
-            required
           />
         </div>
 
