@@ -1,78 +1,117 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { StateFilter } from '@/components/ui/StateFilter'
-import { useStateFilter } from '@/hooks/useStateFilter'
-import { collection, getDocs } from 'firebase/firestore'
-import { db } from '../../firebase/config'
-import { ItemCard } from '@/components/ItemCard'
+import { useParams } from 'next/navigation'
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { MapPin, Phone, Mail, Globe } from "lucide-react"
 
-// Replace ItemType with the appropriate interface (e.g., Festival, Instructor, DJ)
+interface ItemType {
+  id: string
+  name: string
+  location: string
+  state: string
+  description: string
+  website?: string
+  contactInfo?: string
+  email?: string
+  imageUrl?: string
+  googleMapLink?: string
+  comment?: string
+}
+
 export default function PageName() {
   const [items, setItems] = useState<ItemType[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-
-  const { selectedState, setSelectedState, filteredItems } = useStateFilter(items)
+  const params = useParams()
+  const pageType = params.page as string
 
   useEffect(() => {
     const fetchItems = async () => {
-      setIsLoading(true)
-      setError(null)
       try {
-        const itemsCollection = collection(db, 'collection-name')
-        const itemsSnapshot = await getDocs(itemsCollection)
-        const itemsList = itemsSnapshot.docs.map(doc => ({
-          id: doc.id,
-          ...doc.data()
-        })) as ItemType[]
-
-        setItems(itemsList)
+        const response = await fetch(`/api/${pageType}`)
+        if (!response.ok) throw new Error('Failed to fetch items')
+        const data = await response.json()
+        setItems(data)
       } catch (err) {
-        console.error('Error fetching items:', err)
-        setError('Failed to load items')
+        setError(err instanceof Error ? err.message : 'An error occurred')
       } finally {
         setIsLoading(false)
       }
     }
 
     fetchItems()
-  }, [])
+  }, [pageType])
 
-  if (isLoading) return <div className="text-center py-8">Loading...</div>
-  if (error) return <div className="text-center py-8 text-red-500">{error}</div>
+  if (isLoading) return <div className="p-4">Loading...</div>
+  if (error) return <div className="p-4 text-red-500">Error: {error}</div>
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="container mx-auto px-4 py-8">
-        {/* Page Header */}
-        <div className="text-center mb-8 mt-2 sm:mt-4">
-          <h1 className="text-xl sm:text-2xl md:text-4xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent mb-2 sm:mb-4">
-            Bachata [Page Name]
-          </h1>
-          <p className="text-sm sm:text-base text-gray-600">
-            Find Bachata [items] across Australia
-          </p>
-        </div>
+    <div className="container mx-auto px-4 py-8">
+      <div className="text-center mb-12">
+        <h1 className="text-2xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent mb-4">
+          {pageType.charAt(0).toUpperCase() + pageType.slice(1)}
+        </h1>
+        <p className="text-base sm:text-xl text-gray-600">
+          Find the best {pageType} across Australia
+        </p>
+      </div>
 
-        {/* State Filter Component */}
-        <StateFilter
-          selectedState={selectedState}
-          onChange={setSelectedState}
-        />
-
-        {/* Grid of filtered items */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {filteredItems.length === 0 ? (
-            <div className="col-span-full text-center py-8 text-gray-500">
-              No items found {selectedState !== 'all' && `in ${selectedState}`}
-            </div>
-          ) : (
-            filteredItems.map((item) => (
-              <ItemCard key={item.id} item={item} />
-            ))
-          )}
-        </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        {items.map((item) => (
+          <Card key={item.id} className="overflow-hidden">
+            {item.imageUrl && (
+              <div className="relative aspect-video">
+                <img
+                  src={item.imageUrl}
+                  alt={item.name}
+                  className="w-full h-full object-cover"
+                />
+              </div>
+            )}
+            <CardHeader>
+              <CardTitle>{item.name}</CardTitle>
+              <CardDescription className="flex items-center gap-2">
+                <MapPin className="w-4 h-4" />
+                <span>{item.location}, {item.state}</span>
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <p className="text-sm text-gray-600">{item.description}</p>
+                {item.contactInfo && (
+                  <div className="flex items-center gap-2">
+                    <Phone className="w-4 h-4" />
+                    <span>{item.contactInfo}</span>
+                  </div>
+                )}
+                {item.email && (
+                  <div className="flex items-center gap-2">
+                    <Mail className="w-4 h-4" />
+                    <span>{item.email}</span>
+                  </div>
+                )}
+                {item.website && (
+                  <div className="flex items-center gap-2">
+                    <Globe className="w-4 h-4" />
+                    <a 
+                      href={item.website} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="text-blue-600 hover:underline"
+                    >
+                      Website
+                    </a>
+                  </div>
+                )}
+                {item.comment && (
+                  <p className="text-sm text-gray-600 mt-2">{item.comment}</p>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        ))}
       </div>
     </div>
   )
