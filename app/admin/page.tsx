@@ -47,51 +47,51 @@ export default function AdminPage() {
       }
     }
 
+    const fetchSchools = async () => {
+      try {
+        const response = await fetch('/api/schools')
+        if (!response.ok) throw new Error('Failed to fetch schools')
+        const data = await response.json()
+        setSchools(data)
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'An error occurred')
+      }
+    }
+
+    const fetchAccommodations = async () => {
+      try {
+        console.log('Starting to fetch accommodations...')
+        const response = await fetch('/api/accommodations')
+        console.log('API Response status:', response.status)
+        
+        if (!response.ok) {
+          console.error('API Response not OK:', response.status, response.statusText)
+          throw new Error('Failed to fetch accommodations')
+        }
+        
+        const data = await response.json()
+        console.log('Fetched accommodations data:', data)
+        console.log('Number of accommodations:', data.length)
+        
+        if (!Array.isArray(data)) {
+          console.error('Received data is not an array:', data)
+          throw new Error('Invalid data format received')
+        }
+        
+        setAccommodations(data)
+        console.log('Accommodations state updated')
+      } catch (err) {
+        console.error('Error in fetchAccommodations:', err)
+        setError('Failed to load accommodations: ' + (err instanceof Error ? err.message : 'Unknown error'))
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
     checkAuth()
     fetchSchools()
     fetchAccommodations()
   }, [router])
-
-  const fetchSchools = async () => {
-    try {
-      const response = await fetch('/api/schools')
-      if (!response.ok) throw new Error('Failed to fetch schools')
-      const data = await response.json()
-      setSchools(data)
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred')
-    }
-  }
-
-  const fetchAccommodations = async () => {
-    try {
-      console.log('Starting to fetch accommodations...')
-      const response = await fetch('/api/accommodations')
-      console.log('API Response status:', response.status)
-      
-      if (!response.ok) {
-        console.error('API Response not OK:', response.status, response.statusText)
-        throw new Error('Failed to fetch accommodations')
-      }
-      
-      const data = await response.json()
-      console.log('Fetched accommodations data:', data)
-      console.log('Number of accommodations:', data.length)
-      
-      if (!Array.isArray(data)) {
-        console.error('Received data is not an array:', data)
-        throw new Error('Invalid data format received')
-      }
-      
-      setAccommodations(data)
-      console.log('Accommodations state updated')
-    } catch (err) {
-      console.error('Error in fetchAccommodations:', err)
-      setError('Failed to load accommodations: ' + (err instanceof Error ? err.message : 'Unknown error'))
-    } finally {
-      setIsLoading(false)
-    }
-  }
 
   const handleDeleteAccommodation = async (id: string) => {
     if (!confirm('Are you sure you want to delete this accommodation?')) return
