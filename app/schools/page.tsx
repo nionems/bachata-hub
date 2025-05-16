@@ -92,24 +92,13 @@ export default function SchoolsPage() {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
-        <div>
-          <h1 className="text-2xl sm:text-3xl font-bold">Dance Schools</h1>
-          <p className="text-gray-600 mt-1">Find dance schools in your area</p>
-        </div>
-        <div className="flex gap-2">
-          <Button
-            variant="outline"
-            onClick={() => setIsContactFormOpen(true)}
-          >
-            Contact Us
-          </Button>
-          <Button
-            onClick={() => setIsSubmissionFormOpen(true)}
-          >
-            Add Your School
-          </Button>
-        </div>
+      <div className="text-center mb-8 sm:mb-12">
+        <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent mb-2 sm:mb-4">
+          Dance Schools
+        </h1>
+        <p className="text-base sm:text-xl text-gray-600">
+          Find dance schools in your area
+        </p>
       </div>
 
       <div className="mb-8">
@@ -123,6 +112,54 @@ export default function SchoolsPage() {
         {filteredSchools.map((school) => (
           <SchoolViewCard key={school.id} school={school} />
         ))}
+      </div>
+
+      {/* Add Your School Card */}
+      <div className="mt-12 sm:mt-16 bg-gradient-to-r from-primary to-secondary rounded-xl shadow-xl overflow-hidden">
+        <div className="p-6 sm:p-8 md:p-12 flex flex-col md:flex-row items-center justify-between">
+          <div className="text-white mb-6 md:mb-0 md:mr-8">
+            <h2 className="text-2xl sm:text-3xl font-bold mb-3 sm:mb-4">
+              Add Your School
+            </h2>
+            <p className="text-white/90 text-base sm:text-lg mb-4 sm:mb-6">
+              Are you a dance school owner? Get featured in our directory and connect with dancers across Australia!
+            </p>
+            <ul className="space-y-2 sm:space-y-3">
+              <li className="flex items-center text-sm sm:text-base">
+                <svg className="w-5 h-5 sm:w-6 sm:h-6 mr-2 sm:mr-3" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/>
+                </svg>
+                Reach a wider audience of dance enthusiasts
+              </li>
+              <li className="flex items-center text-sm sm:text-base">
+                <svg className="w-5 h-5 sm:w-6 sm:h-6 mr-2 sm:mr-3" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/>
+                </svg>
+                Promote your classes and events
+              </li>
+              <li className="flex items-center text-sm sm:text-base">
+                <svg className="w-5 h-5 sm:w-6 sm:h-6 mr-2 sm:mr-3" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/>
+                </svg>
+                Connect with dancers across Australia
+              </li>
+            </ul>
+          </div>
+          <div className="flex flex-col space-y-3 sm:space-y-4 w-full sm:w-auto">
+            <Button
+              onClick={() => setIsContactFormOpen(true)}
+              className="bg-white text-primary px-6 sm:px-8 py-2 sm:py-3 rounded-full font-semibold hover:bg-gray-50 transition-colors duration-200 text-center w-full sm:w-auto"
+            >
+              Contact Us
+            </Button>
+            <Button
+              onClick={() => setIsSubmissionFormOpen(true)}
+              className="bg-secondary text-white px-6 sm:px-8 py-2 sm:py-3 rounded-full font-semibold hover:bg-secondary/90 transition-colors duration-200 text-center w-full sm:w-auto"
+            >
+              Submit via Form
+            </Button>
+          </div>
+        </div>
       </div>
 
       <SchoolSubmissionForm

@@ -297,12 +297,12 @@ export default function Home() {
                 />
                 <div className="flex flex-row gap-8 sm:gap-32 mt-32 sm:mt-80 relative z-10">
                   <Link href="/events" className="w-32 sm:w-40">
-                    <Button size="lg" className="w-full bg-white text-primary hover:bg-gray-100 text-base sm:text-lg">
+                    <Button size="sm" className="w-full bg-white text-primary hover:bg-gray-100 text-sm sm:text-base whitespace-nowrap px-2 py-1">
                       Explore Events
                     </Button>
                   </Link>
                   <Link href="/community" className="w-32 sm:w-40">
-                    <Button size="lg" className="w-full bg-white/20 text-white hover:bg-white/30 text-base sm:text-lg">
+                    <Button size="sm" className="w-full bg-white/20 text-white hover:bg-white/30 text-sm sm:text-base whitespace-nowrap px-2 py-1">
                       Join the Community
                     </Button>
                   </Link>
@@ -428,11 +428,11 @@ export default function Home() {
                 {events.map((event) => (
                   <div key={event.id} className="px-2">
                     <div 
-                      className="bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden cursor-pointer hover:shadow-xl transition-shadow"
+                      className="bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden cursor-pointer hover:shadow-xl transition-shadow relative h-80"
                       onClick={() => handleEventClick(event)}
                     >
                       <div 
-                        className="relative h-48"
+                        className="absolute inset-0"
                         onClick={(e) => {
                           e.stopPropagation()
                           handleImageClick(event)
@@ -443,7 +443,7 @@ export default function Home() {
                             src={event.imageUrl}
                             alt={event.name}
                             fill
-                            className="object-cover object-center"
+                            className="object-cover"
                             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                             onError={(e) => {
                               console.error('Error loading image:', event.imageUrl)
@@ -456,15 +456,15 @@ export default function Home() {
                             src="/images/placeholder.svg"
                             alt="No image available"
                             fill
-                            className="object-contain p-8"
+                            className="object-contain p-8 bg-white"
                             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                           />
                         )}
                       </div>
-                      <div className="p-4">
-                        <h3 className="text-lg font-semibold mb-2">{event.name}</h3>
-                        <p className="text-gray-600 dark:text-gray-300 mb-1">{event.date}</p>
-                        <p className="text-gray-600 dark:text-gray-300">{event.location}</p>
+                      <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-4">
+                        <h3 className="text-lg font-semibold text-white mb-1">{event.name}</h3>
+                        <p className="text-white/90 text-sm mb-0.5">{event.date}</p>
+                        <p className="text-white/90 text-sm">{event.location}</p>
                       </div>
                     </div>
                   </div>

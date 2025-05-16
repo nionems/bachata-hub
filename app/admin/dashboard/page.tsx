@@ -713,13 +713,13 @@ export default function AdminDashboard() {
         <div className="mt-4 flex gap-2">
           <button
             onClick={() => router.push(`/admin/events/${event.id}/edit`)}
-            className="bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600 text-sm"
+            className="bg-yellow-500 text-white px-2.5 py-1 rounded hover:bg-yellow-600 text-sm"
           >
             Edit
           </button>
           <button
             onClick={() => handleDeleteEvent(event.id)}
-            className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 text-sm"
+            className="bg-red-500 text-white px-2.5 py-1 rounded hover:bg-red-600 text-sm"
           >
             Delete
           </button>
@@ -766,13 +766,13 @@ export default function AdminDashboard() {
         <div className="mt-4 flex gap-2">
           <button
             onClick={() => router.push(`/admin/festivals/${festival.id}/edit`)}
-            className="bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600"
+            className="bg-yellow-500 text-white px-2.5 py-1 rounded hover:bg-yellow-600 text-sm"
           >
             Edit
           </button>
           <button
             onClick={() => handleDeleteFestival(festival.id)}
-            className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"
+            className="bg-red-500 text-white px-2.5 py-1 rounded hover:bg-red-600 text-sm"
           >
             Delete
           </button>
@@ -936,13 +936,13 @@ export default function AdminDashboard() {
                   <div className="flex gap-2 mt-4">
                     <button
                       onClick={() => router.push(`/admin/schools/${school.id}/edit`)}
-                      className="bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600"
+                      className="bg-yellow-500 text-white px-2.5 py-1 rounded hover:bg-yellow-600 text-sm"
                     >
                       Edit
                     </button>
                     <button
                       onClick={() => handleDeleteSchool(school.id)}
-                      className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"
+                      className="bg-red-500 text-white px-2.5 py-1 rounded hover:bg-red-600 text-sm"
                     >
                       Delete
                     </button>
@@ -959,7 +959,7 @@ export default function AdminDashboard() {
               <h2 className="text-xl font-semibold">Events Management</h2>
               <button
                 onClick={() => router.push('/admin/events/new')}
-                className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+                className="bg-blue-500 text-white px-3 py-1.5 rounded hover:bg-blue-600 text-sm"
               >
                 Add New Event
               </button>
@@ -994,7 +994,7 @@ export default function AdminDashboard() {
               <h2 className="text-xl font-semibold">Festivals Management</h2>
               <button
                 onClick={() => router.push('/admin/festivals/new')}
-                className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+                className="bg-blue-500 text-white px-3 py-1.5 rounded hover:bg-blue-600 text-sm"
               >
                 Add New Festival
               </button>
@@ -1029,7 +1029,7 @@ export default function AdminDashboard() {
               <h2 className="text-xl font-semibold">Instructors Management</h2>
               <button
                 onClick={() => router.push('/admin/instructors/new')}
-                className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+                className="bg-blue-500 text-white px-3 py-1.5 rounded hover:bg-blue-600 text-sm"
               >
                 Add New Instructor
               </button>
@@ -1119,13 +1119,13 @@ export default function AdminDashboard() {
                       <div className="mt-4 flex gap-2">
                         <button
                           onClick={() => router.push(`/admin/instructors/${instructor.id}/edit`)}
-                          className="bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600"
+                          className="bg-yellow-500 text-white px-2.5 py-1 rounded hover:bg-yellow-600 text-sm"
                         >
                           Edit
                         </button>
                         <button
                           onClick={() => handleDeleteInstructor(instructor.id)}
-                          className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"
+                          className="bg-red-500 text-white px-2.5 py-1 rounded hover:bg-red-600 text-sm"
                         >
                           Delete
                         </button>
@@ -1144,7 +1144,7 @@ export default function AdminDashboard() {
               <h2 className="text-xl font-semibold">DJs Management</h2>
               <button
                 onClick={() => router.push('/admin/djs/new')}
-                className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+                className="bg-blue-500 text-white px-3 py-1.5 rounded hover:bg-blue-600 text-sm"
               >
                 Add New DJ
               </button>
@@ -1234,13 +1234,13 @@ export default function AdminDashboard() {
                       <div className="mt-4 flex gap-2">
                         <button
                           onClick={() => router.push(`/admin/djs/${dj.id}/edit`)}
-                          className="bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600"
+                          className="bg-yellow-500 text-white px-2.5 py-1 rounded hover:bg-yellow-600 text-sm"
                         >
                           Edit
                         </button>
                         <button
                           onClick={() => handleDeleteDJ(dj.id)}
-                          className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"
+                          className="bg-red-500 text-white px-2.5 py-1 rounded hover:bg-red-600 text-sm"
                         >
                           Delete
                         </button>
@@ -1259,7 +1259,7 @@ export default function AdminDashboard() {
               <h2 className="text-xl font-semibold">Competitions Management</h2>
               <button
                 onClick={() => router.push('/admin/competitions/new')}
-                className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
+                className="bg-green-600 text-white px-3 py-1.5 rounded hover:bg-green-700 text-sm"
               >
                 Add New Competition
               </button>
@@ -1338,13 +1338,13 @@ export default function AdminDashboard() {
                       <div className="mt-4 flex gap-2">
                         <button
                           onClick={() => router.push(`/admin/competitions/${competition.id}/edit`)}
-                          className="bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600"
+                          className="bg-yellow-500 text-white px-2.5 py-1 rounded hover:bg-yellow-600 text-sm"
                         >
                           Edit
                         </button>
                         <button
                           onClick={() => handleDeleteCompetition(competition.id)}
-                          className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"
+                          className="bg-red-500 text-white px-2.5 py-1 rounded hover:bg-red-600 text-sm"
                         >
                           Delete
                         </button>
@@ -1363,7 +1363,7 @@ export default function AdminDashboard() {
               <h2 className="text-xl font-semibold">Shops Management</h2>
               <button
                 onClick={() => router.push('/admin/shops/new')}
-                className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+                className="bg-blue-500 text-white px-3 py-1.5 rounded hover:bg-blue-600 text-sm"
               >
                 Add New Shop
               </button>
@@ -1447,13 +1447,13 @@ export default function AdminDashboard() {
                       <div className="mt-4 flex gap-2">
                         <button
                           onClick={() => router.push(`/admin/shops/${shop.id}/edit`)}
-                          className="bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600"
+                          className="bg-yellow-500 text-white px-2.5 py-1 rounded hover:bg-yellow-600 text-sm"
                         >
                           Edit
                         </button>
                         <button
                           onClick={() => handleDeleteShop(shop.id)}
-                          className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"
+                          className="bg-red-500 text-white px-2.5 py-1 rounded hover:bg-red-600 text-sm"
                         >
                           Delete
                         </button>
@@ -1552,13 +1552,13 @@ export default function AdminDashboard() {
                       <div className="mt-4 flex gap-2">
                         <button
                           onClick={() => router.push(`/admin/accommodations/${accommodation.id}/edit`)}
-                          className="bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600"
+                          className="bg-yellow-500 text-white px-2.5 py-1 rounded hover:bg-yellow-600 text-sm"
                         >
                           Edit
                         </button>
                         <button
                           onClick={() => handleDelete(accommodation.id)}
-                          className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"
+                          className="bg-red-500 text-white px-2.5 py-1 rounded hover:bg-red-600 text-sm"
                         >
                           Delete
                         </button>
@@ -1578,13 +1578,13 @@ export default function AdminDashboard() {
               <div className="flex gap-2">
                 <button
                   onClick={addTestMedia}
-                  className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
+                  className="bg-green-500 text-white px-3 py-1.5 rounded hover:bg-green-600 text-sm"
                 >
                   Add Test Media
                 </button>
                 <button
                   onClick={() => router.push('/admin/media/new')}
-                  className="bg-primary text-white px-4 py-2 rounded hover:bg-primary/90"
+                  className="bg-primary text-white px-3 py-1.5 rounded hover:bg-primary/90 text-sm"
                 >
                   Add New Media
                 </button>
@@ -1667,3 +1667,4 @@ export default function AdminDashboard() {
       </div>
     </div>
   )
+} 
