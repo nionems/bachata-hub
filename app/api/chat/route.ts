@@ -388,8 +388,8 @@ async function searchEvents(date: string | null, location: string | null) {
           description?: string;
           attachments?: Array<{ fileUrl: string }>;
         }) => {
-          const startTime = new Date(event.start.dateTime || event.start.date);
-          const endTime = new Date(event.end.dateTime || event.end.date);
+          const startTime = new Date(event.start.dateTime || event.start.date || new Date().toISOString());
+          const endTime = new Date(event.end.dateTime || event.end.date || new Date().toISOString());
           
           return {
             ...event,
