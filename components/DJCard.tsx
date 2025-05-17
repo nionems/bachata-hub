@@ -20,11 +20,11 @@ export function DJCard({ dj }: DJCardProps) {
     }
   }
 
-  // Convert danceStyles to array if it's a string
-  const danceStyles = typeof dj.danceStyles === 'string' 
-    ? [dj.danceStyles] 
-    : Array.isArray(dj.danceStyles) 
-      ? dj.danceStyles 
+  // Convert musicStyles to array if it's a string
+  const musicStyles = typeof dj.musicStyles === 'string' 
+    ? [dj.musicStyles] 
+    : Array.isArray(dj.musicStyles) 
+      ? dj.musicStyles 
       : []
 
   return (
@@ -74,9 +74,9 @@ export function DJCard({ dj }: DJCardProps) {
               )}
             </div>
           )}
-          {danceStyles.length > 0 && (
+          {musicStyles.length > 0 && (
             <div className="flex flex-wrap gap-2 mt-2 sm:mt-3">
-              {danceStyles.map((style) => (
+              {musicStyles.map((style) => (
                 <span
                   key={style}
                   className="px-2 py-1 bg-primary/20 text-primary rounded-full text-xs"
