@@ -11,6 +11,7 @@ export interface Event {
   imageUrl: string;
   comment?: string;
   eventLink?: string;
+  danceStyles: string[];
   ticketLink?: string;
   facebookLink?: string;
   instagramLink?: string;
