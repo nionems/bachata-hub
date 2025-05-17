@@ -42,23 +42,33 @@ export const formatEvents = (googleEvents: any[]): Event[] => {
     const priceMatch = description.match(/Price:\s*\$?(\d+(\.\d{1,2})?)/i);
     const price = priceMatch ? priceMatch[1] : "Check event"; // Default if no price found
 
+    const location = event.location || "Location TBA";
+    const locationParts = location.split(',').map((part: string) => part.trim());
+    const city = locationParts.length > 1 ? locationParts[locationParts.length - 2] : "TBA";
+    const state = locationParts.length > 0 ? locationParts[locationParts.length - 1] : "TBA";
+
+    const now = new Date().toISOString();
+
     return {
       id: event.id || event.iCalUID || `fallback-${Math.random()}`, // Ensure unique ID
       name: event.summary || "Untitled Event",
-      date: startDateTime ? new Date(startDateTime).toISOString() : startDate, // Store ISO string or date string
-      startTime: startDateTime ? new Date(startDateTime).toLocaleTimeString('en-AU', { hour: '2-digit', minute: '2-digit', hour12: true, timeZone: 'Australia/Sydney' }) : 'All Day',
-      endTime: endDateTime ? new Date(endDateTime).toLocaleTimeString('en-AU', { hour: '2-digit', minute: '2-digit', hour12: true, timeZone: 'Australia/Sydney' }) : '',
-      location: event.location || "Location TBA",
-      state: event.location?.split(',').pop()?.trim() || "TBA", // Basic state extraction
-      price: price,
-      danceStyles: "Bachata", // Default or extract if available
+      description: description,
+      startDate: startDateTime ? new Date(startDateTime).toISOString() : startDate,
+      endDate: endDateTime ? new Date(endDateTime).toISOString() : startDate,
+      time: startDateTime ? new Date(startDateTime).toLocaleTimeString('en-AU', { hour: '2-digit', minute: '2-digit', hour12: true, timeZone: 'Australia/Sydney' }) : 'All Day',
+      location: location,
+      city: city,
+      state: state,
       imageUrl: imageUrl,
-      description: description, // Cleaned description
-      // Add other fields your Event interface requires
+      comment: "",
       eventLink: event.htmlLink || "",
-      googleMapLink: event.location ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(event.location)}` : "",
+      danceStyles: ["Bachata"],
       ticketLink: "", // Extract if available
-      comment: "", // Extract if available
+      facebookLink: "",
+      instagramLink: "",
+      websiteLink: "",
+      createdAt: now,
+      updatedAt: now
     };
   }).filter(event => event.id); // Ensure events have an ID
 }; 
