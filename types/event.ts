@@ -9,6 +9,7 @@ export interface Event {
   city: string;
   state: string;
   imageUrl: string;
+  comment?: string;
   ticketLink?: string;
   facebookLink?: string;
   instagramLink?: string;
