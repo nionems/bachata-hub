@@ -68,13 +68,13 @@ export default function CalendarTroubleshooter() {
               </div>
             </div>
 
-            {result.success && result.count > 0 && (
+            {result.success && result.count !== undefined && result.count > 0 && (
               <div className="mt-4">
                 <h3 className="font-medium mb-2">First Event:</h3>
                 <div className="bg-gray-50 p-3 rounded">
-                  <div className="font-medium">{result.events[0]?.summary || "Untitled Event"}</div>
+                  <div className="font-medium">{result.events?.[0]?.summary || "Untitled Event"}</div>
                   <div className="text-sm text-gray-600">
-                    {new Date(result.events[0]?.start?.dateTime || result.events[0]?.start?.date).toLocaleString()}
+                    {new Date(result.events?.[0]?.start?.dateTime || result.events?.[0]?.start?.date || '').toLocaleString()}
                   </div>
                 </div>
               </div>
