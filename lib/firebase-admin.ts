@@ -6,70 +6,91 @@ let db: Firestore;
 let storage: Storage;
 let app: App;
 
-console.log('Attempting Firebase Admin initialization (direct export)...');
-try {
-    if (getApps().length === 0) {
-        console.log('No existing Firebase Admin apps found. Initializing new one.');
-        const privateKey = process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n');
-        const projectId = process.env.FIREBASE_PROJECT_ID;
-        const clientEmail = process.env.FIREBASE_CLIENT_EMAIL;
-        const storageBucket = process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET;
+function validateEnvVariables() {
+  const requiredEnvVars = {
+    FIREBASE_PROJECT_ID: process.env.FIREBASE_PROJECT_ID,
+    FIREBASE_CLIENT_EMAIL: process.env.FIREBASE_CLIENT_EMAIL,
+    FIREBASE_PRIVATE_KEY: process.env.FIREBASE_PRIVATE_KEY,
+  };
 
-        if (!privateKey || !projectId || !clientEmail) {
-            console.error('Missing Firebase Admin credentials:', {
-                hasPrivateKey: !!privateKey,
-                hasProjectId: !!projectId,
-                hasClientEmail: !!clientEmail,
-            });
-            throw new Error('Firebase Admin credentials are missing in environment variables.');
-        }
-        if (!storageBucket) {
-             console.warn('Missing storage bucket env var (NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET). Storage functionality might be limited.');
-        }
+  const missingVars = Object.entries(requiredEnvVars)
+    .filter(([_, value]) => !value)
+    .map(([key]) => key);
 
-        app = initializeApp({
-            credential: cert({
-                projectId: projectId,
-                clientEmail: clientEmail,
-                privateKey: privateKey,
-            }),
-            storageBucket: storageBucket,
-        });
-        console.log('Firebase Admin app initialized successfully.');
-    } else {
-        console.log('Using existing Firebase Admin app.');
-        app = getApps()[0];
-        if (!app) {
-            throw new Error("getApps()[0] returned undefined unexpectedly.");
-        }
-    }
+  if (missingVars.length > 0) {
+    throw new Error(
+      `Missing required environment variables: ${missingVars.join(', ')}. ` +
+      'Please check your Vercel environment variables configuration.'
+    );
+  }
 
-    db = getFirestore(app);
-    storage = getStorage(app);
-    console.log('Firestore Admin instance obtained successfully.');
-    console.log('Storage Admin instance obtained successfully.');
+  // Validate project_id format
+  if (!/^[a-z0-9-]+$/.test(requiredEnvVars.FIREBASE_PROJECT_ID)) {
+    throw new Error('Invalid FIREBASE_PROJECT_ID format');
+  }
 
-    if (!db) {
-        throw new Error("Failed to get Firestore instance after app initialization.");
-    }
-     if (!storage) {
-        throw new Error("Failed to get Storage instance after app initialization.");
-    }
+  // Validate client_email format
+  if (!requiredEnvVars.FIREBASE_CLIENT_EMAIL.includes('@')) {
+    throw new Error('Invalid FIREBASE_CLIENT_EMAIL format');
+  }
 
-} catch (error) {
-    console.error('CRITICAL Error during Firebase Admin initialization:', error);
-    if (error instanceof Error) {
-        console.error('Error details:', {
-            message: error.message,
-            stack: error.stack,
-            name: error.name
-        });
-    }
-    // Attempting to assign undefined or re-throw might cause issues depending on import timing.
-    // Let consuming modules handle the potential undefined state if needed, or rely on build failure.
-    // db = undefined as any; // Avoid assigning undefined if possible
-    // storage = undefined as any;
-    throw new Error(`Firebase Admin initialization failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+  // Validate private_key format
+  if (!requiredEnvVars.FIREBASE_PRIVATE_KEY.includes('-----BEGIN PRIVATE KEY-----')) {
+    throw new Error('Invalid FIREBASE_PRIVATE_KEY format');
+  }
 }
 
-export { db, storage }; // Directly export the initialized instances 
+function initializeFirebaseAdmin() {
+  try {
+    if (getApps().length === 0) {
+      console.log('Initializing Firebase Admin...');
+      
+      // Validate environment variables first
+      validateEnvVariables();
+
+      const privateKey = process.env.FIREBASE_PRIVATE_KEY!.replace(/\\n/g, '\n');
+      const projectId = process.env.FIREBASE_PROJECT_ID!;
+      const clientEmail = process.env.FIREBASE_CLIENT_EMAIL!;
+      const storageBucket = process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET;
+
+      const serviceAccount = {
+        projectId,
+        clientEmail,
+        privateKey,
+      };
+
+      app = initializeApp({
+        credential: cert(serviceAccount),
+        storageBucket: storageBucket || `${projectId}.appspot.com`,
+      });
+
+      console.log('Firebase Admin initialized successfully');
+    } else {
+      console.log('Using existing Firebase Admin app');
+      app = getApps()[0];
+    }
+
+    // Initialize Firestore and Storage
+    db = getFirestore(app);
+    storage = getStorage(app);
+
+    console.log('Firestore and Storage initialized successfully');
+
+    return { app, db, storage };
+  } catch (error) {
+    console.error('Firebase Admin initialization error:', error);
+    if (error instanceof Error) {
+      console.error('Error details:', {
+        message: error.message,
+        stack: error.stack,
+        name: error.name
+      });
+    }
+    throw error;
+  }
+}
+
+// Initialize Firebase Admin
+const { db: firestoreDb, storage: firestoreStorage } = initializeFirebaseAdmin();
+
+export { firestoreDb as db, firestoreStorage as storage }; 
