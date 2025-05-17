@@ -3,10 +3,27 @@
 import Link from "next/link"
 import { Instagram, Home, Calendar, Users, ShoppingBag, MapPin, Music } from "lucide-react"
 import { usePathname } from 'next/navigation'
-import { useState } from 'react'
+import { useState, ReactNode } from 'react'
 import { PrivacyPolicyModal } from "@/components/PrivacyPolicyModal"
 import { TermsOfServiceModal } from "@/components/TermsOfServiceModal"
 import { ContactUsModal } from "@/components/ContactUsModal"
+
+interface MobileNavLinkProps {
+  href: string
+  icon: ReactNode
+  label: string
+  isActive: boolean
+}
+
+interface SocialIconProps {
+  icon: ReactNode
+  href: string
+}
+
+interface FooterLinkProps {
+  href: string
+  children: ReactNode
+}
 
 export default function Footer() {
   const pathname = usePathname()
@@ -113,7 +130,7 @@ export default function Footer() {
   )
 }
 
-function MobileNavLink({ href, icon, label, isActive }) {
+function MobileNavLink({ href, icon, label, isActive }: MobileNavLinkProps) {
   return (
     <Link 
       href={href} 
@@ -133,7 +150,7 @@ function MobileNavLink({ href, icon, label, isActive }) {
   )
 }
 
-function SocialIcon({ icon, href }) {
+function SocialIcon({ icon, href }: SocialIconProps) {
   return (
     <a
       href={href}
@@ -146,7 +163,7 @@ function SocialIcon({ icon, href }) {
   )
 }
 
-function FooterLink({ href, children }) {
+function FooterLink({ href, children }: FooterLinkProps) {
   return (
     <li>
       <Link 
