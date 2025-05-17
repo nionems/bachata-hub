@@ -10,6 +10,7 @@
     "init-djs": "node scripts/init-djs.js"
   },
   "dependencies": {
+    "@auth/firebase-adapter": "^2.9.1",
     "@firebase/firestore": "^4.7.10",
     "@firebase/storage": "^0.13.7",
     "@radix-ui/react-accordion": "^1.1.2",
