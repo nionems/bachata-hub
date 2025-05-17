@@ -16,24 +16,7 @@ import { ImageModal } from "@/components/ImageModal"
 import { format } from "date-fns"
 import { Badge } from "@/components/ui/badge"
 import { InstructorCard } from '@/components/InstructorCard'
-
-interface Instructor {
-  id: string
-  name: string
-  location: string
-  state: string
-  address: string
-  website: string
-  price: string
-  danceStyles: string[]
-  imageUrl: string
-  comment: string
-  googleMapLink: string
-  socialUrl: string
-  instagramLink?: string
-  facebookLink?: string
-  emailLink?: string
-}
+import { Instructor } from '@/types/instructor'
 
 export default function InstructorsPage() {
   const [instructors, setInstructors] = useState<Instructor[]>([])
@@ -55,15 +38,23 @@ export default function InstructorsPage() {
           const data = doc.data()
           return {
             id: doc.id,
-            ...data,
-            // Convert danceStyles to array if it's a string
+            name: data.name || '',
+            location: data.location || '',
+            state: data.state || '',
+            imageUrl: data.imageUrl || '',
+            comment: data.comment || '',
             danceStyles: typeof data.danceStyles === 'string' 
               ? data.danceStyles.split(',').map(style => style.trim())
               : Array.isArray(data.danceStyles) 
                 ? data.danceStyles 
-                : []
-          }
-        }) as Instructor[]
+                : [],
+            emailLink: data.emailLink || '',
+            facebookLink: data.facebookLink || '',
+            instagramLink: data.instagramLink || '',
+            createdAt: data.createdAt || new Date().toISOString(),
+            updatedAt: data.updatedAt || new Date().toISOString()
+          } as Instructor
+        })
         
         setInstructors(instructorsList)
       } catch (err) {
