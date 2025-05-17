@@ -63,6 +63,7 @@
     "react-hot-toast": "^2.5.2",
     "react-icons": "^5.5.0",
     "react-slick": "^0.30.3",
+    "recharts": "^2.15.3",
     "resend": "^4.2.0",
     "rimraf": "^5.0.10",
     "slick-carousel": "^1.8.1",
