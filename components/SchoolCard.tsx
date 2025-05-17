@@ -91,9 +91,9 @@ export function SchoolCard({ school }: SchoolCardProps) {
                   <Facebook className="h-6 w-6 sm:h-5 sm:w-5" />
                 </a>
               )}
-              {school.websiteLink && (
+              {school.website && (
                 <a
-                  href={school.websiteLink}
+                  href={school.website}
                   target="_blank"
                   rel="noopener noreferrer"
                   onClick={(e) => e.stopPropagation()}
