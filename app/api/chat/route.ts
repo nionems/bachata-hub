@@ -335,6 +335,7 @@ async function searchEvents(date: string | null, location: string | null) {
       city: string;
       state: string;
       description: string;
+      summary?: string;
       price?: string;
       danceStyles?: string;
       imageUrl?: string;
