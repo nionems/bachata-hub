@@ -4,10 +4,11 @@ import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { AlertCircle, CheckCircle, RefreshCw, ExternalLink } from "lucide-react"
+import { CalendarDebugResponse } from "@/types/calendar"
 
 export default function CalendarTroubleshooter() {
   const [loading, setLoading] = useState(false)
-  const [result, setResult] = useState(null)
+  const [result, setResult] = useState<CalendarDebugResponse | null>(null)
   const [error, setError] = useState<string | null>(null)
 
   const checkCalendar = async () => {
@@ -17,7 +18,7 @@ export default function CalendarTroubleshooter() {
     try {
       const response = await fetch("/api/calendar-debug")
       const data = await response.json()
-      setResult(data)
+      setResult(data as CalendarDebugResponse)
     } catch (err: unknown) {
       const errorMessage = err instanceof Error ? err.message : "An error occurred while checking the calendar"
       setError(errorMessage)
