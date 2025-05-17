@@ -8,6 +8,22 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { toast } from "sonner"
 
+interface ShopFormData {
+  name: string
+  location: string
+  state: string
+  address: string
+  website: string
+  instagramLink: string
+  facebookLink: string
+  googleMapLink: string
+  comment: string
+  contactName: string
+  contactEmail: string
+  contactPhone: string
+  additionalInfo: string
+}
+
 interface ShopSubmissionFormProps {
   isOpen: boolean
   onClose: () => void
@@ -15,7 +31,7 @@ interface ShopSubmissionFormProps {
 
 export function ShopSubmissionForm({ isOpen, onClose }: ShopSubmissionFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<ShopFormData>({
     name: '',
     location: '',
     state: '',

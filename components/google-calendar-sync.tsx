@@ -10,7 +10,7 @@ export default function GoogleCalendarSync() {
   const [isConnected, setIsConnected] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [autoSync, setAutoSync] = useState(true)
-  const [lastSynced, setLastSynced] = useState(null)
+  const [lastSynced, setLastSynced] = useState<Date | null>(null)
   const [calendarId, setCalendarId] = useState(
     "8d27a79f37a74ab7aedc5c038cc4492cd36b87a71b57fb6d7d141d04e8ffe5c2@group.calendar.google.com",
   )
