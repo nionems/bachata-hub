@@ -87,7 +87,7 @@ export default function WeekendEventsHighlight({ events, title = "This Weekend" 
                 {event.website && (
                   <Button
                     className="bg-green-600 hover:bg-green-700 text-white"
-                    onClick={() => window.open(event.website, "_blank")}
+                    onClick={() => event.website && window.open(event.website, "_blank")}
                   >
                     Visit Event Website
                   </Button>
