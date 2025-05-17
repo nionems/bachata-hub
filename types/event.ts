@@ -10,6 +10,7 @@ export interface Event {
   state: string;
   imageUrl: string;
   comment?: string;
+  eventLink?: string;
   ticketLink?: string;
   facebookLink?: string;
   instagramLink?: string;
