@@ -6,12 +6,20 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Calendar, Check, RefreshCw, Plus, Search, X, ArrowRight } from "lucide-react"
 import { Checkbox } from "@/components/ui/checkbox"
 
+interface CalendarEvent {
+  id: number
+  title: string
+  date: string
+  time: string
+  location: string
+}
+
 export default function GoogleCalendarEventAdder() {
   const [isConnected, setIsConnected] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [step, setStep] = useState(1)
-  const [personalEvents, setPersonalEvents] = useState([])
-  const [selectedEvents, setSelectedEvents] = useState([])
+  const [personalEvents, setPersonalEvents] = useState<CalendarEvent[]>([])
+  const [selectedEvents, setSelectedEvents] = useState<number[]>([])
   const [searchTerm, setSearchTerm] = useState("")
   const [successMessage, setSuccessMessage] = useState("")
 
@@ -23,43 +31,7 @@ export default function GoogleCalendarEventAdder() {
       setIsConnected(true)
       setIsLoading(false)
       // Simulate fetching events from user's calendar
-      setPersonalEvents([
-        {
-          id: 1,
-          title: "Sydney Bachata Social",
-          date: "2025-04-15",
-          time: "19:00-23:00",
-          location: "Sydney Dance Studio",
-        },
-        {
-          id: 2,
-          title: "Melbourne Bachata Workshop",
-          date: "2025-04-22",
-          time: "14:00-16:00",
-          location: "Melbourne Latin Dance",
-        },
-        {
-          id: 3,
-          title: "Brisbane Bachata Festival",
-          date: "2025-05-10",
-          time: "All day",
-          location: "Brisbane Convention Center",
-        },
-        {
-          id: 4,
-          title: "Perth Bachata Night",
-          date: "2025-05-17",
-          time: "20:00-00:00",
-          location: "Perth Dance Academy",
-        },
-        {
-          id: 5,
-          title: "Adelaide Bachata Social",
-          date: "2025-05-24",
-          time: "19:30-23:30",
-          location: "Adelaide Latin Club",
-        },
-      ])
+      setPersonalEvents([])
     }, 1500)
   }
 
