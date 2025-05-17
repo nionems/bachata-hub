@@ -2,7 +2,8 @@ export interface Event {
   id: string;
   name: string;
   description: string;
-  date: string;
+  startDate: string;
+  endDate: string;
   time: string;
   location: string;
   city: string;
