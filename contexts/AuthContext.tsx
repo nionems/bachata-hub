@@ -8,6 +8,7 @@ import {
   signOut,
   sendEmailVerification,
   onAuthStateChanged,
+  updateProfile,
 } from 'firebase/auth'
 import { doc, setDoc, getDoc } from 'firebase/firestore'
 import { auth, db } from '@/lib/firebase'
@@ -66,7 +67,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const user = userCredential.user
 
       // Update display name
-      await user.updateProfile({ displayName })
+      await updateProfile(user, { displayName })
 
       // Send verification email
       await sendEmailVerification(user)
