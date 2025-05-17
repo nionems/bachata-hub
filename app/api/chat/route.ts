@@ -380,7 +380,14 @@ async function searchEvents(date: string | null, location: string | null) {
         const events = data.items || []
         
         // Add city information and format times in the user's timezone
-        const eventsWithCity = events.map(event => {
+        const eventsWithCity = events.map((event: {
+          start: { dateTime?: string; date?: string };
+          end: { dateTime?: string; date?: string };
+          summary?: string;
+          location?: string;
+          description?: string;
+          attachments?: Array<{ fileUrl: string }>;
+        }) => {
           const startTime = new Date(event.start.dateTime || event.start.date);
           const endTime = new Date(event.end.dateTime || event.end.date);
           
