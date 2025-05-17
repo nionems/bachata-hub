@@ -87,9 +87,9 @@ export function DJCard({ dj }: DJCardProps) {
             </div>
           )}
           <div className="flex gap-4 mt-3 sm:mt-2">
-            {dj.websiteLink && (
+            {dj.emailLink && (
               <a
-                href={dj.websiteLink}
+                href={dj.emailLink}
                 target="_blank"
                 rel="noopener noreferrer"
                 onClick={(e) => e.stopPropagation()}
