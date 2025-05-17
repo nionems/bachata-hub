@@ -329,8 +329,8 @@ async function searchEvents(date: string | null, location: string | null) {
       id: string;
       name: string;
       eventDate: string;
-      startTime: string;
-      endTime: string;
+      startTime: Date;
+      endTime: Date;
       location: string;
       city: string;
       state: string;
