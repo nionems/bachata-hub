@@ -51,7 +51,9 @@ export default function RealGoogleCalendarConnect() {
           console.log("Calendar events:", data.events)
 
           // Close the auth window
-          authWindow.close()
+          if (authWindow) {
+            authWindow.close()
+          }
 
           setIsLoading(false)
         } catch (error) {
