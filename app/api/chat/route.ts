@@ -77,7 +77,7 @@ const bachataKnowledge = {
       ],
       origin: 'Developed as a fusion of Bachata with urban dance styles'
     }
-  },
+  } as const,
   general: {
     'what is bachata': 'Bachata is a genre of Latin American music and dance that originated in the Dominican Republic. It features a distinctive rhythm and is danced in pairs with a close connection between partners.',
     'history': 'Bachata originated in the Dominican Republic in the 1960s. It evolved from bolero and other Latin American musical styles. Initially considered music of the lower class, it gained international popularity in the 1990s and has since evolved into various styles.',
@@ -86,6 +86,9 @@ const bachataKnowledge = {
     'benefits': 'Dancing Bachata offers numerous benefits including improved coordination, cardiovascular fitness, social interaction, stress relief, and cultural appreciation. It\'s also a great way to meet new people and have fun!'
   }
 }
+
+// Type for valid bachata styles
+type BachataStyle = keyof typeof bachataKnowledge.styles;
 
 // Function to check if credentials are valid
 async function checkCredentials() {
@@ -515,12 +518,12 @@ function handleBachataQuestion(message: string) {
   
   // Handle style comparison questions
   if (lowerMessage.includes('difference between') && lowerMessage.includes('bachata')) {
-    const styles = Object.keys(bachataKnowledge.styles)
-    const mentionedStyles = styles.filter(style => lowerMessage.includes(style))
+    const styles = Object.keys(bachataKnowledge.styles) as BachataStyle[];
+    const mentionedStyles = styles.filter(style => lowerMessage.includes(style));
     
     if (mentionedStyles.length >= 2) {
-      const style1 = bachataKnowledge.styles[mentionedStyles[0]]
-      const style2 = bachataKnowledge.styles[mentionedStyles[1]]
+      const style1 = bachataKnowledge.styles[mentionedStyles[0]];
+      const style2 = bachataKnowledge.styles[mentionedStyles[1]];
       
       return {
         type: 'bachata_comparison',
