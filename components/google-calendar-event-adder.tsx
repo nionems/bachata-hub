@@ -35,7 +35,7 @@ export default function GoogleCalendarEventAdder() {
     }, 1500)
   }
 
-  const toggleEventSelection = (eventId) => {
+  const toggleEventSelection = (eventId: number) => {
     if (selectedEvents.includes(eventId)) {
       setSelectedEvents(selectedEvents.filter((id) => id !== eventId))
     } else {
