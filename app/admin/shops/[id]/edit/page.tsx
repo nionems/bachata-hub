@@ -120,7 +120,7 @@ export default function EditShopPage({ params }: { params: { id: string } }) {
         comment: shop.comment,
         googleReviewLink: shop.googleReviewLink,
         imageUrl: imageUrl,
-        websiteLink: shop.websiteLink,
+        website: shop.website,
         discountCode: shop.discountCode,
         updatedAt: new Date().toISOString()
       }
