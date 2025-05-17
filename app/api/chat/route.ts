@@ -325,7 +325,27 @@ async function searchEvents(date: string | null, location: string | null) {
       throw new Error('GOOGLE_API_KEY is not set in environment variables')
     }
 
-    let allEvents = []
+    let allEvents: Array<{
+      id: string;
+      name: string;
+      eventDate: string;
+      startTime: string;
+      endTime: string;
+      location: string;
+      city: string;
+      state: string;
+      description: string;
+      price?: string;
+      danceStyles?: string;
+      imageUrl?: string;
+      eventLink?: string;
+      ticketLink?: string;
+      comment?: string;
+      googleMapLink?: string;
+      isWeekly?: boolean;
+      recurrence?: string;
+      isWorkshop?: boolean;
+    }> = [];
     const timezone = getTimezoneForCity(location);
 
     // If location is specified, only search in that city's calendar
