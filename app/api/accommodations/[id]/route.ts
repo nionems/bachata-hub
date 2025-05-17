@@ -1,16 +1,15 @@
 import { NextResponse } from 'next/server'
-import { db } from '@/lib/firebase'
-import { doc, getDoc, updateDoc } from 'firebase/firestore'
+import { db } from '@/lib/firebase-admin'
 
 export async function GET(
   request: Request,
   { params }: { params: { id: string } }
 ) {
   try {
-    const accommodationRef = doc(db, 'accommodations', params.id)
-    const accommodationDoc = await getDoc(accommodationRef)
+    const accommodationRef = db.collection('accommodations').doc(params.id)
+    const accommodationDoc = await accommodationRef.get()
 
-    if (!accommodationDoc.exists()) {
+    if (!accommodationDoc.exists) {
       return NextResponse.json(
         { error: 'Accommodation not found' },
         { status: 404 }
@@ -38,10 +37,10 @@ export async function PUT(
 ) {
   try {
     const data = await request.json()
-    const accommodationRef = doc(db, 'accommodations', params.id)
+    const accommodationRef = db.collection('accommodations').doc(params.id)
 
     // Update the accommodation document
-    await updateDoc(accommodationRef, {
+    await accommodationRef.update({
       ...data,
       updatedAt: new Date().toISOString()
     })
