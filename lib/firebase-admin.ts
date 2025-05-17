@@ -24,20 +24,27 @@ function validateEnvVariables() {
     );
   }
 
+  // At this point, we know all required variables are defined
+  const projectId = requiredEnvVars.FIREBASE_PROJECT_ID as string;
+  const clientEmail = requiredEnvVars.FIREBASE_CLIENT_EMAIL as string;
+  const privateKey = requiredEnvVars.FIREBASE_PRIVATE_KEY as string;
+
   // Validate project_id format
-  if (!/^[a-z0-9-]+$/.test(requiredEnvVars.FIREBASE_PROJECT_ID)) {
+  if (!/^[a-z0-9-]+$/.test(projectId)) {
     throw new Error('Invalid FIREBASE_PROJECT_ID format');
   }
 
   // Validate client_email format
-  if (!requiredEnvVars.FIREBASE_CLIENT_EMAIL.includes('@')) {
+  if (!clientEmail.includes('@')) {
     throw new Error('Invalid FIREBASE_CLIENT_EMAIL format');
   }
 
   // Validate private_key format
-  if (!requiredEnvVars.FIREBASE_PRIVATE_KEY.includes('-----BEGIN PRIVATE KEY-----')) {
+  if (!privateKey.includes('-----BEGIN PRIVATE KEY-----')) {
     throw new Error('Invalid FIREBASE_PRIVATE_KEY format');
   }
+
+  return { projectId, clientEmail, privateKey };
 }
 
 function initializeFirebaseAdmin() {
@@ -45,18 +52,14 @@ function initializeFirebaseAdmin() {
     if (getApps().length === 0) {
       console.log('Initializing Firebase Admin...');
       
-      // Validate environment variables first
-      validateEnvVariables();
-
-      const privateKey = process.env.FIREBASE_PRIVATE_KEY!.replace(/\\n/g, '\n');
-      const projectId = process.env.FIREBASE_PROJECT_ID!;
-      const clientEmail = process.env.FIREBASE_CLIENT_EMAIL!;
+      // Validate environment variables first and get validated values
+      const { projectId, clientEmail, privateKey } = validateEnvVariables();
       const storageBucket = process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET;
 
       const serviceAccount = {
         projectId,
         clientEmail,
-        privateKey,
+        privateKey: privateKey.replace(/\\n/g, '\n'),
       };
 
       app = initializeApp({
