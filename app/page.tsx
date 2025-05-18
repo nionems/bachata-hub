@@ -275,27 +275,27 @@ export default function Home() {
       <main className="min-h-screen">
         
         {/* Hero Section - Full height on mobile */}
-        <section className="relative h-[25vh] sm:h-[35vh] md:h-[40vh]">
+        <section className="relative h-[25vh] sm:h-[35vh] md:h-[28vh]">
           {/* Background gradient overlay */}
           <div className="absolute inset-0 bg-gradient-to-r from-primary to-secondary"></div>
-          <div className="container mx-auto px-4 relative z-10 h-full flex flex-col items-center justify-start">
+          <div className="container mx-auto px-0 relative z-10 h-full flex flex-col items-center justify-start">
             
             {/* Logo at the very top of the banner */}
             <div className="w-full flex flex-col items-center mt-1">
-              <p className="text-xs sm:text-base md:text-lg mb-0 text-white/90 text-center comic-neue">
+              <p className="text-xs sm:text-base md:text-lg mb-0 text-white/90 text-center comic-neue px-4">
                 Your one-stop destination for Bachata events, classes, and community across Australia.
               </p>
-              <div className="flex flex-col items-center justify-center gap-1 sm:gap-4 relative">
+              <div className="flex flex-col items-center justify-center gap-1 sm:gap-4 relative w-full">
                 <Image
                   src="/images/BACHATA.AU (13).png"
                   alt="Bachata Australia Logo"
                   width={600}
                   height={600}
-                  className="mx-auto -mt-8 sm:mt-4 mb-0 w-20 h-20 sm:w-40 sm:h-40 md:w-56 md:h-56 absolute z-0"
+                  className="mx-auto -mt-8 sm:mt-4 mb-0 w-48 h-48 sm:w-40 sm:h-40 md:w-72 md:h-72 absolute z-0"
                   priority
                   style={{ objectFit: 'contain', mixBlendMode: 'multiply' }}
                 />
-                <div className="flex flex-row gap-2 sm:gap-12 mt-12 sm:mt-36 relative z-10">
+                <div className="flex flex-row justify-between w-full px-2 sm:px-0 sm:gap-12 mt-16 sm:mt-36 relative z-10">
                   <Link href="/events" className="w-20 sm:w-32">
                     <Button size="sm" className="w-full bg-white text-primary hover:bg-gray-100 text-xs sm:text-sm whitespace-nowrap px-1 py-0.5">
                       Explore Events
