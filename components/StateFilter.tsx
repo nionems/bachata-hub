@@ -2,7 +2,8 @@
 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { AlertCircle } from "lucide-react"
+import { AlertCircle, MapPin } from "lucide-react"
+import { Button } from "@/components/ui/button"
 
 interface StateFilterProps {
   selectedState: string
@@ -24,6 +25,10 @@ export function StateFilter({ selectedState, onChange, isLoading = false, error 
     { value: 'NT', label: 'Northern Territory' },
   ]
 
+  const handleRetry = () => {
+    window.location.reload()
+  }
+
   return (
     <div className="mb-6 sm:mb-8">
       <Select value={selectedState} onValueChange={onChange} disabled={isLoading}>
@@ -42,7 +47,30 @@ export function StateFilter({ selectedState, onChange, isLoading = false, error 
         <Alert variant="destructive" className="mt-2">
           <AlertCircle className="h-4 w-4" />
           <AlertDescription className="text-sm">
-            {error}
+            {error === 'Please enable location access to see content from your state' ? (
+              <div className="space-y-2">
+                <p>Location access is required to show content from your state.</p>
+                <div className="text-xs space-y-1">
+                  <p className="font-semibold">To enable location access:</p>
+                  <ul className="list-disc pl-4 space-y-1">
+                    <li>On iOS: Settings → Safari → Location Services → Allow</li>
+                    <li>On Android: Settings → Location → App permissions → Browser → Allow</li>
+                    <li>On Desktop: Click the lock/info icon in the address bar → Location → Allow</li>
+                  </ul>
+                </div>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="mt-2"
+                  onClick={handleRetry}
+                >
+                  <MapPin className="h-4 w-4 mr-2" />
+                  Retry Location Access
+                </Button>
+              </div>
+            ) : (
+              error
+            )}
           </AlertDescription>
         </Alert>
       )}
