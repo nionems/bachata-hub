@@ -1,30 +1,18 @@
 import type { Metadata } from "next"
-import { Inter, Comic_Neue, Fredoka } from "next/font/google"
-import "./global.css"
+import { Fredoka } from 'next/font/google'
+import "./globals.css"
 import { Toaster } from "sonner"
 import Navbar from "@/components/navbar"
 import Footer from "@/components/footer"
 import { AIAssistant } from "@/components/AIAssistant"
 
-const inter = Inter({
-  subsets: ["latin"],
-  display: "swap",
-  preload: true,
-  variable: "--font-inter",
-})
-
-const comicNeue = Comic_Neue({
-  weight: ['400', '700'],
-  subsets: ['latin'],
-  display: 'swap',
-  variable: '--font-comic-neue',
-})
-
 const fredoka = Fredoka({
-  weight: ['400', '700'],
+  weight: ['300', '400', '500', '600', '700'],
   subsets: ['latin'],
   display: 'swap',
   variable: '--font-fredoka',
+  preload: true,
+  fallback: ['system-ui', 'arial'],
 })
 
 export const metadata: Metadata = {
@@ -38,8 +26,12 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en">
-      <body className={`${inter.variable} ${comicNeue.variable} ${fredoka.variable} min-h-screen flex flex-col`}>
+    <html lang="en" className={fredoka.variable}>
+      <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+      </head>
+      <body className={`${fredoka.className} antialiased min-h-screen flex flex-col`}>
         <Navbar />
         <main className="flex-grow">
           {children}
@@ -51,7 +43,3 @@ export default function RootLayout({
     </html>
   )
 }
-
-
-
-import './global.css'
