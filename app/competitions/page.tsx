@@ -76,20 +76,22 @@ export default function CompetitionsPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="container mx-auto px-2 md:px-4 py-4 md:py-8">
-        <div className="text-center mb-8 md:mb-12">
-          <h1 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent mb-4">
+      <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-8">
+        <div className="text-center mb-4 sm:mb-12">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent mb-2 sm:mb-4">
             Bachata Competitions
           </h1>
-          <p className="text-lg md:text-xl text-gray-600">
-            Find dance competitions across Australia
+          <p className="text-base sm:text-xl text-gray-600">
+            Explore dance competitions across Australia for all levels and styles.
           </p>
         </div>
 
-        <StateFilter
-          selectedState={selectedState}
-          onChange={setSelectedState}
-        />
+        <div className="mb-4 sm:mb-8">
+          <StateFilter
+            selectedState={selectedState}
+            onChange={setSelectedState}
+          />
+        </div>
 
         <Tabs defaultValue="upcoming" className="w-full">
           <TabsList className="grid w-full grid-cols-2 mb-4 md:mb-8">

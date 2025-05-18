@@ -34,7 +34,7 @@ export default function CommunityPage() {
           </p>
           {userCount !== null && (
             <p className="text-lg text-gray-500">
-              Join {userCount} other members in our growing community
+              Join <span className="font-bold text-primary text-3xl">{userCount}</span> other{userCount !== 1 ? 's' : ''} in our growing community
             </p>
           )}
         </div>

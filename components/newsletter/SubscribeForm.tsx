@@ -49,7 +49,7 @@ export function SubscribeForm() {
 
   if (success) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="flex items-center justify-center">
         <div className="space-y-4 max-w-md w-full p-6">
           <Alert>
             <CheckCircle className="h-4 w-4" />
@@ -66,7 +66,7 @@ export function SubscribeForm() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center">
+    <div className="flex items-center justify-center">
       <form onSubmit={handleSubmit} className="space-y-4 max-w-md w-full p-6">
         {error && (
           <Alert variant="destructive">

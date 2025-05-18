@@ -13,12 +13,14 @@ export default function CalendarPage() {
   const [isSubmissionFormOpen, setIsSubmissionFormOpen] = useState(false);
 
   return (
-    <div className="container mx-auto py-4 sm:py-6 px-3 sm:px-4">
-      <div className="max-w-7xl mx-auto">
-        <div className="text-center mb-6 sm:mb-8">
-          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent mb-2 sm:mb-4">Bachata Calendar</h1>
+    <div className="min-h-screen bg-gray-50">
+      <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-8">
+        <div className="text-center mb-4 sm:mb-12">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent mb-2 sm:mb-4">
+            Bachata Calendar
+          </h1>
           <p className="text-base sm:text-xl text-gray-600">
-          Never miss a beat — explore every Bachata event across Australia in one calendar.
+            Never miss a beat Find events across Australia.
           </p>
         </div>
 

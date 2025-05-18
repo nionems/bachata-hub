@@ -76,20 +76,22 @@ export default function AccommodationsPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="container mx-auto px-4 py-8">
-        <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent mb-4">
+      <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-8">
+        <div className="text-center mb-4 sm:mb-12">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent mb-2 sm:mb-4">
             Accommodations
           </h1>
-          <p className="text-xl text-gray-600">
-          find places to stay near Australia's top dance events.
+          <p className="text-base sm:text-xl text-gray-600">
+            Find places to stay near Australia's top dance events.
           </p>
         </div>
 
-        <StateFilter
-          selectedState={selectedState}
-          onChange={setSelectedState}
-        />
+        <div className="mb-4 sm:mb-8">
+          <StateFilter
+            selectedState={selectedState}
+            onChange={setSelectedState}
+          />
+        </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-8">
           {filteredAccommodations.map((accommodation) => (

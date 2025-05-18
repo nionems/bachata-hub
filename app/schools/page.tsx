@@ -91,8 +91,8 @@ export default function SchoolsPage() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="text-center mb-8 sm:mb-12">
+    <div className="container mx-auto px-4 py-4 sm:py-8">
+      <div className="text-center mb-4 sm:mb-12">
         <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent mb-2 sm:mb-4">
           Dance Schools
         </h1>
@@ -101,7 +101,7 @@ export default function SchoolsPage() {
         </p>
       </div>
 
-      <div className="mb-8">
+      <div className="mb-4 sm:mb-8">
         <StateFilter
           selectedState={selectedState}
           onChange={setSelectedState}

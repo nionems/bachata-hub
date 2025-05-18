@@ -89,8 +89,8 @@ export default function EventsPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="container mx-auto px-4 py-8">
-        <div className="text-center mb-12">
+      <div className="container mx-auto px-4 py-4 sm:py-8">
+        <div className="text-center mb-4 sm:mb-12">
           <h1 className="text-2xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent mb-4">
             Recuring Events in Australia
           </h1>
@@ -99,10 +99,12 @@ export default function EventsPage() {
           </p>
         </div>
 
-        <StateFilter
-          selectedState={selectedState}
-          onChange={setSelectedState}
-        />
+        <div className="mb-4 sm:mb-8">
+          <StateFilter
+            selectedState={selectedState}
+            onChange={setSelectedState}
+          />
+        </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {filteredEvents.length === 0 ? (
