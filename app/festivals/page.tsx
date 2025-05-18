@@ -265,16 +265,16 @@ export default function FestivalsPage() {
         />
 
         {/* Submit Your Festival Card */}
-        <div className="mt-12 sm:mt-16 bg-gradient-to-r from-primary to-secondary rounded-xl shadow-xl overflow-hidden">
-          <div className="p-6 sm:p-8 md:p-12 flex flex-col md:flex-row items-center justify-between">
-            <div className="text-white mb-6 md:mb-0 md:mr-8">
-              <h2 className="text-2xl sm:text-3xl font-bold mb-3 sm:mb-4">
+        <div className="mt-8 sm:mt-16 bg-gradient-to-r from-primary to-secondary rounded-xl shadow-xl overflow-hidden">
+          <div className="p-4 sm:p-8 md:p-12 flex flex-col md:flex-row items-center justify-between">
+            <div className="text-white mb-4 sm:mb-6 md:mb-0 md:mr-8">
+              <h2 className="text-xl sm:text-3xl font-bold mb-2 sm:mb-4">
                 Submit Your Festival
               </h2>
-              <p className="text-white/90 text-base sm:text-lg mb-4 sm:mb-6">
+              <p className="text-white/90 text-sm sm:text-lg mb-3 sm:mb-6">
                 Are you organizing a Bachata festival? Get featured in our directory and reach dancers across Australia!
               </p>
-              <ul className="space-y-2 sm:space-y-3">
+              <ul className="space-y-1 sm:space-y-3">
                 <li className="flex items-center text-sm sm:text-base">
                   <svg className="w-5 h-5 sm:w-6 sm:h-6 mr-2 sm:mr-3" fill="currentColor" viewBox="0 0 20 20">
                     <path d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/>

@@ -36,4 +36,8 @@ export function getEventImage(eventName: string): string {
 
   // Return default image if no match found
   return '/images/placeholder.svg'
+}
+
+export const eventImages: { [key: string]: string } = {
+  // Add event image mappings here
 } 

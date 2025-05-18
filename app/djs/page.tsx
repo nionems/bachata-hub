@@ -124,7 +124,7 @@ export default function DJsPage() {
             Bachata DJs
           </h1>
           <p className="text-base sm:text-xl text-gray-600">
-          Discover Bachata DJs across Australia for socials, festivals, or private events.
+          Across Australia for socials, festivals, or private events.
           </p>
         </div>
 

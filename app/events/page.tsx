@@ -92,10 +92,10 @@ export default function EventsPage() {
       <div className="container mx-auto px-4 py-8">
         <div className="text-center mb-12">
           <h1 className="text-2xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent mb-4">
-            All Recuring Bachata Events in Australia
+            Recuring Events in Australia
           </h1>
           <p className="text-base sm:text-xl text-gray-600">
-            Find Bachata events across Australia — weekly socials, monthly parties, and special gatherings.
+            Weekly & Monthly filtered by states.
           </p>
         </div>
 

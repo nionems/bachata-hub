@@ -82,7 +82,7 @@ export default function AccommodationsPage() {
             Accommodations
           </h1>
           <p className="text-xl text-gray-600">
-          Stay close to the rhythm — find places to stay near Australia's top dance events.
+          find places to stay near Australia's top dance events.
           </p>
         </div>
 
