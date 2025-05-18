@@ -64,46 +64,8 @@ export default function EventsPage() {
           ...doc.data()
         })) as Event[]
         
-        // Static events data
-        const staticEvents: Event[] = [
-          {
-            id: "1",
-            name: "Sydney Bachata Festival 2025",
-            eventDate: "2025-04-18",
-            startTime: "09:00",
-            endTime: "23:00",
-            location: "West HQ, Rooty Hill",
-            city: "Sydney",
-            state: "NSW",
-            description: "Australia's premier Bachata festival",
-            eventLink: "https://example.com",
-            price: "$85",
-            ticketLink: "https://example.com",
-            imageUrl: "/placeholder.svg",
-            comment: "Australia's premier Bachata festival featuring world-class workshops, performances, and a live Bachata concert with international artists.",
-            googleMapLink: "https://goo.gl/maps/example"
-          },
-          {
-            id: "2",
-            name: "Melbourne Bachata Congress",
-            eventDate: "2025-05-15",
-            startTime: "09:00",
-            endTime: "23:00",
-            location: "Melbourne Convention Centre",
-            city: "Melbourne",
-            state: "VIC",
-            description: "Three days of Bachata workshops and social dancing",
-            eventLink: "https://example.com",
-            price: "$75",
-            ticketLink: "https://example.com",
-            imageUrl: "/placeholder.svg",
-            comment: "Three days of workshops, social dancing, and performances with international Bachata artists.",
-            googleMapLink: "https://goo.gl/maps/example"
-          }
-        ]
-        
-        // Combine static events with fetched events
-        setEvents([...staticEvents, ...eventsList])
+        console.log('Fetched events from Firebase:', eventsList)
+        setEvents(eventsList)
       } catch (err) {
         console.error('Error fetching events:', err)
         setError('Failed to load events')
@@ -299,16 +261,16 @@ export default function EventsPage() {
         <CalendarMenu />
 
         {/* Submit Your Event Card */}
-        <div className="mt-16 bg-gradient-to-r from-primary to-secondary rounded-xl shadow-xl overflow-hidden">
-          <div className="p-8 md:p-12 flex flex-col md:flex-row items-center justify-between">
-            <div className="text-white mb-6 md:mb-0 md:mr-8">
-              <h2 className="text-3xl font-bold mb-4">
+        <div className="mt-8 sm:mt-16 bg-gradient-to-r from-primary to-secondary rounded-xl shadow-xl overflow-hidden">
+          <div className="p-4 sm:p-8 md:p-12 flex flex-col md:flex-row items-center justify-between">
+            <div className="text-white mb-4 sm:mb-6 md:mb-0 md:mr-8">
+              <h2 className="text-xl sm:text-3xl font-bold mb-2 sm:mb-4">
                 Submit Your Event
               </h2>
-              <p className="text-white/90 text-lg mb-6">
+              <p className="text-white/90 text-sm sm:text-lg mb-3 sm:mb-6">
                 Are you organizing a Bachata event? Get featured in our directory and reach dancers across Australia!
               </p>
-              <ul className="space-y-3">
+              <ul className="space-y-1 sm:space-y-3">
                 <li className="flex items-center">
                   <svg className="w-6 h-6 mr-3" fill="currentColor" viewBox="0 0 20 20">
                     <path d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/>
