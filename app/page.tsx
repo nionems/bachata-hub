@@ -275,49 +275,49 @@ export default function Home() {
       <main className="min-h-screen">
         
         {/* Hero Section - Full height on mobile */}
-        <section className="relative h-[40vh] sm:h-[50vh] md:h-[60vh]">
+        <section className="relative h-[25vh] sm:h-[35vh] md:h-[40vh]">
           {/* Background gradient overlay */}
           <div className="absolute inset-0 bg-gradient-to-r from-primary to-secondary"></div>
           <div className="container mx-auto px-4 relative z-10 h-full flex flex-col items-center justify-start">
             
             {/* Logo at the very top of the banner */}
-            <div className="w-full flex flex-col items-center mt-4">
-              <p className="text-base sm:text-lg md:text-xl mb-0 text-white/90 text-center comic-neue">
+            <div className="w-full flex flex-col items-center mt-1">
+              <p className="text-xs sm:text-base md:text-lg mb-0 text-white/90 text-center comic-neue">
                 Your one-stop destination for Bachata events, classes, and community across Australia.
               </p>
-              <div className="flex flex-col items-center justify-center gap-4 sm:gap-8 relative">
+              <div className="flex flex-col items-center justify-center gap-1 sm:gap-4 relative">
                 <Image
                   src="/images/BACHATA.AU (13).png"
                   alt="Bachata Australia Logo"
                   width={600}
                   height={600}
-                  className="mx-auto -mt-24 sm:mt-16 mb-0 w-48 h-48 sm:w-72 sm:h-72 md:w-[432px] md:h-[432px] absolute z-0"
+                  className="mx-auto -mt-8 sm:mt-4 mb-0 w-20 h-20 sm:w-40 sm:h-40 md:w-56 md:h-56 absolute z-0"
                   priority
                   style={{ objectFit: 'contain', mixBlendMode: 'multiply' }}
                 />
-                <div className="flex flex-row gap-8 sm:gap-32 mt-32 sm:mt-80 relative z-10">
-                  <Link href="/events" className="w-32 sm:w-40">
-                    <Button size="sm" className="w-full bg-white text-primary hover:bg-gray-100 text-sm sm:text-base whitespace-nowrap px-2 py-1">
+                <div className="flex flex-row gap-2 sm:gap-12 mt-12 sm:mt-36 relative z-10">
+                  <Link href="/events" className="w-20 sm:w-32">
+                    <Button size="sm" className="w-full bg-white text-primary hover:bg-gray-100 text-xs sm:text-sm whitespace-nowrap px-1 py-0.5">
                       Explore Events
                     </Button>
                   </Link>
-                  <Link href="/community" className="w-32 sm:w-40">
-                    <Button size="sm" className="w-full bg-white/20 text-white hover:bg-white/30 text-sm sm:text-base whitespace-nowrap px-2 py-1">
+                  <Link href="/community" className="w-20 sm:w-32">
+                    <Button size="sm" className="w-full bg-white/20 text-white hover:bg-white/30 text-xs sm:text-sm whitespace-nowrap px-1 py-0.5">
                       Join the Community
                     </Button>
                   </Link>
                 </div>
-                <div className="flex flex-col items-center gap-2 sm:hidden relative z-20 mt-8">
+                <div className="flex flex-col items-center gap-1 sm:hidden relative z-20 mt-2">
                   <a
                     href="https://buymeacoffee.com/bachata.au"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-white hover:text-yellow-300 flex items-center justify-center gap-2 text-sm sm:text-base"
+                    className="text-white hover:text-yellow-300 flex items-center justify-center gap-1 text-xs"
                   >
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
-                      width="20"
-                      height="20"
+                      width="16"
+                      height="16"
                       viewBox="0 0 24 24"
                       fill="none"
                       stroke="currentColor"
@@ -338,12 +338,12 @@ export default function Home() {
                     href="https://instagram.com/bachata.au"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-white hover:text-gray-200 flex items-center justify-center gap-2 text-sm sm:text-base"
+                    className="text-white hover:text-gray-200 flex items-center justify-center gap-1 text-xs"
                   >
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
-                      width="20"
-                      height="20"
+                      width="16"
+                      height="16"
                       viewBox="0 0 24 24"
                       fill="none"
                       stroke="currentColor"
@@ -361,9 +361,9 @@ export default function Home() {
                 </div>
               </div>
             </div>
-            <div className="max-w-3xl mx-auto text-center -mt-8">
+            <div className="max-w-3xl mx-auto text-center -mt-4">
               {/* Social media and support links - Hidden on mobile */}
-              <div className="mt-4 sm:mt-16 hidden sm:flex flex-col items-center gap-2">
+              <div className="mt-2 sm:mt-4 hidden sm:flex flex-col items-center gap-1">
                 <a
                   href="https://buymeacoffee.com/bachata.au"
                   target="_blank"
@@ -394,7 +394,7 @@ export default function Home() {
                   href="https://instagram.com/bachata.au"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-white hover:text-gray-200 flex items-center justify-center gap-2 text-sm sm:text-base"
+                  className="text-white hover:text-gray-200 flex items-center justify-center gap-2 text-sm sm:text-base mb-0"
                 >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
