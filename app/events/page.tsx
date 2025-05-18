@@ -50,7 +50,7 @@ export default function EventsPage() {
   const [isFormOpen, setIsFormOpen] = useState(false)
   const [expandedComments, setExpandedComments] = useState<Record<string, boolean>>({})
   
-  const { selectedState, setSelectedState, filteredItems: filteredEvents } = useStateFilter(events)
+  const { selectedState, setSelectedState, filteredItems: filteredEvents, isGeoLoading } = useStateFilter(events)
 
   useEffect(() => {
     const fetchEvents = async () => {
@@ -89,13 +89,13 @@ export default function EventsPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="container mx-auto px-4 py-4 sm:py-8">
+      <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-8">
         <div className="text-center mb-4 sm:mb-12">
-          <h1 className="text-2xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent mb-4">
-            Recuring Events in Australia
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent mb-2 sm:mb-4">
+            Bachata Events
           </h1>
           <p className="text-base sm:text-xl text-gray-600">
-            Weekly & Monthly filtered by states.
+            Find Bachata events near you.
           </p>
         </div>
 
@@ -103,6 +103,7 @@ export default function EventsPage() {
           <StateFilter
             selectedState={selectedState}
             onChange={setSelectedState}
+            isLoading={isGeoLoading}
           />
         </div>
 

@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useGeolocation } from './useGeolocation'
 
 interface HasState {
   state: string
@@ -12,24 +13,24 @@ interface HasState {
  * @param items - Array of items that include a 'state' property
  * @returns An object with the selectedState, a setter, and the filtered items
  */
-export function useStateFilter<T extends HasState>(items: T[]) {
+export function useStateFilter<T extends { state: string }>(items: T[]) {
+  const { state: geoState, isLoading: isGeoLoading } = useGeolocation()
   const [selectedState, setSelectedState] = useState<string>('all')
-  const [filteredItems, setFilteredItems] = useState<T[]>(items)
 
   useEffect(() => {
-    const normalizedState = selectedState.toUpperCase()
+    if (!isGeoLoading && geoState !== 'all') {
+      setSelectedState(geoState)
+    }
+  }, [geoState, isGeoLoading])
 
-    const newFilteredItems = 
-      normalizedState === 'ALL'
-        ? items
-        : items.filter(item => item.state?.toUpperCase() === normalizedState)
-
-    setFilteredItems(newFilteredItems)
-  }, [selectedState, items])
+  const filteredItems = selectedState === 'all'
+    ? items
+    : items.filter(item => item.state === selectedState)
 
   return {
     selectedState,
     setSelectedState,
-    filteredItems
+    filteredItems,
+    isGeoLoading
   }
 }

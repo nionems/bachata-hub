@@ -43,7 +43,7 @@ export default function DJsPage() {
   const [selectedImage, setSelectedImage] = useState<{ url: string; title: string } | null>(null)
   const [expandedComments, setExpandedComments] = useState<Record<string, boolean>>({})
   
-  const { selectedState, setSelectedState, filteredItems: filteredDJs } = useStateFilter(djs)
+  const { selectedState, setSelectedState, filteredItems: filteredDJs, isGeoLoading } = useStateFilter(djs)
 
   useEffect(() => {
     const fetchDJs = async () => {
@@ -124,7 +124,7 @@ export default function DJsPage() {
             Bachata DJs
           </h1>
           <p className="text-base sm:text-xl text-gray-600">
-            Find the perfect DJ for your next Bachata event.
+            Find Bachata DJs near you.
           </p>
         </div>
 
@@ -132,6 +132,7 @@ export default function DJsPage() {
           <StateFilter
             selectedState={selectedState}
             onChange={setSelectedState}
+            isLoading={isGeoLoading}
           />
         </div>
 

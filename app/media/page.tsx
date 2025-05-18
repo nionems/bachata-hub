@@ -19,7 +19,7 @@ export default function MediaPage() {
   const [isSubmissionFormOpen, setIsSubmissionFormOpen] = useState(false)
   const [isContactFormOpen, setIsContactFormOpen] = useState(false)
   
-  const { selectedState, setSelectedState, filteredItems: filteredMedia } = useStateFilter(mediaList)
+  const { selectedState, setSelectedState, filteredItems: filteredMedia, isGeoLoading } = useStateFilter(mediaList)
 
   useEffect(() => {
     const fetchMedia = async () => {
@@ -53,10 +53,10 @@ export default function MediaPage() {
       <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-8">
         <div className="text-center mb-4 sm:mb-12">
           <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent mb-2 sm:mb-4">
-            Media
+            Bachata Media
           </h1>
           <p className="text-base sm:text-xl text-gray-600">
-            Discover media content from across Australia.
+            Find Bachata media content from your state.
           </p>
         </div>
 
@@ -64,6 +64,7 @@ export default function MediaPage() {
           <StateFilter
             selectedState={selectedState}
             onChange={setSelectedState}
+            isLoading={isGeoLoading}
           />
         </div>
 

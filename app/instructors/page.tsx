@@ -25,7 +25,7 @@ export default function InstructorsPage() {
   const [isSubmissionFormOpen, setIsSubmissionFormOpen] = useState(false)
   const [isContactFormOpen, setIsContactFormOpen] = useState(false)
   
-  const { selectedState, setSelectedState, filteredItems: filteredInstructors } = useStateFilter(instructors)
+  const { selectedState, setSelectedState, filteredItems: filteredInstructors, isGeoLoading } = useStateFilter(instructors)
 
   useEffect(() => {
     const fetchInstructors = async () => {
@@ -84,7 +84,7 @@ export default function InstructorsPage() {
             Bachata Instructors
           </h1>
           <p className="text-base sm:text-xl text-gray-600">
-            Private lessons, workshops, or exciting collabs.
+            Find Bachata instructors near you.
           </p>
         </div>
 
@@ -92,6 +92,7 @@ export default function InstructorsPage() {
           <StateFilter
             selectedState={selectedState}
             onChange={setSelectedState}
+            isLoading={isGeoLoading}
           />
         </div>
 

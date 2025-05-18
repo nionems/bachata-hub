@@ -34,7 +34,7 @@ export default function SchoolsPage() {
   const [isSubmissionFormOpen, setIsSubmissionFormOpen] = useState(false)
   const [isContactFormOpen, setIsContactFormOpen] = useState(false)
   
-  const { selectedState, setSelectedState, filteredItems: filteredSchools } = useStateFilter(schools)
+  const { selectedState, setSelectedState, filteredItems: filteredSchools, isGeoLoading } = useStateFilter(schools)
 
   useEffect(() => {
     const fetchSchools = async () => {
@@ -91,86 +91,89 @@ export default function SchoolsPage() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-4 sm:py-8">
-      <div className="text-center mb-4 sm:mb-12">
-        <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent mb-2 sm:mb-4">
-          Dance Schools
-        </h1>
-        <p className="text-base sm:text-xl text-gray-600">
-          Find dance schools in your area
-        </p>
-      </div>
+    <div className="min-h-screen bg-gray-50">
+      <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-8">
+        <div className="text-center mb-4 sm:mb-12">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent mb-2 sm:mb-4">
+            Bachata Schools
+          </h1>
+          <p className="text-base sm:text-xl text-gray-600">
+            Find Bachata schools and classes near you.
+          </p>
+        </div>
 
-      <div className="mb-4 sm:mb-8">
-        <StateFilter
-          selectedState={selectedState}
-          onChange={setSelectedState}
-        />
-      </div>
+        <div className="mb-4 sm:mb-8">
+          <StateFilter
+            selectedState={selectedState}
+            onChange={setSelectedState}
+            isLoading={isGeoLoading}
+          />
+        </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        {filteredSchools.map((school) => (
-          <SchoolViewCard key={school.id} school={school} />
-        ))}
-      </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          {filteredSchools.map((school) => (
+            <SchoolViewCard key={school.id} school={school} />
+          ))}
+        </div>
 
-      {/* Add Your School Card */}
-      <div className="mt-8 sm:mt-16 bg-gradient-to-r from-primary to-secondary rounded-xl shadow-xl overflow-hidden">
-        <div className="p-4 sm:p-8 md:p-12 flex flex-col md:flex-row items-center justify-between">
-          <div className="text-white mb-4 sm:mb-6 md:mb-0 md:mr-8">
-            <h2 className="text-xl sm:text-3xl font-bold mb-2 sm:mb-4">
-              Add Your School
-            </h2>
-            <p className="text-white/90 text-sm sm:text-lg mb-3 sm:mb-6">
-              Are you a dance school owner? Get featured in our directory and connect with dancers across Australia!
-            </p>
-            <ul className="space-y-1 sm:space-y-3">
-              <li className="flex items-center text-sm sm:text-base">
-                <svg className="w-5 h-5 sm:w-6 sm:h-6 mr-2 sm:mr-3" fill="currentColor" viewBox="0 0 20 20">
-                  <path d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/>
-                </svg>
-                Reach a wider audience of dance enthusiasts
-              </li>
-              <li className="flex items-center text-sm sm:text-base">
-                <svg className="w-5 h-5 sm:w-6 sm:h-6 mr-2 sm:mr-3" fill="currentColor" viewBox="0 0 20 20">
-                  <path d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/>
-                </svg>
-                Promote your classes and events
-              </li>
-              <li className="flex items-center text-sm sm:text-base">
-                <svg className="w-5 h-5 sm:w-6 sm:h-6 mr-2 sm:mr-3" fill="currentColor" viewBox="0 0 20 20">
-                  <path d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/>
-                </svg>
-                Connect with dancers across Australia
-              </li>
-            </ul>
-          </div>
-          <div className="flex flex-col space-y-3 sm:space-y-4 w-full sm:w-auto">
-            <Button
-              onClick={() => setIsContactFormOpen(true)}
-              className="bg-white text-primary px-6 sm:px-8 py-2 sm:py-3 rounded-full font-semibold hover:bg-gray-50 transition-colors duration-200 text-center w-full sm:w-auto"
-            >
-              Contact Us
-            </Button>
-            <Button
-              onClick={() => setIsSubmissionFormOpen(true)}
-              className="bg-secondary text-white px-6 sm:px-8 py-2 sm:py-3 rounded-full font-semibold hover:bg-secondary/90 transition-colors duration-200 text-center w-full sm:w-auto"
-            >
-              Submit via Form
-            </Button>
+        {/* Add Your School Card */}
+        <div className="mt-8 sm:mt-16 bg-gradient-to-r from-primary to-secondary rounded-xl shadow-xl overflow-hidden">
+          <div className="p-4 sm:p-8 md:p-12 flex flex-col md:flex-row items-center justify-between">
+            <div className="text-white mb-4 sm:mb-6 md:mb-0 md:mr-8">
+              <h2 className="text-xl sm:text-3xl font-bold mb-2 sm:mb-4">
+                Add Your School
+              </h2>
+              <p className="text-white/90 text-sm sm:text-lg mb-3 sm:mb-6">
+                Are you a dance school owner? Get featured in our directory and connect with dancers across Australia!
+              </p>
+              <ul className="space-y-1 sm:space-y-3">
+                <li className="flex items-center text-sm sm:text-base">
+                  <svg className="w-5 h-5 sm:w-6 sm:h-6 mr-2 sm:mr-3" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/>
+                  </svg>
+                  Reach a wider audience of dance enthusiasts
+                </li>
+                <li className="flex items-center text-sm sm:text-base">
+                  <svg className="w-5 h-5 sm:w-6 sm:h-6 mr-2 sm:mr-3" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/>
+                  </svg>
+                  Promote your classes and events
+                </li>
+                <li className="flex items-center text-sm sm:text-base">
+                  <svg className="w-5 h-5 sm:w-6 sm:h-6 mr-2 sm:mr-3" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/>
+                  </svg>
+                  Connect with dancers across Australia
+                </li>
+              </ul>
+            </div>
+            <div className="flex flex-col space-y-3 sm:space-y-4 w-full sm:w-auto">
+              <Button
+                onClick={() => setIsContactFormOpen(true)}
+                className="bg-white text-primary px-6 sm:px-8 py-2 sm:py-3 rounded-full font-semibold hover:bg-gray-50 transition-colors duration-200 text-center w-full sm:w-auto"
+              >
+                Contact Us
+              </Button>
+              <Button
+                onClick={() => setIsSubmissionFormOpen(true)}
+                className="bg-secondary text-white px-6 sm:px-8 py-2 sm:py-3 rounded-full font-semibold hover:bg-secondary/90 transition-colors duration-200 text-center w-full sm:w-auto"
+              >
+                Submit via Form
+              </Button>
+            </div>
           </div>
         </div>
+
+        <SchoolSubmissionForm
+          isOpen={isSubmissionFormOpen}
+          onClose={() => setIsSubmissionFormOpen(false)}
+        />
+
+        <ContactForm
+          isOpen={isContactFormOpen}
+          onClose={() => setIsContactFormOpen(false)}
+        />
       </div>
-
-      <SchoolSubmissionForm
-        isOpen={isSubmissionFormOpen}
-        onClose={() => setIsSubmissionFormOpen(false)}
-      />
-
-      <ContactForm
-        isOpen={isContactFormOpen}
-        onClose={() => setIsContactFormOpen(false)}
-      />
     </div>
   )
 }
