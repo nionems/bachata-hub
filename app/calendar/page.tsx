@@ -58,9 +58,8 @@ export default function CalendarPage() {
             <Card>
               <CardHeader className="p-3 sm:p-4">
                 <CardTitle className="text-base sm:text-lg md:text-xl">About Our Calendar</CardTitle>
-                <CardDescription className="text-xs sm:text-sm">
-                  Learn more about how to use and contribute to our calendar
-                </CardDescription>
+                {/* <CardDescription className="text-xs sm:text-sm">
+                </CardDescription> */}
               </CardHeader>
               <CardContent className="p-3 sm:p-4 pt-0">
                 <div className="prose max-w-none text-xs sm:text-sm">
@@ -74,19 +73,17 @@ export default function CalendarPage() {
                   <ul className="list-disc pl-4 space-y-1">
                     <li>Click on any event in the calendar to see full details</li>
                     <li>Use the navigation controls to move between months or weeks</li>
-                    <li>Click the "+ Google Calendar" button to add our calendar to your own Google Calendar</li>
-                    <li>Select different event types from the dropdown menu to view specific calendars</li>
+                    <li>Select a city in filter dropdown menu to view specific calendars</li>
                   </ul>
 
                   <h3 className="text-sm sm:text-base font-medium mt-3 mb-2">Submit Your Event</h3>
                   <p>
-                    Are you organizing a Bachata event in Australia? We'd love to feature it on our calendar! Click the "Submit Your Event" button to fill out our event submission form.
+                    Are you organizing a Bachata event in Australia? We'd love to feature it on our calendar! Please fill out the submission form below, providing all the necessary details about your event. Share a link to your flyer or image—preferably hosted on Google Drive. Ensure that the link is set to public access so we can view and use it. Once submitted, our team will review your event details, and if everything is in order, we'll feature your event on our calendar to help spread the word!
+
+
                   </p>
 
                   <h3 className="text-sm sm:text-base font-medium mt-3 mb-2">Stay Connected</h3>
-                  <p>
-                    Subscribe to our calendar to stay up-to-date with all the latest Bachata events. Never miss a dance opportunity again!
-                  </p>
                 </div>
               </CardContent>
             </Card>
