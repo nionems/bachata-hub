@@ -50,7 +50,7 @@ export default function EventsPage() {
   const [isFormOpen, setIsFormOpen] = useState(false)
   const [expandedComments, setExpandedComments] = useState<Record<string, boolean>>({})
   
-  const { selectedState, setSelectedState, filteredItems: filteredEvents, isGeoLoading } = useStateFilter(events)
+  const { selectedState, setSelectedState, filteredItems: filteredEvents, isGeoLoading, error: geoError } = useStateFilter(events)
 
   useEffect(() => {
     const fetchEvents = async () => {
@@ -104,6 +104,7 @@ export default function EventsPage() {
             selectedState={selectedState}
             onChange={setSelectedState}
             isLoading={isGeoLoading}
+            error={geoError}
           />
         </div>
 

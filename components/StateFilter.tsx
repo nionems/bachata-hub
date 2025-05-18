@@ -1,14 +1,17 @@
 'use client'
 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Alert, AlertDescription } from "@/components/ui/alert"
+import { AlertCircle } from "lucide-react"
 
 interface StateFilterProps {
   selectedState: string
   onChange: (value: string) => void
   isLoading?: boolean
+  error?: string | null
 }
 
-export function StateFilter({ selectedState, onChange, isLoading = false }: StateFilterProps) {
+export function StateFilter({ selectedState, onChange, isLoading = false, error = null }: StateFilterProps) {
   const states = [
     { value: 'all', label: 'All States' },
     { value: 'NSW', label: 'New South Wales' },
@@ -35,6 +38,14 @@ export function StateFilter({ selectedState, onChange, isLoading = false }: Stat
           ))}
         </SelectContent>
       </Select>
+      {error && (
+        <Alert variant="destructive" className="mt-2">
+          <AlertCircle className="h-4 w-4" />
+          <AlertDescription className="text-sm">
+            {error}
+          </AlertDescription>
+        </Alert>
+      )}
     </div>
   )
 } 

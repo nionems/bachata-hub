@@ -14,7 +14,7 @@ interface HasState {
  * @returns An object with the selectedState, a setter, and the filtered items
  */
 export function useStateFilter<T extends { state: string }>(items: T[]) {
-  const { state: geoState, isLoading: isGeoLoading } = useGeolocation()
+  const { state: geoState, isLoading: isGeoLoading, error: geoError } = useGeolocation()
   const [selectedState, setSelectedState] = useState<string>('all')
 
   useEffect(() => {
@@ -31,6 +31,7 @@ export function useStateFilter<T extends { state: string }>(items: T[]) {
     selectedState,
     setSelectedState,
     filteredItems,
-    isGeoLoading
+    isGeoLoading,
+    error: geoError
   }
 }

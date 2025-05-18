@@ -26,28 +26,69 @@ export function useGeolocation() {
 
   useEffect(() => {
     const getLocation = async () => {
+      if (!navigator.geolocation) {
+        setError('Geolocation is not supported by your browser')
+        setIsLoading(false)
+        return
+      }
+
       try {
         setIsLoading(true)
         const position = await new Promise<GeolocationPosition>((resolve, reject) => {
-          navigator.geolocation.getCurrentPosition(resolve, reject)
+          navigator.geolocation.getCurrentPosition(
+            resolve,
+            (error) => {
+              switch (error.code) {
+                case error.PERMISSION_DENIED:
+                  reject(new Error('Please enable location access to see content from your state'))
+                  break
+                case error.POSITION_UNAVAILABLE:
+                  reject(new Error('Location information is unavailable'))
+                  break
+                case error.TIMEOUT:
+                  reject(new Error('Location request timed out'))
+                  break
+                default:
+                  reject(new Error('An unknown error occurred'))
+              }
+            },
+            {
+              enableHighAccuracy: true,
+              timeout: 10000,
+              maximumAge: 0
+            }
+          )
         })
 
         const { latitude, longitude } = position.coords
 
         // Use reverse geocoding to get the state
         const response = await fetch(
-          `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&addressdetails=1`
+          `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&addressdetails=1`,
+          {
+            headers: {
+              'Accept-Language': 'en-US,en;q=0.9',
+              'User-Agent': 'BachataHub/1.0'
+            }
+          }
         )
+
+        if (!response.ok) {
+          throw new Error('Failed to get location details')
+        }
+
         const data = await response.json()
 
         // Extract state from address
         const stateName = data.address.state
         if (stateName && STATE_MAPPING[stateName]) {
           setState(STATE_MAPPING[stateName])
+        } else {
+          setError('Could not determine your state')
         }
       } catch (err) {
         console.error('Error getting location:', err)
-        setError('Could not get your location')
+        setError(err instanceof Error ? err.message : 'Could not get your location')
       } finally {
         setIsLoading(false)
       }
