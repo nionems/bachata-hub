@@ -40,7 +40,7 @@ export default function CalendarMenu() {
   }
 
   const getCalendarUrl = () => {
-    const baseParams = `ctz=Australia%2FSydney&wkst=1&bgcolor=%23ffffff&showTitle=0&showNav=1&showDate=1&showPrint=0&showTabs=1&showCalendars=1&showTz=1&color=%23${encodeURIComponent(process.env.NEXT_PUBLIC_PRIMARY_COLOR?.replace('#', '') || '006B3F')}`
+    const baseParams = `ctz=Australia%2FSydney&wkst=1&bgcolor=%23ffffff&showTitle=0&showNav=1&showDate=1&showPrint=0&showTabs=0&showCalendars=0&showTz=1&color=%23${encodeURIComponent(process.env.NEXT_PUBLIC_PRIMARY_COLOR?.replace('#', '') || '006B3F')}`
     const viewParam = selectedView === "agenda" ? "&mode=AGENDA" : "&mode=MONTH"
 
     if (selectedCalendar === calendarIds.allCities) {
@@ -141,14 +141,7 @@ export default function CalendarMenu() {
               ></iframe>
             </div>
 
-            <div className="mt-4 sm:mt-6 grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
-              <InfoCard
-                iconColor="#14b8a6"
-                bgColor="bg-[#ecfdfa]"
-                borderColor="border-[#99f6e4]"
-                title="Add to Your Calendar"
-                text="Click the '+ Google Calendar' button at the bottom right to add this calendar to your own Google Calendar."
-              />
+            <div className="mt-4 sm:mt-6 grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
               <InfoCard
                 iconColor="#a855f7"
                 bgColor="bg-[#f3e8ff]"
@@ -231,14 +224,7 @@ export default function CalendarMenu() {
               ></iframe>
             </div>
 
-            <div className="mt-4 sm:mt-6 grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
-              <InfoCard
-                iconColor="#14b8a6"
-                bgColor="bg-[#ecfdfa]"
-                borderColor="border-[#99f6e4]"
-                title="Add to Your Calendar"
-                text="Click the '+ Google Calendar' button at the bottom right to add this calendar to your own Google Calendar."
-              />
+            <div className="mt-4 sm:mt-6 grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
               <InfoCard
                 iconColor="#a855f7"
                 bgColor="bg-[#f3e8ff]"
