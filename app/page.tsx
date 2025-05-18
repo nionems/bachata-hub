@@ -297,13 +297,13 @@ export default function Home() {
                 />
                 <div className="flex flex-row justify-between w-full px-2 sm:px-0 sm:gap-12 mt-16 sm:mt-36 relative z-10">
                   <Link href="/events" className="w-20 sm:w-32">
-                    <Button size="sm" className="w-full bg-white text-primary hover:bg-gray-100 text-xs sm:text-sm whitespace-nowrap px-1 py-0.5">
+                    <Button size="sm" className="w-full bg-white text-primary hover:bg-gray-100 text-[10px] sm:text-sm whitespace-nowrap px-0.5 py-0.5 font-medium">
                       Explore Events
                     </Button>
                   </Link>
                   <Link href="/community" className="w-20 sm:w-32">
-                    <Button size="sm" className="w-full bg-white/20 text-white hover:bg-white/30 text-xs sm:text-sm whitespace-nowrap px-1 py-0.5">
-                      Join the Community
+                    <Button size="sm" className="w-full bg-white/20 text-white hover:bg-white/30 text-[10px] sm:text-sm whitespace-nowrap px-0.5 py-0.5 font-medium">
+                      Join Community
                     </Button>
                   </Link>
                 </div>
@@ -420,9 +420,9 @@ export default function Home() {
         </section>
 
         {/* Featured Events This Week - Carousel */}
-        <section className="py-8 sm:py-12 bg-white">
+        <section className="py-4 sm:py-8 bg-white">
           <div className="container mx-auto px-4">
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-center mb-6 sm:mb-8 bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">Featured Events This Week</h2>
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-center mb-4 sm:mb-6 bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">Featured Events This Week</h2>
             {events.length > 0 ? (
               <Slider {...settings}>
                 {events.map((event) => (
