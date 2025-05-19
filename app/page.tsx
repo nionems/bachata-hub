@@ -248,9 +248,9 @@ export default function Home() {
   // Add this carousel settings object before your Home component
   const settings = {
     dots: true,
-    infinite: true,
+    infinite: filteredEvents.length > 3,
     speed: 500,
-    slidesToShow: 3,
+    slidesToShow: Math.min(3, filteredEvents.length),
     slidesToScroll: 1,
     autoplay: true,
     autoplaySpeed: 3000,
@@ -258,7 +258,7 @@ export default function Home() {
       {
         breakpoint: 1024,
         settings: {
-          slidesToShow: 2,
+          slidesToShow: Math.min(2, filteredEvents.length),
           slidesToScroll: 1,
         }
       },
@@ -448,52 +448,54 @@ export default function Home() {
               {selectedState !== 'all' && ` in ${selectedState}`}
             </h2>
             {filteredEvents.length > 0 ? (
-              <Slider {...settings}>
-                {filteredEvents.map((event) => (
-                  <div key={event.id} className="px-2">
-                    <div 
-                      className="bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden cursor-pointer hover:shadow-xl transition-shadow relative h-80"
-                      onClick={() => handleEventClick(event)}
-                    >
+              <div className="relative">
+                <Slider {...settings}>
+                  {filteredEvents.map((event) => (
+                    <div key={event.id} className="px-2">
                       <div 
-                        className="absolute inset-0"
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          handleImageClick(event)
-                        }}
+                        className="bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden cursor-pointer hover:shadow-xl transition-shadow relative h-80"
+                        onClick={() => handleEventClick(event)}
                       >
-                        {event.imageUrl && event.imageUrl !== '/images/placeholder.svg' ? (
-                          <Image
-                            src={event.imageUrl}
-                            alt={event.name}
-                            fill
-                            className="object-cover"
-                            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                            onError={(e) => {
-                              console.error('Error loading image:', event.imageUrl)
-                              const target = e.target as HTMLImageElement
-                              target.src = '/images/placeholder.svg'
-                            }}
-                          />
-                        ) : (
-                          <Image
-                            src="/images/placeholder.svg"
-                            alt="No image available"
-                            fill
-                            className="object-contain p-8 bg-white"
-                            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                          />
-                        )}
-                      </div>
-                      <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-4">
-                        <h3 className="text-lg font-semibold text-white mb-1">{event.name}</h3>
-                        <p className="text-white/90 text-sm mb-0.5">{event.date}</p>
-                        <p className="text-white/90 text-sm">{event.location}</p>
+                        <div 
+                          className="absolute inset-0"
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            handleImageClick(event)
+                          }}
+                        >
+                          {event.imageUrl && event.imageUrl !== '/images/placeholder.svg' ? (
+                            <Image
+                              src={event.imageUrl}
+                              alt={event.name}
+                              fill
+                              className="object-cover"
+                              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                              onError={(e) => {
+                                console.error('Error loading image:', event.imageUrl)
+                                const target = e.target as HTMLImageElement
+                                target.src = '/images/placeholder.svg'
+                              }}
+                            />
+                          ) : (
+                            <Image
+                              src="/images/placeholder.svg"
+                              alt="No image available"
+                              fill
+                              className="object-contain p-8 bg-white"
+                              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                            />
+                          )}
+                        </div>
+                        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-4">
+                          <h3 className="text-lg font-semibold text-white mb-1 line-clamp-1">{event.name}</h3>
+                          <p className="text-white/90 text-sm mb-0.5">{event.date}</p>
+                          <p className="text-white/90 text-sm line-clamp-1">{event.location}</p>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                ))}
-              </Slider>
+                  ))}
+                </Slider>
+              </div>
             ) : (
               <div className="text-center py-8">
                 <p className="text-gray-600 dark:text-gray-300">
