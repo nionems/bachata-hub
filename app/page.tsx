@@ -208,7 +208,27 @@ export default function Home() {
         end: event.end.dateTime || event.end.date,
         description: event.description?.replace(/\[image:.*?\]/, '').trim() || "No description available",
         location: event.location || "Location TBA",
-        state: event.location?.split(',').pop()?.trim() || "TBA",
+        state: (() => {
+          const location = event.location || '';
+          // Try to extract state from location
+          const stateMatch = location.match(/\b(NSW|VIC|QLD|WA|SA|TAS|ACT|NT|New South Wales|Victoria|Queensland|Western Australia|South Australia|Tasmania|Australian Capital Territory|Northern Territory)\b/i);
+          if (stateMatch) {
+            const state = stateMatch[0].toUpperCase();
+            // Map full state names to abbreviations
+            const stateMap: { [key: string]: string } = {
+              'NEW SOUTH WALES': 'NSW',
+              'VICTORIA': 'VIC',
+              'QUEENSLAND': 'QLD',
+              'WESTERN AUSTRALIA': 'WA',
+              'SOUTH AUSTRALIA': 'SA',
+              'TASMANIA': 'TAS',
+              'AUSTRALIAN CAPITAL TERRITORY': 'ACT',
+              'NORTHERN TERRITORY': 'NT'
+            };
+            return stateMap[state] || state;
+          }
+          return "TBA";
+        })(),
         address: event.location || "TBA",
         eventLink: event.htmlLink || "",
         price: "TBA",
