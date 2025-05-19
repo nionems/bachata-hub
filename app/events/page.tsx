@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { MapPin, Calendar, Clock, Users, Info, Ticket, ExternalLink, ChevronDown, ChevronUp } from "lucide-react"
+import { MapPin, Calendar, Clock, Users, Info, Ticket, ExternalLink, ChevronDown, ChevronUp, X } from "lucide-react"
 import { Calendar as UiCalendar } from '@/components/ui/calendar'
 import Link from 'next/link'
 import { StateFilter } from '@/components/StateFilter'
@@ -12,7 +12,6 @@ import { useStateFilter } from '@/hooks/useStateFilter'
 import { collection, getDocs } from 'firebase/firestore'
 import { db } from '../../firebase/config'
 import { format } from "date-fns";
-import { ImageModal } from "@/components/ui/image-modal"
 import { ContactForm } from "@/components/ContactForm"
 import { EventSubmissionForm } from "@/components/EventSubmissionForm"
 import CalendarMenu from "@/components/calendar-menu"
@@ -254,12 +253,25 @@ export default function EventsPage() {
         </div>
 
         {/* Image Modal */}
-        <ImageModal
-          isOpen={!!selectedImage}
-          onClose={() => setSelectedImage(null)}
-          imageUrl={selectedImage?.url || ''}
-          title={selectedImage?.title || ''}
-        />
+        {selectedImage && (
+          <div 
+            className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4"
+            onClick={() => setSelectedImage(null)}
+          >
+            <button
+              className="absolute top-4 right-4 text-white hover:text-gray-300 transition-colors"
+              onClick={() => setSelectedImage(null)}
+            >
+              <X className="h-8 w-8" />
+            </button>
+            <img
+              src={selectedImage.url}
+              alt={selectedImage.title}
+              className="max-h-[90vh] max-w-[90vw] object-contain"
+              onClick={(e) => e.stopPropagation()}
+            />
+          </div>
+        )}
 
         {/* Calendar Section */}
         <CalendarMenu />
