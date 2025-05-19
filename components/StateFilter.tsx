@@ -2,7 +2,7 @@
 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { AlertCircle, MapPin, Info } from "lucide-react"
+import { AlertCircle, MapPin, ChevronDown } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useState } from "react"
 import {
@@ -60,8 +60,13 @@ export function StateFilter({ selectedState, onChange, isLoading = false, error 
                   <p className="text-xs">Location access is required to show content automatically from your state.</p>
                   <Collapsible open={isOpen} onOpenChange={setIsOpen}>
                     <CollapsibleTrigger asChild>
-                      <Button variant="ghost" size="icon" className="h-6 w-6 text-primary hover:text-primary/80">
-                        <Info className="h-4 w-4" />
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        className="h-7 px-2 border-primary text-primary hover:bg-primary/10 flex items-center gap-1"
+                      >
+                        <span className="text-xs">Show instructions</span>
+                        <ChevronDown className={`h-4 w-4 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} />
                       </Button>
                     </CollapsibleTrigger>
                     <CollapsibleContent className="mt-2">
