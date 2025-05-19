@@ -26,7 +26,7 @@ export async function POST(request: Request) {
     } = data
 
     // Validate required fields
-    if (!name || !location || !state || !address || !contactInfo) {
+    if (!name || !location || !state || !address) {
       console.error('Missing required fields')
       return NextResponse.json(
         { error: 'Missing required fields' },
@@ -41,7 +41,7 @@ export async function POST(request: Request) {
       address,
       website: website || '',
       googleReviewLink: googleReviewLink || '',
-      contactInfo,
+      contactInfo: contactInfo || '',
       imageUrl: imageUrl || '',
       instagramUrl: instagramUrl || '',
       facebookUrl: facebookUrl || '',

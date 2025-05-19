@@ -100,12 +100,12 @@ export default function EventsPage() {
         </div>
 
         <div className="mb-4 sm:mb-8">
-          <StateFilter
-            selectedState={selectedState}
-            onChange={setSelectedState}
+        <StateFilter
+          selectedState={selectedState}
+          onChange={setSelectedState}
             isLoading={isGeoLoading}
             error={geoError}
-          />
+        />
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
