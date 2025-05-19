@@ -2,7 +2,7 @@
 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { AlertCircle, MapPin, ChevronDown } from "lucide-react"
+import { AlertCircle, MapPin, ChevronDown, Info } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useState } from "react"
 import {
@@ -32,6 +32,8 @@ export function StateFilter({ selectedState, onChange, isLoading = false, error 
     { value: 'NT', label: 'Northern Territory' },
   ]
 
+  const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent)
+
   const handleRetry = () => {
     window.location.reload()
   }
@@ -51,51 +53,48 @@ export function StateFilter({ selectedState, onChange, isLoading = false, error 
         </SelectContent>
       </Select>
       {error && (
-        <Alert className="mt-2 border-primary/30 bg-primary/5">
-          <AlertCircle className="h-4 w-4 text-primary" />
-          <AlertDescription className="text-sm text-primary">
-            {error === 'Please enable location access to see content from your state' ? (
-              <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <p className="text-xs">Location access is required to show content automatically from your state.</p>
-                  <Collapsible open={isOpen} onOpenChange={setIsOpen}>
-                    <CollapsibleTrigger asChild>
-                      <Button 
-                        variant="outline" 
-                        size="sm" 
-                        className="h-7 px-2 border-primary text-primary hover:bg-primary/10 flex items-center gap-1"
-                      >
-                        <span className="text-xs">Show instructions</span>
-                        <ChevronDown className={`h-4 w-4 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} />
-                      </Button>
-                    </CollapsibleTrigger>
-                    <CollapsibleContent className="mt-2">
-                      <div className="text-xs space-y-2 bg-primary/10 p-2 rounded-md">
-                        <p className="font-semibold">To enable location access:</p>
-                        <ul className="list-disc pl-4 space-y-1">
-                          <li>On iOS: Settings → Safari → Location Services → Allow</li>
-                          <li>On Android: Settings → Location → App permissions → Browser → Allow</li>
-                          <li>On Desktop: Click the lock/info icon in the address bar → Location → Allow</li>
-                        </ul>
-                        <Button 
-                          variant="outline" 
-                          size="sm" 
-                          className="w-full border-primary text-primary hover:bg-primary/10"
-                          onClick={handleRetry}
-                        >
-                          <MapPin className="h-4 w-4 mr-2" />
-                          Retry Location Access
-                        </Button>
-                      </div>
-                    </CollapsibleContent>
-                  </Collapsible>
-                </div>
+        <div className="mb-4">
+          <Alert variant="default" className="bg-green-50 text-primary border-green-200">
+            <div className="flex flex-col gap-2">
+              <div className="flex items-center gap-2">
+                <Info className="h-4 w-4" />
+                <span className="font-medium">Location Access Required</span>
               </div>
-            ) : (
-              error
-            )}
-          </AlertDescription>
-        </Alert>
+              <p className="text-sm text-primary/80">
+                {error}
+              </p>
+              <Button
+                variant="outline"
+                size="sm"
+                className="w-full mt-2 border-green-200 hover:bg-green-100 hover:text-primary"
+                onClick={() => setIsOpen(!isOpen)}
+              >
+                <div className="flex items-center justify-center gap-2">
+                  <span>Show instructions</span>
+                  <ChevronDown className={`h-4 w-4 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} />
+                </div>
+              </Button>
+              <Collapsible open={isOpen}>
+                <div className="mt-2 text-sm text-primary/80 space-y-2">
+                  <p>To enable location access:</p>
+                  {isSafari ? (
+                    <>
+                      <p>1. Click "Allow" in the system prompt that appears</p>
+                      <p>2. If you don't see the prompt, click the lock icon in your browser's address bar</p>
+                      <p>3. Select "Allow" for location access</p>
+                    </>
+                  ) : (
+                    <>
+                      <p>1. Click "Allow" in the browser prompt</p>
+                      <p>2. If you don't see the prompt, click the lock icon in your browser's address bar</p>
+                      <p>3. Enable location access for this site</p>
+                    </>
+                  )}
+                </div>
+              </Collapsible>
+            </div>
+          </Alert>
+        </div>
       )}
     </div>
   )
