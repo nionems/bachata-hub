@@ -12,14 +12,11 @@ import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { CloudinaryImage } from "@/components/cloudinary-image"
 import { ImageModal } from "@/components/image-modal"
-
-// Import the server actions at the top of the file
 import { getWeekEvents } from "./actions/calendar-events"
-
-// Add the imports for our components
 import WeekendEventsHighlight from "@/components/weekend-events-highlight"
 import EventCard from "@/components/event-card"
 import { getEventImage } from '@/lib/event-images'
+import { useStateFilter } from '@/hooks/useStateFilter'
 
 // Add this interface at the top of your file
 interface Event {
@@ -109,13 +106,13 @@ function convertGoogleDriveUrl(url: string): string {
 export default function Home() {
   const [schools, setSchools] = useState<SchoolType[]>([])
   const [events, setEvents] = useState<Event[]>([])
-  const [filteredEvents, setFilteredEvents] = useState<Event[]>([])
-  const [userLocation, setUserLocation] = useState<{ city: string; state: string } | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const router = useRouter()
   const [isImageModalOpen, setIsImageModalOpen] = useState(false)
   const [selectedImage, setSelectedImage] = useState<{ url: string; title: string } | null>(null)
+
+  const { selectedState, setSelectedState, filteredItems: filteredEvents, isGeoLoading, error: geoError } = useStateFilter(events)
 
   useEffect(() => {
     const fetchEvents = async () => {
@@ -286,7 +283,8 @@ export default function Home() {
             {/* Logo at the very top of the banner */}
             <div className="w-full flex flex-col items-center mt-1">
               <p className="text-xs sm:text-base md:text-lg mb-0 text-white/90 text-center comic-neue px-4">
-                Your one-stop destination for Bachata events, classes, and community across Australia.
+              Your Bachata Guide in Australia<br />
+              <br />
               </p>
               <div className="flex flex-col items-center justify-center gap-1 sm:gap-4 relative w-full">
                 <Image
@@ -425,10 +423,13 @@ export default function Home() {
         {/* Featured Events This Week - Carousel */}
         <section className="py-4 sm:py-8 bg-white">
           <div className="container mx-auto px-4">
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-center mb-4 sm:mb-6 bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">Featured Events This Week</h2>
-            {events.length > 0 ? (
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-center mb-4 sm:mb-6 bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+              Featured Events This Week
+              {selectedState !== 'all' && ` in ${selectedState}`}
+            </h2>
+            {filteredEvents.length > 0 ? (
               <Slider {...settings}>
-                {events.map((event) => (
+                {filteredEvents.map((event) => (
                   <div key={event.id} className="px-2">
                     <div 
                       className="bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden cursor-pointer hover:shadow-xl transition-shadow relative h-80"
@@ -475,7 +476,9 @@ export default function Home() {
               </Slider>
             ) : (
               <div className="text-center py-8">
-                <p className="text-gray-600 dark:text-gray-300">No events scheduled for this week. Check back soon!</p>
+                <p className="text-gray-600 dark:text-gray-300">
+                  No events scheduled for this week {selectedState !== 'all' && `in ${selectedState}`}. Check back soon!
+                </p>
               </div>
             )}
           </div>
