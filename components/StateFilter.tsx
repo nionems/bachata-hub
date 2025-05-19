@@ -2,8 +2,14 @@
 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { AlertCircle, MapPin } from "lucide-react"
+import { AlertCircle, MapPin, Info } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { useState } from "react"
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible"
 
 interface StateFilterProps {
   selectedState: string
@@ -13,6 +19,7 @@ interface StateFilterProps {
 }
 
 export function StateFilter({ selectedState, onChange, isLoading = false, error = null }: StateFilterProps) {
+  const [isOpen, setIsOpen] = useState(false)
   const states = [
     { value: 'all', label: 'All States' },
     { value: 'NSW', label: 'New South Wales' },
@@ -44,24 +51,35 @@ export function StateFilter({ selectedState, onChange, isLoading = false, error 
         </SelectContent>
       </Select>
       {error && (
-        <Alert variant="destructive" className="mt-2">
-          <AlertCircle className="h-4 w-4" />
-          <AlertDescription className="text-sm">
+        <Alert className="mt-2 border-primary/30 bg-primary/5">
+          <AlertCircle className="h-4 w-4 text-primary" />
+          <AlertDescription className="text-sm text-primary">
             {error === 'Please enable location access to see content from your state' ? (
               <div className="space-y-2">
-                <p>Location access is required to show content from your state.</p>
-                <div className="text-xs space-y-1">
-                  <p className="font-semibold">To enable location access:</p>
-                  <ul className="list-disc pl-4 space-y-1">
-                    <li>On iOS: Settings → Safari → Location Services → Allow</li>
-                    <li>On Android: Settings → Location → App permissions → Browser → Allow</li>
-                    <li>On Desktop: Click the lock/info icon in the address bar → Location → Allow</li>
-                  </ul>
+                <div className="flex items-center justify-between">
+                  <p>Location access is required to show content from your state.</p>
+                  <Collapsible open={isOpen} onOpenChange={setIsOpen}>
+                    <CollapsibleTrigger asChild>
+                      <Button variant="ghost" size="icon" className="h-6 w-6 text-primary hover:text-primary/80">
+                        <Info className="h-4 w-4" />
+                      </Button>
+                    </CollapsibleTrigger>
+                    <CollapsibleContent className="mt-2">
+                      <div className="text-xs space-y-1 bg-primary/10 p-2 rounded-md">
+                        <p className="font-semibold">To enable location access:</p>
+                        <ul className="list-disc pl-4 space-y-1">
+                          <li>On iOS: Settings → Safari → Location Services → Allow</li>
+                          <li>On Android: Settings → Location → App permissions → Browser → Allow</li>
+                          <li>On Desktop: Click the lock/info icon in the address bar → Location → Allow</li>
+                        </ul>
+                      </div>
+                    </CollapsibleContent>
+                  </Collapsible>
                 </div>
                 <Button 
                   variant="outline" 
                   size="sm" 
-                  className="mt-2"
+                  className="mt-2 border-primary text-primary hover:bg-primary/10"
                   onClick={handleRetry}
                 >
                   <MapPin className="h-4 w-4 mr-2" />
