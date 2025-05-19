@@ -114,6 +114,7 @@ export default function Home() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const router = useRouter()
+  const [isImageModalOpen, setIsImageModalOpen] = useState(false)
   const [selectedImage, setSelectedImage] = useState<{ url: string; title: string } | null>(null)
 
   useEffect(() => {
@@ -262,9 +263,11 @@ export default function Home() {
 
   // Add this function to handle image clicks
   const handleImageClick = (event: Event) => {
-    if (event.imageUrl && event.imageUrl !== '/images/placeholder.svg') {
-      setSelectedImage({ url: event.imageUrl, title: event.name })
-    }
+    setSelectedImage({
+      url: event.imageUrl,
+      title: event.name
+    })
+    setIsImageModalOpen(true)
   }
 
   if (loading) return <div>Loading...</div>
@@ -549,8 +552,8 @@ export default function Home() {
 
         {/* Add the ImageModal component */}
         <ImageModal
-          isOpen={!!selectedImage}
-          onClose={() => setSelectedImage(null)}
+          isOpen={isImageModalOpen}
+          onClose={() => setIsImageModalOpen(false)}
           imageUrl={selectedImage?.url || ''}
           title={selectedImage?.title || ''}
         />

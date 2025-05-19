@@ -4,6 +4,7 @@ import { Card } from "@/components/ui/card"
 import { MapPin, ChevronDown, ChevronUp, X, Instagram, Facebook, Globe } from "lucide-react"
 import { useState } from "react"
 import { School } from "@/types/school"
+import { ImageModal } from "@/components/ImageModal"
 
 interface SchoolViewCardProps {
   school: School
@@ -117,26 +118,12 @@ export function SchoolViewCard({ school }: SchoolViewCardProps) {
         </div>
       </Card>
 
-      {/* Image Modal */}
-      {isImageModalOpen && (
-        <div 
-          className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4"
-          onClick={() => setIsImageModalOpen(false)}
-        >
-          <button
-            className="absolute top-4 right-4 text-white hover:text-gray-300 transition-colors"
-            onClick={() => setIsImageModalOpen(false)}
-          >
-            <X className="h-8 w-8" />
-          </button>
-          <img
-            src={school.imageUrl}
-            alt={school.name}
-            className="max-h-[90vh] max-w-[90vw] object-contain"
-            onClick={(e) => e.stopPropagation()}
-          />
-        </div>
-      )}
+      <ImageModal
+        isOpen={isImageModalOpen}
+        onClose={() => setIsImageModalOpen(false)}
+        imageUrl={school.imageUrl}
+        title={school.name}
+      />
     </>
   )
 } 
