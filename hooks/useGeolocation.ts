@@ -20,6 +20,7 @@ const STATE_MAPPING: { [key: string]: string } = {
 }
 
 interface GeolocationState {
+  state: string;
   latitude: number | null;
   longitude: number | null;
   error: string | null;
@@ -28,6 +29,7 @@ interface GeolocationState {
 
 export function useGeolocation() {
   const [state, setState] = useState<GeolocationState>({
+    state: 'all',
     latitude: null,
     longitude: null,
     error: null,
@@ -48,13 +50,43 @@ export function useGeolocation() {
     const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
 
     navigator.geolocation.getCurrentPosition(
-      (position) => {
-        setState({
-          latitude: position.coords.latitude,
-          longitude: position.coords.longitude,
-          error: null,
-          isLoading: false,
-        });
+      async (position) => {
+        const { latitude, longitude } = position.coords;
+        
+        try {
+          // Use reverse geocoding to get the state
+          const response = await fetch(
+            `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&addressdetails=1`,
+            {
+              headers: {
+                'Accept-Language': 'en-US,en;q=0.9',
+                'User-Agent': 'BachataHub/1.0'
+              }
+            }
+          );
+
+          if (!response.ok) {
+            throw new Error('Failed to get location details');
+          }
+
+          const data = await response.json();
+          const stateName = data.address.state;
+          
+          setState({
+            state: stateName && STATE_MAPPING[stateName] ? STATE_MAPPING[stateName] : 'all',
+            latitude,
+            longitude,
+            error: null,
+            isLoading: false,
+          });
+        } catch (err) {
+          console.error('Error getting location details:', err);
+          setState(prev => ({
+            ...prev,
+            error: 'Could not determine your state',
+            isLoading: false,
+          }));
+        }
       },
       (error) => {
         let errorMessage = 'Unable to retrieve your location';
