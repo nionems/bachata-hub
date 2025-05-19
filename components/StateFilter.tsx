@@ -57,7 +57,7 @@ export function StateFilter({ selectedState, onChange, isLoading = false, error 
             {error === 'Please enable location access to see content from your state' ? (
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
-                  <p>Location access is required to show content from your state.</p>
+                  <p className="text-xs">Location access is required to show content automatically from your state.</p>
                   <Collapsible open={isOpen} onOpenChange={setIsOpen}>
                     <CollapsibleTrigger asChild>
                       <Button variant="ghost" size="icon" className="h-6 w-6 text-primary hover:text-primary/80">
@@ -65,26 +65,26 @@ export function StateFilter({ selectedState, onChange, isLoading = false, error 
                       </Button>
                     </CollapsibleTrigger>
                     <CollapsibleContent className="mt-2">
-                      <div className="text-xs space-y-1 bg-primary/10 p-2 rounded-md">
+                      <div className="text-xs space-y-2 bg-primary/10 p-2 rounded-md">
                         <p className="font-semibold">To enable location access:</p>
                         <ul className="list-disc pl-4 space-y-1">
                           <li>On iOS: Settings → Safari → Location Services → Allow</li>
                           <li>On Android: Settings → Location → App permissions → Browser → Allow</li>
                           <li>On Desktop: Click the lock/info icon in the address bar → Location → Allow</li>
                         </ul>
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          className="w-full border-primary text-primary hover:bg-primary/10"
+                          onClick={handleRetry}
+                        >
+                          <MapPin className="h-4 w-4 mr-2" />
+                          Retry Location Access
+                        </Button>
                       </div>
                     </CollapsibleContent>
                   </Collapsible>
                 </div>
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  className="mt-2 border-primary text-primary hover:bg-primary/10"
-                  onClick={handleRetry}
-                >
-                  <MapPin className="h-4 w-4 mr-2" />
-                  Retry Location Access
-                </Button>
               </div>
             ) : (
               error
