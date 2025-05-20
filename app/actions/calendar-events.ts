@@ -88,9 +88,6 @@ export async function getLocalCalendarId(): Promise<string> {
 // Get events for the current week
 export async function getWeekEvents(calendarId?: string) {
   try {
-    // Use the provided calendarId or get the local calendar ID
-    const targetCalendarId = calendarId || await getLocalCalendarId()
-
     const apiKey = process.env.GOOGLE_API_KEY
     if (!apiKey) {
       console.error("GOOGLE_API_KEY environment variable is not set")
@@ -99,7 +96,6 @@ export async function getWeekEvents(calendarId?: string) {
 
     console.log("Using Google API Key for authentication")
     console.log("Current time:", new Date().toISOString())
-    console.log("Target calendar ID:", targetCalendarId)
 
     // Get the current date and end of week
     const now = new Date()
@@ -108,56 +104,78 @@ export async function getWeekEvents(calendarId?: string) {
     endOfWeek.setHours(23, 59, 59, 999)
     console.log("End of week:", endOfWeek.toISOString())
 
-    const url = `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(targetCalendarId)}/events?` +
-      `key=${apiKey}&` +
-      `timeMin=${now.toISOString()}&` +
-      `timeMax=${endOfWeek.toISOString()}&` +
-      `singleEvents=true&` +
-      `orderBy=startTime&` +
-      `maxResults=250` // Maximum allowed by Google Calendar API
-
-    console.log("Request URL:", url)
-
-    try {
-      console.log(`Fetching events for calendar: ${targetCalendarId}`)
-      const response = await fetch(url)
-
-      if (!response.ok) {
-        const errorData = await response.json()
-        console.error(`Error fetching events for calendar ${targetCalendarId}:`, errorData)
-        return []
-      }
-
-      const data = await response.json()
-      const events = data.items || []
-      console.log(`Found ${events.length} events for the current week`)
-      
-      // Log each event's details
-      if (events.length > 0) {
-        console.log('Events found:')
-        events.forEach((event: any) => {
-          const startDate = event.start?.dateTime || event.start?.date
-          const endDate = event.end?.dateTime || event.end?.date
-          console.log('Event:', {
-            id: event.id,
-            summary: event.summary,
-            start: startDate,
-            end: endDate,
-            description: event.description,
-            location: event.location
-          })
-        })
-      } else {
-        console.log('No events found in the specified time range')
-      }
-      
-      return events
-    } catch (error) {
-      console.error(`Error fetching events for calendar ${targetCalendarId}:`, error)
-      return []
+    // If a specific calendar ID is provided, only fetch from that calendar
+    if (calendarId) {
+      return await fetchEventsFromCalendar(calendarId, now, endOfWeek, apiKey)
     }
+
+    // Otherwise, fetch from all calendars
+    const allEvents = []
+    for (const [city, calendarId] of Object.entries(cityCalendarMap)) {
+      console.log(`Fetching events for ${city} calendar...`)
+      const events = await fetchEventsFromCalendar(calendarId, now, endOfWeek, apiKey)
+      allEvents.push(...events)
+    }
+
+    // Sort all events by start time
+    allEvents.sort((a, b) => {
+      const aStart = a.start?.dateTime || a.start?.date
+      const bStart = b.start?.dateTime || b.start?.date
+      return new Date(aStart).getTime() - new Date(bStart).getTime()
+    })
+
+    console.log(`Found total of ${allEvents.length} events across all calendars`)
+    return allEvents
   } catch (error) {
     console.error("Error in getWeekEvents:", error)
+    return []
+  }
+}
+
+// Helper function to fetch events from a single calendar
+async function fetchEventsFromCalendar(calendarId: string, startDate: Date, endDate: Date, apiKey: string) {
+  try {
+    const url = `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(calendarId)}/events?` +
+      `key=${apiKey}&` +
+      `timeMin=${startDate.toISOString()}&` +
+      `timeMax=${endDate.toISOString()}&` +
+      `singleEvents=true&` +
+      `orderBy=startTime&` +
+      `maxResults=250`
+
+    console.log(`Fetching events for calendar: ${calendarId}`)
+    const response = await fetch(url)
+
+    if (!response.ok) {
+      const errorData = await response.json()
+      console.error(`Error fetching events for calendar ${calendarId}:`, errorData)
+      return []
+    }
+
+    const data = await response.json()
+    const events = data.items || []
+    console.log(`Found ${events.length} events for calendar ${calendarId}`)
+    
+    // Log each event's details
+    if (events.length > 0) {
+      console.log('Events found:')
+      events.forEach((event: any) => {
+        const startDate = event.start?.dateTime || event.start?.date
+        const endDate = event.end?.dateTime || event.end?.date
+        console.log('Event:', {
+          id: event.id,
+          summary: event.summary,
+          start: startDate,
+          end: endDate,
+          description: event.description,
+          location: event.location
+        })
+      })
+    }
+    
+    return events
+  } catch (error) {
+    console.error(`Error fetching events for calendar ${calendarId}:`, error)
     return []
   }
 }
