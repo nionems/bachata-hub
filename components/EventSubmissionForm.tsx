@@ -178,13 +178,14 @@ export function EventSubmissionForm({ isOpen, onClose }: EventSubmissionFormProp
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="location" className="text-primary">Location *</Label>
+              <Label htmlFor="location" className="text-primary">Full Address *</Label>
               <Input
                 id="location"
                 name="location"
                 value={formData.location}
                 onChange={handleInputChange}
                 required
+                placeholder="Enter full address including postcode (e.g., 123 Dance Street, Sydney NSW 2000)"
                 className="bg-white/80 backdrop-blur-sm"
               />
             </div>
