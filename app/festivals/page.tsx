@@ -250,6 +250,19 @@ export default function FestivalsPage() {
                           <span>Website</span>
                         </Button>
                       )}
+                      {festival.eventLink && (
+                        <Button
+                          variant="outline"
+                          className="flex-1 border-primary text-primary hover:bg-primary/10 text-xs h-7 sm:h-8 flex items-center justify-center gap-2"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            window.open(festival.eventLink, '_blank');
+                          }}
+                        >
+                          <ExternalLink className="h-3 w-3 sm:h-4 sm:w-4" />
+                          <span>Festival Link</span>
+                        </Button>
+                      )}
                     </div>
                   </div>
                 </div>
