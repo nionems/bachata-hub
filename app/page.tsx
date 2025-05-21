@@ -303,7 +303,7 @@ export default function Home() {
             {/* Logo at the very top of the banner */}
             <div className="w-full flex flex-col items-center mt-1">
               <p className="text-xs sm:text-base md:text-lg mb-0 text-white/90 text-center comic-neue px-4">
-              Your Bachata Guide in Australia<br />
+              Your Bachata Guide in Australia2<br />
               <br />
               </p>
               <div className="flex flex-col items-center justify-center gap-1 sm:gap-4 relative w-full">
