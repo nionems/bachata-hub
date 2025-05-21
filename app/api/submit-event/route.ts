@@ -1,90 +1,25 @@
 import { Resend } from "resend"
 import { NextResponse } from "next/server"
-import { v2 as cloudinary } from "cloudinary"
-import { z } from "zod"
-import nodemailer from 'nodemailer'
-
-// Log all environment variables (without sensitive values)
-console.log("Environment variables status:", {
-  RESEND_API_KEY: process.env.RESEND_API_KEY ? "Set" : "Missing",
-  CLOUDINARY_CLOUD_NAME: process.env.CLOUDINARY_CLOUD_NAME ? "Set" : "Missing",
-  CLOUDINARY_API_KEY: process.env.CLOUDINARY_API_KEY ? "Set" : "Missing",
-  CLOUDINARY_API_SECRET: process.env.CLOUDINARY_API_SECRET ? "Set" : "Missing",
-  ADMIN_EMAIL: process.env.ADMIN_EMAIL ? "Set" : "Missing"
-})
 
 // Initialize Resend with the new API key
 const resend = new Resend(process.env.RESEND_API_KEY)
 
-// Configure Cloudinary with environment variables
-const cloudName = process.env.CLOUDINARY_CLOUD_NAME
-const apiKey = process.env.CLOUDINARY_API_KEY
-const apiSecret = process.env.CLOUDINARY_API_SECRET
-
-// Log Cloudinary configuration status
-console.log("Cloudinary configuration:", {
-  cloudName: cloudName || "Missing",
-  apiKey: apiKey || "Missing",
-  apiSecret: apiSecret ? "Set" : "Missing"
-})
-
-if (cloudName && apiKey && apiSecret) {
-  cloudinary.config({
-    cloud_name: cloudName,
-    api_key: apiKey,
-    api_secret: apiSecret,
-  })
-  console.log("Cloudinary configured successfully with:", {
-    cloud_name: cloudName,
-    api_key: apiKey,
-    api_secret: apiSecret ? "Set" : "Missing"
-  })
-} else {
-  console.error("Cloudinary configuration is incomplete")
-}
-
-// Add this type for Cloudinary response
-type CloudinaryResponse = {
-  secure_url: string;
-  // ... other cloudinary response fields
-};
-
-// Add this type for email attachments
-type EmailAttachment = {
-  filename: string;
-  content: Buffer;
-};
-
-// Add this function near the top after the cloudinary config
-async function uploadToCloudinary(file: File): Promise<CloudinaryResponse> {
+// Add verifyResendConfig function
+async function verifyResendConfig() {
   try {
-    const bytes = await file.arrayBuffer()
-    const buffer = Buffer.from(bytes)
-
-    return new Promise((resolve, reject) => {
-      const uploadStream = cloudinary.uploader.upload_stream(
-        { resource_type: 'auto' },
-        (error, result) => {
-          if (error) {
-            console.error('Cloudinary upload error:', error)
-            reject(error)
-          } else {
-            console.log('Cloudinary upload success:', result)
-            resolve(result as CloudinaryResponse)
-          }
-        }
-      )
-
-      uploadStream.end(buffer)
-    })
+    if (!process.env.RESEND_API_KEY) {
+      console.error('RESEND_API_KEY is not configured');
+      return false;
+    }
+    return true;
   } catch (error) {
-    console.error('Error in uploadToCloudinary:', error)
-    throw error
+    console.error('Error verifying Resend configuration:', error);
+    return false;
   }
 }
 
 // Add this function to format the admin email HTML
-function getAdminEmailHtml(formData: FormData, imageUrl: string) {
+function getAdminEmailHtml(formData: FormData) {
   return `
     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
       <h2 style="color: #333; margin-bottom: 20px;">New Event Submission</h2>
@@ -101,13 +36,12 @@ function getAdminEmailHtml(formData: FormData, imageUrl: string) {
         <p><strong>Event Link:</strong> ${formData.get('eventLink')}</p>
         <p><strong>Ticket Link:</strong> ${formData.get('ticketLink')}</p>
       </div>
-      ${imageUrl ? `<img src="${imageUrl}" alt="Event image" style="max-width: 100%; border-radius: 5px; margin-top: 10px;">` : ''}
     </div>
   `
 }
 
 // Add this function to format the organizer email HTML
-function getOrganizerEmailHtml(formData: FormData, imageUrl: string) {
+function getOrganizerEmailHtml(formData: FormData) {
   const eventName = formData.get('eventName')?.toString() || ''
   const eventDate = formData.get('eventDate')?.toString() || ''
   const eventTime = formData.get('eventTime')?.toString() || ''
@@ -143,11 +77,6 @@ function getOrganizerEmailHtml(formData: FormData, imageUrl: string) {
           <p><strong>Date:</strong> ${eventDate}</p>
           <p><strong>Time:</strong> ${eventTime} - ${endTime}</p>
           <p><strong>Location:</strong> ${location}</p>
-          ${imageUrl ? `
-            <div style="margin-top: 20px;">
-              <img src="${imageUrl}" alt="Event image" style="max-width: 100%; border-radius: 5px;">
-            </div>
-          ` : ''}
         </div>
 
         <div style="margin: 30px 0; text-align: center;">
@@ -164,44 +93,16 @@ function getOrganizerEmailHtml(formData: FormData, imageUrl: string) {
   `
 }
 
-// Add this function to download the image
-async function downloadImage(url: string): Promise<Buffer> {
-  const response = await fetch(url);
-  return Buffer.from(await response.arrayBuffer());
-}
-
-// Add this function to verify Resend configuration
-async function verifyResendConfig() {
-  try {
-    if (!process.env.RESEND_API_KEY) {
-      throw new Error('RESEND_API_KEY is not set');
-    }
-    
-    // Test the API key by making a simple request
-    const response = await resend.emails.send({
-      from: "Bachata Hub <onboarding@resend.dev>",
-      to: process.env.ADMIN_EMAIL || '',
-      subject: "Resend API Test",
-      html: "<p>Testing Resend API configuration</p>"
-    });
-    
-    console.log('Resend API test successful:', response);
-    return true;
-  } catch (error) {
-    console.error('Resend API test failed:', error);
-    return false;
-  }
-}
-
 export async function POST(request: Request) {
   try {
     // Verify Resend configuration first
     const isResendConfigured = await verifyResendConfig();
     if (!isResendConfigured) {
+      console.error('Resend configuration verification failed');
       return Response.json(
         { 
           error: 'Email service configuration error', 
-          details: 'Failed to verify email service configuration' 
+          details: 'Failed to verify email service configuration. Please check your RESEND_API_KEY.' 
         },
         { status: 500 }
       );
@@ -210,9 +111,6 @@ export async function POST(request: Request) {
     // Validate required environment variables
     const requiredEnvVars = {
       RESEND_API_KEY: process.env.RESEND_API_KEY,
-      CLOUDINARY_CLOUD_NAME: process.env.CLOUDINARY_CLOUD_NAME,
-      CLOUDINARY_API_KEY: process.env.CLOUDINARY_API_KEY,
-      CLOUDINARY_API_SECRET: process.env.CLOUDINARY_API_SECRET,
       ADMIN_EMAIL: process.env.ADMIN_EMAIL
     }
 
@@ -225,7 +123,7 @@ export async function POST(request: Request) {
       return Response.json(
         { 
           error: 'Server configuration error', 
-          details: `Missing environment variables: ${missingVars.join(', ')}` 
+          details: `Missing environment variables: ${missingVars.join(', ')}. Please check your server configuration.` 
         },
         { status: 500 }
       );
@@ -233,43 +131,26 @@ export async function POST(request: Request) {
 
     console.log('Starting form submission...');
     const formData = await request.formData()
+    
+    // Validate required form fields
+    const requiredFields = ['eventName', 'eventDate', 'eventTime', 'endTime', 'location', 'city', 'state', 'organizerName', 'organizerEmail'];
+    const missingFields = requiredFields.filter(field => !formData.get(field));
+    
+    if (missingFields.length > 0) {
+      console.error('Missing required form fields:', missingFields);
+      return Response.json(
+        { 
+          error: 'Invalid form data', 
+          details: `Missing required fields: ${missingFields.join(', ')}` 
+        },
+        { status: 400 }
+      );
+    }
+
     console.log('Form data received:', {
       eventName: formData.get('eventName'),
-      eventDate: formData.get('eventDate'),
-      hasImage: !!formData.get('image')
+      eventDate: formData.get('eventDate')
     });
-
-    const imageFile = formData.get('image') as File | null
-    let imageUrl = ''
-
-    // Upload image to Cloudinary if provided
-    if (imageFile) {
-      try {
-        console.log('Uploading image...');
-        const bytes = await imageFile.arrayBuffer()
-        const buffer = Buffer.from(bytes)
-
-        const result = await new Promise((resolve, reject) => {
-          cloudinary.uploader.upload_stream(
-            { resource_type: 'auto' },
-            (error, result) => {
-              if (error) {
-                console.error('Cloudinary upload error:', error);
-                reject(error);
-              } else {
-                console.log('Cloudinary upload success:', result);
-                resolve(result);
-              }
-            }
-          ).end(buffer)
-        }) as any
-
-        imageUrl = result.secure_url
-      } catch (uploadError) {
-        console.error('Image upload failed:', uploadError);
-        // Continue without image if upload fails
-      }
-    }
 
     // Send emails
     const organizerEmail = formData.get('organizerEmail') as string
@@ -291,24 +172,8 @@ export async function POST(request: Request) {
     });
 
     // Generate email templates
-    const adminEmailHtml = getAdminEmailHtml(formData, imageUrl)
-    const organizerEmailHtml = getOrganizerEmailHtml(formData, imageUrl)
-
-    // Prepare image attachment if available
-    let imageAttachment: EmailAttachment[] = [];
-    if (imageUrl) {
-      try {
-        console.log('Preparing image attachment...');
-        const imageBuffer = await downloadImage(imageUrl)
-        imageAttachment = [{
-          filename: 'event-image.jpg',
-          content: imageBuffer
-        }]
-      } catch (attachmentError) {
-        console.error('Failed to prepare image attachment:', attachmentError);
-        // Continue without attachment
-      }
-    }
+    const adminEmailHtml = getAdminEmailHtml(formData)
+    const organizerEmailHtml = getOrganizerEmailHtml(formData)
 
     // Send admin email
     let adminEmailResponse;
@@ -316,10 +181,9 @@ export async function POST(request: Request) {
       console.log('Sending admin email...');
       adminEmailResponse = await resend.emails.send({
         from: "Bachata Hub <onboarding@resend.dev>",
-        to: adminEmail,
+        to: "bachata.au@gmail.com", // Send to verified email for testing
         subject: `New Event Submission: ${formData.get('eventName')}`,
-        html: adminEmailHtml,
-        attachments: imageAttachment
+        html: adminEmailHtml
       });
       console.log('Admin email sent successfully:', adminEmailResponse);
     } catch (adminEmailError) {
@@ -333,10 +197,9 @@ export async function POST(request: Request) {
       console.log('Sending organizer email...');
       organizerEmailResponse = await resend.emails.send({
         from: "Bachata Hub <onboarding@resend.dev>",
-        to: organizerEmail,
+        to: "bachata.au@gmail.com", // Send to verified email for testing
         subject: "Event Submission Received - Bachata Hub",
-        html: organizerEmailHtml,
-        attachments: imageAttachment
+        html: organizerEmailHtml
       });
       console.log('Organizer email sent successfully:', organizerEmailResponse);
     } catch (organizerEmailError) {
