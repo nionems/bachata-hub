@@ -28,7 +28,6 @@ interface EventFormData {
   organizerEmail: string
   ticketLink: string
   eventLink: string
-  image: File | null
 }
 
 export function EventSubmissionForm({ isOpen, onClose }: EventSubmissionFormProps) {
@@ -44,37 +43,15 @@ export function EventSubmissionForm({ isOpen, onClose }: EventSubmissionFormProp
     organizerName: '',
     organizerEmail: '',
     ticketLink: '',
-    eventLink: '',
-    image: null
+    eventLink: ''
   })
 
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [imagePreview, setImagePreview] = useState<string | null>(null)
 
   const handleInputChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target
     setFormData(prev => ({ ...prev, [name]: value }))
-  }
-
-  const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      const file = e.target.files[0]
-      if (file.size > 5 * 1024 * 1024) { // 5MB limit
-        toast.error("Image size should be less than 5MB")
-        return
-      }
-      if (!file.type.startsWith("image/")) {
-        toast.error("Please upload an image file")
-        return
-      }
-      setFormData(prev => ({ ...prev, image: file }))
-      const reader = new FileReader()
-      reader.onloadend = () => {
-        setImagePreview(reader.result as string)
-      }
-      reader.readAsDataURL(file)
-    }
   }
 
   const handleSubmit = async (e: FormEvent) => {
@@ -95,8 +72,10 @@ export function EventSubmissionForm({ isOpen, onClose }: EventSubmissionFormProp
         body: formDataToSend,
       })
 
+      const data = await response.json()
+
       if (!response.ok) {
-        throw new Error("Failed to submit event")
+        throw new Error(data.details || data.error || "Failed to submit event")
       }
 
       toast.success("Event submitted successfully! We'll review it and add it to the calendar.")
@@ -113,13 +92,13 @@ export function EventSubmissionForm({ isOpen, onClose }: EventSubmissionFormProp
         organizerName: '',
         organizerEmail: '',
         ticketLink: '',
-        eventLink: '',
-        image: null
+        eventLink: ''
       })
-      setImagePreview(null)
     } catch (err) {
-      setError('Failed to submit form. Please try again.')
-      toast.error("Failed to submit event. Please try again.")
+      const errorMessage = err instanceof Error ? err.message : 'Failed to submit form. Please try again.'
+      setError(errorMessage)
+      toast.error(errorMessage)
+      console.error("Error submitting event:", err)
     } finally {
       setIsLoading(false)
     }
@@ -141,7 +120,7 @@ export function EventSubmissionForm({ isOpen, onClose }: EventSubmissionFormProp
             </Button>
           </DialogTitle>
           <DialogDescription className="text-sm sm:text-base">
-            Fill out the form below to submit your event for review.
+            Fill out the form below to submit your event for review. You can include an image link in the description.
           </DialogDescription>
         </DialogHeader>
 
@@ -291,29 +270,8 @@ export function EventSubmissionForm({ isOpen, onClose }: EventSubmissionFormProp
               value={formData.description}
               onChange={handleInputChange}
               className="min-h-[100px] bg-white/80 backdrop-blur-sm"
-              placeholder="Tell us more about your event..."
+              placeholder="Tell us more about your event... You can include an image link here."
             />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="image" className="text-primary">Event Image</Label>
-            <Input
-              id="image"
-              name="image"
-              type="file"
-              accept="image/*"
-              onChange={handleImageChange}
-              className="bg-white/80 backdrop-blur-sm"
-            />
-            {imagePreview && (
-              <div className="mt-2">
-                <img
-                  src={imagePreview}
-                  alt="Preview"
-                  className="h-32 w-32 object-cover rounded-md"
-                />
-              </div>
-            )}
           </div>
 
           {error && (
