@@ -17,21 +17,23 @@ interface IpApiResponse {
 }
 
 const STATE_MAPPING: { [key: string]: string } = {
+  // Full names
   'New South Wales': 'NSW',
-  'NSW': 'NSW',
   'Victoria': 'VIC',
-  'VIC': 'VIC',
   'Queensland': 'QLD',
-  'QLD': 'QLD',
   'Western Australia': 'WA',
-  'WA': 'WA',
   'South Australia': 'SA',
-  'SA': 'SA',
   'Tasmania': 'TAS',
-  'TAS': 'TAS',
   'Australian Capital Territory': 'ACT',
-  'ACT': 'ACT',
   'Northern Territory': 'NT',
+  // Abbreviations
+  'NSW': 'NSW',
+  'VIC': 'VIC',
+  'QLD': 'QLD',
+  'WA': 'WA',
+  'SA': 'SA',
+  'TAS': 'TAS',
+  'ACT': 'ACT',
   'NT': 'NT'
 }
 
@@ -40,7 +42,7 @@ export function useGeolocation(): GeolocationData {
     city: '',
     region: '',
     country: '',
-    state: '',
+    state: 'NSW', // Default to NSW
     isLoading: true,
     error: null,
   });
@@ -56,7 +58,7 @@ export function useGeolocation(): GeolocationData {
         const locationData: IpApiResponse = await response.json();
         
         // Map the state to its abbreviation
-        const stateAbbr = STATE_MAPPING[locationData.state] || locationData.state;
+        const stateAbbr = STATE_MAPPING[locationData.state] || 'NSW'; // Default to NSW if state not found
 
         setData({
           city: locationData.city,
@@ -72,6 +74,7 @@ export function useGeolocation(): GeolocationData {
           ...prev,
           isLoading: false,
           error: 'Failed to detect location',
+          state: 'NSW', // Default to NSW on error
         }));
       }
     };

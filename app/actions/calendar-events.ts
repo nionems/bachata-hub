@@ -54,39 +54,68 @@ export async function getUpcomingEvents(calendarId: string, maxResults = 10): Pr
   }
 }
 
-// Map of cities to their calendar IDs
+// Map of cities to their calendar IDs and states
 const cityCalendarMap = {
-  'sydney': '4ea35178b00a2daa33a492682e866bd67e8b83797a948a31caa8a37e2a982dce@group.calendar.google.com',
-  'melbourne': '641b8d8fbee5ff9eb2402997e5990b3e52a737b134ec201748349884985c84f4@group.calendar.google.com',
-  'brisbane': 'f0b5764410b23c93087a7d3ef5ed0d0a295ad2b811d10bb772533d7517d2fdc5@group.calendar.google.com',
-  'adelaide': '6b95632fc6fe63530bbdd89c944d792009478636f5b2ce7ffc8718ccd500915f@group.calendar.google.com',
-  'gold coast': 'c9ed91c3930331387d69631072510838ec9155b75ca697065025d24e34cde78b@group.calendar.google.com',
-  'perth': 'e521c86aed4060431cf6de7405315790dcca0a10d4779cc333835199f3724c16@group.calendar.google.com',
-  'canberra': '3a82a9f1ed5a4e865ed9f13b24a96004fe7c4b2deb07a422f068c70753f421eb@group.calendar.google.com',
-  'darwin': '27319882e504521ffd07dca62fdf7a55f835bfb4233f4c096e787fa8e8fb881b@group.calendar.google.com',
-  'hobart': '2f92a58bc97f58a3285a05a474f222d22aaed327af7431f21c2ad1a681c9607b@group.calendar.google.com'
+  'sydney': {
+    id: '4ea35178b00a2daa33a492682e866bd67e8b83797a948a31caa8a37e2a982dce@group.calendar.google.com',
+    state: 'NSW'
+  },
+  'melbourne': {
+    id: '641b8d8fbee5ff9eb2402997e5990b3e52a737b134ec201748349884985c84f4@group.calendar.google.com',
+    state: 'VIC'
+  },
+  'brisbane': {
+    id: 'f0b5764410b23c93087a7d3ef5ed0d0a295ad2b811d10bb772533d7517d2fdc5@group.calendar.google.com',
+    state: 'QLD'
+  },
+  'adelaide': {
+    id: '6b95632fc6fe63530bbdd89c944d792009478636f5bce7ffc8718ccd500915f@group.calendar.google.com',
+    state: 'SA'
+  },
+  'gold coast': {
+    id: 'c9ed91c3930331387d69631072510838ec9155b75ca697065025d24e34cde78b@group.calendar.google.com',
+    state: 'QLD'
+  },
+  'perth': {
+    id: 'e521c86aed4060431cf6de7405315790dcca0a10d4779cc333835199f3724c16@group.calendar.google.com',
+    state: 'WA'
+  },
+  'canberra': {
+    id: '3a82a9f1ed5a4e865ed9f13b24a96004fe7c4b2deb07a422f068c70753f421eb@group.calendar.google.com',
+    state: 'ACT'
+  },
+  'darwin': {
+    id: '27319882e504521ffd07dca62fdf7a55f835bfb4233f4c096e787fa8e8fb881b@group.calendar.google.com',
+    state: 'NT'
+  },
+  'hobart': {
+    id: '2f92a58bc97f58a3285a05a474f222d22aaed327af7431f21c2ad1a681c9607b@group.calendar.google.com',
+    state: 'TAS'
+  }
 }
 
-// Function to get the user's city
-export async function getUserCity(): Promise<string> {
+// Function to get the user's city and state
+export async function getUserLocation(): Promise<{ city: string; state: string }> {
   try {
     const response = await fetch('https://ipapi.co/json/')
     const data = await response.json()
-    return data.city.toLowerCase()
+    const city = data.city.toLowerCase()
+    const state = data.state
+    return { city, state }
   } catch (error) {
     console.error('Error getting user location:', error)
-    return 'sydney' // Default to Sydney if location detection fails
+    return { city: 'sydney', state: 'NSW' } // Default to Sydney, NSW
   }
 }
 
 // Function to get the appropriate calendar ID based on user's location
 export async function getLocalCalendarId(): Promise<string> {
-  const userCity = await getUserCity()
-  return cityCalendarMap[userCity as keyof typeof cityCalendarMap] || cityCalendarMap.sydney
+  const { city } = await getUserLocation()
+  return cityCalendarMap[city as keyof typeof cityCalendarMap]?.id || cityCalendarMap.sydney.id
 }
 
 // Get events for the current week
-export async function getWeekEvents(calendarId?: string) {
+export async function getWeekEvents(calendarId?: string, state?: string) {
   try {
     const apiKey = process.env.GOOGLE_API_KEY
     if (!apiKey) {
@@ -109,11 +138,23 @@ export async function getWeekEvents(calendarId?: string) {
       return await fetchEventsFromCalendar(calendarId, now, endOfWeek, apiKey)
     }
 
+    // If a state is provided, fetch only from calendars in that state
+    if (state) {
+      const stateCalendars = Object.values(cityCalendarMap).filter(cal => cal.state === state)
+      const allEvents = []
+      for (const calendar of stateCalendars) {
+        console.log(`Fetching events for ${state} calendar...`)
+        const events = await fetchEventsFromCalendar(calendar.id, now, endOfWeek, apiKey)
+        allEvents.push(...events)
+      }
+      return allEvents
+    }
+
     // Otherwise, fetch from all calendars
     const allEvents = []
-    for (const [city, calendarId] of Object.entries(cityCalendarMap)) {
+    for (const [city, calendar] of Object.entries(cityCalendarMap)) {
       console.log(`Fetching events for ${city} calendar...`)
-      const events = await fetchEventsFromCalendar(calendarId, now, endOfWeek, apiKey)
+      const events = await fetchEventsFromCalendar(calendar.id, now, endOfWeek, apiKey)
       allEvents.push(...events)
     }
 
