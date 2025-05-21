@@ -110,7 +110,15 @@ export async function getUserLocation(): Promise<{ city: string; state: string }
 
 // Function to get the appropriate calendar ID based on user's location
 export async function getLocalCalendarId(): Promise<string> {
-  const { city } = await getUserLocation()
+  const { city, state } = await getUserLocation()
+  
+  // If user is in South Australia, use Adelaide calendar
+  if (state === 'SA' || state === 'South Australia') {
+    console.log('User is in South Australia, using Adelaide calendar')
+    return cityCalendarMap.adelaide.id
+  }
+  
+  // Otherwise, try to get calendar by city
   return cityCalendarMap[city as keyof typeof cityCalendarMap]?.id || cityCalendarMap.sydney.id
 }
 
