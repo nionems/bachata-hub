@@ -264,6 +264,15 @@ export function EventSubmissionForm({ isOpen, onClose }: EventSubmissionFormProp
           </div>
 
           <div className="space-y-2">
+            <div className="bg-blue-50 p-4 rounded-md mb-4">
+              <h4 className="font-medium text-blue-800 mb-2">To include an image or flyer with your event:</h4>
+              <ol className="list-decimal list-inside text-blue-700 space-y-1">
+                <li>Upload the image to your own Google Drive.</li>
+                <li>Right-click the file and select "Get link".</li>
+                <li>Set the access to "Anyone with the link can view".</li>
+                <li>Copy the public share link and paste it below.</li>
+              </ol>
+            </div>
             <Label htmlFor="description" className="text-primary">Description</Label>
             <Textarea
               id="description"
