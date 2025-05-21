@@ -443,7 +443,7 @@ export default function Home() {
         {/* Featured Events This Week - Carousel */}
         <section className="py-4 sm:py-8 bg-white">
           <div className="container mx-auto px-4">
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-center mb-4 sm:mb-6 bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+            <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-center mb-3 sm:mb-4 bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
               Featured Events This Week
               {selectedState !== 'all' && ` in ${selectedState}`}
             </h2>
@@ -453,7 +453,7 @@ export default function Home() {
                   {filteredEvents.map((event) => (
                     <div key={event.id} className="px-2">
                       <div 
-                        className="bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden cursor-pointer hover:shadow-xl transition-shadow relative h-80"
+                        className="bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden cursor-pointer hover:shadow-xl transition-shadow relative h-72"
                         onClick={() => handleEventClick(event)}
                       >
                         <div 
@@ -486,10 +486,10 @@ export default function Home() {
                             />
                           )}
                         </div>
-                        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-4">
-                          <h3 className="text-lg font-semibold text-white mb-1 line-clamp-1">{event.name}</h3>
-                          <p className="text-white/90 text-sm mb-0.5">{event.date}</p>
-                          <p className="text-white/90 text-sm line-clamp-1">{event.location}</p>
+                        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-3">
+                          <h3 className="text-base font-semibold text-white mb-0.5 line-clamp-1">{event.name}</h3>
+                          <p className="text-white/90 text-xs mb-0.5">{event.date}</p>
+                          <p className="text-white/90 text-xs line-clamp-1">{event.location}</p>
                         </div>
                       </div>
                     </div>
@@ -498,8 +498,11 @@ export default function Home() {
               </div>
             ) : (
               <div className="text-center py-8">
-                <p className="text-gray-600 dark:text-gray-300">
-                  No events scheduled for this week {selectedState !== 'all' && `in ${selectedState}`}. Check back soon!
+                <p className="text-gray-500 text-sm sm:text-base">
+                  {isGeoLoading ? 'Loading events...' : 
+                   geoError ? 'Error loading events' :
+                   selectedState === 'all' ? 'No events found' : 
+                   `No events found in ${selectedState}`}
                 </p>
               </div>
             )}
