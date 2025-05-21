@@ -113,10 +113,11 @@ export function useGeolocation(): GeolocationData {
         }
 
         const locationData: IpApiResponse = await response.json();
-        console.log('Location data:', locationData);
+        console.log('Raw location data from ipapi.co:', locationData);
         
         // Check if user is in Australia
         if (locationData.country_name !== 'Australia') {
+          console.log('User is not in Australia:', locationData.country_name);
           setData({
             city: locationData.city,
             region: locationData.region,
@@ -131,13 +132,22 @@ export function useGeolocation(): GeolocationData {
         
         // First try to get state from the city
         let stateInfo = STATE_MAPPING[locationData.city];
+        console.log('State info from city:', { city: locationData.city, stateInfo });
         
         // If not found, try the state
         if (!stateInfo) {
+          console.log('Trying to get state from state field:', locationData.state);
           stateInfo = STATE_MAPPING[locationData.state] || { abbr: 'all', full: 'All States' };
         }
 
-        console.log('State info:', stateInfo);
+        // Additional check for South Australia
+        if (locationData.state === 'South Australia' || locationData.state === 'SA' || 
+            locationData.city.toLowerCase() === 'adelaide') {
+          stateInfo = { abbr: 'SA', full: 'South Australia' };
+          console.log('Forced SA state detection:', stateInfo);
+        }
+
+        console.log('Final state info:', stateInfo);
 
         setData({
           city: locationData.city,
