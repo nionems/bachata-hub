@@ -35,7 +35,62 @@ const STATE_MAPPING: { [key: string]: { abbr: string; full: string } } = {
   'SA': { abbr: 'SA', full: 'South Australia' },
   'TAS': { abbr: 'TAS', full: 'Tasmania' },
   'ACT': { abbr: 'ACT', full: 'Australian Capital Territory' },
-  'NT': { abbr: 'NT', full: 'Northern Territory' }
+  'NT': { abbr: 'NT', full: 'Northern Territory' },
+  // NSW Cities
+  'Sydney': { abbr: 'NSW', full: 'New South Wales' },
+  'Newcastle': { abbr: 'NSW', full: 'New South Wales' },
+  'Wollongong': { abbr: 'NSW', full: 'New South Wales' },
+  'Central Coast': { abbr: 'NSW', full: 'New South Wales' },
+  'Wagga Wagga': { abbr: 'NSW', full: 'New South Wales' },
+  'Albury': { abbr: 'NSW', full: 'New South Wales' },
+  'Coffs Harbour': { abbr: 'NSW', full: 'New South Wales' },
+  'Port Macquarie': { abbr: 'NSW', full: 'New South Wales' },
+  'Tamworth': { abbr: 'NSW', full: 'New South Wales' },
+  'Orange': { abbr: 'NSW', full: 'New South Wales' },
+  // VIC Cities
+  'Melbourne': { abbr: 'VIC', full: 'Victoria' },
+  'Geelong': { abbr: 'VIC', full: 'Victoria' },
+  'Ballarat': { abbr: 'VIC', full: 'Victoria' },
+  'Bendigo': { abbr: 'VIC', full: 'Victoria' },
+  'Shepparton': { abbr: 'VIC', full: 'Victoria' },
+  'Melton': { abbr: 'VIC', full: 'Victoria' },
+  'Mildura': { abbr: 'VIC', full: 'Victoria' },
+  'Warrnambool': { abbr: 'VIC', full: 'Victoria' },
+  'Sunbury': { abbr: 'VIC', full: 'Victoria' },
+  // QLD Cities
+  'Brisbane': { abbr: 'QLD', full: 'Queensland' },
+  'Gold Coast': { abbr: 'QLD', full: 'Queensland' },
+  'Sunshine Coast': { abbr: 'QLD', full: 'Queensland' },
+  'Townsville': { abbr: 'QLD', full: 'Queensland' },
+  'Cairns': { abbr: 'QLD', full: 'Queensland' },
+  'Toowoomba': { abbr: 'QLD', full: 'Queensland' },
+  'Mackay': { abbr: 'QLD', full: 'Queensland' },
+  'Rockhampton': { abbr: 'QLD', full: 'Queensland' },
+  'Bundaberg': { abbr: 'QLD', full: 'Queensland' },
+  // WA Cities
+  'Perth': { abbr: 'WA', full: 'Western Australia' },
+  'Bunbury': { abbr: 'WA', full: 'Western Australia' },
+  'Geraldton': { abbr: 'WA', full: 'Western Australia' },
+  'Albany': { abbr: 'WA', full: 'Western Australia' },
+  'Kalgoorlie': { abbr: 'WA', full: 'Western Australia' },
+  'Broome': { abbr: 'WA', full: 'Western Australia' },
+  // SA Cities
+  'Adelaide': { abbr: 'SA', full: 'South Australia' },
+  'Mount Gambier': { abbr: 'SA', full: 'South Australia' },
+  'Whyalla': { abbr: 'SA', full: 'South Australia' },
+  'Murray Bridge': { abbr: 'SA', full: 'South Australia' },
+  'Port Augusta': { abbr: 'SA', full: 'South Australia' },
+  // TAS Cities
+  'Hobart': { abbr: 'TAS', full: 'Tasmania' },
+  'Launceston': { abbr: 'TAS', full: 'Tasmania' },
+  'Devonport': { abbr: 'TAS', full: 'Tasmania' },
+  'Burnie': { abbr: 'TAS', full: 'Tasmania' },
+  // ACT Cities
+  'Canberra': { abbr: 'ACT', full: 'Australian Capital Territory' },
+  // NT Cities
+  'Darwin': { abbr: 'NT', full: 'Northern Territory' },
+  'Alice Springs': { abbr: 'NT', full: 'Northern Territory' },
+  'Palmerston': { abbr: 'NT', full: 'Northern Territory' }
 }
 
 export function useGeolocation(): GeolocationData {
@@ -43,8 +98,8 @@ export function useGeolocation(): GeolocationData {
     city: '',
     region: '',
     country: '',
-    state: 'NSW', // Default to NSW
-    stateFull: 'New South Wales', // Default to full name
+    state: 'all', // Default to 'all' instead of NSW
+    stateFull: 'All States', // Default to 'All States'
     isLoading: true,
     error: null,
   });
@@ -58,9 +113,31 @@ export function useGeolocation(): GeolocationData {
         }
 
         const locationData: IpApiResponse = await response.json();
+        console.log('Location data:', locationData);
         
-        // Map the state to both abbreviation and full name
-        const stateInfo = STATE_MAPPING[locationData.state] || { abbr: 'NSW', full: 'New South Wales' };
+        // Check if user is in Australia
+        if (locationData.country_name !== 'Australia') {
+          setData({
+            city: locationData.city,
+            region: locationData.region,
+            country: locationData.country_name,
+            state: 'all',
+            stateFull: 'All States',
+            isLoading: false,
+            error: null,
+          });
+          return;
+        }
+        
+        // First try to get state from the city
+        let stateInfo = STATE_MAPPING[locationData.city];
+        
+        // If not found, try the state
+        if (!stateInfo) {
+          stateInfo = STATE_MAPPING[locationData.state] || { abbr: 'all', full: 'All States' };
+        }
+
+        console.log('State info:', stateInfo);
 
         setData({
           city: locationData.city,
@@ -77,8 +154,8 @@ export function useGeolocation(): GeolocationData {
           ...prev,
           isLoading: false,
           error: 'Failed to detect location',
-          state: 'NSW',
-          stateFull: 'New South Wales',
+          state: 'all',
+          stateFull: 'All States',
         }));
       }
     };
