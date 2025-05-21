@@ -20,21 +20,41 @@ async function verifyResendConfig() {
 
 // Add this function to format the admin email HTML
 function getAdminEmailHtml(formData: FormData) {
+  const eventName = formData.get('eventName')?.toString() || '';
+  const eventDate = formData.get('eventDate')?.toString() || '';
+  const eventTime = formData.get('eventTime')?.toString() || '';
+  const endTime = formData.get('endTime')?.toString() || '';
+  const location = formData.get('location')?.toString() || '';
+  const description = formData.get('description')?.toString() || '';
+
+  // Create Google Calendar URL
+  const startDateTime = `${eventDate}T${eventTime}:00`;
+  const endDateTime = `${eventDate}T${endTime}:00`;
+  const calendarUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(eventName)}&dates=${encodeURIComponent(startDateTime)}/${encodeURIComponent(endDateTime)}&location=${encodeURIComponent(location)}&details=${encodeURIComponent(description)}`;
+
   return `
     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
       <h2 style="color: #333; margin-bottom: 20px;">New Event Submission</h2>
       <div style="background-color: #f5f5f5; padding: 20px; border-radius: 5px; margin: 20px 0;">
-        <p><strong>Event Name:</strong> ${formData.get('eventName')}</p>
-        <p><strong>Date:</strong> ${formData.get('eventDate')}</p>
-        <p><strong>Time:</strong> ${formData.get('eventTime')} - ${formData.get('endTime')}</p>
-        <p><strong>Location:</strong> ${formData.get('location')}</p>
+        <p><strong>Event Name:</strong> ${eventName}</p>
+        <p><strong>Date:</strong> ${eventDate}</p>
+        <p><strong>Time:</strong> ${eventTime} - ${endTime}</p>
+        <p><strong>Location:</strong> ${location}</p>
         <p><strong>State:</strong> ${formData.get('state')}</p>
         <p><strong>City:</strong> ${formData.get('city')}</p>
-        <p><strong>Description:</strong> ${formData.get('description')}</p>
+        <p><strong>Description:</strong> ${description}</p>
         <p><strong>Organizer:</strong> ${formData.get('organizerName')}</p>
         <p><strong>Organizer Email:</strong> ${formData.get('organizerEmail')}</p>
         <p><strong>Event Link:</strong> ${formData.get('eventLink')}</p>
         <p><strong>Ticket Link:</strong> ${formData.get('ticketLink')}</p>
+      </div>
+
+      <div style="margin: 30px 0; text-align: center;">
+        <a href="${calendarUrl}" 
+           style="background-color: #4285F4; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; display: inline-block; font-weight: bold; font-size: 16px;"
+           target="_blank">
+          Add to Google Calendar
+        </a>
       </div>
     </div>
   `
@@ -42,23 +62,17 @@ function getAdminEmailHtml(formData: FormData) {
 
 // Add this function to format the organizer email HTML
 function getOrganizerEmailHtml(formData: FormData) {
-  const eventName = formData.get('eventName')?.toString() || ''
-  const eventDate = formData.get('eventDate')?.toString() || ''
-  const eventTime = formData.get('eventTime')?.toString() || ''
-  const endTime = formData.get('endTime')?.toString() || ''
-  const location = formData.get('location')?.toString() || ''
-  const description = formData.get('description')?.toString() || ''
+  const eventName = formData.get('eventName')?.toString() || '';
+  const eventDate = formData.get('eventDate')?.toString() || '';
+  const eventTime = formData.get('eventTime')?.toString() || '';
+  const endTime = formData.get('endTime')?.toString() || '';
+  const location = formData.get('location')?.toString() || '';
+  const description = formData.get('description')?.toString() || '';
 
-  // Format dates for Google Calendar
-  const [year, month, day] = eventDate.split('-')
-  const [startHour, startMinute] = eventTime.split(':')
-  const [endHour, endMinute] = endTime.split(':')
-  
-  // Format: YYYYMMDDTHHMMSSZ
-  const start = `${year}${month}${day}T${startHour}${startMinute}00Z`
-  const end = `${year}${month}${day}T${endHour}${endMinute}00Z`
-  
-  const calendarUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(eventName)}&dates=${start}/${end}&details=${encodeURIComponent(description)}&location=${encodeURIComponent(location)}`
+  // Create Google Calendar URL
+  const startDateTime = `${eventDate}T${eventTime}:00`;
+  const endDateTime = `${eventDate}T${endTime}:00`;
+  const calendarUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(eventName)}&dates=${encodeURIComponent(startDateTime)}/${encodeURIComponent(endDateTime)}&location=${encodeURIComponent(location)}&details=${encodeURIComponent(description)}`;
 
   return `
     <!DOCTYPE html>
