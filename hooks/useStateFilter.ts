@@ -18,14 +18,16 @@ export function useStateFilter<T extends { state: string }>(items: T[]) {
   const [selectedState, setSelectedState] = useState<string>('all')
 
   useEffect(() => {
-    if (!isGeoLoading && geoState !== 'all') {
+    if (!isGeoLoading) {
       setSelectedState(geoState)
     }
   }, [geoState, isGeoLoading])
 
-  const filteredItems = selectedState === 'all'
-    ? items
-    : items.filter(item => item.state === selectedState)
+  const filteredItems = isGeoLoading
+    ? [] // Show no items while loading
+    : selectedState === 'all'
+      ? items
+      : items.filter(item => item.state === selectedState)
 
   return {
     selectedState,
