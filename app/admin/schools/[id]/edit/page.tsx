@@ -179,61 +179,210 @@ export default function EditSchoolPage() {
       <h1 className="text-3xl font-bold mb-8">Edit School</h1>
       <form onSubmit={handleSubmit} className="max-w-2xl space-y-6">
         <div className="space-y-2">
-          <Label htmlFor="name">School Name</Label>
+          <Label htmlFor="name">School Name *</Label>
           <Input
             id="name"
-            value={school.name}
-            onChange={(e) => setSchool({ ...school, name: e.target.value })}
+            value={formData.name}
+            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
             required
           />
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="location">Location</Label>
+          <Label htmlFor="location">Location *</Label>
           <Input
             id="location"
-            value={school.location}
-            onChange={(e) => setSchool({ ...school, location: e.target.value })}
+            value={formData.location}
+            onChange={(e) => setFormData({ ...formData, location: e.target.value })}
             required
           />
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="comment">Description</Label>
-          <Textarea
-            id="comment"
-            value={school.comment}
-            onChange={(e) => setSchool({ ...school, comment: e.target.value })}
+          <Label htmlFor="state">State *</Label>
+          <StateSelect
+            value={formData.state}
+            onChange={(value) => setFormData({ ...formData, state: value })}
             required
           />
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="website">Website (optional)</Label>
+          <Label htmlFor="address">Address *</Label>
+          <Input
+            id="address"
+            value={formData.address}
+            onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+            required
+          />
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="contactInfo">Contact Information *</Label>
+          <Input
+            id="contactInfo"
+            value={formData.contactInfo}
+            onChange={(e) => setFormData({ ...formData, contactInfo: e.target.value })}
+            required
+          />
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="website">Website</Label>
           <Input
             id="website"
             type="url"
-            value={school.website || ''}
-            onChange={(e) => setSchool({ ...school, website: e.target.value })}
+            value={formData.website || ''}
+            onChange={(e) => setFormData({ ...formData, website: e.target.value })}
+            placeholder="https://"
           />
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="imageUrl">Image URL (optional)</Label>
+          <Label htmlFor="danceStyles">Dance Styles *</Label>
           <Input
-            id="imageUrl"
-            type="url"
-            value={school.imageUrl || ''}
-            onChange={(e) => setSchool({ ...school, imageUrl: e.target.value })}
+            id="danceStyles"
+            value={formData.danceStyles.join(', ')}
+            onChange={(e) => setFormData({ ...formData, danceStyles: e.target.value.split(',').map(s => s.trim()) })}
+            placeholder="e.g., Bachata, Salsa, Kizomba"
+            required
           />
         </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="googleReviewLink">Google Review Link</Label>
+          <Input
+            id="googleReviewLink"
+            type="url"
+            value={formData.googleReviewLink || ''}
+            onChange={(e) => setFormData({ ...formData, googleReviewLink: e.target.value })}
+            placeholder="https://"
+          />
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="googleRating">Google Rating</Label>
+          <Input
+            id="googleRating"
+            type="number"
+            min="0"
+            max="5"
+            step="0.1"
+            value={formData.googleRating || ''}
+            onChange={(e) => setFormData({ ...formData, googleRating: Number(e.target.value) })}
+          />
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="googleReviewsCount">Google Reviews Count</Label>
+          <Input
+            id="googleReviewsCount"
+            type="number"
+            min="0"
+            value={formData.googleReviewsCount || ''}
+            onChange={(e) => setFormData({ ...formData, googleReviewsCount: Number(e.target.value) })}
+          />
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="googleReviewsUrl">Google Reviews URL</Label>
+          <Input
+            id="googleReviewsUrl"
+            type="url"
+            value={formData.googleReviewsUrl || ''}
+            onChange={(e) => setFormData({ ...formData, googleReviewsUrl: e.target.value })}
+            placeholder="https://"
+          />
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="socialUrl1">Instagram URL</Label>
+          <Input
+            id="socialUrl1"
+            type="url"
+            value={formData.socialUrl1 || ''}
+            onChange={(e) => setFormData({ ...formData, socialUrl1: e.target.value })}
+            placeholder="https://instagram.com/..."
+          />
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="socialUrl2">Facebook URL</Label>
+          <Input
+            id="socialUrl2"
+            type="url"
+            value={formData.socialUrl2 || ''}
+            onChange={(e) => setFormData({ ...formData, socialUrl2: e.target.value })}
+            placeholder="https://facebook.com/..."
+          />
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="googleMapLink">Google Maps Link</Label>
+          <Input
+            id="googleMapLink"
+            type="url"
+            value={formData.googleMapLink || ''}
+            onChange={(e) => setFormData({ ...formData, googleMapLink: e.target.value })}
+            placeholder="https://maps.google.com/..."
+          />
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="comment">Description *</Label>
+          <Textarea
+            id="comment"
+            value={formData.comment}
+            onChange={(e) => setFormData({ ...formData, comment: e.target.value })}
+            required
+          />
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="image">School Image</Label>
+          <div className="mt-1 space-y-2">
+            <div>
+              <Label className="text-sm text-gray-500 mb-1">Upload Image File</Label>
+              <Input
+                type="file"
+                accept="image/*"
+                onChange={handleImageChange}
+                className="block w-full"
+              />
+            </div>
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center" aria-hidden="true">
+                <div className="w-full border-t border-gray-300" />
+              </div>
+              <div className="relative flex justify-center">
+                <span className="bg-white px-2 text-sm text-gray-500 mb-1">OR</span>
+              </div>
+            </div>
+            <div>
+              <Label className="text-sm text-gray-500 mb-1">Image URL</Label>
+              <Input
+                type="url"
+                value={formData.imageUrl || ''}
+                onChange={(e) => setFormData({ ...formData, imageUrl: e.target.value })}
+                placeholder="https://example.com/image.jpg"
+              />
+            </div>
+          </div>
+        </div>
+
+        {imagePreviewUrl && (
+          <div className="mt-4">
+            <p className="text-sm font-medium text-gray-700 mb-1">Image Preview:</p>
+            <img src={imagePreviewUrl} alt="Preview" className="max-w-xs max-h-48 object-contain border rounded shadow-sm" />
+          </div>
+        )}
 
         <div className="flex gap-4">
           <Button type="submit">Save Changes</Button>
           <Button
             type="button"
             variant="outline"
-            onClick={() => router.push('/admin')}
+            onClick={() => router.push('/admin/dashboard')}
           >
             Cancel
           </Button>
