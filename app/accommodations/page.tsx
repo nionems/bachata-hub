@@ -85,7 +85,6 @@ export default function AccommodationsPage() {
             Find places to stay near Australia's top dance events.
           </p>
         </div>
-
         <div className="mb-4 sm:mb-8">
           <StateFilter
             selectedState={selectedState}
