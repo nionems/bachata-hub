@@ -300,8 +300,8 @@ export default function Home() {
           <div className="absolute inset-0 bg-gradient-to-r from-primary to-secondary"></div>
           <div className="container mx-auto px-0 relative z-10 h-full flex flex-col items-center justify-center">
             <div className="w-full flex flex-col items-center justify-center">
-              <p className="text-xs sm:text-base md:text-lg -mb-4 text-white/90 text-center comic-neue px-4">
-              Your Bachata Guide in Australia
+              <p className="text-xs sm:text-base md:text-lg text-white/90 text-center comic-neue px-4 mt-3 md:mt-28">
+                Your Bachata Guide in Australia
               </p>
               <div className="flex items-center justify-center gap-2 sm:gap-4 relative w-full px-4 sm:px-8">
                 <Link href="/events" className="w-24 sm:w-32 ml-12 sm:ml-24">
@@ -320,9 +320,9 @@ export default function Home() {
                 />
                 <Link href="/community" className="w-24 sm:w-32 mr-12 sm:mr-24">
                   <Button size="sm" className="w-full bg-white/20 text-white hover:bg-white/30 text-xs sm:text-sm whitespace-nowrap">
-                    Join Community
-                  </Button>
-                </Link>
+                      Join Community
+                    </Button>
+                  </Link>
               </div>
             </div>
             <div className="max-w-3xl mx-auto text-center mt-4">
