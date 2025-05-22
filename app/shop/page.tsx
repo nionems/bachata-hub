@@ -91,7 +91,7 @@ export default function ShopsPage() {
             Dance Shops
           </h1>
           <p className="text-base sm:text-xl text-gray-600">
-            Shop HERE & support BACHATA.AU
+            Shop HERE & support BACHATA.AU lionel
           </p>
         </div>
 
