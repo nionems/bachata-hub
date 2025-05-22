@@ -300,7 +300,7 @@ export default function Home() {
           <div className="absolute inset-0 bg-gradient-to-r from-primary to-secondary"></div>
           <div className="container mx-auto px-0 relative z-10 h-full flex flex-col items-center justify-center">
             <div className="w-full flex flex-col items-center justify-center">
-              <p className="text-xs sm:text-base md:text-lg text-white/90 text-center comic-neue px-4 mt-3 md:mt-28">
+              <p className="text-xs sm:text-base md:text-lg text-white/90 text-center comic-neue px-4 mt-8 md:mt-28">
                 Your Bachata Guide in Australia
               </p>
               <div className="flex items-center justify-center gap-2 sm:gap-4 relative w-full px-4 sm:px-8">
