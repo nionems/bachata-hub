@@ -12,8 +12,8 @@ interface ShopCardProps {
 
 export function ShopCard({ shop }: ShopCardProps) {
   return (
-    <Card className="relative overflow-hidden group cursor-pointer">
-      <div className="aspect-w-16 aspect-h-9 relative">
+    <Card className="relative overflow-hidden group cursor-pointer h-[400px]">
+      <div className="aspect-w-16 aspect-h-9 relative h-[400px]">
         <img
           src={shop.imageUrl}
           alt={shop.name}
@@ -29,13 +29,13 @@ export function ShopCard({ shop }: ShopCardProps) {
       </div>
 
       <div className="absolute bottom-0 left-0 right-0 z-20 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-3 sm:p-4">
-        <h3 className="text-base sm:text-lg font-semibold text-primary">{shop.name}</h3>
+        <h3 className="text-base sm:text-lg font-semibold text-primary line-clamp-1">{shop.name}</h3>
         <div className="flex items-center gap-2 text-xs sm:text-sm text-gray-200 mt-1">
           <MapPin className="h-3 w-3 sm:h-4 sm:w-4" />
-          {shop.location}
+          <span className="line-clamp-1">{shop.location}</span>
         </div>
         {shop.comment && (
-          <div className="text-xs sm:text-sm text-gray-300 mt-1">
+          <div className="text-xs sm:text-sm text-gray-300 mt-1 line-clamp-2">
             {shop.comment}
           </div>
         )}
