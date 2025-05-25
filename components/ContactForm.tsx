@@ -76,8 +76,8 @@ export function ContactForm({ isOpen, onClose }: ContactFormProps) {
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[600px] bg-gradient-to-br from-primary/10 to-secondary/10">
-        <DialogHeader>
+      <DialogContent className="max-w-[95vw] sm:max-w-[600px] bg-gradient-to-br from-primary/10 to-secondary/10 rounded-xl sm:rounded-2xl">
+        <DialogHeader className="rounded-t-xl sm:rounded-t-2xl">
           <DialogTitle className="text-primary">Contact Us</DialogTitle>
           <DialogDescription>
             Have a question or want to submit your festival? Send us a message!
@@ -93,7 +93,7 @@ export function ContactForm({ isOpen, onClose }: ContactFormProps) {
               value={formData.name}
               onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
               required
-              className="bg-white/80 backdrop-blur-sm"
+              className="bg-white/80 backdrop-blur-sm rounded-lg"
             />
           </div>
 
@@ -106,7 +106,7 @@ export function ContactForm({ isOpen, onClose }: ContactFormProps) {
               value={formData.email}
               onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
               required
-              className="bg-white/80 backdrop-blur-sm"
+              className="bg-white/80 backdrop-blur-sm rounded-lg"
             />
           </div>
 
@@ -118,7 +118,7 @@ export function ContactForm({ isOpen, onClose }: ContactFormProps) {
               value={formData.message}
               onChange={(e) => setFormData(prev => ({ ...prev, message: e.target.value }))}
               required
-              className="min-h-[150px] bg-white/80 backdrop-blur-sm"
+              className="min-h-[150px] bg-white/80 backdrop-blur-sm rounded-lg"
               placeholder="Tell us about your festival or ask any questions..."
             />
           </div>
@@ -137,14 +137,14 @@ export function ContactForm({ isOpen, onClose }: ContactFormProps) {
               variant="outline"
               onClick={onClose}
               disabled={isLoading}
-              className="border-primary text-primary hover:bg-primary/10"
+              className="border-primary text-primary hover:bg-primary/10 rounded-lg"
             >
               Cancel
             </Button>
             <Button
               type="submit"
               disabled={isLoading}
-              className="bg-primary hover:bg-primary/90"
+              className="bg-primary hover:bg-primary/90 rounded-lg"
             >
               {isLoading ? 'Sending...' : 'Send Message'}
             </Button>

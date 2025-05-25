@@ -1,12 +1,13 @@
 "use client"
 
 import { useState } from 'react'
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { toast } from "sonner"
+import { X } from "lucide-react"
 
 interface ShopFormData {
   name: string
@@ -125,203 +126,219 @@ ${formData.additionalInfo}
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle className="text-2xl font-bold text-center">Submit Your Shop</DialogTitle>
+      <DialogContent className="max-w-[95vw] sm:max-w-[600px] bg-gradient-to-br from-primary/10 to-secondary/10 max-h-[90vh] overflow-y-auto rounded-xl sm:rounded-2xl">
+        <DialogHeader className="sticky top-0 z-10 bg-white/80 backdrop-blur-sm rounded-t-xl sm:rounded-t-2xl">
+          <DialogTitle className="text-primary text-lg sm:text-xl flex justify-between items-center">
+            Submit Your Shop
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={onClose}
+              className="h-8 w-8 p-0"
+            >
+              <X className="h-4 w-4" />
+            </Button>
+          </DialogTitle>
+          <DialogDescription className="text-sm sm:text-base">
+            Fill out the form below to submit your shop for review.
+          </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="space-y-4">
-              <div>
-                <Label htmlFor="name">Shop Name *</Label>
-                <Input
-                  id="name"
-                  name="name"
-                  value={formData.name}
-                  onChange={handleChange}
-                  required
-                  placeholder="Enter shop name"
-                />
-              </div>
-
-              <div>
-                <Label htmlFor="location">Location *</Label>
-                <Input
-                  id="location"
-                  name="location"
-                  value={formData.location}
-                  onChange={handleChange}
-                  required
-                  placeholder="Enter location"
-                />
-              </div>
-
-              <div>
-                <Label htmlFor="state">State *</Label>
-                <select
-                  id="state"
-                  name="state"
-                  value={formData.state}
-                  onChange={handleChange}
-                  required
-                  className="w-full rounded-md border border-input bg-background px-3 py-2"
-                >
-                  <option value="">Select a state</option>
-                  <option value="NSW">New South Wales</option>
-                  <option value="VIC">Victoria</option>
-                  <option value="QLD">Queensland</option>
-                  <option value="WA">Western Australia</option>
-                  <option value="SA">South Australia</option>
-                  <option value="TAS">Tasmania</option>
-                  <option value="ACT">Australian Capital Territory</option>
-                  <option value="NT">Northern Territory</option>
-                </select>
-              </div>
-
-              <div>
-                <Label htmlFor="address">Address</Label>
-                <Input
-                  id="address"
-                  name="address"
-                  value={formData.address}
-                  onChange={handleChange}
-                  placeholder="Enter address"
-                />
-              </div>
-
-              <div>
-                <Label htmlFor="website">Website</Label>
-                <Input
-                  id="website"
-                  name="website"
-                  type="url"
-                  value={formData.website}
-                  onChange={handleChange}
-                  placeholder="https://example.com"
-                />
-              </div>
+        <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
+            <div className="space-y-1 sm:space-y-2">
+              <Label htmlFor="name" className="text-primary text-sm sm:text-base">Shop Name *</Label>
+              <Input
+                id="name"
+                name="name"
+                value={formData.name}
+                onChange={handleChange}
+                required
+                placeholder="Enter shop name"
+                className="bg-white/80 backdrop-blur-sm text-sm sm:text-base rounded-lg"
+              />
             </div>
 
-            <div className="space-y-4">
-              <div>
-                <Label htmlFor="instagramLink">Instagram Link</Label>
-                <Input
-                  id="instagramLink"
-                  name="instagramLink"
-                  type="url"
-                  value={formData.instagramLink}
-                  onChange={handleChange}
-                  placeholder="https://instagram.com/..."
-                />
-              </div>
-
-              <div>
-                <Label htmlFor="facebookLink">Facebook Link</Label>
-                <Input
-                  id="facebookLink"
-                  name="facebookLink"
-                  type="url"
-                  value={formData.facebookLink}
-                  onChange={handleChange}
-                  placeholder="https://facebook.com/..."
-                />
-              </div>
-
-              <div>
-                <Label htmlFor="googleMapLink">Google Maps Link</Label>
-                <Input
-                  id="googleMapLink"
-                  name="googleMapLink"
-                  type="url"
-                  value={formData.googleMapLink}
-                  onChange={handleChange}
-                  placeholder="https://maps.google.com/..."
-                />
-              </div>
-
-              <div>
-                <Label htmlFor="comment">Additional Comments</Label>
-                <Textarea
-                  id="comment"
-                  name="comment"
-                  value={formData.comment}
-                  onChange={handleChange}
-                  placeholder="Tell us about your shop..."
-                  className="h-24"
-                />
-              </div>
+            <div className="space-y-1 sm:space-y-2">
+              <Label htmlFor="location" className="text-primary text-sm sm:text-base">Location *</Label>
+              <Input
+                id="location"
+                name="location"
+                value={formData.location}
+                onChange={handleChange}
+                required
+                placeholder="Enter location"
+                className="bg-white/80 backdrop-blur-sm text-sm sm:text-base rounded-lg"
+              />
             </div>
-          </div>
 
-          <div className="border-t pt-6">
-            <h3 className="text-lg font-semibold mb-4">Contact Information</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <Label htmlFor="contactName">Your Name *</Label>
-                <Input
-                  id="contactName"
-                  name="contactName"
-                  value={formData.contactName}
-                  onChange={handleChange}
-                  required
-                  placeholder="Enter your name"
-                />
-              </div>
+            <div className="space-y-1 sm:space-y-2">
+              <Label htmlFor="state" className="text-primary text-sm sm:text-base">State *</Label>
+              <select
+                id="state"
+                name="state"
+                value={formData.state}
+                onChange={handleChange}
+                required
+                className="w-full rounded-lg border border-input bg-white/80 backdrop-blur-sm text-sm sm:text-base px-3 py-2"
+              >
+                <option value="">Select a state</option>
+                <option value="NSW">New South Wales</option>
+                <option value="VIC">Victoria</option>
+                <option value="QLD">Queensland</option>
+                <option value="WA">Western Australia</option>
+                <option value="SA">South Australia</option>
+                <option value="TAS">Tasmania</option>
+                <option value="ACT">Australian Capital Territory</option>
+                <option value="NT">Northern Territory</option>
+              </select>
+            </div>
 
-              <div>
-                <Label htmlFor="contactEmail">Email Address *</Label>
-                <Input
-                  id="contactEmail"
-                  name="contactEmail"
-                  type="email"
-                  value={formData.contactEmail}
-                  onChange={handleChange}
-                  required
-                  placeholder="Enter your email"
-                />
-              </div>
+            <div className="space-y-1 sm:space-y-2">
+              <Label htmlFor="address" className="text-primary text-sm sm:text-base">Address</Label>
+              <Input
+                id="address"
+                name="address"
+                value={formData.address}
+                onChange={handleChange}
+                placeholder="Enter address"
+                className="bg-white/80 backdrop-blur-sm text-sm sm:text-base rounded-lg"
+              />
+            </div>
 
-              <div>
-                <Label htmlFor="contactPhone">Phone Number</Label>
-                <Input
-                  id="contactPhone"
-                  name="contactPhone"
-                  type="tel"
-                  value={formData.contactPhone}
-                  onChange={handleChange}
-                  placeholder="Enter your phone number"
-                />
-              </div>
+            <div className="space-y-1 sm:space-y-2">
+              <Label htmlFor="website" className="text-primary text-sm sm:text-base">Website</Label>
+              <Input
+                id="website"
+                name="website"
+                type="url"
+                value={formData.website}
+                onChange={handleChange}
+                placeholder="https://"
+                className="bg-white/80 backdrop-blur-sm text-sm sm:text-base rounded-lg"
+              />
+            </div>
+
+            <div className="space-y-1 sm:space-y-2">
+              <Label htmlFor="instagramLink" className="text-primary text-sm sm:text-base">Instagram Link</Label>
+              <Input
+                id="instagramLink"
+                name="instagramLink"
+                type="url"
+                value={formData.instagramLink}
+                onChange={handleChange}
+                placeholder="https://instagram.com/username"
+                className="bg-white/80 backdrop-blur-sm text-sm sm:text-base rounded-lg"
+              />
+            </div>
+
+            <div className="space-y-1 sm:space-y-2">
+              <Label htmlFor="facebookLink" className="text-primary text-sm sm:text-base">Facebook Link</Label>
+              <Input
+                id="facebookLink"
+                name="facebookLink"
+                type="url"
+                value={formData.facebookLink}
+                onChange={handleChange}
+                placeholder="https://facebook.com/username"
+                className="bg-white/80 backdrop-blur-sm text-sm sm:text-base rounded-lg"
+              />
+            </div>
+
+            <div className="space-y-1 sm:space-y-2">
+              <Label htmlFor="googleMapLink" className="text-primary text-sm sm:text-base">Google Maps Link</Label>
+              <Input
+                id="googleMapLink"
+                name="googleMapLink"
+                type="url"
+                value={formData.googleMapLink}
+                onChange={handleChange}
+                placeholder="https://maps.google.com/..."
+                className="bg-white/80 backdrop-blur-sm text-sm sm:text-base rounded-lg"
+              />
+            </div>
+
+            <div className="space-y-1 sm:space-y-2">
+              <Label htmlFor="contactName" className="text-primary text-sm sm:text-base">Contact Name *</Label>
+              <Input
+                id="contactName"
+                name="contactName"
+                value={formData.contactName}
+                onChange={handleChange}
+                required
+                placeholder="Enter contact name"
+                className="bg-white/80 backdrop-blur-sm text-sm sm:text-base rounded-lg"
+              />
+            </div>
+
+            <div className="space-y-1 sm:space-y-2">
+              <Label htmlFor="contactEmail" className="text-primary text-sm sm:text-base">Contact Email *</Label>
+              <Input
+                id="contactEmail"
+                name="contactEmail"
+                type="email"
+                value={formData.contactEmail}
+                onChange={handleChange}
+                required
+                placeholder="Enter contact email"
+                className="bg-white/80 backdrop-blur-sm text-sm sm:text-base rounded-lg"
+              />
+            </div>
+
+            <div className="space-y-1 sm:space-y-2">
+              <Label htmlFor="contactPhone" className="text-primary text-sm sm:text-base">Contact Phone</Label>
+              <Input
+                id="contactPhone"
+                name="contactPhone"
+                type="tel"
+                value={formData.contactPhone}
+                onChange={handleChange}
+                placeholder="Enter contact phone"
+                className="bg-white/80 backdrop-blur-sm text-sm sm:text-base rounded-lg"
+              />
             </div>
           </div>
 
-          <div>
-            <Label htmlFor="additionalInfo">Additional Information</Label>
+          <div className="space-y-1 sm:space-y-2">
+            <Label htmlFor="comment" className="text-primary text-sm sm:text-base">Additional Comments</Label>
+            <Textarea
+              id="comment"
+              name="comment"
+              value={formData.comment}
+              onChange={handleChange}
+              placeholder="Tell us about your shop..."
+              className="bg-white/80 backdrop-blur-sm text-sm sm:text-base rounded-lg"
+            />
+          </div>
+
+          <div className="space-y-1 sm:space-y-2">
+            <Label htmlFor="additionalInfo" className="text-primary text-sm sm:text-base">Additional Information</Label>
             <Textarea
               id="additionalInfo"
               name="additionalInfo"
               value={formData.additionalInfo}
               onChange={handleChange}
-              placeholder="Any other information you'd like to share..."
-              className="h-24"
+              placeholder="Any additional information..."
+              className="bg-white/80 backdrop-blur-sm text-sm sm:text-base rounded-lg"
             />
           </div>
 
-          <div className="flex justify-end gap-4">
+          <div className="flex flex-col sm:flex-row justify-end gap-2 pt-2">
             <Button
               type="button"
               variant="outline"
               onClick={onClose}
               disabled={isSubmitting}
+              className="w-full sm:w-auto border-primary text-primary hover:bg-primary/10 text-sm sm:text-base rounded-lg"
             >
               Cancel
             </Button>
             <Button
               type="submit"
               disabled={isSubmitting}
+              className="w-full sm:w-auto bg-primary hover:bg-primary/90 text-white rounded-lg"
             >
-              {isSubmitting ? 'Submitting...' : 'Submit'}
+              {isSubmitting ? 'Submitting...' : 'Submit Shop'}
             </Button>
           </div>
         </form>

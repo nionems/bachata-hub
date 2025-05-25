@@ -94,8 +94,8 @@ export function SchoolSubmissionForm({ isOpen, onClose }: SchoolSubmissionFormPr
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-[95vw] sm:max-w-[600px] bg-gradient-to-br from-primary/10 to-secondary/10 max-h-[90vh] overflow-y-auto">
-        <DialogHeader className="sticky top-0 z-10 bg-white/80 backdrop-blur-sm">
+      <DialogContent className="max-w-[95vw] sm:max-w-[600px] bg-gradient-to-br from-primary/10 to-secondary/10 max-h-[90vh] overflow-y-auto rounded-xl sm:rounded-2xl">
+        <DialogHeader className="sticky top-0 z-10 bg-white/80 backdrop-blur-sm rounded-t-xl sm:rounded-t-2xl">
           <DialogTitle className="text-primary text-lg sm:text-xl flex justify-between items-center">
             Submit Your School
             <Button
@@ -122,7 +122,7 @@ export function SchoolSubmissionForm({ isOpen, onClose }: SchoolSubmissionFormPr
                 value={formData.name}
                 onChange={handleInputChange}
                 required
-                className="bg-white/80 backdrop-blur-sm text-sm sm:text-base"
+                className="bg-white/80 backdrop-blur-sm text-sm sm:text-base rounded-lg"
               />
             </div>
 
@@ -134,7 +134,7 @@ export function SchoolSubmissionForm({ isOpen, onClose }: SchoolSubmissionFormPr
                 value={formData.location}
                 onChange={handleInputChange}
                 required
-                className="bg-white/80 backdrop-blur-sm text-sm sm:text-base"
+                className="bg-white/80 backdrop-blur-sm text-sm sm:text-base rounded-lg"
               />
             </div>
 
@@ -143,7 +143,7 @@ export function SchoolSubmissionForm({ isOpen, onClose }: SchoolSubmissionFormPr
               <StateSelect
                 value={formData.state}
                 onChange={(value) => setFormData(prev => ({ ...prev, state: value }))}
-                className="bg-white/80 backdrop-blur-sm text-sm sm:text-base"
+                className="bg-white/80 backdrop-blur-sm text-sm sm:text-base rounded-lg"
               />
             </div>
 
@@ -155,7 +155,7 @@ export function SchoolSubmissionForm({ isOpen, onClose }: SchoolSubmissionFormPr
                 value={formData.address}
                 onChange={handleInputChange}
                 required
-                className="bg-white/80 backdrop-blur-sm text-sm sm:text-base"
+                className="bg-white/80 backdrop-blur-sm text-sm sm:text-base rounded-lg"
               />
             </div>
 
@@ -168,7 +168,7 @@ export function SchoolSubmissionForm({ isOpen, onClose }: SchoolSubmissionFormPr
                 value={formData.website}
                 onChange={handleInputChange}
                 placeholder="https://"
-                className="bg-white/80 backdrop-blur-sm text-sm sm:text-base"
+                className="bg-white/80 backdrop-blur-sm text-sm sm:text-base rounded-lg"
               />
             </div>
 
@@ -181,7 +181,7 @@ export function SchoolSubmissionForm({ isOpen, onClose }: SchoolSubmissionFormPr
                 value={formData.instagramUrl}
                 onChange={handleInputChange}
                 placeholder="https://instagram.com/..."
-                className="bg-white/80 backdrop-blur-sm text-sm sm:text-base"
+                className="bg-white/80 backdrop-blur-sm text-sm sm:text-base rounded-lg"
               />
             </div>
 
@@ -194,7 +194,7 @@ export function SchoolSubmissionForm({ isOpen, onClose }: SchoolSubmissionFormPr
                 value={formData.facebookUrl}
                 onChange={handleInputChange}
                 placeholder="https://facebook.com/..."
-                className="bg-white/80 backdrop-blur-sm text-sm sm:text-base"
+                className="bg-white/80 backdrop-blur-sm text-sm sm:text-base rounded-lg"
               />
             </div>
 
@@ -206,7 +206,7 @@ export function SchoolSubmissionForm({ isOpen, onClose }: SchoolSubmissionFormPr
                 value={formData.contactInfo}
                 onChange={handleInputChange}
                 required
-                className="bg-white/80 backdrop-blur-sm text-sm sm:text-base"
+                className="bg-white/80 backdrop-blur-sm text-sm sm:text-base rounded-lg"
               />
             </div>
 
@@ -219,7 +219,7 @@ export function SchoolSubmissionForm({ isOpen, onClose }: SchoolSubmissionFormPr
                 onChange={handleInputChange}
                 placeholder="e.g., Bachata, Salsa, Kizomba"
                 required
-                className="bg-white/80 backdrop-blur-sm text-sm sm:text-base"
+                className="bg-white/80 backdrop-blur-sm text-sm sm:text-base rounded-lg"
               />
             </div>
           </div>
@@ -232,7 +232,7 @@ export function SchoolSubmissionForm({ isOpen, onClose }: SchoolSubmissionFormPr
               value={formData.description}
               onChange={handleInputChange}
               required
-              className="min-h-[100px] bg-white/80 backdrop-blur-sm text-sm sm:text-base"
+              className="bg-white/80 backdrop-blur-sm text-sm sm:text-base rounded-lg"
             />
           </div>
 
@@ -262,14 +262,14 @@ export function SchoolSubmissionForm({ isOpen, onClose }: SchoolSubmissionFormPr
               variant="outline"
               onClick={onClose}
               disabled={isLoading}
-              className="w-full sm:w-auto border-primary text-primary hover:bg-primary/10 text-sm sm:text-base"
+              className="w-full sm:w-auto border-primary text-primary hover:bg-primary/10 text-sm sm:text-base rounded-lg"
             >
               Cancel
             </Button>
             <Button
               type="submit"
               disabled={isLoading}
-              className="w-full sm:w-auto bg-primary hover:bg-primary/90 text-sm sm:text-base"
+              className="w-full sm:w-auto bg-primary hover:bg-primary/90 text-white rounded-lg"
             >
               {isLoading ? 'Submitting...' : 'Submit School'}
             </Button>

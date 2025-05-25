@@ -93,8 +93,8 @@ export function DJSubmissionForm({ isOpen, onClose }: DJSubmissionFormProps) {
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-[95vw] sm:max-w-[600px] bg-gradient-to-br from-primary/10 to-secondary/10 max-h-[90vh] overflow-y-auto">
-        <DialogHeader className="sticky top-0 z-10 bg-white/80 backdrop-blur-sm">
+      <DialogContent className="max-w-[95vw] sm:max-w-[600px] bg-gradient-to-br from-primary/10 to-secondary/10 max-h-[90vh] overflow-y-auto rounded-xl sm:rounded-2xl">
+        <DialogHeader className="sticky top-0 z-10 bg-white/80 backdrop-blur-sm rounded-t-xl sm:rounded-t-2xl">
           <DialogTitle className="text-primary text-lg sm:text-xl flex justify-between items-center">
             Submit Your DJ Profile
             <Button
@@ -121,7 +121,7 @@ export function DJSubmissionForm({ isOpen, onClose }: DJSubmissionFormProps) {
                 value={formData.name}
                 onChange={handleInputChange}
                 required
-                className="bg-white/80 backdrop-blur-sm"
+                className="bg-white/80 backdrop-blur-sm rounded-lg"
               />
             </div>
 
@@ -133,7 +133,7 @@ export function DJSubmissionForm({ isOpen, onClose }: DJSubmissionFormProps) {
                 value={formData.location}
                 onChange={handleInputChange}
                 required
-                className="bg-white/80 backdrop-blur-sm"
+                className="bg-white/80 backdrop-blur-sm rounded-lg"
               />
             </div>
 
@@ -142,7 +142,7 @@ export function DJSubmissionForm({ isOpen, onClose }: DJSubmissionFormProps) {
               <StateSelect
                 value={formData.state}
                 onChange={(value) => setFormData(prev => ({ ...prev, state: value }))}
-                className="bg-white/80 backdrop-blur-sm"
+                className="bg-white/80 backdrop-blur-sm rounded-lg"
               />
             </div>
 
@@ -154,7 +154,7 @@ export function DJSubmissionForm({ isOpen, onClose }: DJSubmissionFormProps) {
                 value={formData.contact}
                 onChange={handleInputChange}
                 required
-                className="bg-white/80 backdrop-blur-sm"
+                className="bg-white/80 backdrop-blur-sm rounded-lg"
               />
             </div>
 
@@ -167,7 +167,7 @@ export function DJSubmissionForm({ isOpen, onClose }: DJSubmissionFormProps) {
                 onChange={handleInputChange}
                 placeholder="e.g., Bachata, Salsa, Kizomba"
                 required
-                className="bg-white/80 backdrop-blur-sm"
+                className="bg-white/80 backdrop-blur-sm rounded-lg"
               />
             </div>
 
@@ -180,7 +180,7 @@ export function DJSubmissionForm({ isOpen, onClose }: DJSubmissionFormProps) {
                 value={formData.imageUrl}
                 onChange={handleInputChange}
                 placeholder="https://"
-                className="bg-white/80 backdrop-blur-sm"
+                className="bg-white/80 backdrop-blur-sm rounded-lg"
               />
             </div>
 
@@ -193,7 +193,7 @@ export function DJSubmissionForm({ isOpen, onClose }: DJSubmissionFormProps) {
                 value={formData.instagramLink}
                 onChange={handleInputChange}
                 placeholder="https://instagram.com/username"
-                className="bg-white/80 backdrop-blur-sm"
+                className="bg-white/80 backdrop-blur-sm rounded-lg"
               />
             </div>
 
@@ -206,7 +206,7 @@ export function DJSubmissionForm({ isOpen, onClose }: DJSubmissionFormProps) {
                 value={formData.facebookLink}
                 onChange={handleInputChange}
                 placeholder="https://facebook.com/username"
-                className="bg-white/80 backdrop-blur-sm"
+                className="bg-white/80 backdrop-blur-sm rounded-lg"
               />
             </div>
 
@@ -219,7 +219,7 @@ export function DJSubmissionForm({ isOpen, onClose }: DJSubmissionFormProps) {
                 value={formData.emailLink}
                 onChange={handleInputChange}
                 placeholder="your@email.com"
-                className="bg-white/80 backdrop-blur-sm"
+                className="bg-white/80 backdrop-blur-sm rounded-lg"
               />
             </div>
 
@@ -232,7 +232,7 @@ export function DJSubmissionForm({ isOpen, onClose }: DJSubmissionFormProps) {
                 value={formData.musicLink}
                 onChange={handleInputChange}
                 placeholder="https://soundcloud.com/username or https://mixcloud.com/username"
-                className="bg-white/80 backdrop-blur-sm"
+                className="bg-white/80 backdrop-blur-sm rounded-lg"
               />
             </div>
           </div>
@@ -244,7 +244,7 @@ export function DJSubmissionForm({ isOpen, onClose }: DJSubmissionFormProps) {
               name="comment"
               value={formData.comment}
               onChange={handleInputChange}
-              className="min-h-[100px] bg-white/80 backdrop-blur-sm"
+              className="min-h-[100px] bg-white/80 backdrop-blur-sm rounded-lg"
               placeholder="Any additional information about your DJ services..."
             />
           </div>
@@ -255,14 +255,14 @@ export function DJSubmissionForm({ isOpen, onClose }: DJSubmissionFormProps) {
               variant="outline"
               onClick={onClose}
               disabled={isLoading}
-              className="border-primary text-primary hover:bg-primary/10"
+              className="w-full rounded-lg"
             >
               Cancel
             </Button>
             <Button
               type="submit"
               disabled={isLoading}
-              className="bg-primary hover:bg-primary/90"
+              className="w-full bg-primary hover:bg-primary/90 text-white rounded-lg"
             >
               {isLoading ? 'Submitting...' : 'Submit DJ Profile'}
             </Button>

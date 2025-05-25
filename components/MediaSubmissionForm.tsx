@@ -150,8 +150,8 @@ export function MediaSubmissionForm({ isOpen, onClose }: MediaSubmissionFormProp
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[600px]">
-        <DialogHeader>
+      <DialogContent className="sm:max-w-[600px] rounded-xl sm:rounded-2xl">
+        <DialogHeader className="rounded-t-xl sm:rounded-t-2xl">
           <DialogTitle className="text-2xl font-bold text-primary">Submit Your Media</DialogTitle>
         </DialogHeader>
 
@@ -165,7 +165,7 @@ export function MediaSubmissionForm({ isOpen, onClose }: MediaSubmissionFormProp
                 value={formData.name}
                 onChange={handleInputChange}
                 required
-                className="bg-white/80 backdrop-blur-sm"
+                className="bg-white/80 backdrop-blur-sm rounded-lg"
               />
             </div>
 
@@ -177,7 +177,7 @@ export function MediaSubmissionForm({ isOpen, onClose }: MediaSubmissionFormProp
                 value={formData.location}
                 onChange={handleInputChange}
                 required
-                className="bg-white/80 backdrop-blur-sm"
+                className="bg-white/80 backdrop-blur-sm rounded-lg"
               />
             </div>
 
@@ -188,10 +188,10 @@ export function MediaSubmissionForm({ isOpen, onClose }: MediaSubmissionFormProp
                 onValueChange={(value) => setFormData(prev => ({ ...prev, state: value }))}
                 required
               >
-                <SelectTrigger className="bg-white/80 backdrop-blur-sm">
+                <SelectTrigger className="bg-white/80 backdrop-blur-sm rounded-lg">
                   <SelectValue placeholder="Select a state" />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="rounded-lg">
                   {AUSTRALIAN_STATES.map((state) => (
                     <SelectItem key={state.code} value={state.code}>
                       {state.name}
@@ -209,7 +209,7 @@ export function MediaSubmissionForm({ isOpen, onClose }: MediaSubmissionFormProp
                 value={formData.contact}
                 onChange={handleInputChange}
                 required
-                className="bg-white/80 backdrop-blur-sm"
+                className="bg-white/80 backdrop-blur-sm rounded-lg"
               />
             </div>
 
@@ -222,7 +222,7 @@ export function MediaSubmissionForm({ isOpen, onClose }: MediaSubmissionFormProp
                 value={formData.instagramLink}
                 onChange={handleInputChange}
                 placeholder="https://instagram.com/username"
-                className="bg-white/80 backdrop-blur-sm"
+                className="bg-white/80 backdrop-blur-sm rounded-lg"
               />
             </div>
 
@@ -235,7 +235,7 @@ export function MediaSubmissionForm({ isOpen, onClose }: MediaSubmissionFormProp
                 value={formData.facebookLink}
                 onChange={handleInputChange}
                 placeholder="https://facebook.com/username"
-                className="bg-white/80 backdrop-blur-sm"
+                className="bg-white/80 backdrop-blur-sm rounded-lg"
               />
             </div>
 
@@ -248,7 +248,7 @@ export function MediaSubmissionForm({ isOpen, onClose }: MediaSubmissionFormProp
                 value={formData.emailLink}
                 onChange={handleInputChange}
                 placeholder="your@email.com"
-                className="bg-white/80 backdrop-blur-sm"
+                className="bg-white/80 backdrop-blur-sm rounded-lg"
               />
             </div>
 
@@ -262,7 +262,7 @@ export function MediaSubmissionForm({ isOpen, onClose }: MediaSubmissionFormProp
                 onChange={handleInputChange}
                 required
                 placeholder="https://"
-                className="bg-white/80 backdrop-blur-sm"
+                className="bg-white/80 backdrop-blur-sm rounded-lg"
               />
             </div>
 
@@ -275,7 +275,7 @@ export function MediaSubmissionForm({ isOpen, onClose }: MediaSubmissionFormProp
                 value={formData.mediaLink2}
                 onChange={handleInputChange}
                 placeholder="https://"
-                className="bg-white/80 backdrop-blur-sm"
+                className="bg-white/80 backdrop-blur-sm rounded-lg"
               />
             </div>
           </div>
@@ -287,7 +287,7 @@ export function MediaSubmissionForm({ isOpen, onClose }: MediaSubmissionFormProp
               name="comment"
               value={formData.comment}
               onChange={handleInputChange}
-              className="min-h-[100px] bg-white/80 backdrop-blur-sm"
+              className="min-h-[100px] bg-white/80 backdrop-blur-sm rounded-lg"
               placeholder="Any additional information about your media content..."
             />
           </div>
@@ -301,7 +301,7 @@ export function MediaSubmissionForm({ isOpen, onClose }: MediaSubmissionFormProp
               accept="image/*"
               onChange={handleImageChange}
               required
-              className="bg-white/80 backdrop-blur-sm"
+              className="bg-white/80 backdrop-blur-sm rounded-lg"
             />
             {imagePreview && (
               <div className="mt-2">
@@ -324,14 +324,14 @@ export function MediaSubmissionForm({ isOpen, onClose }: MediaSubmissionFormProp
               variant="outline"
               onClick={onClose}
               disabled={isLoading}
-              className="border-primary text-primary hover:bg-primary/10"
+              className="w-full rounded-lg"
             >
               Cancel
             </Button>
             <Button
               type="submit"
               disabled={isLoading}
-              className="bg-primary hover:bg-primary/90"
+              className="w-full bg-primary hover:bg-primary/90 text-white rounded-lg"
             >
               {isLoading ? 'Submitting...' : 'Submit Media'}
             </Button>

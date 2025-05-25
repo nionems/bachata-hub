@@ -10,40 +10,37 @@ import { StateSelect } from "@/components/ui/StateSelect"
 import { toast } from "sonner"
 import { X } from "lucide-react"
 
-interface EventSubmissionFormProps {
+interface SubmissionFormProps {
   isOpen: boolean
   onClose: () => void
+  type: 'school' | 'shop' | 'accommodation' | 'teacher' | 'dj' | 'media'
 }
 
-interface EventFormData {
-  eventName: string
-  eventDate: string
-  eventTime: string
-  endTime: string
+interface FormData {
+  name: string
+  email: string
+  phone: string
+  website: string
   location: string
   city: string
   state: string
   description: string
-  organizerName: string
-  organizerEmail: string
-  ticketLink: string
-  eventLink: string
+  socialMedia: string
+  images: string
 }
 
-export function EventSubmissionForm({ isOpen, onClose }: EventSubmissionFormProps) {
-  const [formData, setFormData] = useState<EventFormData>({
-    eventName: '',
-    eventDate: '',
-    eventTime: '',
-    endTime: '',
+export function SubmissionForm({ isOpen, onClose, type }: SubmissionFormProps) {
+  const [formData, setFormData] = useState<FormData>({
+    name: '',
+    email: '',
+    phone: '',
+    website: '',
     location: '',
     city: '',
     state: '',
     description: '',
-    organizerName: '',
-    organizerEmail: '',
-    ticketLink: '',
-    eventLink: ''
+    socialMedia: '',
+    images: ''
   })
 
   const [isLoading, setIsLoading] = useState(false)
@@ -52,6 +49,30 @@ export function EventSubmissionForm({ isOpen, onClose }: EventSubmissionFormProp
   const handleInputChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target
     setFormData(prev => ({ ...prev, [name]: value }))
+  }
+
+  const getFormTitle = () => {
+    switch (type) {
+      case 'school': return 'Submit Your School'
+      case 'shop': return 'Submit Your Shop'
+      case 'accommodation': return 'Submit Your Accommodation'
+      case 'teacher': return 'Submit Your Profile'
+      case 'dj': return 'Submit Your DJ Profile'
+      case 'media': return 'Submit Your Media'
+      default: return 'Submit'
+    }
+  }
+
+  const getFormDescription = () => {
+    switch (type) {
+      case 'school': return 'Share your bachata school with our community'
+      case 'shop': return 'List your dance wear and accessories shop'
+      case 'accommodation': return 'Add your accommodation for dance events'
+      case 'teacher': return 'Create your teacher profile'
+      case 'dj': return 'Add your DJ profile'
+      case 'media': return 'Share your dance media content'
+      default: return 'Submit your information'
+    }
   }
 
   const handleSubmit = async (e: FormEvent) => {
@@ -66,8 +87,9 @@ export function EventSubmissionForm({ isOpen, onClose }: EventSubmissionFormProp
           formDataToSend.append(key, value)
         }
       })
+      formDataToSend.append('type', type)
 
-      const response = await fetch("/api/submit-event", {
+      const response = await fetch("/api/submit-listing", {
         method: "POST",
         body: formDataToSend,
       })
@@ -75,30 +97,28 @@ export function EventSubmissionForm({ isOpen, onClose }: EventSubmissionFormProp
       const data = await response.json()
 
       if (!response.ok) {
-        throw new Error(data.details || data.error || "Failed to submit event")
+        throw new Error(data.details || data.error || "Failed to submit")
       }
 
-      toast.success("Event submitted successfully! We'll review it and add it to the calendar.")
+      toast.success("Submitted successfully! We'll review it and add it to our listings.")
       onClose()
       setFormData({
-        eventName: '',
-        eventDate: '',
-        eventTime: '',
-        endTime: '',
+        name: '',
+        email: '',
+        phone: '',
+        website: '',
         location: '',
         city: '',
         state: '',
         description: '',
-        organizerName: '',
-        organizerEmail: '',
-        ticketLink: '',
-        eventLink: ''
+        socialMedia: '',
+        images: ''
       })
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to submit form. Please try again.'
       setError(errorMessage)
       toast.error(errorMessage)
-      console.error("Error submitting event:", err)
+      console.error("Error submitting:", err)
     } finally {
       setIsLoading(false)
     }
@@ -109,29 +129,29 @@ export function EventSubmissionForm({ isOpen, onClose }: EventSubmissionFormProp
       <DialogContent className="max-w-[95vw] sm:max-w-[600px] bg-gradient-to-br from-primary/10 to-secondary/10 max-h-[90vh] overflow-y-auto rounded-xl sm:rounded-2xl">
         <DialogHeader className="sticky top-0 z-10 bg-white/80 backdrop-blur-sm rounded-t-xl sm:rounded-t-2xl">
           <DialogTitle className="text-primary text-lg sm:text-xl flex justify-between items-center">
-            Submit Your Event
+            {getFormTitle()}
             <Button
               variant="ghost"
               size="icon"
               onClick={onClose}
-              className="h-8 w-8 p-0"
+              className="h-8 w-8 p-0 rounded-lg"
             >
               <X className="h-4 w-4" />
             </Button>
           </DialogTitle>
           <DialogDescription className="text-sm sm:text-base">
-            Fill out the form below to submit your event for review. You can include an image link in the description.
+            {getFormDescription()}
           </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="eventName" className="text-primary">Event Name *</Label>
+              <Label htmlFor="name" className="text-primary">Name *</Label>
               <Input
-                id="eventName"
-                name="eventName"
-                value={formData.eventName}
+                id="name"
+                name="name"
+                value={formData.name}
                 onChange={handleInputChange}
                 required
                 className="bg-white/80 backdrop-blur-sm rounded-lg"
@@ -139,12 +159,12 @@ export function EventSubmissionForm({ isOpen, onClose }: EventSubmissionFormProp
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="eventDate" className="text-primary">Date *</Label>
+              <Label htmlFor="email" className="text-primary">Email *</Label>
               <Input
-                id="eventDate"
-                name="eventDate"
-                type="date"
-                value={formData.eventDate}
+                id="email"
+                name="email"
+                type="email"
+                value={formData.email}
                 onChange={handleInputChange}
                 required
                 className="bg-white/80 backdrop-blur-sm rounded-lg"
@@ -152,40 +172,38 @@ export function EventSubmissionForm({ isOpen, onClose }: EventSubmissionFormProp
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="eventTime" className="text-primary">Start Time *</Label>
+              <Label htmlFor="phone" className="text-primary">Phone</Label>
               <Input
-                id="eventTime"
-                name="eventTime"
-                type="time"
-                value={formData.eventTime}
+                id="phone"
+                name="phone"
+                type="tel"
+                value={formData.phone}
                 onChange={handleInputChange}
-                required
                 className="bg-white/80 backdrop-blur-sm rounded-lg"
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="endTime" className="text-primary">End Time *</Label>
+              <Label htmlFor="website" className="text-primary">Website</Label>
               <Input
-                id="endTime"
-                name="endTime"
-                type="time"
-                value={formData.endTime}
+                id="website"
+                name="website"
+                type="url"
+                value={formData.website}
                 onChange={handleInputChange}
-                required
+                placeholder="https://"
                 className="bg-white/80 backdrop-blur-sm rounded-lg"
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="location" className="text-primary">Full Address *</Label>
+              <Label htmlFor="location" className="text-primary">Address *</Label>
               <Input
                 id="location"
                 name="location"
                 value={formData.location}
                 onChange={handleInputChange}
                 required
-                placeholder="Enter full address including postcode (e.g., 123 Dance Street, Sydney NSW 2000)"
                 className="bg-white/80 backdrop-blur-sm rounded-lg"
               />
             </div>
@@ -212,75 +230,49 @@ export function EventSubmissionForm({ isOpen, onClose }: EventSubmissionFormProp
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="organizerName" className="text-primary">Organizer Name *</Label>
+              <Label htmlFor="socialMedia" className="text-primary">Social Media</Label>
               <Input
-                id="organizerName"
-                name="organizerName"
-                value={formData.organizerName}
+                id="socialMedia"
+                name="socialMedia"
+                value={formData.socialMedia}
                 onChange={handleInputChange}
-                required
-                className="bg-white/80 backdrop-blur-sm rounded-lg"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="organizerEmail" className="text-primary">Organizer Email *</Label>
-              <Input
-                id="organizerEmail"
-                name="organizerEmail"
-                type="email"
-                value={formData.organizerEmail}
-                onChange={handleInputChange}
-                required
-                className="bg-white/80 backdrop-blur-sm rounded-lg"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="ticketLink" className="text-primary">Ticket Link</Label>
-              <Input
-                id="ticketLink"
-                name="ticketLink"
-                type="url"
-                value={formData.ticketLink}
-                onChange={handleInputChange}
-                placeholder="https://"
-                className="bg-white/80 backdrop-blur-sm rounded-lg"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="eventLink" className="text-primary">Event Link</Label>
-              <Input
-                id="eventLink"
-                name="eventLink"
-                type="url"
-                value={formData.eventLink}
-                onChange={handleInputChange}
-                placeholder="https://"
+                placeholder="Instagram, Facebook, etc."
                 className="bg-white/80 backdrop-blur-sm rounded-lg"
               />
             </div>
           </div>
 
           <div className="space-y-2">
-            <div className="bg-blue-50 p-4 rounded-md mb-4">
-              <h4 className="font-medium text-blue-800 mb-2">To include an image or flyer with your event:</h4>
+            <div className="bg-blue-50 p-4 rounded-lg mb-4">
+              <h4 className="font-medium text-blue-800 mb-2">To include images:</h4>
               <ol className="list-decimal list-inside text-blue-700 space-y-1">
-                <li>Upload the image to your own Google Drive.</li>
+                <li>Upload the images to your own Google Drive.</li>
                 <li>Right-click the file and select "Get link".</li>
                 <li>Set the access to "Anyone with the link can view".</li>
                 <li>Copy the public share link and paste it below.</li>
               </ol>
             </div>
-            <Label htmlFor="description" className="text-primary">Description</Label>
+            <Label htmlFor="images" className="text-primary">Image Links</Label>
+            <Input
+              id="images"
+              name="images"
+              value={formData.images}
+              onChange={handleInputChange}
+              placeholder="Paste image links here, separated by commas"
+              className="bg-white/80 backdrop-blur-sm rounded-lg"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="description" className="text-primary">Description *</Label>
             <Textarea
               id="description"
               name="description"
               value={formData.description}
               onChange={handleInputChange}
-              className="min-h-[100px] bg-white/80 backdrop-blur-sm rounded-lg"
-              placeholder="Tell us more about your event... You can include an image link here."
+              required
+              className="min-h-[150px] bg-white/80 backdrop-blur-sm rounded-lg"
+              placeholder={`Tell us about your ${type}...`}
             />
           </div>
 
@@ -303,7 +295,7 @@ export function EventSubmissionForm({ isOpen, onClose }: EventSubmissionFormProp
               disabled={isLoading}
               className="bg-primary hover:bg-primary/90 rounded-lg"
             >
-              {isLoading ? 'Submitting...' : 'Submit Event'}
+              {isLoading ? 'Submitting...' : 'Submit'}
             </Button>
           </div>
         </form>
