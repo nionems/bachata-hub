@@ -425,7 +425,7 @@ export default function Home() {
         {/* Features Section - Grid of feature cards */}
         <section className="py-8 sm:py-12">
           <div className="container mx-auto px-4">
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 sm:gap-6">
+            <div className="grid grid-cols-3 sm:grid-cols-3 md:grid-cols-4 gap-4 sm:gap-6">
               {/* Feature cards for different sections */}
               <FeatureCard
                 icon={<Music className="h-6 w-6 sm:h-8 sm:w-8 text-green-600" />}
@@ -521,10 +521,10 @@ export default function Home() {
 function FeatureCard({ icon, title, description, link }: { icon: React.ReactNode; title: string; description: string; link: string }) {
   return (
     <Link href={link}>
-      <div className="bg-white p-6 rounded-lg shadow-sm hover:shadow-md transition-shadow cursor-pointer text-center">
-        <div className="mb-4 flex justify-center">{icon}</div>
-        <h3 className="text-lg sm:text-xl font-semibold mb-2">{title}</h3>
-        <p className="text-gray-600 hidden sm:block text-sm">{description}</p>
+      <div className="bg-white p-4 sm:p-6 rounded-lg shadow-sm hover:shadow-md transition-shadow cursor-pointer text-center">
+        <div className="mb-2 sm:mb-4 flex justify-center">{icon}</div>
+        <h3 className="text-sm sm:text-lg font-semibold mb-1 sm:mb-2">{title}</h3>
+        <p className="text-gray-600 hidden sm:block text-xs sm:text-sm">{description}</p>
       </div>
     </Link>
   )
