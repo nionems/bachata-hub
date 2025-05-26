@@ -1,7 +1,7 @@
 'use client'
 
 import Link from "next/link"
-import { Calendar, Users, Music, School, ShoppingBag, Trophy, MapPin, Clock, Video } from "lucide-react"
+import { Calendar, Users, Music, School, ShoppingBag, Trophy, MapPin, Clock, Video, Info, Headphones, Film, Building2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useState, useEffect } from 'react'
 import { School as SchoolType } from '@/types/school'
@@ -428,7 +428,7 @@ export default function Home() {
             <div className="grid grid-cols-3 sm:grid-cols-3 md:grid-cols-4 gap-4 sm:gap-6">
               {/* Feature cards for different sections */}
               <FeatureCard
-                icon={<Music className="h-6 w-6 sm:h-8 sm:w-8 text-green-600" />}
+                icon={<Calendar className="h-6 w-6 sm:h-8 sm:w-8 text-green-600" />}
                 title="Events"
                 description="Find Bachata events"
                 link="/events"
@@ -470,22 +470,28 @@ export default function Home() {
                 link="/calendar"
               />
               <FeatureCard
-                icon={<Music className="h-6 w-6 sm:h-8 sm:w-8 text-red-500" />}
+                icon={<Headphones className="h-6 w-6 sm:h-8 sm:w-8 text-red-500" />}
                 title="DJs"
                 description="Find Bachata DJs"
                 link="/djs"
               />
               <FeatureCard
-                icon={<Video className="h-6 w-6 sm:h-8 sm:w-8 text-purple-500" />}
+                icon={<Film className="h-6 w-6 sm:h-8 sm:w-8 text-purple-500" />}
                 title="Media"
                 description="Watch Bachata videos"
                 link="/media"
               />
               <FeatureCard
-                icon={<MapPin className="h-6 w-6 sm:h-8 sm:w-8 text-indigo-500" />}
-                title="Accommodations"
+                icon={<Building2 className="h-6 w-6 sm:h-8 sm:w-8 text-indigo-500" />}
+                title="Accoms"
                 description="Find places to stay"
                 link="/accommodations"
+              />
+              <FeatureCard
+                icon={<Info className="h-6 w-6 sm:h-8 sm:w-8 text-blue-500" />}
+                title="About"
+                description="Learn more about us"
+                link="/about"
               />
             </div>
           </div>
