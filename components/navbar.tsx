@@ -43,7 +43,7 @@ export default function Navbar() {
                 alt="Bachata Australia Logo"
                 width={200}
                 height={200}
-                className="h-12 w-12 sm:h-24 sm:w-24"
+                className="h-10 w-10 sm:h-16 sm:w-16 md:h-20 md:w-20 lg:h-24 lg:w-24"
                 priority
                 style={{ objectFit: 'contain' }}
               />
@@ -51,19 +51,23 @@ export default function Navbar() {
           </div>
 
           {/* Desktop Navigation */}
-          <nav className="hidden md:flex space-x-2 lg:space-x-6 items-center">
-            {navItems.map((item) => (
-              <Link
-                key={item.name}
-                href={item.href}
-                className="text-gray-700 hover:text-green-600 px-2 py-1 text-sm font-medium whitespace-nowrap"
-              >
-                {item.name}
-              </Link>
-            ))}
-            <Button size="sm" className="bg-primary hover:bg-primary/90 text-white" onClick={handleLoginClick}>
-              Join the Community
-            </Button>
+          <nav className="hidden md:flex items-center overflow-x-auto scrollbar-hide">
+            <div className="flex space-x-1 md:space-x-2 lg:space-x-4 items-center">
+              {navItems.map((item) => (
+                <Link
+                  key={item.name}
+                  href={item.href}
+                  className={`text-gray-700 hover:text-green-600 px-1 md:px-2 py-1 text-xs md:text-sm font-medium whitespace-nowrap ${
+                    item.name === "Home" ? "hidden" : ""
+                  }`}
+                >
+                  {item.name}
+                </Link>
+              ))}
+              <Button size="sm" className="bg-primary hover:bg-primary/90 text-white ml-2 whitespace-nowrap text-xs md:text-sm">
+                Join the Community
+              </Button>
+            </div>
           </nav>
 
           {/* Mobile menu button */}
