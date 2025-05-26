@@ -370,33 +370,37 @@ export default function Home() {
                         onClick={() => handleEventClick(event)}
                       >
                         <div 
-                          className="absolute inset-0"
+                          className="absolute inset-0 flex items-center justify-center bg-gradient-to-r from-primary/30 to-secondary/30"
                           onClick={(e) => {
                             e.stopPropagation()
                             handleImageClick(event)
                           }}
                         >
                           {event.imageUrl && event.imageUrl !== '/images/placeholder.svg' ? (
+                            <div className="relative w-full h-full">
                             <Image
                               src={event.imageUrl}
                               alt={event.name}
                               fill
-                              className="object-cover"
-                              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                                className="object-contain"
+                                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                               onError={(e) => {
                                 console.error('Error loading image:', event.imageUrl)
                                 const target = e.target as HTMLImageElement
                                 target.src = '/images/placeholder.svg'
                               }}
                             />
+                            </div>
                           ) : (
+                            <div className="relative w-full h-full">
                             <Image
                               src="/images/placeholder.svg"
                               alt="No image available"
                               fill
                               className="object-contain p-8 bg-white"
-                              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                             />
+                            </div>
                           )}
                         </div>
                         <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-3">
@@ -428,10 +432,10 @@ export default function Home() {
             <div className="grid grid-cols-3 sm:grid-cols-3 md:grid-cols-4 gap-4 sm:gap-6">
               {/* Feature cards for different sections */}
               <FeatureCard
-                icon={<Calendar className="h-6 w-6 sm:h-8 sm:w-8 text-green-600" />}
-                title="Events"
-                description="Find Bachata events"
-                link="/events"
+                icon={<Trophy className="h-6 w-6 sm:h-8 sm:w-8 text-blue-500" />}
+                title="Competitions"
+                description="Show off your skills"
+                link="/competitions"
               />
               <FeatureCard
                 icon={<MapPin className="h-6 w-6 sm:h-8 sm:w-8 text-purple-500" />}
@@ -440,10 +444,16 @@ export default function Home() {
                 link="/festivals"
               />
               <FeatureCard
-                icon={<School className="h-6 w-6 sm:h-8 sm:w-8 text-yellow-500" />}
-                title="Schools"
-                description="Find your school"
-                link="/schools"
+                icon={<Film className="h-6 w-6 sm:h-8 sm:w-8 text-purple-500" />}
+                title="Media"
+                description="Watch Bachata videos"
+                link="/media"
+              />
+              <FeatureCard
+                icon={<Headphones className="h-6 w-6 sm:h-8 sm:w-8 text-red-500" />}
+                title="DJs"
+                description="Find Bachata DJs"
+                link="/djs"
               />
               <FeatureCard
                 icon={<Users className="h-6 w-6 sm:h-8 sm:w-8 text-green-600" />}
@@ -452,10 +462,16 @@ export default function Home() {
                 link="/instructors"
               />
               <FeatureCard
-                icon={<Trophy className="h-6 w-6 sm:h-8 sm:w-8 text-blue-500" />}
-                title="Competitions"
-                description="Show off your skills"
-                link="/competitions"
+                icon={<Calendar className="h-6 w-6 sm:h-8 sm:w-8 text-green-600" />}
+                title="Events"
+                description="Find Bachata events"
+                link="/events"
+              />
+              <FeatureCard
+                icon={<School className="h-6 w-6 sm:h-8 sm:w-8 text-yellow-500" />}
+                title="Schools"
+                description="Find your school"
+                link="/schools"
               />
               <FeatureCard
                 icon={<ShoppingBag className="h-6 w-6 sm:h-8 sm:w-8 text-yellow-500" />}
@@ -468,18 +484,6 @@ export default function Home() {
                 title="Calendar"
                 description="Find all events"
                 link="/calendar"
-              />
-              <FeatureCard
-                icon={<Headphones className="h-6 w-6 sm:h-8 sm:w-8 text-red-500" />}
-                title="DJs"
-                description="Find Bachata DJs"
-                link="/djs"
-              />
-              <FeatureCard
-                icon={<Film className="h-6 w-6 sm:h-8 sm:w-8 text-purple-500" />}
-                title="Media"
-                description="Watch Bachata videos"
-                link="/media"
               />
               <FeatureCard
                 icon={<Building2 className="h-6 w-6 sm:h-8 sm:w-8 text-indigo-500" />}
