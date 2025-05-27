@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { states as AUSTRALIAN_STATES } from '@/lib/constants'
+import { AUSTRALIAN_STATES } from '@/lib/constants'
 
 interface DJFormData {
   name: string
