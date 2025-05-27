@@ -17,6 +17,7 @@ import { format } from "date-fns"
 import { Badge } from "@/components/ui/badge"
 import { InstructorCard } from '@/components/InstructorCard'
 import { Instructor } from '@/types/instructor'
+import { LoadingSpinner } from '@/components/loading-spinner'
 
 export default function InstructorsPage() {
   const [instructors, setInstructors] = useState<Instructor[]>([])
@@ -69,7 +70,7 @@ export default function InstructorsPage() {
   }, [])
 
   if (isLoading) {
-    return <div className="text-center py-8">Loading instructors...</div>
+    return <LoadingSpinner message="Loading instructors..." />
   }
 
   if (error) {

@@ -17,6 +17,7 @@ import { Badge } from "@/components/ui/badge"
 import Image from "next/image"
 import { SchoolViewCard } from '@/components/SchoolViewCard'
 import { School } from "@/types/school"
+import { LoadingSpinner } from '@/components/loading-spinner'
 
 import {
   Card,
@@ -83,7 +84,7 @@ export default function SchoolsPage() {
   }, [])
 
   if (isLoading) {
-    return <div className="text-center py-8">Loading schools...</div>
+    return <LoadingSpinner message="Loading schools..." />
   }
 
   if (error) {

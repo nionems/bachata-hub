@@ -14,6 +14,7 @@ import { toast } from "@/components/ui/use-toast"
 import { ShopCard } from '@/components/ShopCard'
 import { useStateFilter } from '@/hooks/useStateFilter'
 import { Shop } from '@/types/shop'
+import { LoadingSpinner } from '@/components/loading-spinner'
 
 export default function ShopsPage() {
   const [shops, setShops] = useState<Shop[]>([])
@@ -66,11 +67,7 @@ export default function ShopsPage() {
   }
 
   if (isLoading) {
-    return (
-      <div className="flex justify-center items-center min-h-screen">
-        <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-primary"></div>
-      </div>
-    )
+    return <LoadingSpinner message="Loading shops..." />
   }
 
   if (error) {

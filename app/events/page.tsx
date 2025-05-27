@@ -16,6 +16,7 @@ import { ContactForm } from "@/components/ContactForm"
 import { EventSubmissionForm } from "@/components/EventSubmissionForm"
 import CalendarMenu from "@/components/calendar-menu"
 import { EventCard } from '@/components/EventCard'
+import { LoadingSpinner } from '@/components/loading-spinner'
 
 interface Event {
   id: string
@@ -83,7 +84,7 @@ export default function EventsPage() {
     }))
   }
 
-  if (isLoading) return <div className="text-center py-8">Loading events...</div>
+  if (isLoading) return <LoadingSpinner message="Loading events..." />
   if (error) return <div className="text-center py-8 text-red-500">{error}</div>
 
   return (
