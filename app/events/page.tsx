@@ -200,23 +200,6 @@ export default function EventsPage() {
                   </div>
                   )}
                   <div className="flex flex-col gap-1 mt-2">
-                    {event.ticketLink ? (
-                      <Button
-                        className="w-full bg-primary hover:bg-primary/90 text-white text-xs h-7 sm:h-8 flex items-center justify-center gap-2"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          window.open(event.ticketLink, '_blank');
-                        }}
-                      >
-                        <Ticket className="h-3 w-3 sm:h-4 sm:w-4" />
-                        <span>Tickets</span>
-                      </Button>
-                    ) : (
-                      <div className="w-full bg-primary/80 text-white text-xs h-7 sm:h-8 flex items-center justify-center gap-2 rounded-md">
-                        <Ticket className="h-3 w-3 sm:h-4 sm:w-4" />
-                        <span>Tickets at the Door</span>
-                      </div>
-                    )}
                     <div className="grid grid-cols-2 gap-1">
                       {event.eventLink && (
                         <Button
