@@ -17,6 +17,7 @@ import WeekendEventsHighlight from "@/components/weekend-events-highlight"
 import EventCard from "@/components/event-card"
 import { getEventImage } from '@/lib/event-images'
 import { useStateFilter } from '@/hooks/useStateFilter'
+import { LoadingSpinner } from "@/components/loading-spinner"
 
 // Add this interface at the top of your file
 interface Event {
@@ -287,8 +288,8 @@ export default function Home() {
     setIsImageModalOpen(true)
   }
 
-  if (loading) return <div>Loading...</div>
-  if (error) return <div>Error: {error}</div>
+  if (loading) return <LoadingSpinner message="Loading events..." />
+  if (error) return <LoadingSpinner message={`Error: ${error}`} color="red" />
 
   try {
     return (
