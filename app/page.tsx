@@ -300,7 +300,7 @@ export default function Home() {
           <div className="absolute inset-0 bg-gradient-to-r from-primary to-secondary"></div>
           <div className="container mx-auto px-0 relative z-10 h-full flex flex-col items-center justify-center">
             <div className="w-full flex flex-col items-center justify-center">
-              <p className="text-xs sm:text-base md:text-lg text-white/90 text-center comic-neue px-4 mt-8 md:mt-28">
+              <p className="text-xs sm:text-base md:text-lg text-white/90 text-center comic-neue px-4 mt-8 md:mt-16">
                 Your Bachata Guide in Australia
               </p>
               <div className="flex items-center justify-center gap-2 sm:gap-4 relative w-full px-4 sm:px-8">
@@ -314,7 +314,7 @@ export default function Home() {
                   alt="Bachata Australia Logo"
                   width={600}
                   height={600}
-                  className="w-48 h-48 sm:w-40 sm:h-40 md:w-72 md:h-72 relative z-10"
+                  className="w-48 h-48 sm:w-40 sm:h-40 md:w-72 md:h-72 relative z-10 -mt-4 sm:-mt-6 md:-mt-8"
                   priority
                   style={{ objectFit: 'contain', mixBlendMode: 'multiply' }}
                 />
