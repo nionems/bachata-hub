@@ -64,6 +64,13 @@ export default function NewDJPage() {
     }
   }
 
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+  ) => {
+    const { name, value } = e.target
+    setFormData(prev => ({ ...prev, [name]: value }))
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsLoading(true)
@@ -125,8 +132,9 @@ export default function NewDJPage() {
           <label className="block text-sm font-medium mb-1">Name*</label>
           <input
             type="text"
+            name="name"
             value={formData.name}
-            onChange={(e) => setFormData({...formData, name: e.target.value})}
+            onChange={handleInputChange}
             className="w-full p-2 border rounded"
             required
           />
@@ -138,8 +146,9 @@ export default function NewDJPage() {
             <label className="block text-sm font-medium mb-1">Location*</label>
             <input
               type="text"
+              name="location"
               value={formData.location}
-              onChange={(e) => setFormData({...formData, location: e.target.value})}
+              onChange={handleInputChange}
               className="w-full p-2 border rounded"
               required
             />
@@ -147,8 +156,9 @@ export default function NewDJPage() {
           <div>
             <label className="block text-sm font-medium mb-1">State*</label>
             <select
+              name="state"
               value={formData.state}
-              onChange={(e) => setFormData({...formData, state: e.target.value})}
+              onChange={handleInputChange}
               className="w-full p-2 border rounded"
               required
             >
@@ -167,8 +177,9 @@ export default function NewDJPage() {
           <label className="block text-sm font-medium mb-1">Contact*</label>
           <input
             type="text"
+            name="contact"
             value={formData.contact}
-            onChange={(e) => setFormData({...formData, contact: e.target.value})}
+            onChange={handleInputChange}
             className="w-full p-2 border rounded"
             required
           />
@@ -179,8 +190,9 @@ export default function NewDJPage() {
           <label className="block text-sm font-medium mb-1">Music Styles*</label>
           <input
             type="text"
+            name="musicStyles"
             value={formData.musicStyles}
-            onChange={(e) => setFormData({...formData, musicStyles: e.target.value})}
+            onChange={handleInputChange}
             className="w-full p-2 border rounded"
             placeholder="e.g., Bachata, Salsa, Kizomba"
             required
@@ -209,8 +221,9 @@ export default function NewDJPage() {
             <div className="text-sm text-gray-500">OR</div>
             <input
               type="url"
+              name="imageUrl"
               value={formData.imageUrl}
-              onChange={(e) => setFormData({...formData, imageUrl: e.target.value})}
+              onChange={handleInputChange}
               className="w-full p-2 border rounded"
               placeholder="Image URL"
             />
@@ -223,8 +236,9 @@ export default function NewDJPage() {
             <label className="block text-sm font-medium mb-1">Instagram Link</label>
             <input
               type="url"
+              name="instagramLink"
               value={formData.instagramLink}
-              onChange={(e) => setFormData({...formData, instagramLink: e.target.value})}
+              onChange={handleInputChange}
               className="w-full p-2 border rounded"
               placeholder="https://instagram.com/..."
             />
@@ -233,8 +247,9 @@ export default function NewDJPage() {
             <label className="block text-sm font-medium mb-1">Facebook Link</label>
             <input
               type="url"
+              name="facebookLink"
               value={formData.facebookLink}
-              onChange={(e) => setFormData({...formData, facebookLink: e.target.value})}
+              onChange={handleInputChange}
               className="w-full p-2 border rounded"
               placeholder="https://facebook.com/..."
             />
@@ -243,8 +258,9 @@ export default function NewDJPage() {
             <label className="block text-sm font-medium mb-1">Email Link</label>
             <input
               type="email"
+              name="emailLink"
               value={formData.emailLink}
-              onChange={(e) => setFormData({...formData, emailLink: e.target.value})}
+              onChange={handleInputChange}
               className="w-full p-2 border rounded"
               placeholder="example@email.com"
             />
@@ -256,8 +272,9 @@ export default function NewDJPage() {
           <label className="block text-sm font-medium mb-1">Music Link</label>
           <input
             type="url"
+            name="musicLink"
             value={formData.musicLink}
-            onChange={(e) => setFormData({...formData, musicLink: e.target.value})}
+            onChange={handleInputChange}
             className="w-full p-2 border rounded"
             placeholder="https://soundcloud.com/username or https://mixcloud.com/username"
           />
@@ -267,8 +284,9 @@ export default function NewDJPage() {
         <div>
           <label className="block text-sm font-medium mb-1">Comment</label>
           <textarea
+            name="comment"
             value={formData.comment}
-            onChange={(e) => setFormData({...formData, comment: e.target.value})}
+            onChange={handleInputChange}
             className="w-full p-2 border rounded"
             rows={4}
           />
