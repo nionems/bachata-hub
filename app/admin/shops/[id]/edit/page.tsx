@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { doc, getDoc, updateDoc } from 'firebase/firestore'
 import { db } from '@/lib/firebase'
+import { AUSTRALIAN_STATES } from '@/lib/constants'
 
 interface Shop {
   id: string
@@ -13,15 +14,13 @@ interface Shop {
   address: string
   contactInfo: string
   email: string
-  website: string
-  price: string
   imageUrl: string
   comment: string
-  googleMapLink: string
   googleReviewLink: string
   createdAt: string
   updatedAt: string
   discountCode: string
+  websiteLink: string
 }
 
 export default function EditShopPage({ params }: { params: { id: string } }) {
@@ -120,8 +119,8 @@ export default function EditShopPage({ params }: { params: { id: string } }) {
         comment: shop.comment,
         googleReviewLink: shop.googleReviewLink,
         imageUrl: imageUrl,
-        website: shop.website,
-        discountCode: shop.discountCode,
+        websiteLink: shop.websiteLink || '',
+        discountCode: shop.discountCode || '',
         updatedAt: new Date().toISOString()
       }
 
@@ -180,14 +179,21 @@ export default function EditShopPage({ params }: { params: { id: string } }) {
 
           <div>
             <label className="block text-sm font-medium mb-1">State</label>
-            <input
-              type="text"
+            <select
               name="state"
               value={shop.state}
               onChange={(e) => setShop({ ...shop, state: e.target.value })}
-              className="w-full p-2 border rounded"
+              className="w-full p-2 border rounded bg-white"
               required
-            />
+            >
+              <option value="">Select a state</option>
+              <option value="ALL">All states</option>
+              {AUSTRALIAN_STATES.map((state) => (
+                <option key={state.value} value={state.value}>
+                  {state.label}
+                </option>
+              ))}
+            </select>
           </div>
 
           <div>
@@ -229,8 +235,8 @@ export default function EditShopPage({ params }: { params: { id: string } }) {
             <input
               type="url"
               name="websiteLink"
-              value={shop.website}
-              onChange={(e) => setShop({ ...shop, website: e.target.value })}
+              value={shop.websiteLink || ''}
+              onChange={(e) => setShop({ ...shop, websiteLink: e.target.value })}
               className="w-full p-2 border rounded"
             />
           </div>

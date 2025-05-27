@@ -8,6 +8,7 @@ import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { toast } from 'sonner'
+import { AUSTRALIAN_STATES } from '@/lib/constants'
 
 interface ShopFormData {
   name: string
@@ -259,14 +260,22 @@ export default function NewShopPage() {
 
             <div className="space-y-2">
               <Label htmlFor="state">State</Label>
-              <Input
+              <select
                 id="state"
                 name="state"
                 value={formData.state}
                 onChange={handleChange}
                 required
-                placeholder="Enter state"
-              />
+                className="w-full p-2 border rounded bg-white"
+              >
+                <option value="">Select a state</option>
+                <option value="ALL">All states</option>
+                {AUSTRALIAN_STATES.map((state) => (
+                  <option key={state.value} value={state.value}>
+                    {state.label}
+                  </option>
+                ))}
+              </select>
             </div>
 
             <div className="space-y-2">
