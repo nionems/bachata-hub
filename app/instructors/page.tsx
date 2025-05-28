@@ -57,7 +57,12 @@ export default function InstructorsPage() {
           } as Instructor
         })
         
-        setInstructors(instructorsList)
+        // Sort instructors alphabetically by name
+        const sortedInstructors = instructorsList.sort((a, b) => 
+          a.name.localeCompare(b.name)
+        )
+        
+        setInstructors(sortedInstructors)
       } catch (err) {
         console.error('Error fetching instructors:', err)
         setError('Failed to load instructors')

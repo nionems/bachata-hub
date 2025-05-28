@@ -71,7 +71,12 @@ export default function SchoolsPage() {
           } as School
         })
         
-        setSchools(schoolsList)
+        // Sort schools alphabetically by name
+        const sortedSchools = schoolsList.sort((a, b) => 
+          a.name.localeCompare(b.name)
+        )
+        
+        setSchools(sortedSchools)
       } catch (err) {
         console.error('Error fetching schools:', err)
         setError('Failed to load schools')
