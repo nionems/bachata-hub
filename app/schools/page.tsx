@@ -117,25 +117,25 @@ export default function SchoolsPage() {
         </div>
 
         <div className="mb-4 sm:mb-8">
-          <div className="flex flex-col sm:flex-row gap-4">
+          <div className="flex flex-col sm:flex-row gap-0 sm:gap-4">
             <StateFilter
               selectedState={selectedState}
               onChange={setSelectedState}
               isLoading={isGeoLoading}
             />
-            <div className="flex gap-2">
+            <div className="flex gap-2 w-full sm:w-auto -mt-1 sm:mt-0">
               <Input
                 type="text"
                 placeholder="Search schools..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="max-w-xs"
+                className="w-full sm:w-[200px] bg-white border-gray-200 focus:border-primary focus:ring-primary rounded-md"
               />
               <Button
                 variant="outline"
                 size="icon"
                 onClick={() => setSearchTerm("")}
-                className="shrink-0"
+                className="shrink-0 border-gray-200 hover:bg-gray-50 hover:text-primary rounded-md"
               >
                 <Search className="h-4 w-4" />
               </Button>
