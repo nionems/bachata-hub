@@ -60,7 +60,12 @@ export default function FestivalsPage() {
           ...doc.data()
         })) as Festival[]
         
-        setFestivals(festivalsList)
+        // Sort festivals alphabetically by name
+        const sortedFestivals = festivalsList.sort((a, b) => 
+          a.name.localeCompare(b.name)
+        )
+        
+        setFestivals(sortedFestivals)
       } catch (err) {
         console.error('Error fetching festivals:', err)
         setError('Failed to load festivals')

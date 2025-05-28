@@ -33,7 +33,12 @@ export default function MediaPage() {
           ...doc.data()
         })) as Media[]
         
-        setMediaList(mediaList)
+        // Sort media items alphabetically by name
+        const sortedMediaList = mediaList.sort((a, b) => 
+          a.name.localeCompare(b.name)
+        )
+        
+        setMediaList(sortedMediaList)
       } catch (err) {
         console.error('Error fetching media:', err)
         setError('Failed to load media')

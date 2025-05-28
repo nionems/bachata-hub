@@ -64,8 +64,13 @@ export default function EventsPage() {
           ...doc.data()
         })) as Event[]
         
-        console.log('Fetched events from Firebase:', eventsList)
-        setEvents(eventsList)
+        // Sort events alphabetically by name
+        const sortedEvents = eventsList.sort((a, b) => 
+          a.name.localeCompare(b.name)
+        )
+        
+        console.log('Fetched events from Firebase:', sortedEvents)
+        setEvents(sortedEvents)
       } catch (err) {
         console.error('Error fetching events:', err)
         setError('Failed to load events')
