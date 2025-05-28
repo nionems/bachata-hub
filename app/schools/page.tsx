@@ -18,6 +18,8 @@ import Image from "next/image"
 import { SchoolViewCard } from '@/components/SchoolViewCard'
 import { School } from "@/types/school"
 import { LoadingSpinner } from '@/components/loading-spinner'
+import { Input } from "@/components/ui/input"
+import { Search } from "lucide-react"
 
 import {
   Card,
@@ -34,8 +36,14 @@ export default function SchoolsPage() {
   const [error, setError] = useState<string | null>(null)
   const [isSubmissionFormOpen, setIsSubmissionFormOpen] = useState(false)
   const [isContactFormOpen, setIsContactFormOpen] = useState(false)
+  const [searchTerm, setSearchTerm] = useState("")
   
   const { selectedState, setSelectedState, filteredItems: filteredSchools, isGeoLoading } = useStateFilter(schools)
+
+  // Filter schools based on search term
+  const searchFilteredSchools = filteredSchools.filter(school =>
+    school.name.toLowerCase().includes(searchTerm.toLowerCase())
+  )
 
   useEffect(() => {
     const fetchSchools = async () => {
@@ -109,15 +117,34 @@ export default function SchoolsPage() {
         </div>
 
         <div className="mb-4 sm:mb-8">
-          <StateFilter
-            selectedState={selectedState}
-            onChange={setSelectedState}
-            isLoading={isGeoLoading}
-          />
+          <div className="flex flex-col sm:flex-row gap-4">
+            <StateFilter
+              selectedState={selectedState}
+              onChange={setSelectedState}
+              isLoading={isGeoLoading}
+            />
+            <div className="flex gap-2">
+              <Input
+                type="text"
+                placeholder="Search schools..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="max-w-xs"
+              />
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={() => setSearchTerm("")}
+                className="shrink-0"
+              >
+                <Search className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredSchools.map((school) => (
+          {searchFilteredSchools.map((school) => (
             <SchoolViewCard key={school.id} school={school} />
           ))}
         </div>
