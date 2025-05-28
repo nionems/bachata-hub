@@ -64,9 +64,11 @@ export default function Navbar() {
                   {item.name}
                 </Link>
               ))}
-              <Button size="sm" className="bg-primary hover:bg-primary/90 text-white ml-2 whitespace-nowrap text-xs md:text-sm">
-                Join the Community
-              </Button>
+              <Link href="/community">
+                <Button size="sm" className="bg-primary hover:bg-primary/90 text-white ml-2 whitespace-nowrap text-xs md:text-sm">
+                  Join the Community
+                </Button>
+              </Link>
             </div>
           </nav>
 
