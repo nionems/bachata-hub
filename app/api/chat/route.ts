@@ -27,185 +27,6 @@ const cityTimezones = {
   'hobart': 'Australia/Hobart'
 }
 
-// Initialize Google Calendar API
-const calendar = google.calendar({ version: 'v3' })
-
-// Define the type for bachata knowledge entries
-type BachataKnowledgeKey = 
-  | "what is bachata"
-  | "how to dance bachata"
-  | "bachata styles"
-  | "bachata music"
-  | "bachata history"
-  | "bachata vs salsa"
-  | "bachata basic steps"
-  | "bachata music artists"
-  | "bachata competitions"
-  | "bachata festivals"
-  | "who developed this app"
-  | "who made this website"
-  | "who created this app"
-  | "contact us"
-  | "submit school"
-  | "submit event"
-  | "submit teacher"
-  | "how to contact"
-  | "how to submit";
-
-// Bachata knowledge base
-const BACHATA_KNOWLEDGE: Record<BachataKnowledgeKey, string> = {
-  "what is bachata": "Bachata is a genre of Latin American music that originated in the Dominican Republic in the early 20th century. It's characterized by its romantic lyrics and distinctive guitar sound. The dance form of bachata is a social dance that's danced in pairs, featuring a basic step pattern and sensual hip movements.",
-  
-  "how to dance bachata": "Bachata is danced in a 4-beat pattern. The basic step involves:\n1. Step to the side with your left foot\n2. Bring your right foot to meet your left\n3. Step to the side with your left foot\n4. Tap your right foot\n\nThe dance includes hip movements and can be danced in open or closed position. It's recommended to take classes from a qualified instructor to learn proper technique.",
-  
-  "bachata styles": "There are several styles of bachata:\n1. Traditional/Dominican - Closer to the original style with more footwork\n2. Modern - Incorporates elements from other dance styles\n3. Sensual - Focuses on body movement and connection\n4. Urban - Mixes bachata with urban dance elements",
-  
-  "bachata music": "Bachata music typically features:\n- Lead guitar (requinto)\n- Rhythm guitar\n- Bass guitar\n- Bongos\n- Güira (metal scraper)\n\nModern bachata often incorporates elements from pop, R&B, and other genres.",
-  
-  "bachata history": "Bachata originated in the Dominican Republic in the early 20th century. It was initially considered music of the lower class and was often associated with bars and brothels. In the 1990s, bachata gained international popularity and became more mainstream. Today, it's one of the most popular Latin dance styles worldwide.",
-  
-  "bachata vs salsa": "Key differences between bachata and salsa:\n- Bachata is danced in 4/4 time, while salsa is in 4/4 with a different rhythm pattern\n- Bachata is generally slower and more sensual\n- Bachata has simpler basic steps compared to salsa\n- Bachata music typically has a more romantic feel",
-  
-  "bachata basic steps": "The basic bachata step pattern is:\n1. Step to the side with your left foot\n2. Bring your right foot to meet your left\n3. Step to the side with your left foot\n4. Tap your right foot\n\nThis pattern is repeated in the opposite direction, starting with the right foot.",
-  
-  "bachata music artists": "Popular bachata artists include:\n- Romeo Santos\n- Aventura\n- Prince Royce\n- Juan Luis Guerra\n- Monchy & Alexandra\n- Xtreme\n- Toby Love",
-  
-  "bachata competitions": "Bachata competitions typically feature categories like:\n- Professional couples\n- Amateur couples\n- Teams\n- Solo\n\nCompetitions often have different divisions for various bachata styles (Traditional, Modern, Sensual).",
-  
-  "bachata festivals": "Bachata festivals are events that typically include:\n- Workshops with international instructors\n- Social dancing\n- Performances\n- Competitions\n- Parties\n\nThey're great opportunities to learn, dance, and connect with the bachata community.",
-
-  "who developed this app": "This app was developed by Lionel C. It's designed to help the bachata community find events, connect with instructors, and learn more about bachata dance and music.",
-
-  "who made this website": "This website was created by Lionel C. It's a platform dedicated to bringing together the bachata community and providing easy access to bachata-related information and events.",
-
-  "who created this app": "This app was created by Lionel C. It's built to serve the bachata community by making it easier to discover events, connect with instructors, and learn about bachata dance and music.",
-
-  "contact us": "For any inquiries, you can reach out to us through our Contact Us form. Just visit the Contact page and fill out the form with your message. We'll get back to you as soon as possible.",
-
-  "submit school": "To submit your school to our directory, please use our Submit School form. You can find it in the Schools section. This will help other dancers discover your school and its offerings.",
-
-  "submit event": "To submit your event to our calendar, please use our Submit Event form. You can find it in the Events section. This will help promote your event to the bachata community.",
-
-  "submit teacher": "To submit yourself or another teacher to our directory, please use our Submit Teacher form. You can find it in the Instructors section. This will help connect teachers with students.",
-
-  "how to contact": "You can contact us through our Contact Us form on the Contact page. We're here to help with any questions or suggestions you might have.",
-
-  "how to submit": "We have several submission forms available:\n- Submit School form in the Schools section\n- Submit Event form in the Events section\n- Submit Teacher form in the Instructors section\nChoose the appropriate form based on what you'd like to submit."
-};
-
-// Function to check if credentials are valid
-async function checkCredentials() {
-  try {
-    if (!process.env.GOOGLE_API_KEY) {
-      throw new Error('GOOGLE_API_KEY is not set in environment variables')
-    }
-    return true
-  } catch (error) {
-    console.error('Calendar API credentials check failed:', error)
-    return false
-  }
-}
-
-// Function to handle time and date questions
-function handleTimeDateQuestion(message: string) {
-  const now = new Date()
-  const timeRegex = /(what|tell me|show me|current|now).*(time|hour)/i
-  const dateRegex = /(what|tell me|show me|current|today).*(date|day|today)/i
-  
-  if (timeRegex.test(message)) {
-    return {
-      type: 'time',
-      response: `The current time is ${now.toLocaleTimeString('en-AU', { 
-        hour: '2-digit', 
-        minute: '2-digit',
-        hour12: true,
-        timeZone: 'Australia/Sydney'
-      })}`
-    }
-  }
-  
-  if (dateRegex.test(message)) {
-    return {
-      type: 'date',
-      response: `Today is ${now.toLocaleDateString('en-AU', { 
-        weekday: 'long',
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-        timeZone: 'Australia/Sydney'
-      })}`
-    }
-  }
-  
-  return null
-}
-
-// Function to handle weather questions
-async function handleWeatherQuestion(message: string) {
-  const weatherRegex = /(weather|temperature|forecast).*(in|at|for)\s+([A-Za-z\s,]+)/i
-  const match = message.match(weatherRegex)
-  
-  if (match && process.env.OPENWEATHER_API_KEY) {
-    const location = match[3].trim()
-    try {
-      const response = await fetch(
-        `https://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(location)},AU&units=metric&appid=${process.env.OPENWEATHER_API_KEY}`
-      )
-      const data = await response.json()
-      
-      if (data.main) {
-        return {
-          type: 'weather',
-          response: `The current temperature in ${location} is ${Math.round(data.main.temp)}°C with ${data.weather[0].description}.`
-        }
-      }
-    } catch (error) {
-      console.error('Weather API error:', error)
-    }
-  }
-  
-  return null
-}
-
-// Function to handle transport questions
-async function handleTransportQuestion(message: string) {
-  const transportRegex = /(how|what|tell me).*(to get|to reach|transport|bus|train|tram|ferry).*(to|from|in)\s+([A-Za-z\s,]+)/i
-  const match = message.match(transportRegex)
-  
-  if (match && process.env.TRANSPORT_API_KEY) {
-    const location = match[4].trim()
-    // Here you would integrate with your preferred transport API
-    // For now, return a generic response
-    return {
-      type: 'transport',
-      response: `For transport information to ${location}, you can check Transport NSW (https://transportnsw.info) for public transport options, or use Google Maps for driving directions.`
-    }
-  }
-  
-  return null
-}
-
-// Function to extract date and location from user message
-function parseUserQuery(message: string) {
-  const dateRegex = /(\d{1,2}(?:st|nd|rd|th)?\s+(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*\s+\d{4})/i
-  const locationRegex = /(?:in|at|near|around)\s+([A-Za-z\s,]+)/i
-  const timeRegex = /(tonight|today|tomorrow|weekend|this week|next week)/i
-  const dayRegex = /\b(monday|tuesday|wednesday|thursday|friday|saturday|sunday)\b/i
-  const danceRegex = /(?:dance|party|social|class|workshop)/i
-
-  const dateMatch = message.match(dateRegex)
-  const locationMatch = message.match(locationRegex)
-  const timeMatch = message.match(timeRegex)
-  const dayMatch = message.match(dayRegex)
-  const hasDanceKeyword = danceRegex.test(message)
-
-  return {
-    date: dateMatch ? dateMatch[1] : (timeMatch ? timeMatch[1] : (dayMatch ? dayMatch[1] : 'today')),
-    location: locationMatch ? locationMatch[1].trim() : null,
-    isDanceRelated: hasDanceKeyword
-  }
-}
-
 // Function to get timezone for a city
 function getTimezoneForCity(city: string | null): string {
   if (!city) return 'Australia/Sydney'; // Default to Sydney timezone
@@ -229,31 +50,6 @@ function parseDateTimeExpression(expression: string | null, location: string | n
   
   let timeMin: string;
   let timeMax: string;
-
-  // Handle day of week
-  const dayOfWeek = expression.toLowerCase();
-  if (['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'].includes(dayOfWeek)) {
-    const days = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
-    const targetDay = days.indexOf(dayOfWeek);
-    const currentDay = localTime.getDay();
-    
-    // Calculate days until target day
-    let daysUntilTarget = targetDay - currentDay;
-    if (daysUntilTarget <= 0) {
-      daysUntilTarget += 7; // Move to next week if the day has passed
-    }
-    
-    const startTime = new Date(localTime);
-    startTime.setDate(startTime.getDate() + daysUntilTarget);
-    startTime.setHours(0, 0, 0, 0);
-    timeMin = startTime.toISOString();
-    
-    const endTime = new Date(startTime);
-    endTime.setHours(23, 59, 59, 999);
-    timeMax = endTime.toISOString();
-    
-    return { timeMin, timeMax };
-  }
 
   // Handle different time expressions
   if (expression.toLowerCase().includes('tonight')) {
@@ -310,24 +106,57 @@ function parseDateTimeExpression(expression: string | null, location: string | n
       endDate.setHours(23, 59, 59, 999);
       timeMax = endDate.toISOString();
     } else {
-      return null;
+      // Default to today if no specific date is provided
+      const startTime = new Date(localTime);
+      startTime.setHours(0, 0, 0, 0);
+      timeMin = startTime.toISOString();
+      
+      const endTime = new Date(localTime);
+      endTime.setHours(23, 59, 59, 999);
+      timeMax = endTime.toISOString();
     }
   }
 
   return { timeMin, timeMax };
 }
 
+// Function to extract date and location from user message
+function parseUserQuery(message: string) {
+  const dateRegex = /(\d{1,2}(?:st|nd|rd|th)?\s+(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*\s+\d{4})/i
+  const locationRegex = /(?:in|at|near|around)\s+([A-Za-z\s,]+)/i
+  const timeRegex = /(tonight|today|tomorrow|weekend|this week|next week)/i
+  const dayRegex = /\b(monday|tuesday|wednesday|thursday|friday|saturday|sunday)\b/i
+
+  const dateMatch = message.match(dateRegex)
+  const locationMatch = message.match(locationRegex)
+  const timeMatch = message.match(timeRegex)
+  const dayMatch = message.match(dayRegex)
+
+  return {
+    date: dateMatch ? dateMatch[1] : (timeMatch ? timeMatch[1] : (dayMatch ? dayMatch[1] : 'today')),
+    location: locationMatch ? locationMatch[1].trim() : null
+  }
+}
+
 // Function to search for events
 async function searchCalendarEvents(date: string | null, location: string | null) {
   try {
-    console.log('Starting event search...')
+    console.log('Starting event search...', { date, location })
     
     // Parse date expression with location for timezone
-    const timeRange = parseDateTimeExpression(date, location);
-    const timeMin = timeRange?.timeMin || new Date().toISOString();
-    const timeMax = timeRange?.timeMax || new Date(new Date().setDate(new Date().getDate() + 1)).toISOString();
+    let timeRange = parseDateTimeExpression(date, location);
+    if (!timeRange) {
+      console.log('No valid time range found, defaulting to today');
+      const now = new Date();
+      const timeMin = new Date(now.setHours(0, 0, 0, 0)).toISOString();
+      const timeMax = new Date(now.setHours(23, 59, 59, 999)).toISOString();
+      timeRange = { timeMin, timeMax };
+    }
     
-    console.log('Search time range:', { timeMin, timeMax })
+    console.log('Search time range:', { 
+      timeMin: new Date(timeRange.timeMin).toLocaleString(),
+      timeMax: new Date(timeRange.timeMax).toLocaleString()
+    })
 
     // Verify API key is available
     if (!process.env.GOOGLE_API_KEY) {
@@ -359,10 +188,17 @@ async function searchCalendarEvents(date: string | null, location: string | null
     const timezone = getTimezoneForCity(location);
 
     // If location is specified, only search in that city's calendar
-    const calendarsToSearch = location 
-      ? Object.entries(cityCalendarMap).filter(([city]) => 
-          city.toLowerCase().includes(location.toLowerCase()))
-      : Object.entries(cityCalendarMap);
+    let calendarsToSearch;
+    if (location) {
+      const locationLower = location.toLowerCase();
+      calendarsToSearch = Object.entries(cityCalendarMap).filter(([city]) => 
+        city.toLowerCase().includes(locationLower)
+      );
+      console.log(`Searching calendars for location: ${location}`, calendarsToSearch.map(([city]) => city));
+    } else {
+      calendarsToSearch = Object.entries(cityCalendarMap);
+      console.log('No location specified, searching all calendars:', calendarsToSearch.map(([city]) => city));
+    }
 
     // Search in relevant calendars
     for (const [city, calendarId] of calendarsToSearch) {
@@ -370,8 +206,8 @@ async function searchCalendarEvents(date: string | null, location: string | null
         // Construct the URL for direct API access
         const url = `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(calendarId)}/events?` +
           `key=${process.env.GOOGLE_API_KEY}&` +
-          `timeMin=${timeMin}&` +
-          `timeMax=${timeMax}&` +
+          `timeMin=${timeRange.timeMin}&` +
+          `timeMax=${timeRange.timeMax}&` +
           `singleEvents=true&` +
           `orderBy=startTime&` +
           `maxResults=250`
@@ -388,6 +224,8 @@ async function searchCalendarEvents(date: string | null, location: string | null
 
         const data = await response.json()
         const events = data.items || []
+        
+        console.log(`Found ${events.length} events in ${city} calendar`)
         
         // Add city information and format times in the user's timezone
         const eventsWithCity = events.map((event: {
@@ -432,18 +270,6 @@ async function searchCalendarEvents(date: string | null, location: string | null
 
     console.log(`Total events found across all calendars: ${allEvents.length}`)
 
-    // Filter by location if provided
-    if (location) {
-      const locationLower = location.toLowerCase();
-      allEvents = allEvents.filter(event => 
-        event.location?.toLowerCase().includes(locationLower) ||
-        event.summary?.toLowerCase().includes(locationLower) ||
-        event.description?.toLowerCase().includes(locationLower) ||
-        event.city.toLowerCase().includes(locationLower)
-      );
-      console.log(`Events after location filter (${location}):`, allEvents.length);
-    }
-
     // Sort all events by start time
     allEvents.sort((a, b) => a.startTime.getTime() - b.startTime.getTime());
 
@@ -461,144 +287,44 @@ async function searchCalendarEvents(date: string | null, location: string | null
   }
 }
 
-// Function to calculate Levenshtein distance for typo tolerance
-function levenshteinDistance(a: string, b: string): number {
-  if (a.length === 0) return b.length;
-  if (b.length === 0) return a.length;
-
-  const matrix = Array(b.length + 1).fill(null).map(() => Array(a.length + 1).fill(null));
-
-  for (let i = 0; i <= a.length; i++) matrix[0][i] = i;
-  for (let j = 0; j <= b.length; j++) matrix[j][0] = j;
-
-  for (let j = 1; j <= b.length; j++) {
-    for (let i = 1; i <= a.length; i++) {
-      const substitutionCost = a[i - 1] === b[j - 1] ? 0 : 1;
-      matrix[j][i] = Math.min(
-        matrix[j][i - 1] + 1, // deletion
-        matrix[j - 1][i] + 1, // insertion
-        matrix[j - 1][i - 1] + substitutionCost // substitution
-      );
-    }
-  }
-
-  return matrix[b.length][a.length];
-}
-
-// Function to find closest match with typo tolerance
-function findClosestMatch(input: string, options: BachataKnowledgeKey[]): BachataKnowledgeKey | null {
-  const normalizedInput = input.toLowerCase();
-  let bestMatch: BachataKnowledgeKey | null = null;
-  let minDistance = Infinity;
-  const maxDistance = 2; // Maximum allowed distance for a match
-
-  for (const option of options) {
-    const distance = levenshteinDistance(normalizedInput, option.toLowerCase());
-    if (distance < minDistance && distance <= maxDistance) {
-      minDistance = distance;
-      bestMatch = option;
-    }
-  }
-
-  return bestMatch;
-}
-
 export async function POST(req: Request) {
   try {
     const { message } = await req.json()
-    const lowerMessage = message.toLowerCase()
-
-    // Check if it's a general bachata question with typo tolerance
-    const bachataTopics = Object.keys(BACHATA_KNOWLEDGE) as BachataKnowledgeKey[];
-    const closestTopic = findClosestMatch(lowerMessage, bachataTopics);
+    const { date, location } = parseUserQuery(message)
+    const searchResults = await searchCalendarEvents(date, location)
     
-    if (closestTopic) {
-      return NextResponse.json({ message: BACHATA_KNOWLEDGE[closestTopic] })
-    }
-
-    // Check if it's an event-related question with typo tolerance
-    const eventKeywords = [
-      'event', 'when', 'where', 'schedule', 'upcoming', 'next', 
-      'today', 'tomorrow', 'weekend', 'dance', 'party', 'social',
-      'class', 'workshop', 'practice', 'lesson'
-    ];
-    const hasEventKeyword = eventKeywords.some(keyword => {
-      const distance = levenshteinDistance(lowerMessage, keyword);
-      return distance <= 2; // Allow for typos in keywords
-    });
-
-    if (hasEventKeyword) {
-      try {
-        const { date, location, isDanceRelated } = parseUserQuery(message)
-        const searchResults = await searchCalendarEvents(date, location)
-        
-        if (searchResults.length > 0) {
-          // Format the response based on the type of question
-          let responseMessage = "I found these events that might interest you:";
-          
-          if (isDanceRelated) {
-            responseMessage = "Here are some dance events you might be interested in:";
-          } else if (location) {
-            responseMessage = `Here are events in ${location}:`;
-          } else if (date && date !== 'today') {
-            responseMessage = `Here are events for ${date}:`;
-          }
-
-          return NextResponse.json({ 
-            message: responseMessage,
-            events: searchResults
-          })
-        } else {
-          let noResultsMessage = "I couldn't find any events matching your query.";
-          
-          if (location) {
-            noResultsMessage += ` Try checking our events page for activities in ${location}.`;
-          } else if (date && date !== 'today') {
-            noResultsMessage += ` Try checking our events page for activities on ${date}.`;
-          } else {
-            noResultsMessage += " You can check our events page for more information.";
-          }
-
-          return NextResponse.json({ 
-            message: noResultsMessage
-          })
-        }
-      } catch (error) {
-        console.error('Calendar error:', error)
-        return NextResponse.json({ 
-          message: "I'm having trouble accessing the calendar right now. Please try again later or check our events page directly."
-        })
+    if (searchResults.length > 0) {
+      let responseMessage = "I found these events:";
+      
+      if (location) {
+        responseMessage = `Here are events in ${location}:`;
+      } else if (date && date !== 'today') {
+        responseMessage = `Here are events for ${date}:`;
       }
-    }
 
-    // Check for general inquiry keywords
-    const inquiryKeywords = ['contact', 'submit', 'add', 'register', 'join', 'help', 'question', 'inquiry'];
-    const hasInquiryKeyword = inquiryKeywords.some(keyword => {
-      const distance = levenshteinDistance(lowerMessage, keyword);
-      return distance <= 2; // Allow for typos in keywords
-    });
-
-    if (hasInquiryKeyword) {
       return NextResponse.json({ 
-        message: "I can help you with that! We have several forms available:\n\n" +
-                "1. Contact Us form - for general inquiries\n" +
-                "2. Submit School form - to add your school\n" +
-                "3. Submit Event form - to add your event\n" +
-                "4. Submit Teacher form - to add yourself or another teacher\n\n" +
-                "Please visit the appropriate section of our website to access these forms. If you have a specific question about bachata dance, music, or events, feel free to ask!"
+        message: responseMessage,
+        events: searchResults
+      })
+    } else {
+      let noResultsMessage = "I couldn't find any events matching your query.";
+      
+      if (location) {
+        noResultsMessage += ` Try checking our events page for activities in ${location}.`;
+      } else if (date && date !== 'today') {
+        noResultsMessage += ` Try checking our events page for activities on ${date}.`;
+      } else {
+        noResultsMessage += " You can check our events page for more information.";
+      }
+
+      return NextResponse.json({ 
+        message: noResultsMessage
       })
     }
-
-    // Default response for unrecognized questions
-    return NextResponse.json({ 
-      message: "I can help you with information about bachata dance, music, and events. Try asking about bachata basics, styles, or upcoming events! If you have other inquiries, you can use our Contact Us form or submit your school, event, or teacher information through our submission forms."
-    })
-
   } catch (error) {
-    console.error('Chat error:', error)
-    return NextResponse.json(
-      { error: 'Failed to process your request' },
-      { status: 500 }
-    )
+    console.error('Calendar error:', error)
+    return NextResponse.json({ 
+      message: "I'm having trouble accessing the calendar right now. Please try again later or check our events page directly."
+    })
   }
 } 
