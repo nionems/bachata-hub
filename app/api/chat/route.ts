@@ -483,9 +483,9 @@ function levenshteinDistance(a: string, b: string): number {
 }
 
 // Function to find closest match with typo tolerance
-function findClosestMatch(input: string, options: string[]): string | null {
+function findClosestMatch(input: string, options: BachataKnowledgeKey[]): BachataKnowledgeKey | null {
   const normalizedInput = input.toLowerCase();
-  let bestMatch: string | null = null;
+  let bestMatch: BachataKnowledgeKey | null = null;
   let minDistance = Infinity;
   const maxDistance = 2; // Maximum allowed distance for a match
 
