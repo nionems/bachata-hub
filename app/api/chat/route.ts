@@ -188,18 +188,21 @@ async function handleTransportQuestion(message: string) {
 // Function to extract date and location from user message
 function parseUserQuery(message: string) {
   const dateRegex = /(\d{1,2}(?:st|nd|rd|th)?\s+(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*\s+\d{4})/i
-  const locationRegex = /(?:in|at|near)\s+([A-Za-z\s,]+)/i
-  const timeRegex = /(tonight|today|tomorrow|weekend)/i
+  const locationRegex = /(?:in|at|near|around)\s+([A-Za-z\s,]+)/i
+  const timeRegex = /(tonight|today|tomorrow|weekend|this week|next week)/i
   const dayRegex = /\b(monday|tuesday|wednesday|thursday|friday|saturday|sunday)\b/i
+  const danceRegex = /(?:dance|party|social|class|workshop)/i
 
   const dateMatch = message.match(dateRegex)
   const locationMatch = message.match(locationRegex)
   const timeMatch = message.match(timeRegex)
   const dayMatch = message.match(dayRegex)
+  const hasDanceKeyword = danceRegex.test(message)
 
   return {
     date: dateMatch ? dateMatch[1] : (timeMatch ? timeMatch[1] : (dayMatch ? dayMatch[1] : 'today')),
-    location: locationMatch ? locationMatch[1].trim() : null
+    location: locationMatch ? locationMatch[1].trim() : null,
+    isDanceRelated: hasDanceKeyword
   }
 }
 
@@ -514,7 +517,11 @@ export async function POST(req: Request) {
     }
 
     // Check if it's an event-related question with typo tolerance
-    const eventKeywords = ['event', 'when', 'where', 'schedule', 'upcoming', 'next', 'today', 'tomorrow', 'weekend'];
+    const eventKeywords = [
+      'event', 'when', 'where', 'schedule', 'upcoming', 'next', 
+      'today', 'tomorrow', 'weekend', 'dance', 'party', 'social',
+      'class', 'workshop', 'practice', 'lesson'
+    ];
     const hasEventKeyword = eventKeywords.some(keyword => {
       const distance = levenshteinDistance(lowerMessage, keyword);
       return distance <= 2; // Allow for typos in keywords
@@ -522,17 +529,38 @@ export async function POST(req: Request) {
 
     if (hasEventKeyword) {
       try {
-        const { date, location } = parseUserQuery(message)
+        const { date, location, isDanceRelated } = parseUserQuery(message)
         const searchResults = await searchCalendarEvents(date, location)
         
         if (searchResults.length > 0) {
+          // Format the response based on the type of question
+          let responseMessage = "I found these events that might interest you:";
+          
+          if (isDanceRelated) {
+            responseMessage = "Here are some dance events you might be interested in:";
+          } else if (location) {
+            responseMessage = `Here are events in ${location}:`;
+          } else if (date && date !== 'today') {
+            responseMessage = `Here are events for ${date}:`;
+          }
+
           return NextResponse.json({ 
-            message: "I found these events that might interest you:",
+            message: responseMessage,
             events: searchResults
           })
         } else {
+          let noResultsMessage = "I couldn't find any events matching your query.";
+          
+          if (location) {
+            noResultsMessage += ` Try checking our events page for activities in ${location}.`;
+          } else if (date && date !== 'today') {
+            noResultsMessage += ` Try checking our events page for activities on ${date}.`;
+          } else {
+            noResultsMessage += " You can check our events page for more information.";
+          }
+
           return NextResponse.json({ 
-            message: "I couldn't find any events matching your query. You can check our events page for more information."
+            message: noResultsMessage
           })
         }
       } catch (error) {
