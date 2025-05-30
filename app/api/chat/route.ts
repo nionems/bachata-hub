@@ -1,7 +1,5 @@
 import { NextResponse } from 'next/server'
 import { google } from 'googleapis'
-import { getCalendarEvents } from '@/lib/calendar'
-import { searchEvents } from '@/lib/events'
 
 // Map of cities to their calendar IDs
 const cityCalendarMap = {
@@ -418,88 +416,6 @@ async function searchCalendarEvents(date: string | null, location: string | null
     }
     return []
   }
-}
-
-// Function to generate response message
-function generateResponse(events: any[], date: string | null, location: string | null) {
-  if (events.length === 0) {
-    let message = "I couldn't find any Bachata events"
-    if (date) message += ` ${date}`
-    if (location) message += ` in ${location}`
-    message += ". Would you like to try a different date or location?"
-    return message
-  }
-
-  let message = `I found ${events.length} Bachata event${events.length > 1 ? 's' : ''}`
-  if (date) message += ` ${date}`
-  if (location) message += ` in ${location}`
-  message += ":\n\n"
-
-  // Add event details in a cleaner format
-  events.forEach((event, index) => {
-    message += `${index + 1}. ${event.summary}\n`
-    message += `   📅 ${event.formattedStart} - ${event.formattedEnd}\n`
-    if (event.location) message += `   📍 ${event.location}\n`
-    if (event.attachments?.[0]?.fileUrl) {
-      message += `   🖼️ ${event.attachments[0].fileUrl}\n`
-    }
-    message += '\n'
-  })
-
-  return message
-}
-
-// Function to handle Bachata-related questions
-function handleBachataQuestion(message: string) {
-  const lowerMessage = message.toLowerCase()
-  
-  // Check for style-specific questions
-  for (const [style, info] of Object.entries(bachataKnowledge.styles)) {
-    if (lowerMessage.includes(style)) {
-      return {
-        type: 'bachata_style',
-        response: `${info.description}\n\nKey characteristics:\n${info.characteristics.map(c => `• ${c}`).join('\n')}\n\nOrigin: ${info.origin}`
-      }
-    }
-  }
-  
-  // Check for general Bachata questions
-  for (const [topic, answer] of Object.entries(bachataKnowledge.general)) {
-    if (lowerMessage.includes(topic)) {
-      return {
-        type: 'bachata_general',
-        response: answer
-      }
-    }
-  }
-  
-  // Handle "what is" questions about Bachata
-  if (lowerMessage.includes('what is bachata') || lowerMessage.includes('tell me about bachata')) {
-    return {
-      type: 'bachata_general',
-      response: bachataKnowledge.general['what is bachata']
-    }
-  }
-  
-  // Handle style comparison questions
-  if (lowerMessage.includes('difference between') && lowerMessage.includes('bachata')) {
-    const styles = Object.keys(bachataKnowledge.styles) as BachataStyle[];
-    const mentionedStyles = styles.filter(style => lowerMessage.includes(style));
-    
-    if (mentionedStyles.length >= 2) {
-      const style1 = bachataKnowledge.styles[mentionedStyles[0]];
-      const style2 = bachataKnowledge.styles[mentionedStyles[1]];
-      
-      return {
-        type: 'bachata_comparison',
-        response: `Here are the key differences between ${mentionedStyles[0]} and ${mentionedStyles[1]} Bachata:\n\n` +
-          `${mentionedStyles[0].toUpperCase()}:\n${style1.characteristics.map(c => `• ${c}`).join('\n')}\n\n` +
-          `${mentionedStyles[1].toUpperCase()}:\n${style2.characteristics.map(c => `• ${c}`).join('\n')}`
-      }
-    }
-  }
-  
-  return null
 }
 
 export async function POST(req: Request) {
