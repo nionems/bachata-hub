@@ -30,8 +30,30 @@ const cityTimezones = {
 // Initialize Google Calendar API
 const calendar = google.calendar({ version: 'v3' })
 
+// Define the type for bachata knowledge entries
+type BachataKnowledgeKey = 
+  | "what is bachata"
+  | "how to dance bachata"
+  | "bachata styles"
+  | "bachata music"
+  | "bachata history"
+  | "bachata vs salsa"
+  | "bachata basic steps"
+  | "bachata music artists"
+  | "bachata competitions"
+  | "bachata festivals"
+  | "who developed this app"
+  | "who made this website"
+  | "who created this app"
+  | "contact us"
+  | "submit school"
+  | "submit event"
+  | "submit teacher"
+  | "how to contact"
+  | "how to submit";
+
 // Bachata knowledge base
-const BACHATA_KNOWLEDGE = {
+const BACHATA_KNOWLEDGE: Record<BachataKnowledgeKey, string> = {
   "what is bachata": "Bachata is a genre of Latin American music that originated in the Dominican Republic in the early 20th century. It's characterized by its romantic lyrics and distinctive guitar sound. The dance form of bachata is a social dance that's danced in pairs, featuring a basic step pattern and sensual hip movements.",
   
   "how to dance bachata": "Bachata is danced in a 4-beat pattern. The basic step involves:\n1. Step to the side with your left foot\n2. Bring your right foot to meet your left\n3. Step to the side with your left foot\n4. Tap your right foot\n\nThe dance includes hip movements and can be danced in open or closed position. It's recommended to take classes from a qualified instructor to learn proper technique.",
@@ -69,7 +91,7 @@ const BACHATA_KNOWLEDGE = {
   "how to contact": "You can contact us through our Contact Us form on the Contact page. We're here to help with any questions or suggestions you might have.",
 
   "how to submit": "We have several submission forms available:\n- Submit School form in the Schools section\n- Submit Event form in the Events section\n- Submit Teacher form in the Instructors section\nChoose the appropriate form based on what you'd like to submit."
-}
+};
 
 // Function to check if credentials are valid
 async function checkCredentials() {
@@ -484,7 +506,7 @@ export async function POST(req: Request) {
     const lowerMessage = message.toLowerCase()
 
     // Check if it's a general bachata question with typo tolerance
-    const bachataTopics = Object.keys(BACHATA_KNOWLEDGE);
+    const bachataTopics = Object.keys(BACHATA_KNOWLEDGE) as BachataKnowledgeKey[];
     const closestTopic = findClosestMatch(lowerMessage, bachataTopics);
     
     if (closestTopic) {
