@@ -50,7 +50,25 @@ const BACHATA_KNOWLEDGE = {
   
   "bachata competitions": "Bachata competitions typically feature categories like:\n- Professional couples\n- Amateur couples\n- Teams\n- Solo\n\nCompetitions often have different divisions for various bachata styles (Traditional, Modern, Sensual).",
   
-  "bachata festivals": "Bachata festivals are events that typically include:\n- Workshops with international instructors\n- Social dancing\n- Performances\n- Competitions\n- Parties\n\nThey're great opportunities to learn, dance, and connect with the bachata community."
+  "bachata festivals": "Bachata festivals are events that typically include:\n- Workshops with international instructors\n- Social dancing\n- Performances\n- Competitions\n- Parties\n\nThey're great opportunities to learn, dance, and connect with the bachata community.",
+
+  "who developed this app": "This app was developed by Lionel C. It's designed to help the bachata community find events, connect with instructors, and learn more about bachata dance and music.",
+
+  "who made this website": "This website was created by Lionel C. It's a platform dedicated to bringing together the bachata community and providing easy access to bachata-related information and events.",
+
+  "who created this app": "This app was created by Lionel C. It's built to serve the bachata community by making it easier to discover events, connect with instructors, and learn about bachata dance and music.",
+
+  "contact us": "For any inquiries, you can reach out to us through our Contact Us form. Just visit the Contact page and fill out the form with your message. We'll get back to you as soon as possible.",
+
+  "submit school": "To submit your school to our directory, please use our Submit School form. You can find it in the Schools section. This will help other dancers discover your school and its offerings.",
+
+  "submit event": "To submit your event to our calendar, please use our Submit Event form. You can find it in the Events section. This will help promote your event to the bachata community.",
+
+  "submit teacher": "To submit yourself or another teacher to our directory, please use our Submit Teacher form. You can find it in the Instructors section. This will help connect teachers with students.",
+
+  "how to contact": "You can contact us through our Contact Us form on the Contact page. We're here to help with any questions or suggestions you might have.",
+
+  "how to submit": "We have several submission forms available:\n- Submit School form in the Schools section\n- Submit Event form in the Events section\n- Submit Teacher form in the Instructors section\nChoose the appropriate form based on what you'd like to submit."
 }
 
 // Function to check if credentials are valid
@@ -418,20 +436,69 @@ async function searchCalendarEvents(date: string | null, location: string | null
   }
 }
 
+// Function to calculate Levenshtein distance for typo tolerance
+function levenshteinDistance(a: string, b: string): number {
+  if (a.length === 0) return b.length;
+  if (b.length === 0) return a.length;
+
+  const matrix = Array(b.length + 1).fill(null).map(() => Array(a.length + 1).fill(null));
+
+  for (let i = 0; i <= a.length; i++) matrix[0][i] = i;
+  for (let j = 0; j <= b.length; j++) matrix[j][0] = j;
+
+  for (let j = 1; j <= b.length; j++) {
+    for (let i = 1; i <= a.length; i++) {
+      const substitutionCost = a[i - 1] === b[j - 1] ? 0 : 1;
+      matrix[j][i] = Math.min(
+        matrix[j][i - 1] + 1, // deletion
+        matrix[j - 1][i] + 1, // insertion
+        matrix[j - 1][i - 1] + substitutionCost // substitution
+      );
+    }
+  }
+
+  return matrix[b.length][a.length];
+}
+
+// Function to find closest match with typo tolerance
+function findClosestMatch(input: string, options: string[]): string | null {
+  const normalizedInput = input.toLowerCase();
+  let bestMatch: string | null = null;
+  let minDistance = Infinity;
+  const maxDistance = 2; // Maximum allowed distance for a match
+
+  for (const option of options) {
+    const distance = levenshteinDistance(normalizedInput, option.toLowerCase());
+    if (distance < minDistance && distance <= maxDistance) {
+      minDistance = distance;
+      bestMatch = option;
+    }
+  }
+
+  return bestMatch;
+}
+
 export async function POST(req: Request) {
   try {
     const { message } = await req.json()
     const lowerMessage = message.toLowerCase()
 
-    // Check if it's a general bachata question
-    for (const [key, value] of Object.entries(BACHATA_KNOWLEDGE)) {
-      if (lowerMessage.includes(key)) {
-        return NextResponse.json({ message: value })
-      }
+    // Check if it's a general bachata question with typo tolerance
+    const bachataTopics = Object.keys(BACHATA_KNOWLEDGE);
+    const closestTopic = findClosestMatch(lowerMessage, bachataTopics);
+    
+    if (closestTopic) {
+      return NextResponse.json({ message: BACHATA_KNOWLEDGE[closestTopic] })
     }
 
-    // Check if it's an event-related question
-    if (lowerMessage.includes('event') || lowerMessage.includes('when') || lowerMessage.includes('where') || lowerMessage.includes('schedule')) {
+    // Check if it's an event-related question with typo tolerance
+    const eventKeywords = ['event', 'when', 'where', 'schedule', 'upcoming', 'next', 'today', 'tomorrow', 'weekend'];
+    const hasEventKeyword = eventKeywords.some(keyword => {
+      const distance = levenshteinDistance(lowerMessage, keyword);
+      return distance <= 2; // Allow for typos in keywords
+    });
+
+    if (hasEventKeyword) {
       try {
         const { date, location } = parseUserQuery(message)
         const searchResults = await searchCalendarEvents(date, location)
@@ -454,9 +521,27 @@ export async function POST(req: Request) {
       }
     }
 
+    // Check for general inquiry keywords
+    const inquiryKeywords = ['contact', 'submit', 'add', 'register', 'join', 'help', 'question', 'inquiry'];
+    const hasInquiryKeyword = inquiryKeywords.some(keyword => {
+      const distance = levenshteinDistance(lowerMessage, keyword);
+      return distance <= 2; // Allow for typos in keywords
+    });
+
+    if (hasInquiryKeyword) {
+      return NextResponse.json({ 
+        message: "I can help you with that! We have several forms available:\n\n" +
+                "1. Contact Us form - for general inquiries\n" +
+                "2. Submit School form - to add your school\n" +
+                "3. Submit Event form - to add your event\n" +
+                "4. Submit Teacher form - to add yourself or another teacher\n\n" +
+                "Please visit the appropriate section of our website to access these forms. If you have a specific question about bachata dance, music, or events, feel free to ask!"
+      })
+    }
+
     // Default response for unrecognized questions
     return NextResponse.json({ 
-      message: "I can help you with information about bachata dance, music, and events. Try asking about bachata basics, styles, or upcoming events!"
+      message: "I can help you with information about bachata dance, music, and events. Try asking about bachata basics, styles, or upcoming events! If you have other inquiries, you can use our Contact Us form or submit your school, event, or teacher information through our submission forms."
     })
 
   } catch (error) {
