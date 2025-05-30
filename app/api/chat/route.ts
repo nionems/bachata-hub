@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server'
 import { google } from 'googleapis'
+import { getCalendarEvents } from '@/lib/calendar'
+import { searchEvents } from '@/lib/events'
 
 // Map of cities to their calendar IDs
 const cityCalendarMap = {
@@ -31,64 +33,27 @@ const cityTimezones = {
 const calendar = google.calendar({ version: 'v3' })
 
 // Bachata knowledge base
-const bachataKnowledge = {
-  styles: {
-    'sensual': {
-      description: 'Bachata Sensual is a modern style that emerged in Spain. It emphasizes body movement, body waves, and close connection between partners. It often includes dips, body isolations, and musicality elements.',
-      characteristics: [
-        'Body waves and isolations',
-        'Close connection with partner',
-        'Dramatic dips and drops',
-        'Musical interpretation',
-        'Fluid movements'
-      ],
-      origin: 'Developed in Spain in the early 2000s by Korke and Judith'
-    },
-    'moderna': {
-      description: 'Bachata Moderna is a contemporary style that combines traditional Bachata with elements from other dance styles. It features more complex turn patterns and footwork while maintaining the basic Bachata rhythm.',
-      characteristics: [
-        'Complex turn patterns',
-        'Modern footwork variations',
-        'Fusion with other dance styles',
-        'Maintains basic Bachata rhythm',
-        'More open position variations'
-      ],
-      origin: 'Evolved from traditional Bachata with modern dance influences'
-    },
-    'traditional': {
-      description: 'Traditional Bachata is the original style from the Dominican Republic. It features simple, close-position dancing with basic steps and minimal turns, focusing on the connection and the music.',
-      characteristics: [
-        'Basic step pattern',
-        'Close position dancing',
-        'Simple turn patterns',
-        'Focus on musicality',
-        'Authentic Dominican style'
-      ],
-      origin: 'Originated in the Dominican Republic in the 1960s'
-    },
-    'urban': {
-      description: 'Bachata Urban is a fusion style that incorporates elements of hip-hop and urban dance. It features more street-style movements and often includes body isolations and urban dance patterns.',
-      characteristics: [
-        'Hip-hop influences',
-        'Street-style movements',
-        'Body isolations',
-        'Urban dance patterns',
-        'Modern music interpretation'
-      ],
-      origin: 'Developed as a fusion of Bachata with urban dance styles'
-    }
-  } as const,
-  general: {
-    'what is bachata': 'Bachata is a genre of Latin American music and dance that originated in the Dominican Republic. It features a distinctive rhythm and is danced in pairs with a close connection between partners.',
-    'history': 'Bachata originated in the Dominican Republic in the 1960s. It evolved from bolero and other Latin American musical styles. Initially considered music of the lower class, it gained international popularity in the 1990s and has since evolved into various styles.',
-    'basic steps': 'The basic Bachata step consists of three steps to the side and a tap, or three steps forward and a tap, followed by three steps backward and a tap. The basic rhythm is counted as 1-2-3-tap.',
-    'music': 'Bachata music is characterized by its distinctive rhythm, typically played with guitars, bongos, and bass. Modern Bachata often incorporates elements from other genres like pop, R&B, and electronic music.',
-    'benefits': 'Dancing Bachata offers numerous benefits including improved coordination, cardiovascular fitness, social interaction, stress relief, and cultural appreciation. It\'s also a great way to meet new people and have fun!'
-  }
+const BACHATA_KNOWLEDGE = {
+  "what is bachata": "Bachata is a genre of Latin American music that originated in the Dominican Republic in the early 20th century. It's characterized by its romantic lyrics and distinctive guitar sound. The dance form of bachata is a social dance that's danced in pairs, featuring a basic step pattern and sensual hip movements.",
+  
+  "how to dance bachata": "Bachata is danced in a 4-beat pattern. The basic step involves:\n1. Step to the side with your left foot\n2. Bring your right foot to meet your left\n3. Step to the side with your left foot\n4. Tap your right foot\n\nThe dance includes hip movements and can be danced in open or closed position. It's recommended to take classes from a qualified instructor to learn proper technique.",
+  
+  "bachata styles": "There are several styles of bachata:\n1. Traditional/Dominican - Closer to the original style with more footwork\n2. Modern - Incorporates elements from other dance styles\n3. Sensual - Focuses on body movement and connection\n4. Urban - Mixes bachata with urban dance elements",
+  
+  "bachata music": "Bachata music typically features:\n- Lead guitar (requinto)\n- Rhythm guitar\n- Bass guitar\n- Bongos\n- Güira (metal scraper)\n\nModern bachata often incorporates elements from pop, R&B, and other genres.",
+  
+  "bachata history": "Bachata originated in the Dominican Republic in the early 20th century. It was initially considered music of the lower class and was often associated with bars and brothels. In the 1990s, bachata gained international popularity and became more mainstream. Today, it's one of the most popular Latin dance styles worldwide.",
+  
+  "bachata vs salsa": "Key differences between bachata and salsa:\n- Bachata is danced in 4/4 time, while salsa is in 4/4 with a different rhythm pattern\n- Bachata is generally slower and more sensual\n- Bachata has simpler basic steps compared to salsa\n- Bachata music typically has a more romantic feel",
+  
+  "bachata basic steps": "The basic bachata step pattern is:\n1. Step to the side with your left foot\n2. Bring your right foot to meet your left\n3. Step to the side with your left foot\n4. Tap your right foot\n\nThis pattern is repeated in the opposite direction, starting with the right foot.",
+  
+  "bachata music artists": "Popular bachata artists include:\n- Romeo Santos\n- Aventura\n- Prince Royce\n- Juan Luis Guerra\n- Monchy & Alexandra\n- Xtreme\n- Toby Love",
+  
+  "bachata competitions": "Bachata competitions typically feature categories like:\n- Professional couples\n- Amateur couples\n- Teams\n- Solo\n\nCompetitions often have different divisions for various bachata styles (Traditional, Modern, Sensual).",
+  
+  "bachata festivals": "Bachata festivals are events that typically include:\n- Workshops with international instructors\n- Social dancing\n- Performances\n- Competitions\n- Parties\n\nThey're great opportunities to learn, dance, and connect with the bachata community."
 }
-
-// Type for valid bachata styles
-type BachataStyle = keyof typeof bachataKnowledge.styles;
 
 // Function to check if credentials are valid
 async function checkCredentials() {
@@ -312,7 +277,7 @@ function parseDateTimeExpression(expression: string | null, location: string | n
 }
 
 // Function to search for events
-async function searchEvents(date: string | null, location: string | null) {
+async function searchCalendarEvents(date: string | null, location: string | null) {
   try {
     console.log('Starting event search...')
     
@@ -443,7 +408,7 @@ async function searchEvents(date: string | null, location: string | null) {
 
     return allEvents;
   } catch (error) {
-    console.error('Error in searchEvents:', error)
+    console.error('Error in searchCalendarEvents:', error)
     if (error instanceof Error) {
       console.error('Error details:', {
         message: error.message,
@@ -537,73 +502,51 @@ function handleBachataQuestion(message: string) {
   return null
 }
 
-export async function POST(request: Request) {
+export async function POST(req: Request) {
   try {
-    console.log('Received chat request')
-    
-    const { message } = await request.json()
-    console.log('User message:', message)
-    
-    // Check for Bachata questions first
-    const bachataResponse = handleBachataQuestion(message)
-    if (bachataResponse) {
-      return NextResponse.json({
-        message: bachataResponse.response,
-        type: bachataResponse.type
-      })
-    }
-    
-    // Check for general questions
-    const timeDateResponse = handleTimeDateQuestion(message)
-    if (timeDateResponse) {
-      return NextResponse.json({
-        message: timeDateResponse.response,
-        type: timeDateResponse.type
-      })
-    }
-    
-    const weatherResponse = await handleWeatherQuestion(message)
-    if (weatherResponse) {
-      return NextResponse.json({
-        message: weatherResponse.response,
-        type: weatherResponse.type
-      })
-    }
-    
-    const transportResponse = await handleTransportQuestion(message)
-    if (transportResponse) {
-      return NextResponse.json({
-        message: transportResponse.response,
-        type: transportResponse.type
-      })
-    }
-    
-    // If no general questions matched, proceed with event search
-    const { date, location } = parseUserQuery(message)
-    console.log('Parsed query:', { date, location })
-    
-    const events = await searchEvents(date, location)
-    console.log('Search results:', { eventsCount: events.length })
-    
-    const responseMessage = generateResponse(events, date, location)
-    console.log('Generated response:', responseMessage)
+    const { message } = await req.json()
+    const lowerMessage = message.toLowerCase()
 
-    return NextResponse.json({
-      message: responseMessage,
-      events: events,
-      type: 'events'
-    })
-  } catch (error) {
-    console.error('Error processing chat request:', error)
-    if (error instanceof Error) {
-      console.error('Error details:', {
-        message: error.message,
-        name: error.name,
-        stack: error.stack
-      })
+    // Check if it's a general bachata question
+    for (const [key, value] of Object.entries(BACHATA_KNOWLEDGE)) {
+      if (lowerMessage.includes(key)) {
+        return NextResponse.json({ message: value })
+      }
     }
+
+    // Check if it's an event-related question
+    if (lowerMessage.includes('event') || lowerMessage.includes('when') || lowerMessage.includes('where') || lowerMessage.includes('schedule')) {
+      try {
+        const { date, location } = parseUserQuery(message)
+        const searchResults = await searchCalendarEvents(date, location)
+        
+        if (searchResults.length > 0) {
+          return NextResponse.json({ 
+            message: "I found these events that might interest you:",
+            events: searchResults
+          })
+        } else {
+          return NextResponse.json({ 
+            message: "I couldn't find any events matching your query. You can check our events page for more information."
+          })
+        }
+      } catch (error) {
+        console.error('Calendar error:', error)
+        return NextResponse.json({ 
+          message: "I'm having trouble accessing the calendar right now. Please try again later or check our events page directly."
+        })
+      }
+    }
+
+    // Default response for unrecognized questions
+    return NextResponse.json({ 
+      message: "I can help you with information about bachata dance, music, and events. Try asking about bachata basics, styles, or upcoming events!"
+    })
+
+  } catch (error) {
+    console.error('Chat error:', error)
     return NextResponse.json(
-      { error: error instanceof Error ? error.message : 'Failed to process request' },
+      { error: 'Failed to process your request' },
       { status: 500 }
     )
   }
