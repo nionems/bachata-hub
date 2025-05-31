@@ -137,7 +137,7 @@ export async function getWeekEvents(calendarId?: string, state?: string) {
     // Get the current date and end of week
     const now = new Date()
     const endOfWeek = new Date(now)
-    endOfWeek.setDate(now.getDate() + 7) // Get events for the next 7 days
+    endOfWeek.setDate(now.getDate() + 12) // Get events for the next 12 days
     endOfWeek.setHours(23, 59, 59, 999)
     console.log("End of week:", endOfWeek.toISOString())
 
