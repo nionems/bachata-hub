@@ -20,7 +20,7 @@ interface Shop {
   createdAt: string
   updatedAt: string
   discountCode: string
-  websiteLink: string
+  website: string
 }
 
 export default function EditShopPage({ params }: { params: { id: string } }) {
@@ -119,7 +119,7 @@ export default function EditShopPage({ params }: { params: { id: string } }) {
         comment: shop.comment,
         googleReviewLink: shop.googleReviewLink,
         imageUrl: imageUrl,
-        websiteLink: shop.websiteLink || '',
+        website: shop.website || '',
         discountCode: shop.discountCode || '',
         updatedAt: new Date().toISOString()
       }
@@ -137,7 +137,7 @@ export default function EditShopPage({ params }: { params: { id: string } }) {
         throw new Error(errorData.error || 'Failed to update shop')
       }
 
-      router.push('/admin/shops')
+      router.push('/admin/dashboard')
     } catch (error) {
       console.error('Error updating shop:', error)
       setError(error instanceof Error ? error.message : 'Failed to update shop')
@@ -234,9 +234,9 @@ export default function EditShopPage({ params }: { params: { id: string } }) {
             <label className="block text-sm font-medium mb-1">Website</label>
             <input
               type="url"
-              name="websiteLink"
-              value={shop.websiteLink || ''}
-              onChange={(e) => setShop({ ...shop, websiteLink: e.target.value })}
+              name="website"
+              value={shop.website || ''}
+              onChange={(e) => setShop({ ...shop, website: e.target.value })}
               className="w-full p-2 border rounded"
             />
           </div>
