@@ -45,9 +45,18 @@ export default function FestivalsPage() {
   const [error, setError] = useState<string | null>(null)
   const [isSubmissionFormOpen, setIsSubmissionFormOpen] = useState(false)
   const [isContactFormOpen, setIsContactFormOpen] = useState(false)
+  const [isImageModalOpen, setIsImageModalOpen] = useState(false)
   const [selectedImage, setSelectedImage] = useState<{ url: string; title: string } | null>(null)
   
   const { selectedState, setSelectedState, filteredItems: filteredFestivals } = useStateFilter(festivals, { useGeolocation: false })
+
+  const handleImageClick = (e: React.MouseEvent, imageUrl: string, title: string) => {
+    e.stopPropagation();
+    if (imageUrl) {
+      setSelectedImage({ url: imageUrl, title });
+      setIsImageModalOpen(true);
+    }
+  }
 
   useEffect(() => {
     const fetchFestivals = async () => {
@@ -199,11 +208,7 @@ export default function FestivalsPage() {
                     src={festival.imageUrl || '/placeholder-festival.jpg'}
                     alt={festival.name}
                     className="w-full h-full object-cover cursor-pointer"
-                    onClick={() => {
-                      if (festival.imageUrl) {
-                        setSelectedImage({ url: festival.imageUrl, title: festival.name })
-                      }
-                    }}
+                    onClick={(e) => handleImageClick(e, festival.imageUrl, festival.name)}
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
                   <div className="absolute bottom-0 left-0 right-0 p-4">
@@ -249,28 +254,20 @@ export default function FestivalsPage() {
                       </div>
                     )}
                   </div>
-                  <div className="mt-4 flex flex-wrap gap-2">
+                  <div className="mt-4 grid grid-cols-2 gap-2">
                     {festival.eventLink && (
-                      <Link href={festival.eventLink} target="_blank" rel="noopener noreferrer">
-                        <Button variant="outline" size="sm" className="w-full">
-                          <Info className="w-4 h-4 mr-2" />
-                          Event Details
+                      <Link href={festival.eventLink} target="_blank" rel="noopener noreferrer" className="w-full">
+                        <Button className="w-full bg-primary hover:bg-primary/90 text-white text-xs h-7 sm:h-8 flex items-center justify-center gap-2">
+                          <Info className="h-3 w-3 sm:h-4 sm:w-4" />
+                          <span>Event Details</span>
                         </Button>
                       </Link>
                     )}
                     {festival.ticketLink && (
-                      <Link href={festival.ticketLink} target="_blank" rel="noopener noreferrer">
-                        <Button variant="outline" size="sm" className="w-full">
-                          <Ticket className="w-4 h-4 mr-2" />
-                          Buy Tickets
-                        </Button>
-                      </Link>
-                    )}
-                    {festival.googleMapLink && (
-                      <Link href={festival.googleMapLink} target="_blank" rel="noopener noreferrer">
-                        <Button variant="outline" size="sm" className="w-full">
-                          <MapPin className="w-4 h-4 mr-2" />
-                          Get Directions
+                      <Link href={festival.ticketLink} target="_blank" rel="noopener noreferrer" className="w-full">
+                        <Button className="w-full bg-primary hover:bg-primary/90 text-white text-xs h-7 sm:h-8 flex items-center justify-center gap-2">
+                          <Ticket className="h-3 w-3 sm:h-4 sm:w-4" />
+                          <span>Buy Tickets</span>
                         </Button>
                       </Link>
                     )}
@@ -282,12 +279,31 @@ export default function FestivalsPage() {
         </div>
 
         {/* Image Modal */}
-        <ImageModal
-          isOpen={!!selectedImage}
-          onClose={() => setSelectedImage(null)}
-          imageUrl={selectedImage?.url || ''}
-          title={selectedImage?.title || ''}
-        />
+        {isImageModalOpen && selectedImage && (
+          <div 
+            className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4"
+            onClick={() => {
+              setIsImageModalOpen(false);
+              setSelectedImage(null);
+            }}
+          >
+            <button
+              className="absolute top-4 right-4 text-white hover:text-gray-300 transition-colors"
+              onClick={() => {
+                setIsImageModalOpen(false);
+                setSelectedImage(null);
+              }}
+            >
+              <X className="h-8 w-8" />
+            </button>
+            <img
+              src={selectedImage.url}
+              alt={selectedImage.title}
+              className="max-h-[90vh] max-w-[90vw] object-contain"
+              onClick={(e) => e.stopPropagation()}
+            />
+          </div>
+        )}
 
         {/* Submit Your Festival Card */}
         <div className="mt-8 sm:mt-16 bg-gradient-to-r from-primary to-secondary rounded-xl shadow-xl overflow-hidden">
