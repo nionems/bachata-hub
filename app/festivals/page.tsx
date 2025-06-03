@@ -36,6 +36,7 @@ interface Festival {
   date: string
   startTime: string
   endTime: string
+  time: string
 }
 
 export default function FestivalsPage() {
@@ -46,7 +47,7 @@ export default function FestivalsPage() {
   const [isContactFormOpen, setIsContactFormOpen] = useState(false)
   const [selectedImage, setSelectedImage] = useState<{ url: string; title: string } | null>(null)
   
-  const { selectedState, setSelectedState, filteredItems: filteredFestivals } = useStateFilter(festivals)
+  const { selectedState, setSelectedState, filteredItems: filteredFestivals } = useStateFilter(festivals, { useGeolocation: false })
 
   useEffect(() => {
     const fetchFestivals = async () => {
@@ -55,10 +56,30 @@ export default function FestivalsPage() {
       try {
         const festivalsCollection = collection(db, 'festivals')
         const festivalsSnapshot = await getDocs(festivalsCollection)
-        const festivalsList = festivalsSnapshot.docs.map(doc => ({
-          id: doc.id,
-          ...doc.data()
-        })) as Festival[]
+        const festivalsList = festivalsSnapshot.docs.map(doc => {
+          const data = doc.data()
+          return {
+            id: doc.id,
+            name: data.name || '',
+            startDate: data.startDate || '',
+            endDate: data.endDate || '',
+            location: data.location || '',
+            state: data.state || '',
+            address: data.address || '',
+            eventLink: data.eventLink || '',
+            price: data.price || '',
+            ticketLink: data.ticketLink || '',
+            danceStyles: data.danceStyles || '',
+            imageUrl: data.imageUrl || '',
+            comment: data.comment || '',
+            googleMapLink: data.googleMapLink || '',
+            festivalLink: data.festivalLink || '',
+            date: data.date || '',
+            startTime: data.startTime || '',
+            endTime: data.endTime || '',
+            time: data.time || `${data.startTime || ''} - ${data.endTime || ''}`
+          } as Festival
+        })
         
         // Sort festivals alphabetically by name
         const sortedFestivals = festivalsList.sort((a, b) => 
@@ -172,103 +193,87 @@ export default function FestivalsPage() {
             </div>
           ) : (
             filteredFestivals.map((festival) => (
-              <Card
-                key={festival.id}
-                className="relative overflow-hidden h-80 sm:h-96 text-white cursor-pointer"
-                onClick={() => festival.imageUrl && setSelectedImage({ url: festival.imageUrl, title: festival.name })}
-              >
-                {/* Full image background */}
-                <img
-                  src={festival.imageUrl}
-                  alt={festival.name}
-                  className="absolute inset-0 w-full h-full object-cover z-0"
-                />
-
-                {/* Dark overlay for readability */}
-                <div className="absolute inset-0 bg-black bg-opacity-40 z-10" />
-
-                {/* Bottom compact content */}
-                <div className="absolute bottom-0 left-0 right-0 z-20 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-3 sm:p-4">
-                  <h3 className="text-base sm:text-lg font-semibold">{festival.name}</h3>
-                  <div className="flex items-center gap-2 text-xs sm:text-sm text-gray-200 mt-1">
-                    <MapPin className="h-3 w-3 sm:h-4 sm:w-4" />
-                    {festival.location}
-                  </div>
-                  <div className="flex items-center gap-2 text-xs sm:text-sm mt-1">
-                    <Calendar className="h-3 w-3 sm:h-4 sm:w-4 text-green-300" />
-                    <span>{festival.date}</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-xs sm:text-sm mt-1">
-                    <Clock className="h-3 w-3 sm:h-4 sm:w-4 text-green-300" />
-                    <span>
-                      {festival.startTime && festival.endTime ? (
-                        <>
-                          {format(new Date(`2000-01-01T${festival.startTime}`), 'h:mm a')} –{' '}
-                          {format(new Date(`2000-01-01T${festival.endTime}`), 'h:mm a')}
-                        </>
-                      ) : (
-                        'Time TBA'
-                      )}
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-2 text-xs sm:text-sm mt-1">
-                    <Badge variant="price">Price: {festival.price}</Badge>
-                    {festival.comment && <span className="text-gray-300">{festival.comment}</span>}
-                  </div>
-                  <div className="flex flex-col gap-2 mt-2 sm:mt-3">
-                    {festival.ticketLink && (
-                      <Button
-                        className="w-full bg-primary hover:bg-primary/90 text-white text-xs h-7 sm:h-8 flex items-center justify-center gap-2"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          window.open(festival.ticketLink, '_blank');
-                        }}
-                      >
-                        <Ticket className="h-3 w-3 sm:h-4 sm:w-4" />
-                        <span>Tickets</span>
-                      </Button>
-                    )}
-                    <div className="flex gap-2">
-                      {festival.googleMapLink && (
-                        <Button
-                          variant="outline"
-                          className="flex-1 border-primary text-primary hover:bg-primary/10 text-xs h-7 sm:h-8 flex items-center justify-center gap-2"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            window.open(festival.googleMapLink, '_blank');
-                          }}
-                        >
-                          <MapPin className="h-3 w-3 sm:h-4 sm:w-4" />
-                          <span>Map</span>
-                        </Button>
-                      )}
-                      {festival.festivalLink && (
-                        <Button
-                          variant="outline"
-                          className="flex-1 border-primary text-primary hover:bg-primary/10 text-xs h-7 sm:h-8 flex items-center justify-center gap-2"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            window.open(festival.festivalLink, '_blank');
-                          }}
-                        >
-                          <ExternalLink className="h-3 w-3 sm:h-4 sm:w-4" />
-                          <span>Website</span>
-                        </Button>
-                      )}
-                      {festival.eventLink && (
-                        <Button
-                          variant="outline"
-                          className="flex-1 border-primary text-primary hover:bg-primary/10 text-xs h-7 sm:h-8 flex items-center justify-center gap-2"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            window.open(festival.eventLink, '_blank');
-                          }}
-                        >
-                          <ExternalLink className="h-3 w-3 sm:h-4 sm:w-4" />
-                          <span>Festival Link</span>
-                        </Button>
-                      )}
+              <Card key={festival.id} className="overflow-hidden bg-white shadow-lg hover:shadow-xl transition-shadow duration-300">
+                <div className="relative aspect-[16/9]">
+                  <img
+                    src={festival.imageUrl || '/placeholder-festival.jpg'}
+                    alt={festival.name}
+                    className="w-full h-full object-cover cursor-pointer"
+                    onClick={() => {
+                      if (festival.imageUrl) {
+                        setSelectedImage({ url: festival.imageUrl, title: festival.name })
+                      }
+                    }}
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+                  <div className="absolute bottom-0 left-0 right-0 p-4">
+                    <h3 className="text-base sm:text-lg font-semibold text-white line-clamp-1">{festival.name}</h3>
+                    <div className="flex items-center text-white/90 text-sm mt-1">
+                      <Calendar className="w-4 h-4 mr-1" />
+                      <span>
+                        {festival.startDate ? new Date(festival.startDate).toLocaleDateString("en-AU", {
+                          day: "numeric",
+                          month: "short",
+                          year: "numeric",
+                        }) : festival.date}{" "}
+                        {festival.endDate && festival.startDate ? (
+                          <>
+                            –{" "}
+                            {new Date(festival.endDate).toLocaleDateString("en-AU", {
+                              day: "numeric",
+                              month: "short",
+                              year: "numeric",
+                            })}
+                          </>
+                        ) : null}
+                      </span>
                     </div>
+                  </div>
+                </div>
+                <div className="p-4">
+                  <div className="space-y-2">
+                    <div className="flex items-center text-gray-600">
+                      <MapPin className="w-4 h-4 mr-2" />
+                      <span className="text-sm">{festival.location}, {festival.state}</span>
+                    </div>
+                    {festival.price && (
+                      <div className="flex items-center text-gray-600">
+                        <DollarSign className="w-4 h-4 mr-2" />
+                        <span className="text-sm">{festival.price}</span>
+                      </div>
+                    )}
+                    {festival.danceStyles && (
+                      <div className="flex items-center text-gray-600">
+                        <Users className="w-4 h-4 mr-2" />
+                        <span className="text-sm">{festival.danceStyles}</span>
+                      </div>
+                    )}
+                  </div>
+                  <div className="mt-4 flex flex-wrap gap-2">
+                    {festival.eventLink && (
+                      <Link href={festival.eventLink} target="_blank" rel="noopener noreferrer">
+                        <Button variant="outline" size="sm" className="w-full">
+                          <Info className="w-4 h-4 mr-2" />
+                          Event Details
+                        </Button>
+                      </Link>
+                    )}
+                    {festival.ticketLink && (
+                      <Link href={festival.ticketLink} target="_blank" rel="noopener noreferrer">
+                        <Button variant="outline" size="sm" className="w-full">
+                          <Ticket className="w-4 h-4 mr-2" />
+                          Buy Tickets
+                        </Button>
+                      </Link>
+                    )}
+                    {festival.googleMapLink && (
+                      <Link href={festival.googleMapLink} target="_blank" rel="noopener noreferrer">
+                        <Button variant="outline" size="sm" className="w-full">
+                          <MapPin className="w-4 h-4 mr-2" />
+                          Get Directions
+                        </Button>
+                      </Link>
+                    )}
                   </div>
                 </div>
               </Card>
@@ -277,25 +282,12 @@ export default function FestivalsPage() {
         </div>
 
         {/* Image Modal */}
-        {selectedImage && (
-          <div 
-            className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4"
-            onClick={() => setSelectedImage(null)}
-          >
-            <button
-              className="absolute top-4 right-4 text-white hover:text-gray-300 transition-colors"
-              onClick={() => setSelectedImage(null)}
-            >
-              <X className="h-8 w-8" />
-            </button>
-            <img
-              src={selectedImage.url}
-              alt={selectedImage.title}
-              className="max-h-[90vh] max-w-[90vw] object-contain"
-              onClick={(e) => e.stopPropagation()}
-            />
-          </div>
-        )}
+        <ImageModal
+          isOpen={!!selectedImage}
+          onClose={() => setSelectedImage(null)}
+          imageUrl={selectedImage?.url || ''}
+          title={selectedImage?.title || ''}
+        />
 
         {/* Submit Your Festival Card */}
         <div className="mt-8 sm:mt-16 bg-gradient-to-r from-primary to-secondary rounded-xl shadow-xl overflow-hidden">
