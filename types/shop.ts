@@ -5,7 +5,6 @@ export interface Shop {
   state: string
   address: string
   googleReviewLink: string
-  websiteLink: string
   imageUrl: string
   comment: string
   website: string

@@ -23,7 +23,6 @@ interface ShopFormData {
   comment: string
   googleReviewLink: string
   image: File | null
-  websiteLink: string
   discountCode: string
 }
 
@@ -46,7 +45,6 @@ export default function NewShopPage() {
     comment: '',
     googleReviewLink: '',
     image: null,
-    websiteLink: '',
     discountCode: ''
   })
 
@@ -122,7 +120,6 @@ export default function NewShopPage() {
         imageUrl: imageUrl,
         website: formData.website,
         contactInfo: `${formData.phone}${formData.email ? `, ${formData.email}` : ''}`,
-        websiteLink: formData.websiteLink,
         discountCode: formData.discountCode,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString()

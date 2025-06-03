@@ -81,8 +81,13 @@ export default function DJsPage() {
           }
         }) as DJ[]
         
-        console.log('Processed DJs list:', djsList)
-        setDJs(djsList)
+        // Sort DJs alphabetically by name
+        const sortedDJs = djsList.sort((a, b) => 
+          a.name.localeCompare(b.name)
+        )
+        
+        console.log('Processed DJs list:', sortedDJs)
+        setDJs(sortedDJs)
       } catch (err) {
         console.error('Error fetching DJs:', err)
         if (err instanceof Error) {

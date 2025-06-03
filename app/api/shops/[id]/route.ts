@@ -67,7 +67,7 @@ export async function PUT(
       comment,
       googleReviewLink,
       imageUrl,
-      websiteLink,
+      website,
       discountCode
     } = body
 
@@ -87,7 +87,7 @@ export async function PUT(
       comment,
       googleReviewLink,
       imageUrl,
-      websiteLink,
+      website,
       discountCode,
       updatedAt: new Date().toISOString(),
     })

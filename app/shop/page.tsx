@@ -24,7 +24,7 @@ export default function ShopsPage() {
   const [isSubmissionFormOpen, setIsSubmissionFormOpen] = useState(false)
   const [selectedImage, setSelectedImage] = useState<{ url: string; title: string } | null>(null)
 
-  const { selectedState, setSelectedState, filteredItems: filteredShops } = useStateFilter(shops)
+  const { selectedState, setSelectedState, filteredItems: filteredShops } = useStateFilter(shops, { useGeolocation: false })
 
   const states = [
     { value: 'all', label: 'All States' },

@@ -4,7 +4,7 @@ import { useState, useRef, useEffect } from 'react'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card } from "@/components/ui/card"
-import { MessageCircle, Send, Loader2 } from "lucide-react"
+import { MessageCircle, Send, Loader2, Bot } from "lucide-react"
 
 interface Message {
   role: 'user' | 'assistant'
@@ -94,8 +94,11 @@ export function AIAssistant() {
         <div className="fixed inset-0 md:inset-auto md:bottom-20 md:right-4 md:w-96 md:h-[600px] w-full h-[calc(100%-4rem)] bottom-16 bg-white shadow-xl flex flex-col z-[99]">
           {/* Header */}
           <div className="p-4 border-b flex justify-between items-center bg-primary text-white">
-            <div className="flex-1 text-center">
-              <h3 className="font-semibold text-2xl">Bachata Intelligence</h3>
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
+                <Bot className="w-5 h-5 text-primary" />
+              </div>
+              <h3 className="font-semibold text-2xl">Bachata AI</h3>
             </div>
             <Button
               variant="ghost"

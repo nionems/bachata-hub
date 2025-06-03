@@ -70,7 +70,7 @@ interface Shop {
   state: string;
   address: string;
   googleReviewLink: string;
-  websiteLink: string;
+  website: string;
   imageUrl: string;
   comment: string;
 }
@@ -1420,9 +1420,9 @@ export default function AdminDashboard() {
 
                         {/* Links */}
                         <div className="flex gap-4 mt-2">
-                          {shop.websiteLink && (
+                          {shop.website && (
                             <a
-                              href={shop.websiteLink}
+                              href={shop.website}
                               target="_blank"
                               rel="noopener noreferrer"
                               className="text-blue-600 hover:text-blue-700"

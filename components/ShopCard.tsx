@@ -29,7 +29,7 @@ export function ShopCard({ shop }: ShopCardProps) {
       </div>
 
       <div className="absolute bottom-0 left-0 right-0 z-20 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-3 sm:p-4">
-        <h3 className="text-base sm:text-lg font-semibold text-primary line-clamp-1">{shop.name}</h3>
+        <h3 className="text-base sm:text-lg font-semibold text-white line-clamp-1">{shop.name}</h3>
         <div className="flex items-center gap-2 text-xs sm:text-sm text-gray-200 mt-1">
           <MapPin className="h-3 w-3 sm:h-4 sm:w-4" />
           <span className="line-clamp-1">{shop.location}</span>
