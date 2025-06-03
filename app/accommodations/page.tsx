@@ -33,7 +33,7 @@ export default function AccommodationsPage() {
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   
-  const { selectedState, setSelectedState, filteredItems: filteredAccommodations } = useStateFilter(accommodations)
+  const { selectedState, setSelectedState, filteredItems: filteredAccommodations } = useStateFilter(accommodations, { useGeolocation: true })
 
   useEffect(() => {
     const fetchAccommodations = async () => {

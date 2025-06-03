@@ -26,7 +26,7 @@ export default function InstructorsPage() {
   const [isSubmissionFormOpen, setIsSubmissionFormOpen] = useState(false)
   const [isContactFormOpen, setIsContactFormOpen] = useState(false)
   
-  const { selectedState, setSelectedState, filteredItems: filteredInstructors, isGeoLoading } = useStateFilter(instructors)
+  const { selectedState, setSelectedState, filteredItems: filteredInstructors, isGeoLoading } = useStateFilter(instructors, { useGeolocation: true })
 
   useEffect(() => {
     const fetchInstructors = async () => {

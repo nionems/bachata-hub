@@ -113,7 +113,7 @@ export default function Home() {
   const [isImageModalOpen, setIsImageModalOpen] = useState(false)
   const [selectedImage, setSelectedImage] = useState<{ url: string; title: string } | null>(null)
 
-  const { selectedState, setSelectedState, filteredItems: filteredEvents, isGeoLoading, error: geoError } = useStateFilter(events)
+  const { selectedState, setSelectedState, filteredItems: filteredEvents, isGeoLoading, error: geoError } = useStateFilter(events, { useGeolocation: true })
 
   useEffect(() => {
     const fetchEvents = async () => {

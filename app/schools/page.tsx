@@ -38,7 +38,7 @@ export default function SchoolsPage() {
   const [isContactFormOpen, setIsContactFormOpen] = useState(false)
   const [searchTerm, setSearchTerm] = useState("")
   
-  const { selectedState, setSelectedState, filteredItems: filteredSchools, isGeoLoading } = useStateFilter(schools)
+  const { selectedState, setSelectedState, filteredItems: filteredSchools, isGeoLoading } = useStateFilter(schools, { useGeolocation: true })
 
   // Filter schools based on search term
   const searchFilteredSchools = filteredSchools.filter(school =>

@@ -20,7 +20,7 @@ export default function CompetitionsPage() {
   const [error, setError] = useState<string | null>(null)
   const [expandedComments, setExpandedComments] = useState<Record<string, boolean>>({})
   
-  const { selectedState, setSelectedState, filteredItems: filteredCompetitions } = useStateFilter(competitions)
+  const { selectedState, setSelectedState, filteredItems: filteredCompetitions } = useStateFilter(competitions, { useGeolocation: false })
 
   const toggleComment = (id: string) => {
     setExpandedComments(prev => ({

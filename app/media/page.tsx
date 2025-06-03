@@ -19,7 +19,7 @@ export default function MediaPage() {
   const [isSubmissionFormOpen, setIsSubmissionFormOpen] = useState(false)
   const [isContactFormOpen, setIsContactFormOpen] = useState(false)
   
-  const { selectedState, setSelectedState, filteredItems: filteredMedia, isGeoLoading } = useStateFilter(mediaList)
+  const { selectedState, setSelectedState, filteredItems: filteredMedia, isGeoLoading } = useStateFilter(mediaList, { useGeolocation: true })
 
   useEffect(() => {
     const fetchMedia = async () => {
