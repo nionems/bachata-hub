@@ -40,12 +40,12 @@ export function ShopCard({ shop }: ShopCardProps) {
           </div>
         )}
         <div className="flex flex-col gap-2 mt-2 sm:mt-3">
-          {(shop.website || shop.websiteLink) && (
+          {shop.website && (
             <Button
               className="w-full bg-primary hover:bg-primary/90 text-white text-xs h-7 sm:h-8 flex items-center justify-center gap-2"
               onClick={(e) => {
                 e.stopPropagation();
-                window.open(shop.website || shop.websiteLink, '_blank');
+                window.open(shop.website, '_blank');
               }}
             >
               <Globe className="h-3 w-3 sm:h-4 sm:w-4" />
@@ -61,11 +61,11 @@ export function ShopCard({ shop }: ShopCardProps) {
                 navigator.share({
                   title: shop.name,
                   text: `Check out ${shop.name} - ${shop.location}`,
-                  url: shop.website || shop.websiteLink || window.location.href
+                  url: shop.website || window.location.href
                 });
               } else {
                 // Fallback for browsers that don't support the Web Share API
-                navigator.clipboard.writeText(shop.website || shop.websiteLink || window.location.href);
+                navigator.clipboard.writeText(shop.website || window.location.href);
                 toast({
                   title: "Link copied to clipboard",
                   description: "Share this shop's website with your friends!",
