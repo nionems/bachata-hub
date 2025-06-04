@@ -138,6 +138,16 @@ interface Accommodation {
   updatedAt: string
 }
 
+// Add User interface at the top with other interfaces
+interface User {
+  id: string
+  email: string
+  displayName?: string
+  name?: string
+  createdAt?: Date
+  subscribedAt?: string
+}
+
 export default function AdminDashboard() {
   const [schools, setSchools] = useState<School[]>([])
   const [events, setEvents] = useState<Event[]>([])
@@ -148,7 +158,7 @@ export default function AdminDashboard() {
   const [competitions, setCompetitions] = useState<Competition[]>([])
   const [accommodations, setAccommodations] = useState<Accommodation[]>([])
   const [mediaList, setMediaList] = useState<Media[]>([])
-  const [users, setUsers] = useState<any[]>([])
+  const [users, setUsers] = useState<User[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [searchTerm, setSearchTerm] = useState('')
@@ -665,7 +675,7 @@ export default function AdminDashboard() {
         id: doc.id,
         ...doc.data(),
         createdAt: doc.data().createdAt?.toDate(),
-      }))
+      })) as User[]
       // Sort users alphabetically by name (displayName or name)
       const sortedUsers = usersList.sort((a, b) => {
         const nameA = (a.displayName || a.name || '').toLowerCase()
