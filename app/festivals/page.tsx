@@ -140,35 +140,30 @@ export default function FestivalsPage() {
       return Number.POSITIVE_INFINITY // This will place TBA dates at the end
     }
 
-    // Extract month and year
-    const months = {
-      January: 1,
-      February: 2,
-      March: 3,
-      April: 4,
-      May: 5,
-      June: 6,
-      July: 7,
-      August: 8,
-      September: 9,
-      October: 10,
-      November: 11,
-      December: 12,
+    try {
+      const date = new Date(dateString)
+      return date.getTime() // Use timestamp for accurate sorting
+    } catch (error) {
+      return Number.POSITIVE_INFINITY // Fallback for unparseable dates
+    }
+  }
+
+  // Helper function to format date in Australian format
+  const formatDate = (dateString: string) => {
+    if (dateString.includes("To Be Announced")) {
+      return "To Be Announced"
     }
 
-    // Extract month name and year
-    const monthMatch = dateString.match(
-      /(January|February|March|April|May|June|July|August|September|October|November|December)/,
-    )
-    const yearMatch = dateString.match(/\d{4}/)
-
-    if (monthMatch && yearMatch) {
-      const month = months[monthMatch[0] as keyof typeof months]
-      const year = Number.parseInt(yearMatch[0])
-      return year * 100 + month // This creates a sortable value (e.g., 202501 for January 2025)
+    try {
+      const date = new Date(dateString)
+      return date.toLocaleDateString('en-AU', {
+        day: 'numeric',
+        month: 'numeric',
+        year: 'numeric'
+      })
+    } catch (error) {
+      return dateString // Return original string if date parsing fails
     }
-
-    return Number.POSITIVE_INFINITY // Fallback for unparseable dates
   }
 
   // Filter out past events and sort by date
@@ -205,12 +200,12 @@ export default function FestivalsPage() {
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 md:gap-8">
-          {filteredFestivals.length === 0 ? (
+          {upcomingFestivals.length === 0 ? (
             <div className="col-span-full text-center py-6 sm:py-8 text-gray-500">
               No festivals found {selectedState !== 'all' && `in ${selectedState}`}
             </div>
           ) : (
-            filteredFestivals.map((festival) => (
+            upcomingFestivals.map((festival) => (
               <Card key={festival.id} className="overflow-hidden bg-white shadow-lg hover:shadow-xl transition-shadow duration-300">
                 <div className="relative h-48 w-full overflow-hidden rounded-t-lg">
                   <Image
@@ -222,6 +217,17 @@ export default function FestivalsPage() {
                   />
                 </div>
                 <div className="p-4">
+                  <h3 className="text-lg font-semibold mb-2">{festival.name}</h3>
+                  <div className="flex items-center text-gray-600 text-sm mb-2">
+                    <Calendar className="w-4 h-4 mr-1" />
+                    <span>{formatDate(festival.startDate)}</span>
+                    {festival.endDate && festival.endDate !== festival.startDate && (
+                      <span className="mx-1">-</span>
+                    )}
+                    {festival.endDate && festival.endDate !== festival.startDate && (
+                      <span>{formatDate(festival.endDate)}</span>
+                    )}
+                  </div>
                   <div className="flex items-center justify-between text-gray-600 text-sm space-x-2">
                     <div className="flex items-center">
                       <MapPin className="w-4 h-4 mr-1" />
