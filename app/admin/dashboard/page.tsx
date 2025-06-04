@@ -3,7 +3,7 @@
 import { useState, useEffect, } from 'react'
 import { useRouter } from 'next/navigation'
 import { School } from '@/types/school'
-import { collection, getDocs, addDoc } from 'firebase/firestore'
+import { collection, getDocs, addDoc, doc, deleteDoc } from 'firebase/firestore'
 import { db } from '../../../firebase/config'
 import { getWeekEvents } from '@/lib/calendar'
 import { formatEvents } from '@/utils/formatEvents'
@@ -148,11 +148,13 @@ export default function AdminDashboard() {
   const [competitions, setCompetitions] = useState<Competition[]>([])
   const [accommodations, setAccommodations] = useState<Accommodation[]>([])
   const [mediaList, setMediaList] = useState<Media[]>([])
+  const [users, setUsers] = useState<any[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [searchTerm, setSearchTerm] = useState('')
   const [layout, setLayout] = useState<'grid' | 'list'>('grid')
   const [activeTab, setActiveTab] = useState('schools')
+  const [selectedUsers, setSelectedUsers] = useState<string[]>([])
   const router = useRouter()
 
   // useEffect(() => {
@@ -239,6 +241,12 @@ export default function AdminDashboard() {
 
     fetchData()
   }, [])
+
+  useEffect(() => {
+    if (activeTab === 'users') {
+      fetchUsers()
+    }
+  }, [activeTab])
 
   // const checkAuth = async () => {
   //   try {
@@ -648,6 +656,72 @@ export default function AdminDashboard() {
     }
   }
 
+  const fetchUsers = async () => {
+    try {
+      setIsLoading(true)
+      const usersCollection = collection(db, 'users')
+      const usersSnapshot = await getDocs(usersCollection)
+      const usersList = usersSnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data(),
+        createdAt: doc.data().createdAt?.toDate(),
+      }))
+      // Sort users alphabetically by name (displayName or name)
+      const sortedUsers = usersList.sort((a, b) => {
+        const nameA = (a.displayName || a.name || '').toLowerCase()
+        const nameB = (b.displayName || b.name || '').toLowerCase()
+        return nameA.localeCompare(nameB)
+      })
+      setUsers(sortedUsers)
+    } catch (error) {
+      console.error('Error fetching users:', error)
+      setError('Failed to load users')
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const handleDeleteUser = async (userId: string) => {
+    if (!confirm('Are you sure you want to delete this user?')) return
+
+    try {
+      const userRef = doc(db, 'users', userId)
+      await deleteDoc(userRef)
+      // Refresh the users list
+      fetchUsers()
+      toast.success('User deleted successfully')
+    } catch (err) {
+      console.error('Failed to delete user:', err)
+      toast.error('Failed to delete user')
+    }
+  }
+
+  const handleSelectAll = () => {
+    if (selectedUsers.length === users.length) {
+      setSelectedUsers([])
+    } else {
+      setSelectedUsers(users.map(user => user.id))
+    }
+  }
+
+  const handleSelectUser = (userId: string) => {
+    setSelectedUsers(prev => 
+      prev.includes(userId) 
+        ? prev.filter(id => id !== userId)
+        : [...prev, userId]
+    )
+  }
+
+  const copySelectedEmails = () => {
+    const selectedEmails = users
+      .filter(user => selectedUsers.includes(user.id))
+      .map(user => user.email)
+      .join(', ')
+    
+    navigator.clipboard.writeText(selectedEmails)
+    toast.success('Email addresses copied to clipboard')
+  }
+
   const filteredSchools = schools.filter(school =>
     school.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     school.location.toLowerCase().includes(searchTerm.toLowerCase())
@@ -662,7 +736,8 @@ export default function AdminDashboard() {
     { id: 'competitions', label: 'Competitions' },
     { id: 'shops', label: 'Shops' },
     { id: 'accommodations', label: 'Accommodations' },
-    { id: 'media', label: 'Media' }
+    { id: 'media', label: 'Media' },
+    { id: 'users', label: 'Community Users' }
   ]
 
   const EventCard = ({ event }: { event: Event }) => (
@@ -1620,6 +1695,98 @@ export default function AdminDashboard() {
             )}
           </div>
         )}
+
+        {activeTab === 'users' && (
+          <div>
+            <div className="flex justify-between items-center mb-6">
+              <div>
+                <h2 className="text-xl font-semibold">Community Users</h2>
+                <p className="text-gray-600 mt-1">Total Users: {users.length}</p>
+              </div>
+              {selectedUsers.length > 0 && (
+                <button
+                  onClick={copySelectedEmails}
+                  className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 text-sm"
+                >
+                  Copy {selectedUsers.length} Email{selectedUsers.length !== 1 ? 's' : ''}
+                </button>
+              )}
+            </div>
+
+            {isLoading ? (
+              <div className="text-center py-8">Loading users...</div>
+            ) : error ? (
+              <div className="text-red-500 text-center py-8">{error}</div>
+            ) : users.length === 0 ? (
+              <div className="text-center py-8 text-gray-500">
+                No users found in the community.
+              </div>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="min-w-full divide-y divide-gray-200">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <input
+                          type="checkbox"
+                          checked={selectedUsers.length === users.length}
+                          onChange={handleSelectAll}
+                          className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                        />
+                      </th>
+                      <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Name
+                      </th>
+                      <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Email
+                      </th>
+                      <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Joined Date
+                      </th>
+                      <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Actions
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="bg-white divide-y divide-gray-200">
+                    {users.map((user) => (
+                      <tr key={user.id}>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <input
+                            type="checkbox"
+                            checked={selectedUsers.includes(user.id)}
+                            onChange={() => handleSelectUser(user.id)}
+                            className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                          />
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                          {user.displayName || user.name || 'N/A'}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                          {user.email}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                          {user.createdAt ? new Date(user.createdAt).toLocaleDateString() : 
+                           user.subscribedAt ? new Date(user.subscribedAt).toLocaleDateString() : 'N/A'}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                          <div className="flex gap-2">
+                            <button
+                              onClick={() => handleDeleteUser(user.id)}
+                              className="bg-red-500 text-white px-2.5 py-1 rounded hover:bg-red-600 text-sm"
+                            >
+                              Delete
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+        )}
       </div>
 
       {/* Mobile-friendly floating action button */}
@@ -1653,6 +1820,9 @@ export default function AdminDashboard() {
                 break
               case 'media':
                 router.push('/admin/media/new')
+                break
+              case 'users':
+                router.push('/admin/users/new')
                 break
             }
           }}
