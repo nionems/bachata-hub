@@ -3,7 +3,7 @@
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
-import { Calendar, MapPin, DollarSign, Users, Ticket, Hotel, CheckCircle, Info, Clock, ExternalLink, X } from "lucide-react"
+import { Calendar, MapPin, DollarSign, Users, Ticket, Hotel, CheckCircle, Info, Clock, ExternalLink, X, Music } from "lucide-react"
 import { useState, useEffect } from "react"
 import CollapsibleFilter from "@/components/collapsible-filter"
 import { StateFilter } from '@/components/StateFilter'
@@ -16,6 +16,7 @@ import { ImageModal } from "@/components/ImageModal"
 import { format } from "date-fns"
 import { Badge } from "@/components/ui/badge"
 import { FestivalCard } from '@/components/FestivalCard'
+import Image from "next/image"
 
 interface Festival {
   id: string
@@ -50,12 +51,20 @@ export default function FestivalsPage() {
   
   const { selectedState, setSelectedState, filteredItems: filteredFestivals } = useStateFilter(festivals, { useGeolocation: false })
 
-  const handleImageClick = (e: React.MouseEvent, imageUrl: string, title: string) => {
-    e.stopPropagation();
-    if (imageUrl) {
-      setSelectedImage({ url: imageUrl, title });
-      setIsImageModalOpen(true);
+  const handleImageClick = (e: React.MouseEvent, festival: Festival) => {
+    e.stopPropagation()
+    if (festival.imageUrl) {
+      setSelectedImage({
+        url: festival.imageUrl,
+        title: festival.name
+      })
+      setIsImageModalOpen(true)
     }
+  }
+
+  const handleCloseModal = () => {
+    setIsImageModalOpen(false);
+    setSelectedImage(null);
   }
 
   useEffect(() => {
@@ -203,54 +212,31 @@ export default function FestivalsPage() {
           ) : (
             filteredFestivals.map((festival) => (
               <Card key={festival.id} className="overflow-hidden bg-white shadow-lg hover:shadow-xl transition-shadow duration-300">
-                <div className="relative aspect-[16/9]">
-                  <img
-                    src={festival.imageUrl || '/placeholder-festival.jpg'}
+                <div className="relative h-48 w-full overflow-hidden rounded-t-lg">
+                  <Image
+                    src={festival.imageUrl}
                     alt={festival.name}
-                    className="w-full h-full object-cover cursor-pointer"
-                    onClick={(e) => handleImageClick(e, festival.imageUrl, festival.name)}
+                    fill
+                    className="object-cover transition-transform duration-300 hover:scale-105 cursor-pointer"
+                    onClick={(e) => handleImageClick(e, festival)}
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-                  <div className="absolute bottom-0 left-0 right-0 p-4">
-                    <h3 className="text-base sm:text-lg font-semibold text-white line-clamp-1">{festival.name}</h3>
-                    <div className="flex items-center text-white/90 text-sm mt-1">
-                      <Calendar className="w-4 h-4 mr-1" />
-                      <span>
-                        {festival.startDate ? new Date(festival.startDate).toLocaleDateString("en-AU", {
-                          day: "numeric",
-                          month: "short",
-                          year: "numeric",
-                        }) : festival.date}{" "}
-                        {festival.endDate && festival.startDate ? (
-                          <>
-                            –{" "}
-                            {new Date(festival.endDate).toLocaleDateString("en-AU", {
-                              day: "numeric",
-                              month: "short",
-                              year: "numeric",
-                            })}
-                          </>
-                        ) : null}
-                      </span>
-                    </div>
-                  </div>
                 </div>
                 <div className="p-4">
-                  <div className="space-y-2">
-                    <div className="flex items-center text-gray-600">
-                      <MapPin className="w-4 h-4 mr-2" />
-                      <span className="text-sm">{festival.location}, {festival.state}</span>
+                  <div className="flex items-center justify-between text-gray-600 text-sm space-x-2">
+                    <div className="flex items-center">
+                      <MapPin className="w-4 h-4 mr-1" />
+                      <span className="truncate">{festival.location}, {festival.state}</span>
                     </div>
-                    {festival.price && (
-                      <div className="flex items-center text-gray-600">
-                        <DollarSign className="w-4 h-4 mr-2" />
-                        <span className="text-sm">{festival.price}</span>
+                    {festival.danceStyles && (
+                      <div className="flex items-center">
+                        <Music className="w-4 h-4 mr-1" />
+                        <span className="truncate">{festival.danceStyles}</span>
                       </div>
                     )}
-                    {festival.danceStyles && (
-                      <div className="flex items-center text-gray-600">
-                        <Users className="w-4 h-4 mr-2" />
-                        <span className="text-sm">{festival.danceStyles}</span>
+                    {festival.price && (
+                      <div className="flex items-center">
+                        <DollarSign className="w-4 h-4 mr-1" />
+                        <span className="truncate">{festival.price}</span>
                       </div>
                     )}
                   </div>
@@ -283,15 +269,15 @@ export default function FestivalsPage() {
           <div 
             className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4"
             onClick={() => {
-              setIsImageModalOpen(false);
-              setSelectedImage(null);
+              setIsImageModalOpen(false)
+              setSelectedImage(null)
             }}
           >
             <button
               className="absolute top-4 right-4 text-white hover:text-gray-300 transition-colors"
               onClick={() => {
-                setIsImageModalOpen(false);
-                setSelectedImage(null);
+                setIsImageModalOpen(false)
+                setSelectedImage(null)
               }}
             >
               <X className="h-8 w-8" />
