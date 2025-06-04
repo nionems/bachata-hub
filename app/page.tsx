@@ -350,14 +350,10 @@ export default function Home() {
                     <div key={event.id} className="px-2">
                       <div 
                         className="bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden cursor-pointer hover:shadow-xl transition-shadow relative h-72"
-                        onClick={() => handleEventClick(event)}
+                        onClick={(e) => handleImageClick(event)}
                       >
                         <div 
                           className="absolute inset-0 flex items-center justify-center bg-gradient-to-r from-primary/30 to-secondary/30"
-                          onClick={(e) => {
-                            e.stopPropagation()
-                            handleImageClick(event)
-                          }}
                         >
                           {event.imageUrl && event.imageUrl !== '/images/placeholder.svg' ? (
                             <div className="relative w-full h-full">
