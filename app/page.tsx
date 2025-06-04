@@ -1,7 +1,7 @@
 'use client'
 
 import Link from "next/link"
-import { Calendar, Users, Music, School, ShoppingBag, Trophy, MapPin, Clock, Video, Info, Headphones, Film, Building2 } from "lucide-react"
+import { Calendar, Users, Music, School, ShoppingBag, Trophy, MapPin, Clock, Video, Info, Headphones, Film, Building2, Lightbulb } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useState, useEffect } from 'react'
 import { School as SchoolType } from '@/types/school'
@@ -18,6 +18,7 @@ import EventCard from "@/components/event-card"
 import { getEventImage } from '@/lib/event-images'
 import { useStateFilter } from '@/hooks/useStateFilter'
 import { LoadingSpinner } from "@/components/loading-spinner"
+import { IdeaBoxForm } from '@/components/IdeaBoxForm'
 
 // Add this interface at the top of your file
 interface Event {
@@ -112,6 +113,7 @@ export default function Home() {
   const router = useRouter()
   const [isImageModalOpen, setIsImageModalOpen] = useState(false)
   const [selectedImage, setSelectedImage] = useState<{ url: string; title: string } | null>(null)
+  const [isIdeaBoxOpen, setIsIdeaBoxOpen] = useState(false)
 
   const { selectedState, setSelectedState, filteredItems: filteredEvents, isGeoLoading, error: geoError } = useStateFilter(events, { useGeolocation: true })
 
@@ -478,9 +480,22 @@ export default function Home() {
                 description="Learn more about us"
                 link="/about"
               />
+              <FeatureCard
+                icon={<Lightbulb className="h-6 w-6 sm:h-8 sm:w-8 text-yellow-500" />}
+                title="Idea Box"
+                description="Share your ideas"
+                link="#"
+                onClick={() => setIsIdeaBoxOpen(true)}
+              />
             </div>
           </div>
         </section>
+
+        {/* Add the IdeaBoxForm component */}
+        <IdeaBoxForm
+          isOpen={isIdeaBoxOpen}
+          onClose={() => setIsIdeaBoxOpen(false)}
+        />
 
         {/* Add the ImageModal component */}
         <ImageModal
@@ -509,14 +524,16 @@ export default function Home() {
  * FeatureCard Component
  * Displays a feature card with an icon, title, description, and link
  */
-function FeatureCard({ icon, title, description, link }: { icon: React.ReactNode; title: string; description: string; link: string }) {
+function FeatureCard({ icon, title, description, link, onClick }: { icon: React.ReactNode; title: string; description: string; link: string; onClick?: () => void }) {
   return (
-    <Link href={link}>
-      <div className="bg-white p-4 sm:p-6 rounded-lg shadow-sm hover:shadow-md transition-shadow cursor-pointer text-center">
-        <div className="mb-2 sm:mb-4 flex justify-center">{icon}</div>
-        <h3 className="text-sm sm:text-lg font-semibold mb-1 sm:mb-2">{title}</h3>
-        <p className="text-gray-600 hidden sm:block text-xs sm:text-sm">{description}</p>
-      </div>
-    </Link>
+    <div onClick={onClick}>
+      <Link href={link}>
+        <div className="bg-white p-4 sm:p-6 rounded-lg shadow-sm hover:shadow-md transition-shadow cursor-pointer text-center">
+          <div className="mb-2 sm:mb-4 flex justify-center">{icon}</div>
+          <h3 className="text-sm sm:text-lg font-semibold mb-1 sm:mb-2">{title}</h3>
+          <p className="text-gray-600 hidden sm:block text-xs sm:text-sm">{description}</p>
+        </div>
+      </Link>
+    </div>
   )
 }
