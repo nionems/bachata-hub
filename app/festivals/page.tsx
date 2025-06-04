@@ -228,6 +228,13 @@ export default function FestivalsPage() {
                       <span>{formatDate(festival.endDate)}</span>
                     )}
                   </div>
+                  {festival.comment && (
+                    <div className="mb-2">
+                      <Badge variant="secondary" className="bg-secondary/20 text-secondary hover:bg-secondary/30">
+                        {festival.comment}
+                      </Badge>
+                    </div>
+                  )}
                   <div className="flex items-center justify-between text-gray-600 text-sm space-x-2">
                     <div className="flex items-center">
                       <MapPin className="w-4 h-4 mr-1" />
