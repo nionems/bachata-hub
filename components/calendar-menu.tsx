@@ -21,7 +21,7 @@ export default function CalendarMenu() {
   }
 
   const [selectedCalendar, setSelectedCalendar] = useState(calendarIds.sydneyBachata)
-  const [selectedView, setSelectedView] = useState("calendar")
+  const [selectedView, setSelectedView] = useState("agenda")
 
   const getSelectedCityName = () => {
     const cityMap = {
@@ -70,7 +70,7 @@ export default function CalendarMenu() {
       </CardHeader>
 
       <CardContent className="p-3 sm:p-6 pt-0">
-        <Tabs defaultValue="calendar" className="w-full mb-8 sm:mb-12" onValueChange={setSelectedView}>
+        <Tabs defaultValue="agenda" className="w-full mb-8 sm:mb-12" onValueChange={setSelectedView}>
           <TabsList className="grid w-full grid-cols-2 mb-6 sm:mb-8">
             <TabsTrigger value="calendar" className="text-xs sm:text-sm">Calendar View</TabsTrigger>
             <TabsTrigger value="agenda" className="text-xs sm:text-sm">Agenda View</TabsTrigger>

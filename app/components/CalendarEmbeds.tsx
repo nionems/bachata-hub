@@ -2,7 +2,7 @@ import React from 'react'
 
 export default function CalendarEmbeds() {
   // Common color parameters for Google Calendar web interface
-  const calendarParams = '&color=%23a855f7&bgcolor=%23ffffff&ctz=Australia%2FSydney&mode=MONTH&showTitle=0&showNav=1&showPrint=0&showTabs=0&showCalendars=0&showTz=0&showAdd=0'
+  const calendarParams = '&color=%23a855f7&bgcolor=%23ffffff&ctz=Australia%2FSydney&mode=AGENDA&showTitle=0&showNav=1&showPrint=0&showTabs=0&showCalendars=0&showTz=0&showAdd=0'
 
   return (
     <div className="space-y-8">
