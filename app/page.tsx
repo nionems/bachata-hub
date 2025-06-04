@@ -484,8 +484,8 @@ export default function Home() {
                 icon={<Lightbulb className="h-6 w-6 sm:h-8 sm:w-8 text-yellow-500" />}
                 title="Idea Box"
                 description="Share your ideas"
-                link="#"
                 onClick={() => setIsIdeaBoxOpen(true)}
+                isButton
               />
             </div>
           </div>
@@ -524,16 +524,27 @@ export default function Home() {
  * FeatureCard Component
  * Displays a feature card with an icon, title, description, and link
  */
-function FeatureCard({ icon, title, description, link, onClick }: { icon: React.ReactNode; title: string; description: string; link: string; onClick?: () => void }) {
+function FeatureCard({ icon, title, description, link, onClick, isButton }: { icon: React.ReactNode; title: string; description: string; link?: string; onClick?: () => void; isButton?: boolean }) {
+  if (isButton) {
+    return (
+      <button
+        type="button"
+        onClick={onClick}
+        className="bg-white p-4 sm:p-6 rounded-lg shadow-sm hover:shadow-md transition-shadow cursor-pointer text-center w-full h-full"
+      >
+        <div className="mb-2 sm:mb-4 flex justify-center">{icon}</div>
+        <h3 className="text-sm sm:text-lg font-semibold mb-1 sm:mb-2">{title}</h3>
+        <p className="text-gray-600 hidden sm:block text-xs sm:text-sm">{description}</p>
+      </button>
+    )
+  }
   return (
-    <div onClick={onClick}>
-      <Link href={link}>
-        <div className="bg-white p-4 sm:p-6 rounded-lg shadow-sm hover:shadow-md transition-shadow cursor-pointer text-center">
-          <div className="mb-2 sm:mb-4 flex justify-center">{icon}</div>
-          <h3 className="text-sm sm:text-lg font-semibold mb-1 sm:mb-2">{title}</h3>
-          <p className="text-gray-600 hidden sm:block text-xs sm:text-sm">{description}</p>
-        </div>
-      </Link>
-    </div>
+    <Link href={link || '#'} className="w-full h-full">
+      <div className="bg-white p-4 sm:p-6 rounded-lg shadow-sm hover:shadow-md transition-shadow cursor-pointer text-center w-full h-full">
+        <div className="mb-2 sm:mb-4 flex justify-center">{icon}</div>
+        <h3 className="text-sm sm:text-lg font-semibold mb-1 sm:mb-2">{title}</h3>
+        <p className="text-gray-600 hidden sm:block text-xs sm:text-sm">{description}</p>
+      </div>
+    </Link>
   )
 }
