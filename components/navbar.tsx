@@ -43,7 +43,7 @@ export default function Navbar() {
                 alt="Bachata Australia Logo"
                 width={200}
                 height={200}
-                className="h-10 w-10 sm:h-16 sm:w-16 md:h-20 md:w-20 lg:h-24 lg:w-24"
+                className="h-20 w-20 sm:h-16 sm:w-16 md:h-20 md:w-20 lg:h-24 lg:w-24 rounded-full"
                 priority
                 style={{ objectFit: 'contain' }}
               />
@@ -53,21 +53,21 @@ export default function Navbar() {
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center overflow-x-auto scrollbar-hide">
             <div className="flex space-x-1 md:space-x-2 lg:space-x-4 items-center">
-              {navItems.map((item) => (
-                <Link
-                  key={item.name}
-                  href={item.href}
+            {navItems.map((item) => (
+              <Link
+                key={item.name}
+                href={item.href}
                   className={`text-gray-700 hover:text-green-600 px-1 md:px-2 py-1 text-xs md:text-sm font-medium whitespace-nowrap ${
                     item.name === "Home" ? "hidden" : ""
                   }`}
-                >
-                  {item.name}
-                </Link>
-              ))}
+              >
+                {item.name}
+              </Link>
+            ))}
               <Link href="/community">
                 <Button size="sm" className="bg-primary hover:bg-primary/90 text-white ml-2 whitespace-nowrap text-xs md:text-sm">
-                  Join the Community
-                </Button>
+              Join the Community
+            </Button>
               </Link>
             </div>
           </nav>
