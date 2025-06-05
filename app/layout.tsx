@@ -5,6 +5,7 @@ import { Toaster } from "sonner"
 import Navbar from "@/components/navbar"
 import Footer from "@/components/footer"
 import { AIAssistant } from "@/components/AIAssistant"
+import { Analytics } from '@vercel/analytics/react'
 
 const fredoka = Fredoka({
   weight: ['300', '400', '500', '600', '700'],
@@ -73,6 +74,7 @@ export default function RootLayout({
         <Footer />
         <AIAssistant />
         <Toaster />
+        <Analytics />
       </body>
     </html>
   )
