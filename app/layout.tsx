@@ -27,15 +27,15 @@ export const metadata: Metadata = {
     title: 'Bachata Hub',
     startupImage: [
       {
-        url: '/icons/homescreenIcon/bachata_icon_512x512.png',
+        url: '/favicon.ico',
         media: '(device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2)'
       },
       {
-        url: '/icons/homescreenIcon/bachata_icon_512x512.png',
+        url: '/favicon.ico',
         media: '(device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2)'
       },
       {
-        url: '/icons/homescreenIcon/bachata_icon_512x512.png',
+        url: '/favicon.ico',
         media: '(device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3)'
       }
     ]
@@ -48,14 +48,12 @@ export const metadata: Metadata = {
   },
   icons: {
     icon: [
-      { url: '/icons/rounded/rounded.png', sizes: '512x512', type: 'image/png' }
+      { url: '/favicon.ico', sizes: '192x192', type: 'image/x-icon' }
     ],
     apple: [
-      { url: '/icons/homescreenIcon/bachata_icon_152x152.png', sizes: '152x152', type: 'image/png' },
-      { url: '/icons/homescreenIcon/bachata_icon_192x192.png', sizes: '192x192', type: 'image/png' },
-      { url: '/icons/homescreenIcon/bachata_icon_512x512.png', sizes: '512x512', type: 'image/png' }
+      { url: '/favicon.ico', sizes: '192x192', type: 'image/x-icon' }
     ],
-    shortcut: '/icons/rounded/rounded.png'
+    shortcut: '/favicon.ico'
   },
 }
 
@@ -69,11 +67,9 @@ export default function RootLayout({
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link rel="icon" type="image/png" sizes="512x512" href="/icons/rounded/rounded.png" />
-        <link rel="apple-touch-icon" sizes="152x152" href="/icons/homescreenIcon/bachata_icon_152x152.png" />
-        <link rel="apple-touch-icon" sizes="180x180" href="/icons/homescreenIcon/bachata_icon_192x192.png" />
-        <link rel="apple-touch-icon" sizes="167x167" href="/icons/homescreenIcon/bachata_icon_152x152.png" />
-        <link rel="mask-icon" href="/icons/rounded/rounded.png" color="#000000" />
+        <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+        <link rel="apple-touch-icon" href="/favicon.ico" />
+        <link rel="mask-icon" href="/favicon.ico" color="#000000" />
       </head>
       <body className={`${fredoka.className} antialiased min-h-screen flex flex-col`}>
         <Navbar />
