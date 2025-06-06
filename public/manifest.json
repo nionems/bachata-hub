@@ -9,10 +9,10 @@
   "orientation": "portrait",
   "icons": [
     {
-      "src": "/icons/rounded/rounded.png",
-      "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "any maskable"
+      "src": "/favicon.ico",
+      "sizes": "64x64",
+      "type": "image/x-icon",
+      "purpose": "any"
     }
   ]
 } 
