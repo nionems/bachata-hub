@@ -33,12 +33,12 @@ export default function Navbar() {
   ]
 
   return (
-    <header className="bg-white shadow-sm sticky top-0 z-50">
+    <header className="bg-white shadow-sm sticky top-0 z-50 mb-2">
       <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-4">
-        <div className="flex justify-between h-12 sm:h-14">
+        <div className="flex justify-between h-10 sm:h-12">
           <div className="flex items-center">
             <Link href="/" className="flex-shrink-0 flex items-center">
-              <div className="relative h-20 w-20 sm:h-16 sm:w-16 md:h-20 md:w-20 lg:h-24 lg:w-24">
+              <div className="relative h-16 w-16 sm:h-14 sm:w-14 md:h-16 md:w-16 lg:h-20 lg:w-20 -mt-1">
                 <Image
                   src="/images/BACHATA.AU (13).png"
                   alt="Bachata Australia Logo"
