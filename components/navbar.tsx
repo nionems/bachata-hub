@@ -38,15 +38,16 @@ export default function Navbar() {
         <div className="flex justify-between h-12 sm:h-14">
           <div className="flex items-center">
             <Link href="/" className="flex-shrink-0 flex items-center">
-              <Image
-                src="/images/BACHATA.AU (13).png"
-                alt="Bachata Australia Logo"
-                width={200}
-                height={200}
-                className="h-20 w-20 sm:h-16 sm:w-16 md:h-20 md:w-20 lg:h-24 lg:w-24 rounded-full"
-                priority
-                style={{ objectFit: 'contain' }}
-              />
+              <div className="relative h-20 w-20 sm:h-16 sm:w-16 md:h-20 md:w-20 lg:h-24 lg:w-24">
+                <Image
+                  src="/images/BACHATA.AU (13).png"
+                  alt="Bachata Australia Logo"
+                  fill
+                  className="rounded-full"
+                  priority
+                  style={{ objectFit: 'contain' }}
+                />
+              </div>
             </Link>
           </div>
 
