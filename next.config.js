@@ -35,6 +35,20 @@ const nextConfig = {
     ],
     domains: ['firebasestorage.googleapis.com'],
   },
+  async redirects() {
+    return [
+      {
+        source: '/home',
+        destination: '/',
+        permanent: true,
+      },
+      {
+        source: '/www/:path*',
+        destination: '/:path*',
+        permanent: true,
+      }
+    ]
+  },
   async rewrites() {
     return [
       {
