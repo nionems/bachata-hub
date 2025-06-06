@@ -25,6 +25,20 @@ export const metadata: Metadata = {
     capable: true,
     statusBarStyle: 'default',
     title: 'Bachata Hub',
+    startupImage: [
+      {
+        url: '/icons/rounded/bachata_icon_512x512_rounded.png',
+        media: '(device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2)'
+      },
+      {
+        url: '/icons/rounded/bachata_icon_512x512_rounded.png',
+        media: '(device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2)'
+      },
+      {
+        url: '/icons/rounded/bachata_icon_512x512_rounded.png',
+        media: '(device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3)'
+      }
+    ]
   },
   viewport: {
     width: 'device-width',
@@ -34,24 +48,21 @@ export const metadata: Metadata = {
   },
   icons: {
     icon: [
-      { url: '/icons/rounded/bachata_icon_72x72.png', sizes: '72x72', type: 'image/png' },
-      { url: '/icons/rounded/bachata_icon_96x96.png', sizes: '96x96', type: 'image/png' },
-      { url: '/icons/rounded/bachata_icon_128x128.png', sizes: '128x128', type: 'image/png' },
-      { url: '/icons/rounded/bachata_icon_144x144.png', sizes: '144x144', type: 'image/png' },
-      { url: '/icons/rounded/bachata_icon_152x152.png', sizes: '152x152', type: 'image/png' },
-      { url: '/icons/rounded/bachata_icon_192x192.png', sizes: '192x192', type: 'image/png' },
-      { url: '/icons/rounded/bachata_icon_384x384.png', sizes: '384x384', type: 'image/png' },
-      { url: '/icons/rounded/bachata_icon_512x512.png', sizes: '512x512', type: 'image/png' },
+      { url: '/icons/rounded/bachata_icon_72x72_rounded.png', sizes: '72x72', type: 'image/png' },
+      { url: '/icons/rounded/bachata_icon_96x96_rounded.png', sizes: '96x96', type: 'image/png' },
+      { url: '/icons/rounded/bachata_icon_128x128_rounded.png', sizes: '128x128', type: 'image/png' },
+      { url: '/icons/rounded/bachata_icon_144x144_rounded.png', sizes: '144x144', type: 'image/png' },
+      { url: '/icons/rounded/bachata_icon_152x152_rounded.png', sizes: '152x152', type: 'image/png' },
+      { url: '/icons/rounded/bachata_icon_192x192_rounded.png', sizes: '192x192', type: 'image/png' },
+      { url: '/icons/rounded/bachata_icon_384x384_rounded.png', sizes: '384x384', type: 'image/png' },
+      { url: '/icons/rounded/bachata_icon_512x512_rounded.png', sizes: '512x512', type: 'image/png' }
     ],
     apple: [
-      { url: '/icons/rounded/bachata_icon_72x72.png', sizes: '72x72', type: 'image/png' },
-      { url: '/icons/rounded/bachata_icon_96x96.png', sizes: '96x96', type: 'image/png' },
-      { url: '/icons/rounded/bachata_icon_128x128.png', sizes: '128x128', type: 'image/png' },
-      { url: '/icons/rounded/bachata_icon_144x144.png', sizes: '144x144', type: 'image/png' },
-      { url: '/icons/rounded/bachata_icon_152x152.png', sizes: '152x152', type: 'image/png' },
-      { url: '/icons/rounded/bachata_icon_192x192.png', sizes: '192x192', type: 'image/png' },
+      { url: '/icons/rounded/bachata_icon_152x152_rounded.png', sizes: '152x152', type: 'image/png' },
+      { url: '/icons/rounded/bachata_icon_192x192_rounded.png', sizes: '192x192', type: 'image/png' },
+      { url: '/icons/rounded/bachata_icon_512x512_rounded.png', sizes: '512x512', type: 'image/png' }
     ],
-    shortcut: '/icons/rounded/bachata_icon_192x192.png',
+    shortcut: '/icons/rounded/bachata_icon_192x192_rounded.png'
   },
 }
 
@@ -65,9 +76,11 @@ export default function RootLayout({
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link rel="icon" href="/icons/rounded/bachata_icon_72x72_rounded.png" sizes="72x72" />
-        <link rel="icon" href="/icons/rounded/bachata_icon_72x72_rounded.png" sizes="32x32" />
-        <link rel="icon" href="/icons/rounded/bachata_icon_72x72_rounded.png" sizes="16x16" />
+        <link rel="icon" type="image/png" sizes="512x512" href="/icons/rounded/bachata_icon_512x512_rounded.png" />
+        <link rel="apple-touch-icon" sizes="152x152" href="/icons/rounded/bachata_icon_152x152_rounded.png" />
+        <link rel="apple-touch-icon" sizes="180x180" href="/icons/rounded/bachata_icon_192x192_rounded.png" />
+        <link rel="apple-touch-icon" sizes="167x167" href="/icons/rounded/bachata_icon_152x152_rounded.png" />
+        <link rel="mask-icon" href="/icons/rounded/bachata_icon_512x512_rounded.png" color="#000000" />
       </head>
       <body className={`${fredoka.className} antialiased min-h-screen flex flex-col`}>
         <Navbar />

@@ -6,51 +6,52 @@
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#000000",
+  "orientation": "portrait",
   "icons": [
     {
-      "src": "/icons/rounded/bachata_icon_72x72.png",
+      "src": "/icons/rounded/bachata_icon_72x72_rounded.png",
       "sizes": "72x72",
       "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "/icons/rounded/bachata_icon_96x96.png",
+      "src": "/icons/rounded/bachata_icon_96x96_rounded.png",
       "sizes": "96x96",
       "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "/icons/rounded/bachata_icon_128x128.png",
+      "src": "/icons/rounded/bachata_icon_128x128_rounded.png",
       "sizes": "128x128",
       "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "/icons/rounded/bachata_icon_144x144.png",
+      "src": "/icons/rounded/bachata_icon_144x144_rounded.png",
       "sizes": "144x144",
       "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "/icons/rounded/bachata_icon_152x152.png",
+      "src": "/icons/rounded/bachata_icon_152x152_rounded.png",
       "sizes": "152x152",
       "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "/icons/rounded/bachata_icon_192x192.png",
+      "src": "/icons/rounded/bachata_icon_192x192_rounded.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "/icons/rounded/bachata_icon_384x384.png",
+      "src": "/icons/rounded/bachata_icon_384x384_rounded.png",
       "sizes": "384x384",
       "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "/icons/rounded/bachata_icon_512x512.png",
+      "src": "/icons/rounded/bachata_icon_512x512_rounded.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
