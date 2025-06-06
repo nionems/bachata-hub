@@ -48,13 +48,12 @@ export const metadata: Metadata = {
   },
   icons: {
     icon: [
-      { url: '/icons/rounded/rounded.png', sizes: '32x32', type: 'image/png' },
-      { url: '/icons/rounded/rounded.png', sizes: '16x16', type: 'image/png' }
+      { url: '/favicon.ico', sizes: '192x192', type: 'image/x-icon' }
     ],
     apple: [
       { url: '/favicon.ico', sizes: '192x192', type: 'image/x-icon' }
     ],
-    shortcut: '/icons/rounded/rounded.png'
+    shortcut: '/favicon.ico'
   },
 }
 
@@ -68,9 +67,9 @@ export default function RootLayout({
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link rel="icon" type="image/png" href="/icons/rounded/rounded.png" />
+        <link rel="icon" type="image/x-icon" href="/favicon.ico" />
         <link rel="apple-touch-icon" href="/favicon.ico" />
-        <link rel="mask-icon" href="/icons/rounded/rounded.png" color="#000000" />
+        <link rel="mask-icon" href="/favicon.ico" color="#000000" />
       </head>
       <body className={`${fredoka.className} antialiased min-h-screen flex flex-col`}>
         <Navbar />
