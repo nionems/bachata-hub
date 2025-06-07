@@ -66,12 +66,16 @@ export default function AccommodationsDashboard() {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
+          'Accept': 'application/json',
         },
+        credentials: 'same-origin',
       })
 
+      const data = await response.json()
+
       if (!response.ok) {
-        const data = await response.json()
-        throw new Error(data.error || 'Failed to delete accommodation')
+        console.error('Delete response not OK:', response.status, data)
+        throw new Error(data.error || `Failed to delete accommodation (${response.status})`)
       }
 
       setAccommodations(prev => prev.filter(acc => acc.id !== id))
