@@ -473,7 +473,7 @@ export default function AdminDashboard() {
   const handleDelete = async (id: string) => {
     if (window.confirm('Are you sure you want to delete this accommodation?')) {
       try {
-        const response = await fetch(`/api/accommodations?id=${id}`, {
+        const response = await fetch(`/api/accommodations/${id}`, {
           method: 'DELETE',
         });
 
