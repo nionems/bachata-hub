@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server'
-import { db } from '@/firebase/config'
-import { doc, getDoc } from 'firebase/firestore'
+import { db } from '@/lib/firebase-admin'
 import bcrypt from 'bcryptjs'
 import { cookies } from 'next/headers'
 
@@ -9,9 +8,9 @@ export async function POST(request: Request) {
     const { email, password } = await request.json()
 
     // Get admin credentials from Firestore
-    const adminDoc = await getDoc(doc(db, 'admin', 'credentials'))
+    const adminDoc = await db.collection('admin').doc('credentials').get()
     
-    if (!adminDoc.exists()) {
+    if (!adminDoc.exists) {
       return NextResponse.json(
         { error: 'Admin configuration not found' },
         { status: 404 }
@@ -21,7 +20,7 @@ export async function POST(request: Request) {
     const adminData = adminDoc.data()
 
     // Verify email and password
-    if (email !== adminData.email || !(await bcrypt.compare(password, adminData.password))) {
+    if (email !== adminData?.email || !(await bcrypt.compare(password, adminData?.password))) {
       return NextResponse.json(
         { error: 'Invalid credentials' },
         { status: 401 }

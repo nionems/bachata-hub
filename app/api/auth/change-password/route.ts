@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server'
-import { db } from '@/firebase/config'
-import { doc, getDoc, updateDoc } from 'firebase/firestore'
+import { db } from '@/lib/firebase-admin'
 import bcrypt from 'bcryptjs'
 
 export async function POST(request: Request) {
@@ -8,9 +7,9 @@ export async function POST(request: Request) {
     const { currentPassword, newPassword } = await request.json()
 
     // Get admin credentials from Firestore
-    const adminDoc = await getDoc(doc(db, 'admin', 'credentials'))
+    const adminDoc = await db.collection('admin').doc('credentials').get()
     
-    if (!adminDoc.exists()) {
+    if (!adminDoc.exists) {
       return NextResponse.json(
         { error: 'Admin configuration not found' },
         { status: 404 }
@@ -20,7 +19,7 @@ export async function POST(request: Request) {
     const adminData = adminDoc.data()
     
     // Verify current password
-    const isPasswordValid = await bcrypt.compare(currentPassword, adminData.password)
+    const isPasswordValid = await bcrypt.compare(currentPassword, adminData?.password || '')
     if (!isPasswordValid) {
       return NextResponse.json(
         { error: 'Current password is incorrect' },
@@ -32,7 +31,7 @@ export async function POST(request: Request) {
     const hashedPassword = await bcrypt.hash(newPassword, 10)
 
     // Update the password in Firestore
-    await updateDoc(doc(db, 'admin', 'credentials'), {
+    await db.collection('admin').doc('credentials').update({
       password: hashedPassword,
       updatedAt: new Date()
     })
