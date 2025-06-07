@@ -59,7 +59,14 @@ export default function AccommodationsDashboard() {
     if (!confirm('Are you sure you want to delete this accommodation?')) return
 
     try {
-      await deleteDoc(doc(db, 'accommodations', id))
+      const response = await fetch(`/api/accommodations/${id}`, {
+        method: 'DELETE',
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to delete accommodation')
+      }
+
       setAccommodations(prev => prev.filter(acc => acc.id !== id))
       toast.success('Accommodation deleted successfully')
     } catch (err) {

@@ -54,3 +54,21 @@ export async function PUT(
     )
   }
 }
+
+export async function DELETE(
+  request: Request,
+  { params }: { params: { id: string } }
+) {
+  try {
+    const accommodationRef = db.collection('accommodations').doc(params.id)
+    await accommodationRef.delete()
+    
+    return NextResponse.json({ message: 'Accommodation deleted successfully' })
+  } catch (error) {
+    console.error('Error deleting accommodation:', error)
+    return NextResponse.json(
+      { error: 'Failed to delete accommodation' },
+      { status: 500 }
+    )
+  }
+}
