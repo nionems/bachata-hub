@@ -417,16 +417,24 @@ export default function AdminDashboard() {
 
   const fetchCompetitions = async () => {
     try {
-      setIsLoading(true)
-      const response = await fetch('/api/competitions')
-      if (!response.ok) throw new Error('Failed to fetch competitions')
-      const data = await response.json()
-      setCompetitions(data)
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to load competitions')
-      console.error(err)
-    } finally {
-      setIsLoading(false)
+      const competitionsCollection = collection(db, 'competitions')
+      const competitionsSnapshot = await getDocs(competitionsCollection)
+      const competitionsList = competitionsSnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      })) as Competition[]
+
+      // Sort competitions by date
+      const sortedCompetitions = competitionsList.sort((a, b) => {
+        const dateA = new Date(a.startDate).getTime()
+        const dateB = new Date(b.startDate).getTime()
+        return dateA - dateB
+      })
+
+      setCompetitions(sortedCompetitions)
+    } catch (error) {
+      console.error('Error fetching competitions:', error)
+      setError('Failed to load competitions')
     }
   }
 

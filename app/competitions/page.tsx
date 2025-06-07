@@ -41,7 +41,14 @@ export default function CompetitionsPage() {
           ...doc.data()
         })) as Competition[]
         
-        setCompetitions(competitionsList)
+        // Sort competitions by date
+        const sortedCompetitions = competitionsList.sort((a, b) => {
+          const dateA = new Date(a.startDate).getTime()
+          const dateB = new Date(b.startDate).getTime()
+          return dateA - dateB
+        })
+        
+        setCompetitions(sortedCompetitions)
       } catch (err) {
         console.error('Error fetching competitions:', err)
         setError('Failed to load competitions')
