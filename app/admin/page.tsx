@@ -97,12 +97,19 @@ export default function AdminPage() {
     if (!confirm('Are you sure you want to delete this accommodation?')) return
 
     try {
-      await deleteDoc(doc(db, 'accommodations', id))
-      setAccommodations(prev => prev.filter(acc => acc.id !== id))
-      toast.success('Accommodation deleted successfully')
+      const response = await fetch(`/api/accommodations/${id}`, {
+        method: 'DELETE',
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to delete accommodation');
+      }
+
+      setAccommodations(prev => prev.filter(acc => acc.id !== id));
+      toast.success('Accommodation deleted successfully');
     } catch (err) {
-      console.error('Error deleting accommodation:', err)
-      toast.error('Failed to delete accommodation')
+      console.error('Error deleting accommodation:', err);
+      toast.error('Failed to delete accommodation');
     }
   }
 
