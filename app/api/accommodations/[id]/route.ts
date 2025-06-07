@@ -60,15 +60,38 @@ export async function DELETE(
   { params }: { params: { id: string } }
 ) {
   try {
+    // Add CORS headers
+    const headers = {
+      'Access-Control-Allow-Methods': 'DELETE',
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+    }
+
     const accommodationRef = db.collection('accommodations').doc(params.id)
+    const doc = await accommodationRef.get()
+
+    if (!doc.exists) {
+      return NextResponse.json(
+        { error: 'Accommodation not found' },
+        { status: 404, headers }
+      )
+    }
+
     await accommodationRef.delete()
     
-    return NextResponse.json({ message: 'Accommodation deleted successfully' })
+    return NextResponse.json(
+      { message: 'Accommodation deleted successfully' },
+      { status: 200, headers }
+    )
   } catch (error) {
     console.error('Error deleting accommodation:', error)
     return NextResponse.json(
       { error: 'Failed to delete accommodation' },
-      { status: 500 }
+      { status: 500, headers: {
+        'Access-Control-Allow-Methods': 'DELETE',
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+      }}
     )
   }
 }

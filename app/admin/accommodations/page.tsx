@@ -61,17 +61,22 @@ export default function AccommodationsDashboard() {
     try {
       const response = await fetch(`/api/accommodations/${id}`, {
         method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
       })
 
+      const data = await response.json()
+
       if (!response.ok) {
-        throw new Error('Failed to delete accommodation')
+        throw new Error(data.error || 'Failed to delete accommodation')
       }
 
       setAccommodations(prev => prev.filter(acc => acc.id !== id))
-      toast.success('Accommodation deleted successfully')
+      toast.success(data.message || 'Accommodation deleted successfully')
     } catch (err) {
       console.error('Error deleting accommodation:', err)
-      toast.error('Failed to delete accommodation')
+      toast.error(err instanceof Error ? err.message : 'Failed to delete accommodation')
     }
   }
 
