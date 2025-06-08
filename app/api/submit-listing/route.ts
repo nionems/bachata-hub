@@ -37,12 +37,13 @@ export async function POST(request: Request) {
             <p><strong>Address:</strong> ${data.address}</p>
             <p><strong>Contact Info:</strong> ${data.contactInfo}</p>
             <p><strong>Email:</strong> ${data.email}</p>
+            <p><strong>Phone:</strong> ${data.phone}</p>
             <p><strong>Website:</strong> ${data.website || 'Not provided'}</p>
             <p><strong>Price:</strong> ${data.price}</p>
             <p><strong>Rooms:</strong> ${data.rooms}</p>
             <p><strong>Capacity:</strong> ${data.capacity}</p>
             <p><strong>Image URL:</strong> ${data.imageUrl || 'Not provided'}</p>
-            <p><strong>Comment:</strong> ${data.comment || 'Not provided'}</p>
+            <p><strong>Description:</strong> ${data.comment || 'Not provided'}</p>
             <p><strong>Google Map Link:</strong> ${data.googleMapLink || 'Not provided'}</p>
           </div>
         `
