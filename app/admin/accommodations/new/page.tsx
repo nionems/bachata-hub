@@ -54,7 +54,7 @@ export default function NewAccommodationPage() {
     phone: ''
   })
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value, type } = e.target
     if (type === 'file') {
       const fileInput = e.target as HTMLInputElement
