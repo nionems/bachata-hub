@@ -294,6 +294,18 @@ export default function EditAccommodationPage({ params }: { params: { id: string
           </div>
 
           <div>
+            <label className="block text-sm font-medium mb-1">Website</label>
+            <input
+              type="url"
+              name="website"
+              value={accommodation.website}
+              onChange={handleChange}
+              className="w-full p-2 border rounded"
+              placeholder="Enter website URL"
+            />
+          </div>
+
+          <div>
             <label className="block text-sm font-medium mb-1">Price</label>
             <input
               type="text"
@@ -302,6 +314,7 @@ export default function EditAccommodationPage({ params }: { params: { id: string
               onChange={handleChange}
               className="w-full p-2 border rounded"
               required
+              placeholder="Enter price"
             />
           </div>
 
@@ -314,6 +327,7 @@ export default function EditAccommodationPage({ params }: { params: { id: string
               onChange={handleChange}
               className="w-full p-2 border rounded"
               required
+              placeholder="Enter number of rooms"
             />
           </div>
 
@@ -326,6 +340,7 @@ export default function EditAccommodationPage({ params }: { params: { id: string
               onChange={handleChange}
               className="w-full p-2 border rounded"
               required
+              placeholder="Enter capacity"
             />
           </div>
 
@@ -337,18 +352,20 @@ export default function EditAccommodationPage({ params }: { params: { id: string
               value={accommodation.googleMapLink}
               onChange={handleChange}
               className="w-full p-2 border rounded"
+              placeholder="Enter Google Maps link"
             />
           </div>
         </div>
 
         <div>
-          <label className="block text-sm font-medium mb-1">Comment</label>
+          <label className="block text-sm font-medium mb-1">Description</label>
           <textarea
             name="comment"
             value={accommodation.comment}
             onChange={handleChange}
             className="w-full p-2 border rounded"
             rows={4}
+            placeholder="Enter accommodation description"
           />
         </div>
 
