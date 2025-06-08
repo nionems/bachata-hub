@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { StateSelect } from "@/components/ui/StateSelect"
 import { X } from "lucide-react"
+import { toast } from "react-hot-toast"
 
 interface FestivalSubmissionFormProps {
   isOpen: boolean
@@ -59,34 +60,56 @@ export function FestivalSubmissionForm({ isOpen, onClose }: FestivalSubmissionFo
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
     setIsLoading(true)
-    setError(null)
 
     try {
-      // Here you would typically send the form data to your API
-      // For now, we'll just simulate a successful submission
-      await new Promise(resolve => setTimeout(resolve, 1000))
-      setSuccess(true)
-      setTimeout(() => {
-        onClose()
-        setFormData({
-          name: '',
-          startDate: '',
-          endDate: '',
-          location: '',
-          state: '',
-          address: '',
-          eventLink: '',
-          price: '',
-          ticketLink: '',
-          danceStyles: '',
-          imageUrl: '',
-          comment: '',
-          googleMapLink: ''
-        })
-        setSuccess(false)
-      }, 2000)
-    } catch (err) {
-      setError('Failed to submit form. Please try again.')
+      const response = await fetch('/api/festivals', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to submit festival')
+      }
+
+      // Send email notification
+      const emailResponse = await fetch('/api/send-email', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          type: 'festival_submission',
+          data: formData
+        }),
+      })
+
+      if (!emailResponse.ok) {
+        console.error('Failed to send email notification')
+      }
+
+      toast.success('Festival submitted successfully!')
+      onClose()
+      setFormData({
+        name: '',
+        startDate: '',
+        endDate: '',
+        location: '',
+        state: '',
+        address: '',
+        eventLink: '',
+        price: '',
+        ticketLink: '',
+        danceStyles: '',
+        imageUrl: '',
+        comment: '',
+        googleMapLink: ''
+      })
+    } catch (error) {
+      console.error('Error submitting festival:', error)
+      toast.error('Failed to submit festival. Please try again.')
     } finally {
       setIsLoading(false)
     }

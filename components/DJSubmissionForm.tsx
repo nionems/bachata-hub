@@ -68,6 +68,22 @@ export function DJSubmissionForm({ isOpen, onClose }: DJSubmissionFormProps) {
         throw new Error('Failed to submit DJ')
       }
 
+      // Send email notification
+      const emailResponse = await fetch('/api/send-email', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          type: 'dj_submission',
+          data: formData
+        }),
+      })
+
+      if (!emailResponse.ok) {
+        console.error('Failed to send email notification')
+      }
+
       toast.success('DJ submitted successfully!')
       onClose()
       setFormData({

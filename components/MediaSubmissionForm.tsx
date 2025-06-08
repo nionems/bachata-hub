@@ -18,7 +18,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { toast } from 'sonner'
+import { toast } from "sonner"
 
 interface MediaSubmissionFormProps {
   isOpen: boolean
@@ -66,7 +66,6 @@ export function MediaSubmissionForm({ isOpen, onClose }: MediaSubmissionFormProp
   })
 
   const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
 
   const handleInputChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target
@@ -76,7 +75,6 @@ export function MediaSubmissionForm({ isOpen, onClose }: MediaSubmissionFormProp
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
     setIsLoading(true)
-    setError(null)
 
     try {
       const response = await fetch('/api/media', {
@@ -89,6 +87,22 @@ export function MediaSubmissionForm({ isOpen, onClose }: MediaSubmissionFormProp
 
       if (!response.ok) {
         throw new Error('Failed to submit media')
+      }
+
+      // Send email notification
+      const emailResponse = await fetch('/api/send-email', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          type: 'media_submission',
+          data: formData
+        }),
+      })
+
+      if (!emailResponse.ok) {
+        console.error('Failed to send email notification')
       }
 
       toast.success('Media submitted successfully!')
@@ -116,9 +130,9 @@ export function MediaSubmissionForm({ isOpen, onClose }: MediaSubmissionFormProp
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[600px] rounded-xl sm:rounded-2xl">
-        <DialogHeader className="rounded-t-xl sm:rounded-t-2xl">
-          <DialogTitle className="text-2xl font-bold text-primary">Submit Your Media</DialogTitle>
+      <DialogContent className="max-w-[95vw] sm:max-w-[600px] bg-gradient-to-br from-primary/10 to-secondary/10 max-h-[90vh] overflow-y-auto rounded-xl sm:rounded-2xl">
+        <DialogHeader className="sticky top-0 z-10 bg-white/80 backdrop-blur-sm rounded-t-xl sm:rounded-t-2xl">
+          <DialogTitle className="text-primary text-lg sm:text-xl">Submit Your Media</DialogTitle>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-6">
@@ -278,10 +292,6 @@ export function MediaSubmissionForm({ isOpen, onClose }: MediaSubmissionFormProp
               <br />4. Copy the link and paste it here
             </p>
           </div>
-
-          {error && (
-            <div className="text-red-500 text-sm">{error}</div>
-          )}
 
           <div className="flex justify-end gap-2">
             <Button

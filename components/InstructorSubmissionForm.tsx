@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { StateSelect } from "@/components/ui/StateSelect"
 import { X } from "lucide-react"
+import { toast } from "react-hot-toast"
 
 interface InstructorSubmissionFormProps {
   isOpen: boolean
@@ -53,31 +54,53 @@ export function InstructorSubmissionForm({ isOpen, onClose }: InstructorSubmissi
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
     setIsLoading(true)
-    setError(null)
 
     try {
-      // Here you would typically send the form data to your API
-      // For now, we'll just simulate a successful submission
-      await new Promise(resolve => setTimeout(resolve, 1000))
-      setSuccess(true)
-      setTimeout(() => {
-        onClose()
-        setFormData({
-          name: '',
-          location: '',
-          state: '',
-          bio: '',
-          website: '',
-          socialUrl: '',
-          contactInfo: '',
-          danceStyles: '',
-          experience: '',
-          imageUrl: ''
-        })
-        setSuccess(false)
-      }, 2000)
-    } catch (err) {
-      setError('Failed to submit form. Please try again.')
+      const response = await fetch('/api/instructors', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to submit instructor')
+      }
+
+      // Send email notification
+      const emailResponse = await fetch('/api/send-email', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          type: 'instructor_submission',
+          data: formData
+        }),
+      })
+
+      if (!emailResponse.ok) {
+        console.error('Failed to send email notification')
+      }
+
+      toast.success('Instructor submitted successfully!')
+      onClose()
+      setFormData({
+        name: '',
+        location: '',
+        state: '',
+        bio: '',
+        website: '',
+        socialUrl: '',
+        contactInfo: '',
+        danceStyles: '',
+        experience: '',
+        imageUrl: ''
+      })
+    } catch (error) {
+      console.error('Error submitting instructor:', error)
+      toast.error('Failed to submit instructor. Please try again.')
     } finally {
       setIsLoading(false)
     }
