@@ -172,16 +172,24 @@ export function DJSubmissionForm({ isOpen, onClose }: DJSubmissionFormProps) {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="imageUrl" className="text-primary">Image URL</Label>
+              <Label htmlFor="imageUrl" className="text-primary">Image URL *</Label>
               <Input
                 id="imageUrl"
                 name="imageUrl"
                 type="url"
                 value={formData.imageUrl}
                 onChange={handleInputChange}
-                placeholder="https://"
+                required
+                placeholder="Enter Google Drive image URL"
                 className="bg-white/80 backdrop-blur-sm rounded-lg"
               />
+              <p className="text-xs text-gray-500 mt-1">
+                To add an image:
+                <br />1. Upload your image to Google Drive
+                <br />2. Right-click the image and select "Share"
+                <br />3. Set access to "Anyone with the link"
+                <br />4. Copy the link and paste it here
+              </p>
             </div>
 
             <div className="space-y-2">

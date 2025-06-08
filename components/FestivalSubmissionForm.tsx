@@ -25,7 +25,6 @@ interface FestivalFormData {
   price: string
   ticketLink: string
   danceStyles: string
-  image: File | null
   imageUrl: string
   comment: string
   googleMapLink: string
@@ -43,7 +42,6 @@ export function FestivalSubmissionForm({ isOpen, onClose }: FestivalSubmissionFo
     price: '',
     ticketLink: '',
     danceStyles: '',
-    image: null,
     imageUrl: '',
     comment: '',
     googleMapLink: ''
@@ -52,23 +50,10 @@ export function FestivalSubmissionForm({ isOpen, onClose }: FestivalSubmissionFo
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState(false)
-  const [imagePreview, setImagePreview] = useState<string | null>(null)
 
   const handleInputChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target
     setFormData(prev => ({ ...prev, [name]: value }))
-  }
-
-  const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      const file = e.target.files[0]
-      setFormData(prev => ({ ...prev, image: file }))
-      const reader = new FileReader()
-      reader.onloadend = () => {
-        setImagePreview(reader.result as string)
-      }
-      reader.readAsDataURL(file)
-    }
   }
 
   const handleSubmit = async (e: FormEvent) => {
@@ -94,12 +79,10 @@ export function FestivalSubmissionForm({ isOpen, onClose }: FestivalSubmissionFo
           price: '',
           ticketLink: '',
           danceStyles: '',
-          image: null,
           imageUrl: '',
           comment: '',
           googleMapLink: ''
         })
-        setImagePreview(null)
         setSuccess(false)
       }, 2000)
     } catch (err) {
@@ -254,16 +237,24 @@ export function FestivalSubmissionForm({ isOpen, onClose }: FestivalSubmissionFo
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="imageUrl" className="text-primary">Image URL</Label>
+              <Label htmlFor="imageUrl" className="text-primary">Image URL *</Label>
               <Input
                 id="imageUrl"
                 name="imageUrl"
                 type="url"
                 value={formData.imageUrl}
                 onChange={handleInputChange}
-                placeholder="https://"
+                required
+                placeholder="Enter Google Drive image URL"
                 className="bg-white/80 backdrop-blur-sm"
               />
+              <p className="text-xs text-muted-foreground">
+                To add an image:
+                <br />1. Upload your image to Google Drive
+                <br />2. Right-click the image and select "Share"
+                <br />3. Set access to "Anyone with the link"
+                <br />4. Copy the link and paste it here
+              </p>
             </div>
 
             <div className="space-y-2">
@@ -278,27 +269,6 @@ export function FestivalSubmissionForm({ isOpen, onClose }: FestivalSubmissionFo
                 className="bg-white/80 backdrop-blur-sm"
               />
             </div>
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="image" className="text-primary">Upload Image</Label>
-            <Input
-              id="image"
-              name="image"
-              type="file"
-              accept="image/*"
-              onChange={handleImageChange}
-              className="bg-white/80 backdrop-blur-sm"
-            />
-            {imagePreview && (
-              <div className="mt-2">
-                <img
-                  src={imagePreview}
-                  alt="Preview"
-                  className="h-32 w-32 object-cover rounded-md"
-                />
-              </div>
-            )}
           </div>
 
           <div className="space-y-2">

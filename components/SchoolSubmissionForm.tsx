@@ -25,7 +25,7 @@ interface SchoolFormData {
   contactInfo: string
   danceStyles: string
   description: string
-  image: File | null
+  imageUrl: string
 }
 
 export function SchoolSubmissionForm({ isOpen, onClose }: SchoolSubmissionFormProps) {
@@ -40,7 +40,7 @@ export function SchoolSubmissionForm({ isOpen, onClose }: SchoolSubmissionFormPr
     contactInfo: '',
     danceStyles: '',
     description: '',
-    image: null
+    imageUrl: ''
   })
 
   const [isLoading, setIsLoading] = useState(false)
@@ -52,21 +52,53 @@ export function SchoolSubmissionForm({ isOpen, onClose }: SchoolSubmissionFormPr
     setFormData(prev => ({ ...prev, [name]: value }))
   }
 
-  const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      setFormData(prev => ({ ...prev, image: e.target.files![0] }))
-    }
-  }
-
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
     setIsLoading(true)
     setError(null)
 
     try {
-      // Here you would typically send the form data to your API
-      // For now, we'll just simulate a successful submission
-      await new Promise(resolve => setTimeout(resolve, 1000))
+      // Send the form data to the API
+      const response = await fetch('/api/schools', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to submit school')
+      }
+
+      // Send email notification
+      const emailResponse = await fetch('/api/send-email', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          type: 'school_submission',
+          data: {
+            name: formData.name,
+            location: formData.location,
+            state: formData.state,
+            address: formData.address,
+            website: formData.website,
+            instagramUrl: formData.instagramUrl,
+            facebookUrl: formData.facebookUrl,
+            contactInfo: formData.contactInfo,
+            danceStyles: formData.danceStyles,
+            description: formData.description,
+            imageUrl: formData.imageUrl
+          }
+        }),
+      })
+
+      if (!emailResponse.ok) {
+        console.error('Failed to send email notification')
+      }
+
       setSuccess(true)
       setTimeout(() => {
         onClose()
@@ -81,7 +113,7 @@ export function SchoolSubmissionForm({ isOpen, onClose }: SchoolSubmissionFormPr
           contactInfo: '',
           danceStyles: '',
           description: '',
-          image: null
+          imageUrl: ''
         })
         setSuccess(false)
       }, 2000)
@@ -237,15 +269,24 @@ export function SchoolSubmissionForm({ isOpen, onClose }: SchoolSubmissionFormPr
           </div>
 
           <div className="space-y-1 sm:space-y-2">
-            <Label htmlFor="image" className="text-primary text-sm sm:text-base">School Image</Label>
+            <Label htmlFor="imageUrl" className="text-primary text-sm sm:text-base">School Image *</Label>
             <Input
-              id="image"
-              name="image"
-              type="file"
-              accept="image/*"
-              onChange={handleImageChange}
-              className="bg-white/80 backdrop-blur-sm text-sm sm:text-base"
+              id="imageUrl"
+              name="imageUrl"
+              type="url"
+              value={formData.imageUrl}
+              onChange={handleInputChange}
+              required
+              placeholder="https://drive.google.com/..."
+              className="bg-white/80 backdrop-blur-sm text-sm sm:text-base rounded-lg"
             />
+            <p className="text-xs text-gray-500 mt-1">
+              To add an image:
+              1. Upload your image to Google Drive
+              2. Right-click the image and select "Share"
+              3. Set access to "Anyone with the link"
+              4. Copy the link and paste it here
+            </p>
           </div>
 
           {error && (

@@ -1,13 +1,19 @@
 "use client"
 
-import { useState } from 'react'
+import { useState, ChangeEvent, FormEvent } from 'react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
+import { StateSelect } from "@/components/ui/StateSelect"
 import { toast } from "sonner"
 import { X } from "lucide-react"
+
+interface ShopSubmissionFormProps {
+  isOpen: boolean
+  onClose: () => void
+}
 
 interface ShopFormData {
   name: string
@@ -17,21 +23,12 @@ interface ShopFormData {
   website: string
   instagramLink: string
   facebookLink: string
-  googleMapLink: string
-  comment: string
-  contactName: string
-  contactEmail: string
-  contactPhone: string
-  additionalInfo: string
-}
-
-interface ShopSubmissionFormProps {
-  isOpen: boolean
-  onClose: () => void
+  contactInfo: string
+  description: string
+  imageUrl: string
 }
 
 export function ShopSubmissionForm({ isOpen, onClose }: ShopSubmissionFormProps) {
-  const [isSubmitting, setIsSubmitting] = useState(false)
   const [formData, setFormData] = useState<ShopFormData>({
     name: '',
     location: '',
@@ -40,58 +37,36 @@ export function ShopSubmissionForm({ isOpen, onClose }: ShopSubmissionFormProps)
     website: '',
     instagramLink: '',
     facebookLink: '',
-    googleMapLink: '',
-    comment: '',
-    contactName: '',
-    contactEmail: '',
-    contactPhone: '',
-    additionalInfo: ''
+    contactInfo: '',
+    description: '',
+    imageUrl: ''
   })
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const [isLoading, setIsLoading] = useState(false)
+
+  const handleInputChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target
+    setFormData(prev => ({ ...prev, [name]: value }))
+  }
+
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
-    setIsSubmitting(true)
+    setIsLoading(true)
 
     try {
-      const response = await fetch('/api/contact', {
+      const response = await fetch('/api/shops', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          subject: 'New Shop Submission',
-          message: `
-New Shop Submission Details:
-
-Shop Information:
-- Name: ${formData.name}
-- Location: ${formData.location}
-- State: ${formData.state}
-- Address: ${formData.address}
-- Website: ${formData.website}
-- Instagram: ${formData.instagramLink}
-- Facebook: ${formData.facebookLink}
-- Google Maps: ${formData.googleMapLink}
-- Additional Comments: ${formData.comment}
-
-Contact Information:
-- Name: ${formData.contactName}
-- Email: ${formData.contactEmail}
-- Phone: ${formData.contactPhone}
-
-Additional Information:
-${formData.additionalInfo}
-          `,
-          email: formData.contactEmail,
-          name: formData.contactName
-        }),
+        body: JSON.stringify(formData),
       })
 
       if (!response.ok) {
-        throw new Error('Failed to submit form')
+        throw new Error('Failed to submit shop')
       }
 
-      toast.success('Thank you for your submission! We will review it and get back to you soon.')
+      toast.success('Shop submitted successfully!')
       onClose()
       setFormData({
         name: '',
@@ -101,27 +76,16 @@ ${formData.additionalInfo}
         website: '',
         instagramLink: '',
         facebookLink: '',
-        googleMapLink: '',
-        comment: '',
-        contactName: '',
-        contactEmail: '',
-        contactPhone: '',
-        additionalInfo: ''
+        contactInfo: '',
+        description: '',
+        imageUrl: ''
       })
     } catch (error) {
-      console.error('Error submitting form:', error)
-      toast.error('Failed to submit form. Please try again.')
+      console.error('Error submitting shop:', error)
+      toast.error('Failed to submit shop. Please try again.')
     } finally {
-      setIsSubmitting(false)
+      setIsLoading(false)
     }
-  }
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    const { name, value } = e.target
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }))
   }
 
   return (
@@ -145,200 +109,153 @@ ${formData.additionalInfo}
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
-            <div className="space-y-1 sm:space-y-2">
-              <Label htmlFor="name" className="text-primary text-sm sm:text-base">Shop Name *</Label>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="name" className="text-primary">Shop Name *</Label>
               <Input
                 id="name"
                 name="name"
                 value={formData.name}
-                onChange={handleChange}
+                onChange={handleInputChange}
                 required
-                placeholder="Enter shop name"
-                className="bg-white/80 backdrop-blur-sm text-sm sm:text-base rounded-lg"
+                className="bg-white/80 backdrop-blur-sm rounded-lg"
               />
             </div>
 
-            <div className="space-y-1 sm:space-y-2">
-              <Label htmlFor="location" className="text-primary text-sm sm:text-base">Location *</Label>
+            <div className="space-y-2">
+              <Label htmlFor="location" className="text-primary">Location *</Label>
               <Input
                 id="location"
                 name="location"
                 value={formData.location}
-                onChange={handleChange}
+                onChange={handleInputChange}
                 required
-                placeholder="Enter location"
-                className="bg-white/80 backdrop-blur-sm text-sm sm:text-base rounded-lg"
+                className="bg-white/80 backdrop-blur-sm rounded-lg"
               />
             </div>
 
-            <div className="space-y-1 sm:space-y-2">
-              <Label htmlFor="state" className="text-primary text-sm sm:text-base">State *</Label>
-              <select
-                id="state"
-                name="state"
+            <div className="space-y-2">
+              <Label htmlFor="state" className="text-primary">State *</Label>
+              <StateSelect
                 value={formData.state}
-                onChange={handleChange}
-                required
-                className="w-full rounded-lg border border-input bg-white/80 backdrop-blur-sm text-sm sm:text-base px-3 py-2"
-              >
-                <option value="">Select a state</option>
-                <option value="NSW">New South Wales</option>
-                <option value="VIC">Victoria</option>
-                <option value="QLD">Queensland</option>
-                <option value="WA">Western Australia</option>
-                <option value="SA">South Australia</option>
-                <option value="TAS">Tasmania</option>
-                <option value="ACT">Australian Capital Territory</option>
-                <option value="NT">Northern Territory</option>
-              </select>
+                onChange={(value) => setFormData(prev => ({ ...prev, state: value }))}
+                className="bg-white/80 backdrop-blur-sm rounded-lg"
+              />
             </div>
 
-            <div className="space-y-1 sm:space-y-2">
-              <Label htmlFor="address" className="text-primary text-sm sm:text-base">Address</Label>
+            <div className="space-y-2">
+              <Label htmlFor="address" className="text-primary">Address *</Label>
               <Input
                 id="address"
                 name="address"
                 value={formData.address}
-                onChange={handleChange}
-                placeholder="Enter address"
-                className="bg-white/80 backdrop-blur-sm text-sm sm:text-base rounded-lg"
+                onChange={handleInputChange}
+                required
+                className="bg-white/80 backdrop-blur-sm rounded-lg"
               />
             </div>
 
-            <div className="space-y-1 sm:space-y-2">
-              <Label htmlFor="website" className="text-primary text-sm sm:text-base">Website</Label>
+            <div className="space-y-2">
+              <Label htmlFor="website" className="text-primary">Website</Label>
               <Input
                 id="website"
                 name="website"
                 type="url"
                 value={formData.website}
-                onChange={handleChange}
+                onChange={handleInputChange}
                 placeholder="https://"
-                className="bg-white/80 backdrop-blur-sm text-sm sm:text-base rounded-lg"
+                className="bg-white/80 backdrop-blur-sm rounded-lg"
               />
             </div>
 
-            <div className="space-y-1 sm:space-y-2">
-              <Label htmlFor="instagramLink" className="text-primary text-sm sm:text-base">Instagram Link</Label>
+            <div className="space-y-2">
+              <Label htmlFor="instagramLink" className="text-primary">Instagram Link</Label>
               <Input
                 id="instagramLink"
                 name="instagramLink"
                 type="url"
                 value={formData.instagramLink}
-                onChange={handleChange}
+                onChange={handleInputChange}
                 placeholder="https://instagram.com/username"
-                className="bg-white/80 backdrop-blur-sm text-sm sm:text-base rounded-lg"
+                className="bg-white/80 backdrop-blur-sm rounded-lg"
               />
             </div>
 
-            <div className="space-y-1 sm:space-y-2">
-              <Label htmlFor="facebookLink" className="text-primary text-sm sm:text-base">Facebook Link</Label>
+            <div className="space-y-2">
+              <Label htmlFor="facebookLink" className="text-primary">Facebook Link</Label>
               <Input
                 id="facebookLink"
                 name="facebookLink"
                 type="url"
                 value={formData.facebookLink}
-                onChange={handleChange}
+                onChange={handleInputChange}
                 placeholder="https://facebook.com/username"
-                className="bg-white/80 backdrop-blur-sm text-sm sm:text-base rounded-lg"
+                className="bg-white/80 backdrop-blur-sm rounded-lg"
               />
             </div>
 
-            <div className="space-y-1 sm:space-y-2">
-              <Label htmlFor="googleMapLink" className="text-primary text-sm sm:text-base">Google Maps Link</Label>
+            <div className="space-y-2">
+              <Label htmlFor="contactInfo" className="text-primary">Contact Information *</Label>
               <Input
-                id="googleMapLink"
-                name="googleMapLink"
-                type="url"
-                value={formData.googleMapLink}
-                onChange={handleChange}
-                placeholder="https://maps.google.com/..."
-                className="bg-white/80 backdrop-blur-sm text-sm sm:text-base rounded-lg"
-              />
-            </div>
-
-            <div className="space-y-1 sm:space-y-2">
-              <Label htmlFor="contactName" className="text-primary text-sm sm:text-base">Contact Name *</Label>
-              <Input
-                id="contactName"
-                name="contactName"
-                value={formData.contactName}
-                onChange={handleChange}
+                id="contactInfo"
+                name="contactInfo"
+                value={formData.contactInfo}
+                onChange={handleInputChange}
                 required
-                placeholder="Enter contact name"
-                className="bg-white/80 backdrop-blur-sm text-sm sm:text-base rounded-lg"
-              />
-            </div>
-
-            <div className="space-y-1 sm:space-y-2">
-              <Label htmlFor="contactEmail" className="text-primary text-sm sm:text-base">Contact Email *</Label>
-              <Input
-                id="contactEmail"
-                name="contactEmail"
-                type="email"
-                value={formData.contactEmail}
-                onChange={handleChange}
-                required
-                placeholder="Enter contact email"
-                className="bg-white/80 backdrop-blur-sm text-sm sm:text-base rounded-lg"
-              />
-            </div>
-
-            <div className="space-y-1 sm:space-y-2">
-              <Label htmlFor="contactPhone" className="text-primary text-sm sm:text-base">Contact Phone</Label>
-              <Input
-                id="contactPhone"
-                name="contactPhone"
-                type="tel"
-                value={formData.contactPhone}
-                onChange={handleChange}
-                placeholder="Enter contact phone"
-                className="bg-white/80 backdrop-blur-sm text-sm sm:text-base rounded-lg"
+                className="bg-white/80 backdrop-blur-sm rounded-lg"
               />
             </div>
           </div>
 
-          <div className="space-y-1 sm:space-y-2">
-            <Label htmlFor="comment" className="text-primary text-sm sm:text-base">Additional Comments</Label>
+          <div className="space-y-2">
+            <Label htmlFor="description" className="text-primary">Description</Label>
             <Textarea
-              id="comment"
-              name="comment"
-              value={formData.comment}
-              onChange={handleChange}
-              placeholder="Tell us about your shop..."
-              className="bg-white/80 backdrop-blur-sm text-sm sm:text-base rounded-lg"
+              id="description"
+              name="description"
+              value={formData.description}
+              onChange={handleInputChange}
+              className="min-h-[100px] bg-white/80 backdrop-blur-sm rounded-lg"
+              placeholder="Tell us about your shop, products, and services..."
             />
           </div>
 
-          <div className="space-y-1 sm:space-y-2">
-            <Label htmlFor="additionalInfo" className="text-primary text-sm sm:text-base">Additional Information</Label>
-            <Textarea
-              id="additionalInfo"
-              name="additionalInfo"
-              value={formData.additionalInfo}
-              onChange={handleChange}
-              placeholder="Any additional information..."
-              className="bg-white/80 backdrop-blur-sm text-sm sm:text-base rounded-lg"
+          <div className="space-y-2">
+            <Label htmlFor="imageUrl" className="text-primary">Image URL *</Label>
+            <Input
+              id="imageUrl"
+              name="imageUrl"
+              type="url"
+              value={formData.imageUrl}
+              onChange={handleInputChange}
+              required
+              placeholder="Enter Google Drive image URL"
+              className="bg-white/80 backdrop-blur-sm rounded-lg"
             />
+            <p className="text-xs text-gray-500 mt-1">
+              To add an image:
+              <br />1. Upload your image to Google Drive
+              <br />2. Right-click the image and select "Share"
+              <br />3. Set access to "Anyone with the link"
+              <br />4. Copy the link and paste it here
+            </p>
           </div>
 
-          <div className="flex flex-col sm:flex-row justify-end gap-2 pt-2">
+          <div className="flex justify-end gap-2">
             <Button
               type="button"
               variant="outline"
               onClick={onClose}
-              disabled={isSubmitting}
-              className="w-full sm:w-auto border-primary text-primary hover:bg-primary/10 text-sm sm:text-base rounded-lg"
+              disabled={isLoading}
+              className="w-full rounded-lg"
             >
               Cancel
             </Button>
             <Button
               type="submit"
-              disabled={isSubmitting}
-              className="w-full sm:w-auto bg-primary hover:bg-primary/90 text-white rounded-lg"
+              disabled={isLoading}
+              className="w-full bg-primary hover:bg-primary/90 text-white rounded-lg"
             >
-              {isSubmitting ? 'Submitting...' : 'Submit Shop'}
+              {isLoading ? 'Submitting...' : 'Submit Shop'}
             </Button>
           </div>
         </form>

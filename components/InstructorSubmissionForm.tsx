@@ -24,7 +24,7 @@ interface InstructorFormData {
   contactInfo: string
   danceStyles: string
   experience: string
-  image: File | null
+  imageUrl: string
 }
 
 export function InstructorSubmissionForm({ isOpen, onClose }: InstructorSubmissionFormProps) {
@@ -38,7 +38,7 @@ export function InstructorSubmissionForm({ isOpen, onClose }: InstructorSubmissi
     contactInfo: '',
     danceStyles: '',
     experience: '',
-    image: null
+    imageUrl: ''
   })
 
   const [isLoading, setIsLoading] = useState(false)
@@ -48,12 +48,6 @@ export function InstructorSubmissionForm({ isOpen, onClose }: InstructorSubmissi
   const handleInputChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target
     setFormData(prev => ({ ...prev, [name]: value }))
-  }
-
-  const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      setFormData(prev => ({ ...prev, image: e.target.files![0] }))
-    }
   }
 
   const handleSubmit = async (e: FormEvent) => {
@@ -78,7 +72,7 @@ export function InstructorSubmissionForm({ isOpen, onClose }: InstructorSubmissi
           contactInfo: '',
           danceStyles: '',
           experience: '',
-          image: null
+          imageUrl: ''
         })
         setSuccess(false)
       }, 2000)
@@ -224,15 +218,24 @@ export function InstructorSubmissionForm({ isOpen, onClose }: InstructorSubmissi
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="image" className="text-primary">Profile Image</Label>
+            <Label htmlFor="imageUrl" className="text-primary">Image URL *</Label>
             <Input
-              id="image"
-              name="image"
-              type="file"
-              accept="image/*"
-              onChange={handleImageChange}
-              className="bg-white/80 backdrop-blur-sm"
+              id="imageUrl"
+              name="imageUrl"
+              type="url"
+              value={formData.imageUrl}
+              onChange={handleInputChange}
+              required
+              placeholder="Enter Google Drive image URL"
+              className="bg-white/80 backdrop-blur-sm rounded-lg"
             />
+            <p className="text-xs text-gray-500 mt-1">
+              To add an image:
+              <br />1. Upload your image to Google Drive
+              <br />2. Right-click the image and select "Share"
+              <br />3. Set access to "Anyone with the link"
+              <br />4. Copy the link and paste it here
+            </p>
           </div>
 
           {error && (

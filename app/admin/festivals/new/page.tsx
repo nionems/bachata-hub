@@ -35,8 +35,6 @@ export default function NewFestivalPage() {
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [selectedImage, setSelectedImage] = useState<File | null>(null)
-  
   const [formData, setFormData] = useState<FestivalFormData>({
     name: '',
     startDate: '',
@@ -53,53 +51,18 @@ export default function NewFestivalPage() {
     googleMapLink: ''
   })
 
-  const handleImageUpload = async (file: File) => {
-    try {
-      const formData = new FormData()
-      formData.append('file', file)
-      formData.append('folder', 'festivals')
-
-      console.log('Sending image upload request to API...') // Debug log
-      const response = await fetch('/api/upload', {
-        method: 'POST',
-        body: formData
-      })
-
-      if (!response.ok) {
-        const errorData = await response.json()
-        console.error('Upload API error:', errorData) // Debug log
-        throw new Error('Failed to upload image')
-      }
-
-      const data = await response.json()
-      console.log('Upload API response:', data) // Debug log
-      return data.imageUrl // Return imageUrl instead of url
-    } catch (error) {
-      console.error('Upload error:', error)
-      throw new Error('Failed to upload image')
-    }
-  }
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsLoading(true)
     setError(null)
 
     try {
-      let imageUrl = formData.imageUrl
-      if (selectedImage) {
-        imageUrl = await handleImageUpload(selectedImage)
-      }
-
       const response = await fetch('/api/festivals', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          ...formData,
-          imageUrl
-        }),
+        body: JSON.stringify(formData),
       })
 
       if (!response.ok) throw new Error('Failed to create festival')
@@ -249,22 +212,23 @@ export default function NewFestivalPage() {
 
         {/* Image Upload */}
         <div>
-          <label className="block text-sm font-medium mb-1">Image</label>
+          <label className="block text-sm font-medium mb-1">Image URL *</label>
           <div className="space-y-2">
-            <input
-              type="file"
-              accept="image/*"
-              onChange={(e) => setSelectedImage(e.target.files?.[0] || null)}
-              className="w-full p-2 border rounded"
-            />
-            <div className="text-sm text-gray-500">OR</div>
             <input
               type="url"
               value={formData.imageUrl}
               onChange={(e) => setFormData({...formData, imageUrl: e.target.value})}
               className="w-full p-2 border rounded"
-              placeholder="Image URL"
+              placeholder="Enter Google Drive image URL"
+              required
             />
+            <p className="text-sm text-gray-500">
+              To add an image:
+              <br />1. Upload your image to Google Drive
+              <br />2. Right-click the image and select "Share"
+              <br />3. Set access to "Anyone with the link"
+              <br />4. Copy the link and paste it here
+            </p>
           </div>
         </div>
 

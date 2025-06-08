@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, ChangeEvent } from 'react'
+import { useState, ChangeEvent, FormEvent } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
@@ -36,7 +36,6 @@ interface MediaFormData {
   emailLink: string
   mediaLink: string
   mediaLink2: string
-  image: File | null
   imageUrl: string
 }
 
@@ -63,86 +62,53 @@ export function MediaSubmissionForm({ isOpen, onClose }: MediaSubmissionFormProp
     emailLink: '',
     mediaLink: '',
     mediaLink2: '',
-    image: null,
     imageUrl: ''
   })
 
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [imagePreview, setImagePreview] = useState<string | null>(null)
 
   const handleInputChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target
     setFormData(prev => ({ ...prev, [name]: value }))
   }
 
-  const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      const file = e.target.files[0]
-      if (file.size > 5 * 1024 * 1024) { // 5MB limit
-        toast.error("Image size should be less than 5MB")
-        return
-      }
-      if (!file.type.startsWith("image/")) {
-        toast.error("Please upload an image file")
-        return
-      }
-      setFormData(prev => ({ ...prev, image: file }))
-      const reader = new FileReader()
-      reader.onloadend = () => {
-        setImagePreview(reader.result as string)
-      }
-      reader.readAsDataURL(file)
-    }
-  }
-
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
     setIsLoading(true)
     setError(null)
 
     try {
-      let imageUrl = formData.imageUrl
-
-      if (formData.image) {
-        const uploadFormData = new FormData()
-        uploadFormData.append('file', formData.image)
-        uploadFormData.append('folder', 'media')
-
-        const uploadResponse = await fetch('/api/upload', {
-          method: 'POST',
-          body: uploadFormData,
-        })
-
-        if (!uploadResponse.ok) {
-          throw new Error('Failed to upload image')
-        }
-
-        const { imageUrl: uploadedImageUrl } = await uploadResponse.json()
-        imageUrl = uploadedImageUrl
-      }
-
       const response = await fetch('/api/media', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          ...formData,
-          imageUrl,
-          createdAt: new Date(),
-        }),
+        body: JSON.stringify(formData),
       })
 
       if (!response.ok) {
         throw new Error('Failed to submit media')
       }
 
-      toast.success('Media submitted successfully')
+      toast.success('Media submitted successfully!')
       onClose()
+      setFormData({
+        name: '',
+        location: '',
+        state: '',
+        contact: '',
+        comment: '',
+        instagramLink: '',
+        facebookLink: '',
+        emailLink: '',
+        mediaLink: '',
+        mediaLink2: '',
+        imageUrl: ''
+      })
     } catch (error) {
       console.error('Error submitting media:', error)
-      setError('Failed to submit media. Please try again.')
+      toast.error('Failed to submit media. Please try again.')
     } finally {
       setIsLoading(false)
     }
@@ -293,25 +259,24 @@ export function MediaSubmissionForm({ isOpen, onClose }: MediaSubmissionFormProp
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="image" className="text-primary">Image *</Label>
+            <Label htmlFor="imageUrl" className="text-primary">Image URL *</Label>
             <Input
-              id="image"
-              name="image"
-              type="file"
-              accept="image/*"
-              onChange={handleImageChange}
+              id="imageUrl"
+              name="imageUrl"
+              type="url"
+              value={formData.imageUrl}
+              onChange={handleInputChange}
               required
+              placeholder="Enter Google Drive image URL"
               className="bg-white/80 backdrop-blur-sm rounded-lg"
             />
-            {imagePreview && (
-              <div className="mt-2">
-                <img
-                  src={imagePreview}
-                  alt="Preview"
-                  className="h-32 w-32 object-cover rounded-md"
-                />
-              </div>
-            )}
+            <p className="text-xs text-gray-500 mt-1">
+              To add an image:
+              <br />1. Upload your image to Google Drive
+              <br />2. Right-click the image and select "Share"
+              <br />3. Set access to "Anyone with the link"
+              <br />4. Copy the link and paste it here
+            </p>
           </div>
 
           {error && (
