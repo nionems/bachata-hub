@@ -183,7 +183,7 @@ export default function NewAccommodationPage() {
       }
 
       console.log("Accommodation Form: Accommodation added successfully!")
-      router.push('/admin/accommodations')
+      router.push('/admin/dashboard')
       router.refresh()
 
     } catch (submitError: any) {
