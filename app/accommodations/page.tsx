@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Star, MapPin, DollarSign, Users, Calendar, Clock, Building2, Wifi, ParkingCircle, Utensils, Dumbbell, Waves, Heart, MessageSquare, Share2, ChevronRight, Facebook, Instagram } from "lucide-react"
+import { Star, MapPin, DollarSign, Users, Calendar, Clock, Building2, Wifi, ParkingCircle, Utensils, Dumbbell, Waves, Heart, MessageSquare, Share2, ChevronRight, Facebook, Instagram, Globe } from "lucide-react"
 import CollapsibleFilter from "@/components/collapsible-filter"
 import { StateFilter } from '@/components/StateFilter'
 import { useStateFilter } from '@/hooks/useStateFilter'
@@ -106,8 +106,46 @@ export default function AccommodationsPage() {
                   alt={accommodation.name}
                   className="w-full h-full object-cover"
                 />
-                <div className="absolute top-3 right-3 bg-black/60 backdrop-blur-sm px-2 py-1 rounded-full">
-                  <span className="text-xs text-white/90">DM for booking</span>
+                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
+                <div className="absolute top-3 right-3 bg-black/60 backdrop-blur-sm px-3 py-1.5 rounded-full z-10">
+                  <span className="text-sm text-white/90 font-medium">DM for booking</span>
+                </div>
+                <div className="absolute bottom-0 left-0 right-0 z-20 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-3 sm:p-4">
+                  <div className="flex gap-4 mt-3 sm:mt-2">
+                    {accommodation.facebookLink && (
+                      <a
+                        href={accommodation.facebookLink}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        onClick={(e) => e.stopPropagation()}
+                        className="text-white hover:text-primary transition-colors p-1"
+                      >
+                        <Facebook className="h-6 w-6 sm:h-5 sm:w-5" />
+                      </a>
+                    )}
+                    {accommodation.instagramLink && (
+                      <a
+                        href={accommodation.instagramLink}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        onClick={(e) => e.stopPropagation()}
+                        className="text-white hover:text-primary transition-colors p-1"
+                      >
+                        <Instagram className="h-6 w-6 sm:h-5 sm:w-5" />
+                      </a>
+                    )}
+                    {accommodation.website && (
+                      <a
+                        href={accommodation.website}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        onClick={(e) => e.stopPropagation()}
+                        className="text-white hover:text-primary transition-colors p-1"
+                      >
+                        <Globe className="h-6 w-6 sm:h-5 sm:w-5" />
+                      </a>
+                    )}
+                  </div>
                 </div>
               </div>
               <CardHeader>
@@ -134,30 +172,6 @@ export default function AccommodationsPage() {
                   <p className="text-sm text-gray-600 line-clamp-2">
                     {accommodation.comment}
                   </p>
-                  <div className="flex gap-3">
-                    {accommodation.facebookLink && (
-                      <a
-                        href={accommodation.facebookLink}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-blue-600 hover:text-blue-700 transition-colors"
-                        title="Contact on Facebook"
-                      >
-                        <Facebook className="w-5 h-5" />
-                      </a>
-                    )}
-                    {accommodation.instagramLink && (
-                      <a
-                        href={accommodation.instagramLink}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-pink-600 hover:text-pink-700 transition-colors"
-                        title="Contact on Instagram"
-                      >
-                        <Instagram className="w-5 h-5" />
-                      </a>
-                    )}
-                  </div>
                 </div>
               </CardContent>
             </Card>
