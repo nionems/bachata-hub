@@ -88,6 +88,80 @@ export function TermsOfServiceModal({ isOpen, onClose }: TermsOfServiceModalProp
             Website: <a href="https://www.bachata.au" target="_blank" rel="noopener noreferrer">https://www.bachata.au</a>
           </p>
 
+          <h2 className="text-xl font-semibold mt-6">Terms of Service for Bachata.au Accommodation Listings</h2>
+          <p className="text-sm text-gray-500 mb-4">Effective Date: 8 June 2025</p>
+
+          <h3 className="text-lg font-semibold mt-4">1. Introduction</h3>
+          <p>
+            Bachata.au provides a platform for members of the dance community to post and discover accommodation opportunities related to dance festivals and events across Australia. By accessing or using our accommodation listing services, you ("user", "you", or "your") agree to comply with and be bound by these Terms of Service.
+          </p>
+
+          <h3 className="text-lg font-semibold mt-4">2. User-Generated Content</h3>
+          <ul className="list-disc pl-6 space-y-2">
+            <li><strong>Responsibility:</strong> Users are solely responsible for the content they post, including accommodation listings and communications with other users.</li>
+            <li><strong>Accuracy:</strong> Users must ensure that all information provided in listings is accurate, current, and complete.</li>
+            <li><strong>Compliance:</strong> Users must comply with all applicable laws and regulations when posting content.</li>
+          </ul>
+
+          <h3 className="text-lg font-semibold mt-4">3. Platform Role and Limitations</h3>
+          <ul className="list-disc pl-6 space-y-2">
+            <li><strong>No Endorsement:</strong> Bachata.au does not endorse, verify, or guarantee any listings or user communications.</li>
+            <li><strong>No Liability:</strong> We are not liable for any disputes, damages, or losses arising from user interactions or accommodations arranged through our platform.</li>
+            <li><strong>No Fees:</strong> We do not charge users for posting or accessing accommodation listings.</li>
+          </ul>
+
+          <h3 className="text-lg font-semibold mt-4">4. User Conduct</h3>
+          <p>Users agree not to:</p>
+          <ul className="list-disc pl-6 space-y-2">
+            <li>Post false, misleading, or fraudulent information.</li>
+            <li>Engage in any illegal activities or promote illegal conduct.</li>
+            <li>Harass, threaten, or abuse other users.</li>
+            <li>Violate the rights of third parties, including privacy and intellectual property rights.</li>
+          </ul>
+
+          <h3 className="text-lg font-semibold mt-4">5. Content Moderation</h3>
+          <ul className="list-disc pl-6 space-y-2">
+            <li><strong>Rights:</strong> We reserve the right to remove or modify any content that violates these Terms or is otherwise objectionable.</li>
+            <li><strong>Reporting:</strong> Users can report inappropriate content or behavior to our support team.</li>
+          </ul>
+
+          <h3 className="text-lg font-semibold mt-4">6. Privacy</h3>
+          <ul className="list-disc pl-6 space-y-2">
+            <li><strong>Data Collection:</strong> We collect and use personal information in accordance with our Privacy Policy.</li>
+            <li><strong>User Consent:</strong> By using our services, you consent to the collection and use of your information as described.</li>
+          </ul>
+
+          <h3 className="text-lg font-semibold mt-4">7. Disclaimers</h3>
+          <ul className="list-disc pl-6 space-y-2">
+            <li><strong>No Warranty:</strong> Our services are provided "as is" without warranties of any kind.</li>
+            <li><strong>No Guarantee:</strong> We do not guarantee the availability, quality, or safety of accommodations listed on our platform.</li>
+          </ul>
+
+          <h3 className="text-lg font-semibold mt-4">8. Limitation of Liability</h3>
+          <p>
+            To the maximum extent permitted by law, Bachata.au shall not be liable for any indirect, incidental, or consequential damages arising from your use of our services.
+          </p>
+
+          <h3 className="text-lg font-semibold mt-4">9. Indemnification</h3>
+          <p>
+            You agree to indemnify and hold harmless Bachata.au and its affiliates from any claims, damages, or expenses arising from your use of our services or violation of these Terms.
+          </p>
+
+          <h3 className="text-lg font-semibold mt-4">10. Modifications</h3>
+          <p>
+            We may update these Terms from time to time. Continued use of our services after changes indicates your acceptance of the new Terms.
+          </p>
+
+          <h3 className="text-lg font-semibold mt-4">11. Governing Law</h3>
+          <p>
+            These Terms are governed by the laws of New South Wales, Australia. Any disputes shall be resolved in the courts of New South Wales.
+          </p>
+
+          <h3 className="text-lg font-semibold mt-4">Contact Us</h3>
+          <p>
+            For questions or concerns regarding these Terms, please contact us at Bachata.au@gmail.com
+          </p>
+
           <p className="text-sm text-gray-500 mt-8">
             Last updated: {new Date().toLocaleDateString()}
           </p>

@@ -4,8 +4,14 @@ import Image from 'next/image'
 import { Button } from "@/components/ui/button"
 import Link from 'next/link'
 import { Heart, Users, Globe, Award } from 'lucide-react'
+import { useState } from 'react'
+import { PrivacyPolicyModal } from '@/components/PrivacyPolicyModal'
+import { TermsOfServiceModal } from '@/components/TermsOfServiceModal'
 
 export default function AboutPage() {
+  const [isPrivacyModalOpen, setIsPrivacyModalOpen] = useState(false)
+  const [isTermsModalOpen, setIsTermsModalOpen] = useState(false)
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Hero Section */}
@@ -152,6 +158,39 @@ export default function AboutPage() {
           </div>
         </div>
       </section>
+
+      {/* Mobile Footer Links */}
+      <div className="md:hidden bg-white py-6 px-4 border-t border-gray-200">
+        <div className="flex flex-col items-center space-y-4">
+          <div className="flex space-x-6">
+            <button 
+              onClick={() => setIsPrivacyModalOpen(true)}
+              className="text-sm text-gray-600 hover:text-primary transition-colors"
+            >
+              Privacy Policy
+            </button>
+            <button 
+              onClick={() => setIsTermsModalOpen(true)}
+              className="text-sm text-gray-600 hover:text-primary transition-colors"
+            >
+              Terms of Service
+            </button>
+          </div>
+          <p className="text-xs text-gray-500">
+            &copy; {new Date().getFullYear()} Bachata Australia. All rights reserved.
+          </p>
+        </div>
+      </div>
+
+      {/* Modals */}
+      <PrivacyPolicyModal 
+        isOpen={isPrivacyModalOpen}
+        onClose={() => setIsPrivacyModalOpen(false)}
+      />
+      <TermsOfServiceModal 
+        isOpen={isTermsModalOpen}
+        onClose={() => setIsTermsModalOpen(false)}
+      />
     </div>
   )
 } 
