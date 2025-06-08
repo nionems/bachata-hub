@@ -31,6 +31,8 @@ interface FormData {
   imageUrl: string
   comment: string
   googleMapLink: string
+  facebookLink: string
+  instagramLink: string
 }
 
 export function SubmissionForm({ isOpen, onClose, type }: SubmissionFormProps) {
@@ -48,7 +50,9 @@ export function SubmissionForm({ isOpen, onClose, type }: SubmissionFormProps) {
     capacity: '',
     imageUrl: '',
     comment: '',
-    googleMapLink: ''
+    googleMapLink: '',
+    facebookLink: '',
+    instagramLink: ''
   })
 
   const [isLoading, setIsLoading] = useState(false)
@@ -124,7 +128,9 @@ export function SubmissionForm({ isOpen, onClose, type }: SubmissionFormProps) {
         capacity: '',
         imageUrl: '',
         comment: '',
-        googleMapLink: ''
+        googleMapLink: '',
+        facebookLink: '',
+        instagramLink: ''
       })
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to submit form. Please try again.'
@@ -299,8 +305,16 @@ export function SubmissionForm({ isOpen, onClose, type }: SubmissionFormProps) {
                 value={formData.imageUrl}
                 onChange={handleInputChange}
                 required
+                placeholder="https://drive.google.com/..."
                 className="bg-white/80 backdrop-blur-sm rounded-lg"
               />
+              <p className="text-xs text-gray-500 mt-1">
+                To add an image:
+                1. Upload your image to Google Drive
+                2. Right-click the image and select "Share"
+                3. Set access to "Anyone with the link"
+                4. Copy the link and paste it here
+              </p>
             </div>
 
             <div className="space-y-2">
@@ -311,6 +325,32 @@ export function SubmissionForm({ isOpen, onClose, type }: SubmissionFormProps) {
                 type="url"
                 value={formData.googleMapLink}
                 onChange={handleInputChange}
+                className="bg-white/80 backdrop-blur-sm rounded-lg"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="facebookLink" className="text-primary">Facebook Link</Label>
+              <Input
+                id="facebookLink"
+                name="facebookLink"
+                type="url"
+                value={formData.facebookLink}
+                onChange={handleInputChange}
+                placeholder="https://facebook.com/..."
+                className="bg-white/80 backdrop-blur-sm rounded-lg"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="instagramLink" className="text-primary">Instagram Link</Label>
+              <Input
+                id="instagramLink"
+                name="instagramLink"
+                type="url"
+                value={formData.instagramLink}
+                onChange={handleInputChange}
+                placeholder="https://instagram.com/..."
                 className="bg-white/80 backdrop-blur-sm rounded-lg"
               />
             </div>
