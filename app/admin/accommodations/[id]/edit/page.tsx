@@ -119,7 +119,7 @@ export default function EditAccommodationPage({ params }: { params: { id: string
     }
   }
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target
     setAccommodation(prev => prev ? { ...prev, [name]: value } : null)
   }
