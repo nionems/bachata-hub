@@ -13,12 +13,14 @@ import { Competition } from '@/types/competition'
 import { collection, getDocs } from 'firebase/firestore'
 import { db } from '@/lib/firebase'
 import { LoadingSpinner } from '@/components/loading-spinner'
+import { CompetitionSubmissionForm } from '@/components/CompetitionSubmissionForm'
 
 export default function CompetitionsPage() {
   const [competitions, setCompetitions] = useState<Competition[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [expandedComments, setExpandedComments] = useState<Record<string, boolean>>({})
+  const [isSubmissionFormOpen, setIsSubmissionFormOpen] = useState(false)
   
   const { selectedState, setSelectedState, filteredItems: filteredCompetitions } = useStateFilter(competitions, { useGeolocation: false })
 
@@ -184,17 +186,20 @@ export default function CompetitionsPage() {
               >
                 Contact Us
               </a>
-              <a
-                href="https://forms.gle/your-google-form-link"
-                target="_blank"
-                rel="noopener noreferrer"
+              <Button
+                onClick={() => setIsSubmissionFormOpen(true)}
                 className="bg-secondary text-white px-8 py-3 rounded-full font-semibold hover:bg-secondary/90 transition-colors duration-200 text-center"
               >
-                Submit via Form
-              </a>
+                Submit Competition
+              </Button>
             </div>
           </div>
         </div>
+
+        <CompetitionSubmissionForm
+          isOpen={isSubmissionFormOpen}
+          onClose={() => setIsSubmissionFormOpen(false)}
+        />
       </div>
     </div>
   )

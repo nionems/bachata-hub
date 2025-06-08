@@ -27,6 +27,7 @@ interface FestivalFormData {
   ticketLink: string
   danceStyles: string
   imageUrl: string
+  image: File | null
   comment: string
   googleMapLink: string
 }
@@ -44,6 +45,7 @@ export function FestivalSubmissionForm({ isOpen, onClose }: FestivalSubmissionFo
     ticketLink: '',
     danceStyles: '',
     imageUrl: '',
+    image: null,
     comment: '',
     googleMapLink: ''
   })
@@ -57,17 +59,44 @@ export function FestivalSubmissionForm({ isOpen, onClose }: FestivalSubmissionFo
     setFormData(prev => ({ ...prev, [name]: value }))
   }
 
+  const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0] || null
+    setFormData(prev => ({ ...prev, image: file }))
+  }
+
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
     setIsLoading(true)
 
     try {
+      // If there's a file, upload it first
+      let imageUrl = formData.imageUrl
+      if (formData.image) {
+        const formDataFile = new FormData()
+        formDataFile.append('file', formData.image)
+        
+        const uploadResponse = await fetch('/api/upload', {
+          method: 'POST',
+          body: formDataFile,
+        })
+
+        if (!uploadResponse.ok) {
+          throw new Error('Failed to upload image')
+        }
+
+        const { url } = await uploadResponse.json()
+        imageUrl = url
+      }
+
       const response = await fetch('/api/festivals', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({
+          ...formData,
+          imageUrl,
+        }),
       })
 
       if (!response.ok) {
@@ -82,7 +111,10 @@ export function FestivalSubmissionForm({ isOpen, onClose }: FestivalSubmissionFo
         },
         body: JSON.stringify({
           type: 'festival_submission',
-          data: formData
+          data: {
+            ...formData,
+            imageUrl,
+          }
         }),
       })
 
@@ -104,6 +136,7 @@ export function FestivalSubmissionForm({ isOpen, onClose }: FestivalSubmissionFo
         ticketLink: '',
         danceStyles: '',
         imageUrl: '',
+        image: null,
         comment: '',
         googleMapLink: ''
       })
@@ -260,24 +293,47 @@ export function FestivalSubmissionForm({ isOpen, onClose }: FestivalSubmissionFo
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="imageUrl" className="text-primary">Image URL *</Label>
-              <Input
-                id="imageUrl"
-                name="imageUrl"
-                type="url"
-                value={formData.imageUrl}
-                onChange={handleInputChange}
-                required
-                placeholder="Enter Google Drive image URL"
-                className="bg-white/80 backdrop-blur-sm"
-              />
-              <p className="text-xs text-muted-foreground">
-                To add an image:
-                <br />1. Upload your image to Google Drive
-                <br />2. Right-click the image and select "Share"
-                <br />3. Set access to "Anyone with the link"
-                <br />4. Copy the link and paste it here
-              </p>
+              <Label htmlFor="image" className="text-primary">Festival Image *</Label>
+              <div className="space-y-4">
+                <div>
+                  <Label htmlFor="imageUpload" className="text-sm text-muted-foreground">Upload Image</Label>
+                  <Input
+                    id="imageUpload"
+                    name="image"
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageChange}
+                    className="bg-white/80 backdrop-blur-sm"
+                  />
+                </div>
+                <div className="relative">
+                  <div className="absolute inset-0 flex items-center">
+                    <span className="w-full border-t" />
+                  </div>
+                  <div className="relative flex justify-center text-xs uppercase">
+                    <span className="bg-background px-2 text-muted-foreground">Or</span>
+                  </div>
+                </div>
+                <div>
+                  <Label htmlFor="imageUrl" className="text-sm text-muted-foreground">Use Google Drive Link</Label>
+                  <Input
+                    id="imageUrl"
+                    name="imageUrl"
+                    type="url"
+                    value={formData.imageUrl}
+                    onChange={handleInputChange}
+                    placeholder="Enter Google Drive image URL"
+                    className="bg-white/80 backdrop-blur-sm"
+                  />
+                  <p className="text-xs text-muted-foreground mt-1">
+                    To add an image from Google Drive:
+                    <br />1. Upload your image to Google Drive
+                    <br />2. Right-click the image and select "Share"
+                    <br />3. Set access to "Anyone with the link"
+                    <br />4. Copy the link and paste it here
+                  </p>
+                </div>
+              </div>
             </div>
 
             <div className="space-y-2">

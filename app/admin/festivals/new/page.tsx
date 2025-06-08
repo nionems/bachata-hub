@@ -35,6 +35,8 @@ export default function NewFestivalPage() {
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [selectedImage, setSelectedImage] = useState<File | null>(null)
+  const [imagePreviewUrl, setImagePreviewUrl] = useState<string | null>(null)
   const [formData, setFormData] = useState<FestivalFormData>({
     name: '',
     startDate: '',
@@ -51,25 +53,80 @@ export default function NewFestivalPage() {
     googleMapLink: ''
   })
 
+  const handleImageUpload = async (file: File): Promise<string> => {
+    const uploadFormData = new FormData()
+    uploadFormData.append('file', file)
+    uploadFormData.append('folder', 'festivals')
+
+    try {
+      const response = await fetch('/api/upload', {
+        method: 'POST',
+        body: uploadFormData
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || 'Failed to upload image')
+      }
+
+      const data = await response.json()
+      if (!data.imageUrl) throw new Error('Invalid upload response: missing imageUrl')
+      return data.imageUrl
+    } catch (error) {
+      console.error('Upload error:', error)
+      throw error instanceof Error ? error : new Error('Failed to upload image')
+    }
+  }
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    const { name, value, type } = e.target
+    if (type === 'file') {
+      const fileInput = e.target as HTMLInputElement
+      const file = fileInput.files?.[0] || null
+      setSelectedImage(file)
+      if (imagePreviewUrl?.startsWith('blob:')) URL.revokeObjectURL(imagePreviewUrl)
+      setImagePreviewUrl(file ? URL.createObjectURL(file) : null)
+    } else {
+      setFormData(prev => ({ ...prev, [name]: value }))
+    }
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsLoading(true)
     setError(null)
 
     try {
+      let imageUrl = formData.imageUrl
+      if (selectedImage) {
+        try {
+          imageUrl = await handleImageUpload(selectedImage)
+        } catch (uploadError: any) {
+          setError(`Image upload failed: ${uploadError.message || 'Unknown error'}`)
+          setIsLoading(false)
+          return
+        }
+      }
+
       const response = await fetch('/api/festivals', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({
+          ...formData,
+          imageUrl,
+        }),
       })
 
-      if (!response.ok) throw new Error('Failed to create festival')
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ error: 'Failed to parse error response' }))
+        throw new Error(errorData.error || `HTTP error! status: ${response.status}`)
+      }
 
-      router.push('/admin/dashboard')
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to create festival')
+      router.push('/admin/dashboard?tab=festivals')
+    } catch (submitError: any) {
+      setError(`Failed to create festival: ${submitError.message}`)
     } finally {
       setIsLoading(false)
     }
@@ -92,7 +149,8 @@ export default function NewFestivalPage() {
           <input
             type="text"
             value={formData.name}
-            onChange={(e) => setFormData({...formData, name: e.target.value})}
+            onChange={handleChange}
+            name="name"
             className="w-full p-2 border rounded"
             required
           />
@@ -105,7 +163,8 @@ export default function NewFestivalPage() {
             <input
               type="date"
               value={formData.startDate}
-              onChange={(e) => setFormData({...formData, startDate: e.target.value})}
+              onChange={handleChange}
+              name="startDate"
               className="w-full p-2 border rounded"
               required
             />
@@ -115,7 +174,8 @@ export default function NewFestivalPage() {
             <input
               type="date"
               value={formData.endDate}
-              onChange={(e) => setFormData({...formData, endDate: e.target.value})}
+              onChange={handleChange}
+              name="endDate"
               className="w-full p-2 border rounded"
               required
             />
@@ -129,7 +189,8 @@ export default function NewFestivalPage() {
             <input
               type="text"
               value={formData.location}
-              onChange={(e) => setFormData({...formData, location: e.target.value})}
+              onChange={handleChange}
+              name="location"
               className="w-full p-2 border rounded"
               required
             />
@@ -138,7 +199,8 @@ export default function NewFestivalPage() {
             <label className="block text-sm font-medium mb-1">State*</label>
             <select
               value={formData.state}
-              onChange={(e) => setFormData({...formData, state: e.target.value})}
+              onChange={handleChange}
+              name="state"
               className="w-full p-2 border rounded"
               required
             >
@@ -157,7 +219,8 @@ export default function NewFestivalPage() {
           <input
             type="text"
             value={formData.address}
-            onChange={(e) => setFormData({...formData, address: e.target.value})}
+            onChange={handleChange}
+            name="address"
             className="w-full p-2 border rounded"
             required
           />
@@ -170,7 +233,8 @@ export default function NewFestivalPage() {
             <input
               type="url"
               value={formData.eventLink}
-              onChange={(e) => setFormData({...formData, eventLink: e.target.value})}
+              onChange={handleChange}
+              name="eventLink"
               className="w-full p-2 border rounded"
             />
           </div>
@@ -179,7 +243,8 @@ export default function NewFestivalPage() {
             <input
               type="number"
               value={formData.price}
-              onChange={(e) => setFormData({...formData, price: e.target.value})}
+              onChange={handleChange}
+              name="price"
               className="w-full p-2 border rounded"
               min="0"
               step="0.01"
@@ -191,7 +256,8 @@ export default function NewFestivalPage() {
             <input
               type="url"
               value={formData.ticketLink}
-              onChange={(e) => setFormData({...formData, ticketLink: e.target.value})}
+              onChange={handleChange}
+              name="ticketLink"
               className="w-full p-2 border rounded"
             />
           </div>
@@ -203,7 +269,8 @@ export default function NewFestivalPage() {
           <input
             type="text"
             value={formData.danceStyles}
-            onChange={(e) => setFormData({...formData, danceStyles: e.target.value})}
+            onChange={handleChange}
+            name="danceStyles"
             className="w-full p-2 border rounded"
             placeholder="e.g., Bachata, Salsa, Kizomba"
             required
@@ -212,23 +279,30 @@ export default function NewFestivalPage() {
 
         {/* Image Upload */}
         <div>
-          <label className="block text-sm font-medium mb-1">Image URL *</label>
-          <div className="space-y-2">
-            <input
-              type="url"
-              value={formData.imageUrl}
-              onChange={(e) => setFormData({...formData, imageUrl: e.target.value})}
-              className="w-full p-2 border rounded"
-              placeholder="Enter Google Drive image URL"
-              required
-            />
-            <p className="text-sm text-gray-500">
-              To add an image:
-              <br />1. Upload your image to Google Drive
-              <br />2. Right-click the image and select "Share"
-              <br />3. Set access to "Anyone with the link"
-              <br />4. Copy the link and paste it here
-            </p>
+          <label className="block text-sm font-medium mb-1">Festival Image *</label>
+          <div className="space-y-4">
+            <div>
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleChange}
+                name="image"
+                className="w-full p-2 border rounded"
+                required
+              />
+            </div>
+            {imagePreviewUrl && (
+              <div className="mt-4 p-4 border rounded-lg">
+                <p className="text-sm text-gray-500 mb-2">Preview:</p>
+                <div className="relative aspect-video w-full max-w-md">
+                  <img
+                    src={imagePreviewUrl}
+                    alt="Preview"
+                    className="w-full h-full object-contain rounded-lg"
+                  />
+                </div>
+              </div>
+            )}
           </div>
         </div>
 
@@ -237,7 +311,8 @@ export default function NewFestivalPage() {
           <label className="block text-sm font-medium mb-1">Comment</label>
           <textarea
             value={formData.comment}
-            onChange={(e) => setFormData({...formData, comment: e.target.value})}
+            onChange={handleChange}
+            name="comment"
             className="w-full p-2 border rounded"
             rows={4}
           />
@@ -248,7 +323,8 @@ export default function NewFestivalPage() {
           <input
             type="url"
             value={formData.googleMapLink}
-            onChange={(e) => setFormData({...formData, googleMapLink: e.target.value})}
+            onChange={handleChange}
+            name="googleMapLink"
             className="w-full p-2 border rounded"
           />
         </div>

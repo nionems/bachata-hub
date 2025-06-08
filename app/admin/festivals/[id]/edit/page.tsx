@@ -51,6 +51,7 @@ export default function EditFestivalPage({ params }: { params: { id: string } })
     comment: '',
     googleMapLink: ''
   })
+  const [imagePreviewUrl, setImagePreviewUrl] = useState<string | null>(null)
 
   const fetchFestival = useCallback(async () => {
     try {
@@ -88,6 +89,18 @@ export default function EditFestivalPage({ params }: { params: { id: string } })
       setError(err instanceof Error ? err.message : 'Failed to update festival')
     } finally {
       setIsLoading(false)
+    }
+  }
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file) {
+      const reader = new FileReader()
+      reader.onloadend = () => {
+        setImagePreviewUrl(reader.result as string)
+        setFormData({ ...formData, imageUrl: reader.result as string })
+      }
+      reader.readAsDataURL(file)
     }
   }
 
@@ -229,32 +242,29 @@ export default function EditFestivalPage({ params }: { params: { id: string } })
 
         {/* Image Upload */}
         <div>
-          <label className="block text-sm font-medium mb-1">Image URL *</label>
-          <div className="space-y-2">
-            {formData.imageUrl && (
-              <div className="w-32 h-32 relative mb-2">
-                <img
-                  src={formData.imageUrl}
-                  alt="Current festival image"
-                  className="w-full h-full object-cover rounded"
-                />
+          <label className="block text-sm font-medium mb-1">Festival Image *</label>
+          <div className="space-y-4">
+            <div>
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleChange}
+                name="image"
+                className="w-full p-2 border rounded"
+              />
+            </div>
+            {imagePreviewUrl && (
+              <div className="mt-4 p-4 border rounded-lg">
+                <p className="text-sm text-gray-500 mb-2">Preview:</p>
+                <div className="relative aspect-video w-full max-w-md">
+                  <img
+                    src={imagePreviewUrl}
+                    alt="Preview"
+                    className="w-full h-full object-contain rounded-lg"
+                  />
+                </div>
               </div>
             )}
-            <input
-              type="url"
-              value={formData.imageUrl}
-              onChange={(e) => setFormData({ ...formData, imageUrl: e.target.value })}
-              className="w-full p-2 border rounded"
-              placeholder="Enter Google Drive image URL"
-              required
-            />
-            <p className="text-sm text-gray-500">
-              To add an image:
-              <br />1. Upload your image to Google Drive
-              <br />2. Right-click the image and select "Share"
-              <br />3. Set access to "Anyone with the link"
-              <br />4. Copy the link and paste it here
-            </p>
           </div>
         </div>
 
