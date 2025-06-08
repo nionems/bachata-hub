@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Star, MapPin, DollarSign, Users, Calendar, Clock, Building2, Wifi, ParkingCircle, Utensils, Dumbbell, Waves, Heart, MessageSquare, Share2, ChevronRight } from "lucide-react"
+import { Star, MapPin, DollarSign, Users, Calendar, Clock, Building2, Wifi, ParkingCircle, Utensils, Dumbbell, Waves, Heart, MessageSquare, Share2, ChevronRight, Facebook, Instagram } from "lucide-react"
 import CollapsibleFilter from "@/components/collapsible-filter"
 import { StateFilter } from '@/components/StateFilter'
 import { useStateFilter } from '@/hooks/useStateFilter'
@@ -27,6 +27,8 @@ interface Accommodation {
   googleMapLink: string
   createdAt: string
   updatedAt: string
+  facebookLink?: string
+  instagramLink?: string
 }
 
 export default function AccommodationsPage() {
@@ -132,6 +134,30 @@ export default function AccommodationsPage() {
                   <p className="text-sm text-gray-600 line-clamp-2">
                     {accommodation.comment}
                   </p>
+                  <div className="flex gap-3">
+                    {accommodation.facebookLink && (
+                      <a
+                        href={accommodation.facebookLink}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-blue-600 hover:text-blue-700 transition-colors"
+                        title="Contact on Facebook"
+                      >
+                        <Facebook className="w-5 h-5" />
+                      </a>
+                    )}
+                    {accommodation.instagramLink && (
+                      <a
+                        href={accommodation.instagramLink}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-pink-600 hover:text-pink-700 transition-colors"
+                        title="Contact on Instagram"
+                      >
+                        <Instagram className="w-5 h-5" />
+                      </a>
+                    )}
+                  </div>
                 </div>
               </CardContent>
             </Card>
