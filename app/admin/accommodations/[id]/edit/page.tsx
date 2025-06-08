@@ -21,6 +21,9 @@ interface Accommodation {
   comment: string
   googleMapLink: string
   festival: string
+  facebookLink: string
+  instagramLink: string
+  phone: string
 }
 
 export default function EditAccommodationPage({ params }: { params: { id: string } }) {
@@ -198,14 +201,23 @@ export default function EditAccommodationPage({ params }: { params: { id: string
 
           <div>
             <label className="block text-sm font-medium mb-1">State</label>
-            <input
-              type="text"
+            <select
               name="state"
               value={accommodation.state}
               onChange={handleChange}
               className="w-full p-2 border rounded"
               required
-            />
+            >
+              <option value="">Select a state</option>
+              <option value="NSW">New South Wales (NSW)</option>
+              <option value="VIC">Victoria (VIC)</option>
+              <option value="QLD">Queensland (QLD)</option>
+              <option value="WA">Western Australia (WA)</option>
+              <option value="SA">South Australia (SA)</option>
+              <option value="TAS">Tasmania (TAS)</option>
+              <option value="ACT">Australian Capital Territory (ACT)</option>
+              <option value="NT">Northern Territory (NT)</option>
+            </select>
           </div>
 
           <div>
@@ -245,13 +257,39 @@ export default function EditAccommodationPage({ params }: { params: { id: string
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-1">Website</label>
+            <label className="block text-sm font-medium mb-1">Phone Number</label>
             <input
-              type="url"
-              name="website"
-              value={accommodation.website}
+              type="tel"
+              name="phone"
+              value={accommodation.phone}
               onChange={handleChange}
               className="w-full p-2 border rounded"
+              required
+              placeholder="Enter phone number"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium mb-1">Facebook Link</label>
+            <input
+              type="url"
+              name="facebookLink"
+              value={accommodation.facebookLink}
+              onChange={handleChange}
+              className="w-full p-2 border rounded"
+              placeholder="Enter Facebook profile/link"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium mb-1">Instagram Link</label>
+            <input
+              type="url"
+              name="instagramLink"
+              value={accommodation.instagramLink}
+              onChange={handleChange}
+              className="w-full p-2 border rounded"
+              placeholder="Enter Instagram profile/link"
             />
           </div>
 

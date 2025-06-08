@@ -24,6 +24,9 @@ interface AccommodationFormData {
   imageUrl: string
   comment: string
   googleMapLink: string
+  facebookLink: string
+  instagramLink: string
+  phone: string
 }
 
 export default function NewAccommodationPage() {
@@ -45,7 +48,10 @@ export default function NewAccommodationPage() {
     image: null,
     imageUrl: '',
     comment: '',
-    googleMapLink: ''
+    googleMapLink: '',
+    facebookLink: '',
+    instagramLink: '',
+    phone: ''
   })
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -154,6 +160,9 @@ export default function NewAccommodationPage() {
       imageUrl: uploadedImageUrl,
       comment: formData.comment,
       googleMapLink: formData.googleMapLink,
+      facebookLink: formData.facebookLink,
+      instagramLink: formData.instagramLink,
+      phone: formData.phone,
     }
 
     console.log("Accommodation Form: Submitting data to /api/accommodations:", accommodationData)
@@ -232,14 +241,24 @@ export default function NewAccommodationPage() {
 
                   <div className="space-y-2">
                     <Label htmlFor="state">State</Label>
-                    <Input
+                    <select
                       id="state"
                       name="state"
                       value={formData.state}
                       onChange={handleChange}
                       required
-                      placeholder="Enter state"
-                    />
+                      className="w-full p-2 border rounded"
+                    >
+                      <option value="">Select a state</option>
+                      <option value="NSW">New South Wales (NSW)</option>
+                      <option value="VIC">Victoria (VIC)</option>
+                      <option value="QLD">Queensland (QLD)</option>
+                      <option value="WA">Western Australia (WA)</option>
+                      <option value="SA">South Australia (SA)</option>
+                      <option value="TAS">Tasmania (TAS)</option>
+                      <option value="ACT">Australian Capital Territory (ACT)</option>
+                      <option value="NT">Northern Territory (NT)</option>
+                    </select>
                   </div>
                 </div>
 
@@ -273,6 +292,25 @@ export default function NewAccommodationPage() {
                   </div>
 
                   <div className="space-y-2">
+                    <Label htmlFor="phone">Phone Number</Label>
+                    <div className="relative">
+                      <Phone className="absolute left-3 top-3 h-4 w-4 text-gray-500" />
+                      <Input
+                        id="phone"
+                        name="phone"
+                        type="tel"
+                        value={formData.phone}
+                        onChange={handleChange}
+                        required
+                        className="pl-10"
+                        placeholder="Enter phone number"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
                     <Label htmlFor="email">Email</Label>
                     <div className="relative">
                       <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-500" />
@@ -288,20 +326,54 @@ export default function NewAccommodationPage() {
                       />
                     </div>
                   </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="facebookLink">Facebook Link</Label>
+                    <div className="relative">
+                      <Globe className="absolute left-3 top-3 h-4 w-4 text-gray-500" />
+                      <Input
+                        id="facebookLink"
+                        name="facebookLink"
+                        type="url"
+                        value={formData.facebookLink}
+                        onChange={handleChange}
+                        className="pl-10"
+                        placeholder="Enter Facebook profile/link"
+                      />
+                    </div>
+                  </div>
                 </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="website">Website</Label>
-                  <div className="relative">
-                    <Globe className="absolute left-3 top-3 h-4 w-4 text-gray-500" />
-                    <Input
-                      id="website"
-                      name="website"
-                      value={formData.website}
-                      onChange={handleChange}
-                      className="pl-10"
-                      placeholder="Enter website URL"
-                    />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="instagramLink">Instagram Link</Label>
+                    <div className="relative">
+                      <Globe className="absolute left-3 top-3 h-4 w-4 text-gray-500" />
+                      <Input
+                        id="instagramLink"
+                        name="instagramLink"
+                        type="url"
+                        value={formData.instagramLink}
+                        onChange={handleChange}
+                        className="pl-10"
+                        placeholder="Enter Instagram profile/link"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="website">Website</Label>
+                    <div className="relative">
+                      <Globe className="absolute left-3 top-3 h-4 w-4 text-gray-500" />
+                      <Input
+                        id="website"
+                        name="website"
+                        value={formData.website}
+                        onChange={handleChange}
+                        className="pl-10"
+                        placeholder="Enter website URL"
+                      />
+                    </div>
                   </div>
                 </div>
 

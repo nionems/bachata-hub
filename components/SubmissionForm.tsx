@@ -22,11 +22,15 @@ interface FormData {
   phone: string
   website: string
   location: string
-  city: string
   state: string
-  description: string
-  socialMedia: string
-  images: string
+  address: string
+  contactInfo: string
+  price: string
+  rooms: string
+  capacity: string
+  imageUrl: string
+  comment: string
+  googleMapLink: string
 }
 
 export function SubmissionForm({ isOpen, onClose, type }: SubmissionFormProps) {
@@ -36,11 +40,15 @@ export function SubmissionForm({ isOpen, onClose, type }: SubmissionFormProps) {
     phone: '',
     website: '',
     location: '',
-    city: '',
     state: '',
-    description: '',
-    socialMedia: '',
-    images: ''
+    address: '',
+    contactInfo: '',
+    price: '',
+    rooms: '',
+    capacity: '',
+    imageUrl: '',
+    comment: '',
+    googleMapLink: ''
   })
 
   const [isLoading, setIsLoading] = useState(false)
@@ -108,11 +116,15 @@ export function SubmissionForm({ isOpen, onClose, type }: SubmissionFormProps) {
         phone: '',
         website: '',
         location: '',
-        city: '',
         state: '',
-        description: '',
-        socialMedia: '',
-        images: ''
+        address: '',
+        contactInfo: '',
+        price: '',
+        rooms: '',
+        capacity: '',
+        imageUrl: '',
+        comment: '',
+        googleMapLink: ''
       })
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to submit form. Please try again.'
@@ -172,13 +184,14 @@ export function SubmissionForm({ isOpen, onClose, type }: SubmissionFormProps) {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="phone" className="text-primary">Phone</Label>
+              <Label htmlFor="phone" className="text-primary">Phone *</Label>
               <Input
                 id="phone"
                 name="phone"
                 type="tel"
                 value={formData.phone}
                 onChange={handleInputChange}
+                required
                 className="bg-white/80 backdrop-blur-sm rounded-lg"
               />
             </div>
@@ -197,23 +210,11 @@ export function SubmissionForm({ isOpen, onClose, type }: SubmissionFormProps) {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="location" className="text-primary">Address *</Label>
+              <Label htmlFor="location" className="text-primary">Location *</Label>
               <Input
                 id="location"
                 name="location"
                 value={formData.location}
-                onChange={handleInputChange}
-                required
-                className="bg-white/80 backdrop-blur-sm rounded-lg"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="city" className="text-primary">City *</Label>
-              <Input
-                id="city"
-                name="city"
-                value={formData.city}
                 onChange={handleInputChange}
                 required
                 className="bg-white/80 backdrop-blur-sm rounded-lg"
@@ -230,49 +231,101 @@ export function SubmissionForm({ isOpen, onClose, type }: SubmissionFormProps) {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="socialMedia" className="text-primary">Social Media</Label>
+              <Label htmlFor="address" className="text-primary">Address *</Label>
               <Input
-                id="socialMedia"
-                name="socialMedia"
-                value={formData.socialMedia}
+                id="address"
+                name="address"
+                value={formData.address}
                 onChange={handleInputChange}
-                placeholder="Instagram, Facebook, etc."
+                required
+                className="bg-white/80 backdrop-blur-sm rounded-lg"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="contactInfo" className="text-primary">Contact Info *</Label>
+              <Input
+                id="contactInfo"
+                name="contactInfo"
+                value={formData.contactInfo}
+                onChange={handleInputChange}
+                required
+                className="bg-white/80 backdrop-blur-sm rounded-lg"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="price" className="text-primary">Price *</Label>
+              <Input
+                id="price"
+                name="price"
+                value={formData.price}
+                onChange={handleInputChange}
+                required
+                className="bg-white/80 backdrop-blur-sm rounded-lg"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="rooms" className="text-primary">Number of Rooms *</Label>
+              <Input
+                id="rooms"
+                name="rooms"
+                value={formData.rooms}
+                onChange={handleInputChange}
+                required
+                className="bg-white/80 backdrop-blur-sm rounded-lg"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="capacity" className="text-primary">Capacity *</Label>
+              <Input
+                id="capacity"
+                name="capacity"
+                value={formData.capacity}
+                onChange={handleInputChange}
+                required
+                className="bg-white/80 backdrop-blur-sm rounded-lg"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="imageUrl" className="text-primary">Image URL *</Label>
+              <Input
+                id="imageUrl"
+                name="imageUrl"
+                type="url"
+                value={formData.imageUrl}
+                onChange={handleInputChange}
+                required
+                className="bg-white/80 backdrop-blur-sm rounded-lg"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="googleMapLink" className="text-primary">Google Maps Link</Label>
+              <Input
+                id="googleMapLink"
+                name="googleMapLink"
+                type="url"
+                value={formData.googleMapLink}
+                onChange={handleInputChange}
                 className="bg-white/80 backdrop-blur-sm rounded-lg"
               />
             </div>
           </div>
 
           <div className="space-y-2">
-            <div className="bg-blue-50 p-4 rounded-lg mb-4">
-              <h4 className="font-medium text-blue-800 mb-2">To include images:</h4>
-              <ol className="list-decimal list-inside text-blue-700 space-y-1">
-                <li>Upload the images to your own Google Drive.</li>
-                <li>Right-click the file and select "Get link".</li>
-                <li>Set the access to "Anyone with the link can view".</li>
-                <li>Copy the public share link and paste it below.</li>
-              </ol>
-            </div>
-            <Label htmlFor="images" className="text-primary">Image Links</Label>
-            <Input
-              id="images"
-              name="images"
-              value={formData.images}
-              onChange={handleInputChange}
-              placeholder="Paste image links here, separated by commas"
-              className="bg-white/80 backdrop-blur-sm rounded-lg"
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="description" className="text-primary">Description *</Label>
+            <Label htmlFor="comment" className="text-primary">Description *</Label>
             <Textarea
-              id="description"
-              name="description"
-              value={formData.description}
+              id="comment"
+              name="comment"
+              value={formData.comment}
               onChange={handleInputChange}
               required
-              className="min-h-[150px] bg-white/80 backdrop-blur-sm rounded-lg"
-              placeholder={`Tell us about your ${type}...`}
+              className="bg-white/80 backdrop-blur-sm rounded-lg"
+              rows={4}
             />
           </div>
 
@@ -280,20 +333,18 @@ export function SubmissionForm({ isOpen, onClose, type }: SubmissionFormProps) {
             <div className="text-red-500 text-sm">{error}</div>
           )}
 
-          <div className="flex justify-end gap-2">
+          <div className="flex justify-end gap-4">
             <Button
               type="button"
               variant="outline"
               onClick={onClose}
               disabled={isLoading}
-              className="border-primary text-primary hover:bg-primary/10 rounded-lg"
             >
               Cancel
             </Button>
-            <Button
-              type="submit"
+            <Button 
+              type="submit" 
               disabled={isLoading}
-              className="bg-primary hover:bg-primary/90 rounded-lg"
             >
               {isLoading ? 'Submitting...' : 'Submit'}
             </Button>
