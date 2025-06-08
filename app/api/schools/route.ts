@@ -41,7 +41,10 @@ export async function POST(request: Request) {
       googleReviewsCount,
       socialUrl,
       googleMapLink,
-      googleReviewLink
+      googleReviewLink,
+      instagramUrl,
+      facebookUrl,
+      comment
     } = data;
 
     // Validate required fields
@@ -68,6 +71,9 @@ export async function POST(request: Request) {
       googleReviewsCount: Number(googleReviewsCount) || 0,
       socialUrl: socialUrl || '',
       googleMapLink: googleMapLink || '',
+      instagramUrl: instagramUrl || '',
+      facebookUrl: facebookUrl || '',
+      comment: comment || '',
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString()
     };
