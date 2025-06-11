@@ -108,7 +108,7 @@ export function useGeolocation(): GeolocationData {
     const fetchLocation = async () => {
       try {
         console.log('Starting IP geolocation fetch...');
-        const response = await fetch('http://ip-api.com/json/');
+        const response = await fetch('https://ip-api.com/json/');
         console.log('Response status:', response.status);
         console.log('Response headers:', Object.fromEntries(response.headers.entries()));
         
