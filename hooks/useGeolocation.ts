@@ -11,10 +11,10 @@ interface GeolocationData {
 }
 
 interface IpApiResponse {
+  status: string;
   city: string;
-  region: string;
-  country_name: string;
-  state: string;
+  regionName: string;
+  country: string;
 }
 
 const STATE_MAPPING: { [key: string]: { abbr: string; full: string } } = {
@@ -98,8 +98,8 @@ export function useGeolocation(): GeolocationData {
     city: '',
     region: '',
     country: '',
-    state: 'all', // Default to 'all' instead of NSW
-    stateFull: 'All States', // Default to 'All States'
+    state: 'all',
+    stateFull: 'All States',
     isLoading: true,
     error: null,
   });
@@ -107,21 +107,29 @@ export function useGeolocation(): GeolocationData {
   useEffect(() => {
     const fetchLocation = async () => {
       try {
-        const response = await fetch('https://ipapi.co/json/');
+        console.log('Starting IP geolocation fetch...');
+        const response = await fetch('http://ip-api.com/json/');
+        console.log('Response status:', response.status);
+        console.log('Response headers:', Object.fromEntries(response.headers.entries()));
+        
         if (!response.ok) {
           throw new Error('Failed to fetch location data');
         }
 
         const locationData: IpApiResponse = await response.json();
-        console.log('Raw location data from ipapi.co:', locationData);
+        console.log('IP API Response:', locationData);
+        
+        if (locationData.status !== 'success') {
+          throw new Error('Failed to get location data');
+        }
         
         // Check if user is in Australia
-        if (locationData.country_name !== 'Australia') {
-          console.log('User is not in Australia:', locationData.country_name);
+        if (locationData.country !== 'Australia') {
+          console.log('User is not in Australia:', locationData.country);
           setData({
             city: locationData.city,
-            region: locationData.region,
-            country: locationData.country_name,
+            region: locationData.regionName,
+            country: locationData.country,
             state: 'all',
             stateFull: 'All States',
             isLoading: false,
@@ -134,14 +142,14 @@ export function useGeolocation(): GeolocationData {
         let stateInfo = STATE_MAPPING[locationData.city];
         console.log('State info from city:', { city: locationData.city, stateInfo });
         
-        // If not found, try the state
+        // If not found, try the region
         if (!stateInfo) {
-          console.log('Trying to get state from state field:', locationData.state);
-          stateInfo = STATE_MAPPING[locationData.state] || { abbr: 'all', full: 'All States' };
+          console.log('Trying to get state from region:', locationData.regionName);
+          stateInfo = STATE_MAPPING[locationData.regionName] || { abbr: 'all', full: 'All States' };
         }
 
         // Additional check for South Australia
-        if (locationData.state === 'South Australia' || locationData.state === 'SA' || 
+        if (locationData.regionName === 'South Australia' || locationData.regionName === 'SA' || 
             locationData.city.toLowerCase() === 'adelaide') {
           stateInfo = { abbr: 'SA', full: 'South Australia' };
           console.log('Forced SA state detection:', stateInfo);
@@ -151,8 +159,8 @@ export function useGeolocation(): GeolocationData {
 
         setData({
           city: locationData.city,
-          region: locationData.region,
-          country: locationData.country_name,
+          region: locationData.regionName,
+          country: locationData.country,
           state: stateInfo.abbr,
           stateFull: stateInfo.full,
           isLoading: false,
