@@ -43,7 +43,10 @@ export function ContactForm({ isOpen, onClose }: ContactFormProps) {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({
+          type: 'contact_form',
+          data: formData
+        }),
       })
 
       console.log('Response status:', response.status)

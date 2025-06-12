@@ -148,6 +148,16 @@ export async function POST(request: Request) {
           <p><strong>Image URL:</strong> ${data.imageUrl}</p>
         `
         break
+      case 'contact_form':
+        subject = 'New Contact Form Submission'
+        html = `
+          <h2>New Contact Form Submission</h2>
+          <p><strong>Name:</strong> ${data.name}</p>
+          <p><strong>Email:</strong> ${data.email}</p>
+          <p><strong>Message:</strong></p>
+          <p>${data.message}</p>
+        `
+        break
       default:
         return NextResponse.json(
           { error: 'Invalid email type' },
