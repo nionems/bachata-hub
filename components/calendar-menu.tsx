@@ -17,7 +17,8 @@ export default function CalendarMenu() {
     perthBachata: "e521c86aed4060431cf6de7405315790dcca0a10d4779cc333835199f3724c16@group.calendar.google.com",
     canberraBachata: "3a82a9f1ed5a4e865ed9f13b24a96004fe7c4b2deb07a422f068c70753f421eb@group.calendar.google.com",
     darwinBachata: "27319882e504521ffd07dca62fdf7a55f835bfb4233f4c096e787fa8e8fb881b@group.calendar.google.com",
-    hobartBachata: "2f92a58bc97f58a3285a05a474f222d22aaed327af7431f21c2ad1a681c9607b@group.calendar.google.com"
+    hobartBachata: "2f92a58bc97f58a3285a05a474f222d22aaed327af7431f21c2ad1a681c9607b@group.calendar.google.com",
+    festivals: "9b41c4eac569d26ccfeff3a9222cd9fb144d4d201bd04cbb2962944e7a9f5153@group.calendar.google.com"
   }
 
   const [selectedCalendar, setSelectedCalendar] = useState(calendarIds.sydneyBachata)
@@ -34,7 +35,8 @@ export default function CalendarMenu() {
       [calendarIds.perthBachata]: "Perth",
       [calendarIds.canberraBachata]: "Canberra",
       [calendarIds.darwinBachata]: "Darwin",
-      [calendarIds.hobartBachata]: "Hobart"
+      [calendarIds.hobartBachata]: "Hobart",
+      [calendarIds.festivals]: "Festivals"
     }
     return cityMap[selectedCalendar] || "Bachata"
   }
@@ -82,7 +84,7 @@ export default function CalendarMenu() {
                 <div className="flex items-center gap-2">
                   <Calendar className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
                   <h3 className="text-white font-bold text-sm sm:text-lg">
-                    {getSelectedCityName()} Bachata Events Calendar
+                    {getSelectedCityName() === "Festivals" ? "Festivals Calendar" : `${getSelectedCityName()} Bachata Events Calendar`}
                   </h3>
                 </div>
 
@@ -122,7 +124,7 @@ export default function CalendarMenu() {
                       .filter(([key]) => key !== 'allCities')
                       .map(([key, value]) => (
                         <option key={key} value={value}>
-                          {key.replace("Bachata", "").replace(/([A-Z])/g, ' $1').trim().split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')} Bachata
+                          {key === 'festivals' ? 'Festivals' : key.replace("Bachata", "").replace(/([A-Z])/g, ' $1').trim().split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')} Bachata
                         </option>
                       ))}
                   </select>
@@ -165,7 +167,7 @@ export default function CalendarMenu() {
                 <div className="flex items-center gap-2">
                   <Calendar className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
                   <h3 className="text-white font-bold text-sm sm:text-lg">
-                    {getSelectedCityName()} Bachata Events Calendar
+                    {getSelectedCityName() === "Festivals" ? "Festivals Calendar" : `${getSelectedCityName()} Bachata Events Calendar`}
                   </h3>
                 </div>
 
@@ -205,9 +207,9 @@ export default function CalendarMenu() {
                       .filter(([key]) => key !== 'allCities')
                       .map(([key, value]) => (
                         <option key={key} value={value}>
-                          {key.replace("Bachata", "").replace(/([A-Z])/g, ' $1').trim().split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')} Bachata
+                          {key === 'festivals' ? 'Festivals' : key.replace("Bachata", "").replace(/([A-Z])/g, ' $1').trim().split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')} Bachata
                         </option>
-                    ))}
+                      ))}
                   </select>
                 </div>
               </div>
