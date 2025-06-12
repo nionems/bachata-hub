@@ -1,7 +1,7 @@
 'use client'
 
 import Link from "next/link"
-import { Calendar, Users, Music, School, ShoppingBag, Trophy, MapPin, Clock, Video, Info, Headphones, Film, Building2, Lightbulb } from "lucide-react"
+import { Calendar, Users, Music, School, ShoppingBag, Trophy, MapPin, Clock, Video, Info, Headphones, Film, Building2, Lightbulb, ChevronRight, ChevronLeft } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useState, useEffect } from 'react'
 import { School as SchoolType } from '@/types/school'
@@ -250,13 +250,15 @@ export default function Home() {
 
   // Add this carousel settings object before your Home component
   const settings = {
-    dots: true,
+    dots: false,
     infinite: filteredEvents.length > 3,
     speed: 500,
     slidesToShow: Math.min(3, filteredEvents.length),
     slidesToScroll: 1,
     autoplay: true,
     autoplaySpeed: 3000,
+    nextArrow: <CustomNextArrow />,
+    prevArrow: <CustomPrevArrow />,
     responsive: [
       {
         breakpoint: 1024,
@@ -273,6 +275,31 @@ export default function Home() {
         }
       }
     ]
+  }
+
+  // Custom arrow components
+  function CustomNextArrow(props: any) {
+    const { onClick } = props;
+    return (
+      <div
+        className="absolute right-0 top-1/2 -translate-y-1/2 z-10 cursor-pointer bg-white/80 hover:bg-white rounded-full p-2 shadow-lg"
+        onClick={onClick}
+      >
+        <ChevronRight className="h-6 w-6 text-primary" />
+      </div>
+    );
+  }
+
+  function CustomPrevArrow(props: any) {
+    const { onClick } = props;
+    return (
+      <div
+        className="absolute left-0 top-1/2 -translate-y-1/2 z-10 cursor-pointer bg-white/80 hover:bg-white rounded-full p-2 shadow-lg"
+        onClick={onClick}
+      >
+        <ChevronLeft className="h-6 w-6 text-primary" />
+      </div>
+    );
   }
 
   // Add this handler function
