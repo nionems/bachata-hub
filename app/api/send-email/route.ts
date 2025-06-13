@@ -118,7 +118,7 @@ export async function POST(request: Request) {
       html: html
     }
 
-    await resend.sendEmail(email)
+    await resend.emails.send(email)
 
     return NextResponse.json({ message: 'Email sent successfully' })
   } catch (error) {
