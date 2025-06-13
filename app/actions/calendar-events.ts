@@ -41,9 +41,13 @@ export async function getUpcomingEvents(calendarId: string, maxResults = 10): Pr
     const events = response.data.items || []
     const eventsWithImages: EventWithImage[] = []
 
-    // Add image to each event
+    // Add image to each event and preserve color
     for (const event of events) {
-      const eventWithImage = { ...event, image: await getEventImage(event) } as EventWithImage
+      const eventWithImage = { 
+        ...event, 
+        image: await getEventImage(event),
+        colorId: event.colorId // Preserve the color ID
+      } as EventWithImage
       eventsWithImages.push(eventWithImage)
     }
 
@@ -289,6 +293,7 @@ export async function getEventImage(event: any): Promise<string> {
 interface EventWithImage extends calendar_v3.Schema$Event {
   image?: string;
   website?: string;
+  colorId?: string;
 }
 
 export async function getNearestEvent(calendarId: string): Promise<EventWithImage | null> {
