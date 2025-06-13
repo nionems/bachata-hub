@@ -37,7 +37,10 @@ export function ContactUsModal({ isOpen, onClose }: ContactUsModalProps) {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({
+          type: 'contact_form',
+          data: formData
+        }),
       })
 
       const data = await response.json()
