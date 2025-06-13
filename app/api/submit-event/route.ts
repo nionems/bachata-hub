@@ -180,14 +180,12 @@ export async function POST(request: Request) {
       );
     }
 
-    console.log('Sending emails to:', {
-      organizerEmail,
+    console.log('Sending email to:', {
       adminEmail
     });
 
-    // Generate email templates
+    // Generate email template
     const adminEmailHtml = getAdminEmailHtml(formData)
-    const organizerEmailHtml = getOrganizerEmailHtml(formData)
 
     // Send admin email
     let adminEmailResponse;
@@ -202,31 +200,13 @@ export async function POST(request: Request) {
       console.log('Admin email sent successfully:', adminEmailResponse);
     } catch (adminEmailError) {
       console.error('Failed to send admin email:', adminEmailError);
-      // Continue with organizer email even if admin email fails
-    }
-
-    // Send organizer confirmation email
-    let organizerEmailResponse;
-    try {
-      console.log('Sending organizer email...');
-      organizerEmailResponse = await resend.emails.send({
-        from: "Bachata Hub <onboarding@resend.dev>",
-        to: "bachata.au@gmail.com", // Send to verified email for testing
-        subject: "Event Submission Received - Bachata Hub",
-        html: organizerEmailHtml
-      });
-      console.log('Organizer email sent successfully:', organizerEmailResponse);
-    } catch (organizerEmailError) {
-      console.error('Failed to send organizer email:', organizerEmailError);
       return Response.json(
         { 
-          error: 'Failed to send confirmation email', 
-          details: organizerEmailError instanceof Error ? organizerEmailError.message : 'Unknown error',
+          error: 'Failed to send email notification', 
+          details: adminEmailError instanceof Error ? adminEmailError.message : 'Unknown error',
           debug: {
-            organizerEmail,
             adminEmail,
-            adminEmailResponse,
-            organizerEmailResponse
+            adminEmailResponse
           }
         },
         { status: 500 }
@@ -236,8 +216,7 @@ export async function POST(request: Request) {
     return Response.json({ 
       success: true,
       debug: {
-        adminEmailResponse,
-        organizerEmailResponse
+        adminEmailResponse
       }
     }, { status: 200 });
   } catch (error) {
