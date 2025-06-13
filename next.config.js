@@ -1,17 +1,23 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
+    // Disable image optimization during development
+    unoptimized: process.env.NODE_ENV === 'development',
+    // Configure image domains
+    domains: [
+      'drive.google.com',
+      'lh3.googleusercontent.com',
+      'drive.googleusercontent.com'
+    ],
+    // Configure image sizes
+    deviceSizes: [640, 750, 828, 1080, 1200, 1920],
+    imageSizes: [16, 32, 48, 64, 96, 128, 256],
+    // Configure image formats
+    formats: ['image/webp'],
+    // Configure minimum cache TTL
+    minimumCacheTTL: 60,
+    // Configure remote patterns
     remotePatterns: [
-      {
-        protocol: 'https',
-        hostname: 'scontent.fsyd6-1.fna.fbcdn.net',
-        pathname: '/**',
-      },
-      {
-        protocol: 'https',
-        hostname: 'www.trybooking.com',
-        pathname: '/**',
-      },
       {
         protocol: 'https',
         hostname: 'drive.google.com',
@@ -24,16 +30,10 @@ const nextConfig = {
       },
       {
         protocol: 'https',
-        hostname: 'images.unsplash.com',
-        pathname: '/**',
-      },
-      {
-        protocol: 'https',
-        hostname: 'res.cloudinary.com',
+        hostname: 'drive.googleusercontent.com',
         pathname: '/**',
       }
     ],
-    domains: ['firebasestorage.googleapis.com'],
   },
   async redirects() {
     return [
