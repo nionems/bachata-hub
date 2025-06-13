@@ -1,6 +1,6 @@
 import { Dialog, DialogContent } from "@/components/ui/dialog"
-import Image from "next/image"
 import { X } from "lucide-react"
+import Image from "next/image"
 
 interface ImageModalProps {
   isOpen: boolean
@@ -27,6 +27,8 @@ export function ImageModal({ isOpen, onClose, imageUrl, title }: ImageModalProps
             className="object-contain"
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 70vw"
             priority
+            quality={90}
+            loading="eager"
           />
         </div>
       </DialogContent>

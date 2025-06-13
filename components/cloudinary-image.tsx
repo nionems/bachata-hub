@@ -42,6 +42,7 @@ export function CloudinaryImage({
           alt="No image available"
           fill
           className="object-contain p-8"
+          priority={priority}
         />
       </div>
     )
@@ -66,6 +67,7 @@ export function CloudinaryImage({
           alt="No image available"
           fill
           className="object-contain p-8"
+          priority={priority}
         />
       </div>
     )
@@ -74,20 +76,21 @@ export function CloudinaryImage({
   // Check if the URL is a Cloudinary URL
   const isCloudinaryUrl = cleanUrl?.includes('res.cloudinary.com')
   
-  // If it's already a Cloudinary URL, use it as is
+  // If it's a Cloudinary URL, optimize it
   if (isCloudinaryUrl) {
+    const optimizedUrl = cleanUrl.replace('/upload/', `/upload/f_${format},q_${quality},c_${crop},g_${gravity}/`)
     return (
       <Image
-        src={cleanUrl}
+        src={optimizedUrl}
         alt={alt}
         width={width}
         height={height}
         fill={fill}
         className={className}
         priority={priority}
-        sizes={sizes}
+        sizes={sizes || '(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw'}
         onError={(e) => {
-          console.error('Error loading Cloudinary image:', cleanUrl)
+          console.error('Error loading Cloudinary image:', optimizedUrl)
           if (onError) onError(e)
         }}
         onLoad={onLoad}
@@ -95,7 +98,7 @@ export function CloudinaryImage({
     )
   }
 
-  // For any other URL (Google Drive or direct image), use it directly
+  // For any other URL (Google Drive or direct image), use it directly with Next.js optimization
   return (
     <Image
       src={cleanUrl}
@@ -105,7 +108,8 @@ export function CloudinaryImage({
       fill={fill}
       className={className}
       priority={priority}
-      sizes={sizes}
+      sizes={sizes || '(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw'}
+      quality={quality}
       onError={(e) => {
         console.error('Error loading image:', cleanUrl)
         if (onError) onError(e)
