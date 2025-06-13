@@ -62,12 +62,15 @@ export function ShopSubmissionForm({ isOpen, onClose }: ShopSubmissionFormProps)
     setIsLoading(true)
 
     try {
-      const response = await fetch('/api/shops', {
+      const response = await fetch('/api/send-email', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({
+          type: 'shop_submission',
+          data: formData
+        }),
       })
 
       if (!response.ok) {
