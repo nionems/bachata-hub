@@ -23,8 +23,12 @@ interface ShopFormData {
   website: string
   instagramLink: string
   facebookLink: string
-  contactInfo: string
-  description: string
+  googleMapLink: string
+  contactName: string
+  contactEmail: string
+  contactPhone: string
+  comment: string
+  additionalInfo: string
   imageUrl: string
 }
 
@@ -37,8 +41,12 @@ export function ShopSubmissionForm({ isOpen, onClose }: ShopSubmissionFormProps)
     website: '',
     instagramLink: '',
     facebookLink: '',
-    contactInfo: '',
-    description: '',
+    googleMapLink: '',
+    contactName: '',
+    contactEmail: '',
+    contactPhone: '',
+    comment: '',
+    additionalInfo: '',
     imageUrl: ''
   })
 
@@ -76,8 +84,12 @@ export function ShopSubmissionForm({ isOpen, onClose }: ShopSubmissionFormProps)
         website: '',
         instagramLink: '',
         facebookLink: '',
-        contactInfo: '',
-        description: '',
+        googleMapLink: '',
+        contactName: '',
+        contactEmail: '',
+        contactPhone: '',
+        comment: '',
+        additionalInfo: '',
         imageUrl: ''
       })
     } catch (error) {
@@ -195,27 +207,63 @@ export function ShopSubmissionForm({ isOpen, onClose }: ShopSubmissionFormProps)
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="contactInfo" className="text-primary">Contact Information *</Label>
+              <Label htmlFor="contactName" className="text-primary">Contact Name *</Label>
               <Input
-                id="contactInfo"
-                name="contactInfo"
-                value={formData.contactInfo}
+                id="contactName"
+                name="contactName"
+                value={formData.contactName}
                 onChange={handleInputChange}
                 required
+                className="bg-white/80 backdrop-blur-sm rounded-lg"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="contactEmail" className="text-primary">Contact Email *</Label>
+              <Input
+                id="contactEmail"
+                name="contactEmail"
+                type="email"
+                value={formData.contactEmail}
+                onChange={handleInputChange}
+                required
+                className="bg-white/80 backdrop-blur-sm rounded-lg"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="contactPhone" className="text-primary">Contact Phone</Label>
+              <Input
+                id="contactPhone"
+                name="contactPhone"
+                value={formData.contactPhone}
+                onChange={handleInputChange}
                 className="bg-white/80 backdrop-blur-sm rounded-lg"
               />
             </div>
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="description" className="text-primary">Description</Label>
+            <Label htmlFor="comment" className="text-primary">Comment</Label>
             <Textarea
-              id="description"
-              name="description"
-              value={formData.description}
+              id="comment"
+              name="comment"
+              value={formData.comment}
               onChange={handleInputChange}
               className="min-h-[100px] bg-white/80 backdrop-blur-sm rounded-lg"
-              placeholder="Tell us about your shop, products, and services..."
+              placeholder="Any additional comments or notes..."
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="additionalInfo" className="text-primary">Additional Information</Label>
+            <Textarea
+              id="additionalInfo"
+              name="additionalInfo"
+              value={formData.additionalInfo}
+              onChange={handleInputChange}
+              className="min-h-[100px] bg-white/80 backdrop-blur-sm rounded-lg"
+              placeholder="Any additional information about the shop..."
             />
           </div>
 
