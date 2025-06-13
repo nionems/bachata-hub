@@ -7,7 +7,10 @@ const nextConfig = {
     domains: [
       'drive.google.com',
       'lh3.googleusercontent.com',
-      'drive.googleusercontent.com'
+      'drive.googleusercontent.com',
+      'firebasestorage.googleapis.com',
+      'res.cloudinary.com',
+      'images.unsplash.com'
     ],
     // Configure image sizes
     deviceSizes: [640, 750, 828, 1080, 1200, 1920],
@@ -31,6 +34,21 @@ const nextConfig = {
       {
         protocol: 'https',
         hostname: 'drive.googleusercontent.com',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'firebasestorage.googleapis.com',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'res.cloudinary.com',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'images.unsplash.com',
         pathname: '/**',
       }
     ],
