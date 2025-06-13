@@ -23,6 +23,7 @@ interface SchoolFormData {
   instagramUrl: string
   facebookUrl: string
   contactInfo: string
+  email: string
   danceStyles: string
   description: string
   imageUrl: string
@@ -38,6 +39,7 @@ export function SchoolSubmissionForm({ isOpen, onClose }: SchoolSubmissionFormPr
     instagramUrl: '',
     facebookUrl: '',
     contactInfo: '',
+    email: '',
     danceStyles: '',
     description: '',
     imageUrl: ''
@@ -74,6 +76,7 @@ export function SchoolSubmissionForm({ isOpen, onClose }: SchoolSubmissionFormPr
             instagramUrl: formData.instagramUrl,
             facebookUrl: formData.facebookUrl,
             contactInfo: formData.contactInfo,
+            email: formData.email,
             danceStyles: formData.danceStyles,
             description: formData.description,
             imageUrl: formData.imageUrl
@@ -97,6 +100,7 @@ export function SchoolSubmissionForm({ isOpen, onClose }: SchoolSubmissionFormPr
           instagramUrl: '',
           facebookUrl: '',
           contactInfo: '',
+          email: '',
           danceStyles: '',
           description: '',
           imageUrl: ''
@@ -216,15 +220,28 @@ export function SchoolSubmissionForm({ isOpen, onClose }: SchoolSubmissionFormPr
               />
             </div>
 
-            <div className="space-y-1 sm:space-y-2">
-              <Label htmlFor="contactInfo" className="text-primary text-sm sm:text-base">Contact Information *</Label>
+            <div className="space-y-2">
+              <Label htmlFor="contactInfo" className="text-primary">Contact Information *</Label>
               <Input
                 id="contactInfo"
                 name="contactInfo"
                 value={formData.contactInfo}
                 onChange={handleInputChange}
                 required
-                className="bg-white/80 backdrop-blur-sm text-sm sm:text-base rounded-lg"
+                className="bg-white/80 backdrop-blur-sm rounded-lg"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="email" className="text-primary">Email Address *</Label>
+              <Input
+                id="email"
+                name="email"
+                type="email"
+                value={formData.email}
+                onChange={handleInputChange}
+                required
+                className="bg-white/80 backdrop-blur-sm rounded-lg"
               />
             </div>
 
