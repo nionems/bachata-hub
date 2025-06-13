@@ -30,6 +30,7 @@ interface MediaFormData {
   location: string
   state: string
   contact: string
+  email: string
   comment: string
   instagramLink: string
   facebookLink: string
@@ -56,6 +57,7 @@ export function MediaSubmissionForm({ isOpen, onClose }: MediaSubmissionFormProp
     location: '',
     state: '',
     contact: '',
+    email: '',
     comment: '',
     instagramLink: '',
     facebookLink: '',
@@ -100,6 +102,7 @@ export function MediaSubmissionForm({ isOpen, onClose }: MediaSubmissionFormProp
         location: '',
         state: '',
         contact: '',
+        email: '',
         comment: '',
         instagramLink: '',
         facebookLink: '',
@@ -170,11 +173,24 @@ export function MediaSubmissionForm({ isOpen, onClose }: MediaSubmissionFormProp
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="contact" className="text-primary">Contact *</Label>
+              <Label htmlFor="contact" className="text-primary">Contact Information *</Label>
               <Input
                 id="contact"
                 name="contact"
                 value={formData.contact}
+                onChange={handleInputChange}
+                required
+                className="bg-white/80 backdrop-blur-sm rounded-lg"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="email" className="text-primary">Email Address *</Label>
+              <Input
+                id="email"
+                name="email"
+                type="email"
+                value={formData.email}
                 onChange={handleInputChange}
                 required
                 className="bg-white/80 backdrop-blur-sm rounded-lg"

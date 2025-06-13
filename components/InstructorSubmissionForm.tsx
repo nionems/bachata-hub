@@ -23,6 +23,7 @@ interface InstructorFormData {
   website: string
   socialUrl: string
   contactInfo: string
+  email: string
   danceStyles: string
   experience: string
   imageUrl: string
@@ -37,6 +38,7 @@ export function InstructorSubmissionForm({ isOpen, onClose }: InstructorSubmissi
     website: '',
     socialUrl: '',
     contactInfo: '',
+    email: '',
     danceStyles: '',
     experience: '',
     imageUrl: ''
@@ -82,6 +84,7 @@ export function InstructorSubmissionForm({ isOpen, onClose }: InstructorSubmissi
         website: '',
         socialUrl: '',
         contactInfo: '',
+        email: '',
         danceStyles: '',
         experience: '',
         imageUrl: ''
@@ -181,6 +184,19 @@ export function InstructorSubmissionForm({ isOpen, onClose }: InstructorSubmissi
                 id="contactInfo"
                 name="contactInfo"
                 value={formData.contactInfo}
+                onChange={handleInputChange}
+                required
+                className="bg-white/80 backdrop-blur-sm rounded-lg"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="email" className="text-primary">Email Address *</Label>
+              <Input
+                id="email"
+                name="email"
+                type="email"
+                value={formData.email}
                 onChange={handleInputChange}
                 required
                 className="bg-white/80 backdrop-blur-sm rounded-lg"

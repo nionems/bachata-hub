@@ -85,6 +85,7 @@ export async function POST(request: Request) {
           <p><strong>Website:</strong> ${data.website || 'N/A'}</p>
           <p><strong>Social URL:</strong> ${data.socialUrl || 'N/A'}</p>
           <p><strong>Contact Info:</strong> ${data.contactInfo}</p>
+          <p><strong>Email:</strong> ${data.email}</p>
           <p><strong>Dance Styles:</strong> ${data.danceStyles}</p>
           <p><strong>Experience:</strong> ${data.experience}</p>
           <p><strong>Image URL:</strong> ${data.imageUrl}</p>
@@ -98,11 +99,12 @@ export async function POST(request: Request) {
           <p><strong>Location:</strong> ${data.location}</p>
           <p><strong>State:</strong> ${data.state}</p>
           <p><strong>Contact:</strong> ${data.contact}</p>
+          <p><strong>Email:</strong> ${data.email}</p>
           <p><strong>Music Styles:</strong> ${data.musicStyles}</p>
           <p><strong>Comment:</strong> ${data.comment || 'N/A'}</p>
           <p><strong>Instagram:</strong> ${data.instagramLink || 'N/A'}</p>
           <p><strong>Facebook:</strong> ${data.facebookLink || 'N/A'}</p>
-          <p><strong>Email:</strong> ${data.emailLink || 'N/A'}</p>
+          <p><strong>Email Link:</strong> ${data.emailLink || 'N/A'}</p>
           <p><strong>Music Link:</strong> ${data.musicLink || 'N/A'}</p>
           <p><strong>Image URL:</strong> ${data.imageUrl}</p>
         `
@@ -115,10 +117,11 @@ export async function POST(request: Request) {
           <p><strong>Location:</strong> ${data.location}</p>
           <p><strong>State:</strong> ${data.state}</p>
           <p><strong>Contact:</strong> ${data.contact}</p>
+          <p><strong>Email:</strong> ${data.email}</p>
           <p><strong>Comment:</strong> ${data.comment || 'N/A'}</p>
           <p><strong>Instagram:</strong> ${data.instagramLink || 'N/A'}</p>
           <p><strong>Facebook:</strong> ${data.facebookLink || 'N/A'}</p>
-          <p><strong>Email:</strong> ${data.emailLink || 'N/A'}</p>
+          <p><strong>Email Link:</strong> ${data.emailLink || 'N/A'}</p>
           <p><strong>Media Link 1:</strong> ${data.mediaLink || 'N/A'}</p>
           <p><strong>Media Link 2:</strong> ${data.mediaLink2 || 'N/A'}</p>
           <p><strong>Image URL:</strong> ${data.imageUrl}</p>
