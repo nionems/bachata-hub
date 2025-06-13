@@ -77,18 +77,6 @@ export function MediaSubmissionForm({ isOpen, onClose }: MediaSubmissionFormProp
     setIsLoading(true)
 
     try {
-      const response = await fetch('/api/media', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData),
-      })
-
-      if (!response.ok) {
-        throw new Error('Failed to submit media')
-      }
-
       // Send email notification
       const emailResponse = await fetch('/api/send-email', {
         method: 'POST',
@@ -102,7 +90,7 @@ export function MediaSubmissionForm({ isOpen, onClose }: MediaSubmissionFormProp
       })
 
       if (!emailResponse.ok) {
-        console.error('Failed to send email notification')
+        throw new Error('Failed to send email notification')
       }
 
       toast.success('Media submitted successfully!')

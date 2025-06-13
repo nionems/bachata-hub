@@ -56,18 +56,6 @@ export function InstructorSubmissionForm({ isOpen, onClose }: InstructorSubmissi
     setIsLoading(true)
 
     try {
-      const response = await fetch('/api/instructors', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData),
-      })
-
-      if (!response.ok) {
-        throw new Error('Failed to submit instructor')
-      }
-
       // Send email notification
       const emailResponse = await fetch('/api/send-email', {
         method: 'POST',
@@ -81,7 +69,7 @@ export function InstructorSubmissionForm({ isOpen, onClose }: InstructorSubmissi
       })
 
       if (!emailResponse.ok) {
-        console.error('Failed to send email notification')
+        throw new Error('Failed to send email notification')
       }
 
       toast.success('Instructor submitted successfully!')

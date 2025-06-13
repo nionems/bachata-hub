@@ -56,18 +56,6 @@ export function DJSubmissionForm({ isOpen, onClose }: DJSubmissionFormProps) {
     setIsLoading(true)
 
     try {
-      const response = await fetch('/api/djs', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData),
-      })
-
-      if (!response.ok) {
-        throw new Error('Failed to submit DJ')
-      }
-
       // Send email notification
       const emailResponse = await fetch('/api/send-email', {
         method: 'POST',
@@ -81,7 +69,7 @@ export function DJSubmissionForm({ isOpen, onClose }: DJSubmissionFormProps) {
       })
 
       if (!emailResponse.ok) {
-        console.error('Failed to send email notification')
+        throw new Error('Failed to send email notification')
       }
 
       toast.success('DJ submitted successfully!')

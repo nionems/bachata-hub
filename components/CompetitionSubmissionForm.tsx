@@ -97,41 +97,20 @@ export function CompetitionSubmissionForm({ isOpen, onClose }: CompetitionSubmis
     setIsLoading(true)
 
     try {
-      // Submit competition
-      const response = await fetch('/api/competitions', {
+      // Send email notification
+      const emailResponse = await fetch('/api/send-email', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({
+          type: 'competition_submission',
+          data: formData
+        }),
       })
 
-      if (!response.ok) {
-        const errorData = await response.json()
-        throw new Error(errorData.error || 'Failed to submit competition')
-      }
-
-      // Send email notification
-      try {
-        const emailResponse = await fetch('/api/send-email', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            type: 'competition_submission',
-            data: formData
-          }),
-        })
-
-        if (!emailResponse.ok) {
-          const emailError = await emailResponse.json()
-          console.error('Failed to send email notification:', emailError)
-          // Don't throw error here, just log it
-        }
-      } catch (emailError) {
-        console.error('Error sending email notification:', emailError)
-        // Don't throw error here, just log it
+      if (!emailResponse.ok) {
+        throw new Error('Failed to send email notification')
       }
 
       toast.success('Competition submitted successfully!')

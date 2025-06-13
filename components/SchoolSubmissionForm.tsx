@@ -55,22 +55,8 @@ export function SchoolSubmissionForm({ isOpen, onClose }: SchoolSubmissionFormPr
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
     setIsLoading(true)
-    setError(null)
 
     try {
-      // Send the form data to the API
-      const response = await fetch('/api/schools', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData),
-      })
-
-      if (!response.ok) {
-        throw new Error('Failed to submit school')
-      }
-
       // Send email notification
       const emailResponse = await fetch('/api/send-email', {
         method: 'POST',
@@ -96,7 +82,7 @@ export function SchoolSubmissionForm({ isOpen, onClose }: SchoolSubmissionFormPr
       })
 
       if (!emailResponse.ok) {
-        console.error('Failed to send email notification')
+        throw new Error('Failed to send email notification')
       }
 
       setSuccess(true)
