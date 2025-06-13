@@ -20,6 +20,7 @@ interface DJFormData {
   location: string
   state: string
   contact: string
+  email: string
   musicStyles: string
   imageUrl: string
   comment: string
@@ -35,6 +36,7 @@ export function DJSubmissionForm({ isOpen, onClose }: DJSubmissionFormProps) {
     location: '',
     state: '',
     contact: '',
+    email: '',
     musicStyles: '',
     imageUrl: '',
     comment: '',
@@ -79,6 +81,7 @@ export function DJSubmissionForm({ isOpen, onClose }: DJSubmissionFormProps) {
         location: '',
         state: '',
         contact: '',
+        email: '',
         musicStyles: '',
         imageUrl: '',
         comment: '',
@@ -156,6 +159,19 @@ export function DJSubmissionForm({ isOpen, onClose }: DJSubmissionFormProps) {
                 id="contact"
                 name="contact"
                 value={formData.contact}
+                onChange={handleInputChange}
+                required
+                className="bg-white/80 backdrop-blur-sm rounded-lg"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="email" className="text-primary">Email Address *</Label>
+              <Input
+                id="email"
+                name="email"
+                type="email"
+                value={formData.email}
                 onChange={handleInputChange}
                 required
                 className="bg-white/80 backdrop-blur-sm rounded-lg"
