@@ -257,6 +257,13 @@ export async function POST(request: Request) {
     // Generate email content
     const { subject, html } = getAdminEmailHtml(type, data);
 
+    if (!subject || !html) {
+      return NextResponse.json(
+        { error: 'Invalid submission type', details: 'Unsupported submission type' },
+        { status: 400 }
+      );
+    }
+
     // Send email
     const emailResponse = await resend.emails.send({
       from: "Bachata Hub <onboarding@resend.dev>",

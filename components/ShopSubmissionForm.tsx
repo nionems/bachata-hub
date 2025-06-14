@@ -62,7 +62,7 @@ export function ShopSubmissionForm({ isOpen, onClose }: ShopSubmissionFormProps)
     setIsLoading(true)
 
     try {
-      const response = await fetch('/api/send-email', {
+      const response = await fetch('/api/submit-form', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -73,8 +73,16 @@ export function ShopSubmissionForm({ isOpen, onClose }: ShopSubmissionFormProps)
         }),
       })
 
+      let data;
+      try {
+        data = await response.json();
+      } catch (e) {
+        console.error('Failed to parse response:', e);
+        throw new Error('Failed to parse server response');
+      }
+
       if (!response.ok) {
-        throw new Error('Failed to submit shop')
+        throw new Error(data.details || data.error || 'Failed to submit shop')
       }
 
       toast.success('Shop submitted successfully!')
@@ -97,7 +105,7 @@ export function ShopSubmissionForm({ isOpen, onClose }: ShopSubmissionFormProps)
       })
     } catch (error) {
       console.error('Error submitting shop:', error)
-      toast.error('Failed to submit shop. Please try again.')
+      toast.error(error instanceof Error ? error.message : 'Failed to submit shop. Please try again.')
     } finally {
       setIsLoading(false)
     }
