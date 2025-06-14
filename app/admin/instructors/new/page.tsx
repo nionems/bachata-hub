@@ -28,6 +28,8 @@ const AUSTRALIAN_STATES = [
   { value: 'NT', label: 'Northern Territory' }
 ];
 
+const MAX_FILE_SIZE = 5 * 1024 * 1024 // 5MB
+
 export default function NewInstructorPage() {
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
@@ -49,28 +51,39 @@ export default function NewInstructorPage() {
 
   const handleImageUpload = async (file: File) => {
     try {
+      // Check file size
+      if (file.size > MAX_FILE_SIZE) {
+        throw new Error(`File size must be less than ${MAX_FILE_SIZE / (1024 * 1024)}MB`)
+      }
+
       const formData = new FormData()
       formData.append('file', file)
-      formData.append('folder', 'instructors') // Store in instructors folder
+      formData.append('folder', 'instructors')
 
-      console.log('Sending image upload request to API...') // Debug log
+      console.log('Sending image upload request to API...')
       const response = await fetch('/api/upload', {
         method: 'POST',
         body: formData
       })
 
-      if (!response.ok) {
-        const errorData = await response.json()
-        console.error('Upload API error:', errorData) // Debug log
-        throw new Error('Failed to upload image')
+      let data
+      try {
+        data = await response.json()
+      } catch (e) {
+        console.error('Failed to parse response:', e)
+        throw new Error('Failed to parse server response')
       }
 
-      const data = await response.json()
-      console.log('Upload API response:', data) // Debug log
+      if (!response.ok) {
+        console.error('Upload API error:', data)
+        throw new Error(data.details || data.error || 'Failed to upload image')
+      }
+
+      console.log('Upload API response:', data)
       return data
     } catch (error) {
       console.error('Upload error:', error)
-      throw new Error('Failed to upload image')
+      throw error
     }
   }
 

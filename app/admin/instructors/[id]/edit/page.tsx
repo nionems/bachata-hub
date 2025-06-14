@@ -29,6 +29,8 @@ const AUSTRALIAN_STATES = [
   { value: 'NT', label: 'Northern Territory' }
 ]
 
+const MAX_FILE_SIZE = 5 * 1024 * 1024 // 5MB
+
 export default function EditInstructorPage({ params }: { params: { id: string } }) {
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
@@ -66,6 +68,11 @@ export default function EditInstructorPage({ params }: { params: { id: string } 
 
   const handleImageUpload = async (file: File) => {
     try {
+      // Check file size
+      if (file.size > MAX_FILE_SIZE) {
+        throw new Error(`File size must be less than ${MAX_FILE_SIZE / (1024 * 1024)}MB`)
+      }
+
       const formData = new FormData()
       formData.append('file', file)
       formData.append('folder', 'instructors')
@@ -75,16 +82,23 @@ export default function EditInstructorPage({ params }: { params: { id: string } 
         body: formData
       })
 
-      if (!response.ok) {
-        const errorData = await response.json()
-        throw new Error('Failed to upload image')
+      let data
+      try {
+        data = await response.json()
+      } catch (e) {
+        console.error('Failed to parse response:', e)
+        throw new Error('Failed to parse server response')
       }
 
-      const data = await response.json()
+      if (!response.ok) {
+        console.error('Upload API error:', data)
+        throw new Error(data.details || data.error || 'Failed to upload image')
+      }
+
       return data
     } catch (error) {
       console.error('Upload error:', error)
-      throw new Error('Failed to upload image')
+      throw error
     }
   }
 

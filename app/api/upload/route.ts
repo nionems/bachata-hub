@@ -8,6 +8,9 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET,
 })
 
+// Maximum file size (5MB)
+const MAX_FILE_SIZE = 5 * 1024 * 1024
+
 export async function POST(request: Request) {
   console.log("Received POST request to /api/upload")
   try {
@@ -18,6 +21,18 @@ export async function POST(request: Request) {
     if (!file) {
       console.error("No file found in the request")
       return NextResponse.json({ error: 'No file uploaded' }, { status: 400 })
+    }
+
+    // Check file size
+    if (file.size > MAX_FILE_SIZE) {
+      console.error("File too large:", { size: file.size, maxSize: MAX_FILE_SIZE })
+      return NextResponse.json(
+        { 
+          error: 'File too large', 
+          details: `File size must be less than ${MAX_FILE_SIZE / (1024 * 1024)}MB` 
+        }, 
+        { status: 413 }
+      )
     }
 
     console.log("File received:", { name: file.name, type: file.type, size: file.size, folder })
