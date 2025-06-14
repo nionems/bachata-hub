@@ -1,5 +1,6 @@
 import React, { useState } from "react";
-import { Label, Select, SelectItem } from "@/components/ui/select";
+import { Label } from "@/components/ui/label";
+import { Select, SelectItem } from "@/components/ui/select";
 
 const EventForm: React.FC = () => {
   const [formData, setFormData] = useState({
@@ -32,7 +33,6 @@ const EventForm: React.FC = () => {
       <div className="space-y-2">
         <Label htmlFor="colorId">Event Color</Label>
         <Select
-          id="colorId"
           value={formData.colorId}
           onValueChange={(value) => setFormData({ ...formData, colorId: value })}
         >
