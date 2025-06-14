@@ -52,6 +52,7 @@ export async function POST(request: Request) {
             timeZone: 'Australia/Sydney',
           },
           location: data.location,
+          colorId: data.colorId || '1', // Add colorId with a default value
         },
       })
       console.log('Event added to Google Calendar')
