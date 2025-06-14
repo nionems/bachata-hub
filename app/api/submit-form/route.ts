@@ -234,7 +234,18 @@ export async function POST(request: Request) {
       );
     }
 
-    const { type, data } = await request.json()
+    let body;
+    try {
+      body = await request.json();
+    } catch (e) {
+      console.error('Failed to parse request body:', e);
+      return NextResponse.json(
+        { error: 'Invalid request', details: 'Failed to parse request body' },
+        { status: 400 }
+      );
+    }
+
+    const { type, data } = body;
 
     if (!type || !data) {
       return NextResponse.json(

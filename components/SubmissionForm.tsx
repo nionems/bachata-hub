@@ -93,20 +93,24 @@ export function SubmissionForm({ isOpen, onClose, type }: SubmissionFormProps) {
     setError(null)
 
     try {
-      const formDataToSend = new FormData()
-      Object.entries(formData).forEach(([key, value]) => {
-        if (value !== null) {
-          formDataToSend.append(key, value)
-        }
-      })
-      formDataToSend.append('type', type)
-
-      const response = await fetch("/api/submit-listing", {
-        method: "POST",
-        body: formDataToSend,
+      const response = await fetch('/api/submit-form', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          type: 'accommodation_submission',
+          data: formData
+        }),
       })
 
-      const data = await response.json()
+      let data;
+      try {
+        data = await response.json();
+      } catch (e) {
+        console.error('Failed to parse response:', e);
+        throw new Error('Failed to parse server response');
+      }
 
       if (!response.ok) {
         throw new Error(data.details || data.error || "Failed to submit")
