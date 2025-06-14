@@ -32,7 +32,7 @@ export function ContactUsModal({ isOpen, onClose }: ContactUsModalProps) {
     setIsSubmitting(true)
 
     try {
-      const response = await fetch('/api/send-email', {
+      const response = await fetch('/api/submit-form', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -43,10 +43,16 @@ export function ContactUsModal({ isOpen, onClose }: ContactUsModalProps) {
         }),
       })
 
-      const data = await response.json()
+      let data;
+      try {
+        data = await response.json();
+      } catch (e) {
+        console.error('Failed to parse response:', e);
+        throw new Error('Failed to parse server response');
+      }
 
       if (!response.ok) {
-        throw new Error(data.error || 'Failed to send message')
+        throw new Error(data.details || data.error || 'Failed to send message')
       }
 
       toast.success('Message sent successfully!')
@@ -54,7 +60,8 @@ export function ContactUsModal({ isOpen, onClose }: ContactUsModalProps) {
       onClose()
     } catch (error) {
       console.error('Form submission error:', error)
-      toast.error(error instanceof Error ? error.message : 'Failed to send message. Please try again.')
+      const errorMessage = error instanceof Error ? error.message : 'Failed to send message. Please try again.'
+      toast.error(errorMessage)
     } finally {
       setIsSubmitting(false)
     }
