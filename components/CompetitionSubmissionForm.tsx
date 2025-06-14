@@ -33,8 +33,8 @@ interface CompetitionFormData {
   imageUrl: string
   comment: string
   googleMapLink: string
-  categories: string[]
-  level: string[]
+  categories: string
+  level: string
   socialLink: string
 }
 
@@ -75,8 +75,8 @@ export function CompetitionSubmissionForm({ isOpen, onClose }: CompetitionSubmis
     imageUrl: '',
     comment: '',
     googleMapLink: '',
-    categories: [],
-    level: [],
+    categories: '',
+    level: '',
     socialLink: ''
   })
 
@@ -133,8 +133,8 @@ export function CompetitionSubmissionForm({ isOpen, onClose }: CompetitionSubmis
         imageUrl: '',
         comment: '',
         googleMapLink: '',
-        categories: [],
-        level: [],
+        categories: '',
+        level: '',
         socialLink: ''
       })
     } catch (error) {
@@ -370,7 +370,6 @@ export function CompetitionSubmissionForm({ isOpen, onClose }: CompetitionSubmis
                 ))}
               </SelectContent>
             </Select>
-            <p className="text-xs text-gray-500 mt-1">Hold Ctrl/Cmd to select multiple categories</p>
           </div>
 
           <div className="space-y-2">
@@ -391,7 +390,6 @@ export function CompetitionSubmissionForm({ isOpen, onClose }: CompetitionSubmis
                 ))}
               </SelectContent>
             </Select>
-            <p className="text-xs text-gray-500 mt-1">Hold Ctrl/Cmd to select multiple levels</p>
           </div>
 
           <div className="space-y-2">
