@@ -38,7 +38,7 @@ export function ContactForm({ isOpen, onClose }: ContactFormProps) {
     try {
       console.log('Sending form data:', formData)
       
-      const response = await fetch('/api/send-email', {
+      const response = await fetch('/api/submit-form', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

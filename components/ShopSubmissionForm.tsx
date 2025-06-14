@@ -105,7 +105,8 @@ export function ShopSubmissionForm({ isOpen, onClose }: ShopSubmissionFormProps)
       })
     } catch (error) {
       console.error('Error submitting shop:', error)
-      toast.error(error instanceof Error ? error.message : 'Failed to submit shop. Please try again.')
+      const errorMessage = error instanceof Error ? error.message : 'Failed to submit shop. Please try again.'
+      toast.error(errorMessage)
     } finally {
       setIsLoading(false)
     }
