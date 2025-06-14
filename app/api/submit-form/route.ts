@@ -24,6 +24,16 @@ function getAdminEmailHtml(type: string, data: any) {
   let html = '';
 
   switch (type) {
+    case 'contact_form':
+      subject = 'New Contact Form Submission'
+      html = `
+        <h2>New Contact Form Submission</h2>
+        <p><strong>Name:</strong> ${data.name}</p>
+        <p><strong>Email:</strong> ${data.email}</p>
+        <p><strong>Message:</strong></p>
+        <p>${data.message}</p>
+      `
+      break;
     case 'school_submission':
       subject = 'New School Submission'
       html = `
@@ -161,6 +171,28 @@ function getAdminEmailHtml(type: string, data: any) {
         <p><strong>Image URL:</strong> ${data.imageUrl}</p>
       `
       break;
+    case 'accommodation_submission':
+      subject = 'New Accommodation Submission'
+      html = `
+        <h2>New Accommodation Submission</h2>
+        <p><strong>Name:</strong> ${data.name}</p>
+        <p><strong>Location:</strong> ${data.location}</p>
+        <p><strong>State:</strong> ${data.state}</p>
+        <p><strong>Address:</strong> ${data.address}</p>
+        <p><strong>Contact Info:</strong> ${data.contactInfo}</p>
+        <p><strong>Email:</strong> ${data.email}</p>
+        <p><strong>Phone:</strong> ${data.phone}</p>
+        <p><strong>Website:</strong> ${data.website || 'N/A'}</p>
+        <p><strong>Price:</strong> ${data.price}</p>
+        <p><strong>Rooms:</strong> ${data.rooms}</p>
+        <p><strong>Capacity:</strong> ${data.capacity}</p>
+        <p><strong>Image URL:</strong> ${data.imageUrl || 'N/A'}</p>
+        <p><strong>Description:</strong> ${data.comment || 'N/A'}</p>
+        <p><strong>Google Map Link:</strong> ${data.googleMapLink || 'N/A'}</p>
+        <p><strong>Facebook Link:</strong> ${data.facebookLink || 'N/A'}</p>
+        <p><strong>Instagram Link:</strong> ${data.instagramLink || 'N/A'}</p>
+      `
+      break;
   }
 
   return { subject, html };
@@ -172,7 +204,7 @@ export async function POST(request: Request) {
     const isResendConfigured = await verifyResendConfig();
     if (!isResendConfigured) {
       console.error('Resend configuration verification failed');
-      return Response.json(
+      return NextResponse.json(
         { 
           error: 'Email service configuration error', 
           details: 'Failed to verify email service configuration. Please check your RESEND_API_KEY.' 
@@ -193,7 +225,7 @@ export async function POST(request: Request) {
 
     if (missingVars.length > 0) {
       console.error('Missing required environment variables:', missingVars);
-      return Response.json(
+      return NextResponse.json(
         { 
           error: 'Server configuration error', 
           details: `Missing environment variables: ${missingVars.join(', ')}. Please check your server configuration.` 
@@ -205,7 +237,7 @@ export async function POST(request: Request) {
     const { type, data } = await request.json()
 
     if (!type || !data) {
-      return Response.json(
+      return NextResponse.json(
         { error: 'Invalid request', details: 'Missing type or data' },
         { status: 400 }
       );
@@ -224,16 +256,16 @@ export async function POST(request: Request) {
 
     if (emailResponse.error) {
       console.error('Failed to send email:', emailResponse.error);
-      return Response.json(
+      return NextResponse.json(
         { error: 'Failed to send email', details: emailResponse.error.message },
         { status: 500 }
       );
     }
 
-    return Response.json({ success: true });
+    return NextResponse.json({ success: true });
   } catch (error) {
     console.error('Error in form submission:', error);
-    return Response.json(
+    return NextResponse.json(
       { 
         error: 'Failed to submit form', 
         details: error instanceof Error ? error.message : 'Unknown error' 
