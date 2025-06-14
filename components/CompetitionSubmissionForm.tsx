@@ -98,7 +98,7 @@ export function CompetitionSubmissionForm({ isOpen, onClose }: CompetitionSubmis
 
     try {
       // Send email notification
-      const emailResponse = await fetch('/api/send-email', {
+      const emailResponse = await fetch('/api/submit-form', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -138,7 +138,7 @@ export function CompetitionSubmissionForm({ isOpen, onClose }: CompetitionSubmis
       })
     } catch (error) {
       console.error('Error submitting competition:', error)
-      toast.error(error instanceof Error ? error.message : 'Failed to submit competition. Please try again.')
+      toast.error('Failed to submit competition. Please try again.')
     } finally {
       setIsLoading(false)
     }

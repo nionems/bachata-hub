@@ -60,7 +60,7 @@ export function SchoolSubmissionForm({ isOpen, onClose }: SchoolSubmissionFormPr
 
     try {
       // Send email notification
-      const emailResponse = await fetch('/api/send-email', {
+      const emailResponse = await fetch('/api/submit-form', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

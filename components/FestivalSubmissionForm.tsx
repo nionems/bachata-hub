@@ -88,23 +88,8 @@ export function FestivalSubmissionForm({ isOpen, onClose }: FestivalSubmissionFo
         imageUrl = url
       }
 
-      const response = await fetch('/api/festivals', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          ...formData,
-          imageUrl,
-        }),
-      })
-
-      if (!response.ok) {
-        throw new Error('Failed to submit festival')
-      }
-
       // Send email notification
-      const emailResponse = await fetch('/api/send-email', {
+      const emailResponse = await fetch('/api/submit-form', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -119,7 +104,7 @@ export function FestivalSubmissionForm({ isOpen, onClose }: FestivalSubmissionFo
       })
 
       if (!emailResponse.ok) {
-        console.error('Failed to send email notification')
+        throw new Error('Failed to send email notification')
       }
 
       toast.success('Festival submitted successfully!')

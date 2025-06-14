@@ -80,7 +80,7 @@ export function MediaSubmissionForm({ isOpen, onClose }: MediaSubmissionFormProp
 
     try {
       // Send email notification
-      const emailResponse = await fetch('/api/send-email', {
+      const emailResponse = await fetch('/api/submit-form', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
