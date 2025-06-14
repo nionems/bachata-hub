@@ -9,6 +9,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { StateSelect } from "@/components/ui/StateSelect"
 import { toast } from "sonner"
 import { X } from "lucide-react"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
 interface CompetitionSubmissionFormProps {
   isOpen: boolean
@@ -353,37 +354,43 @@ export function CompetitionSubmissionForm({ isOpen, onClose }: CompetitionSubmis
 
           <div className="space-y-2">
             <Label htmlFor="categories" className="text-primary">Categories *</Label>
-            <select
-              id="categories"
-              name="categories"
-              multiple
+            <Select
               value={formData.categories}
-              onChange={handleInputChange}
+              onValueChange={(value) => setFormData(prev => ({ ...prev, categories: value }))}
               required
-              className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-white"
             >
-              {COMPETITION_CATEGORIES.map(category => (
-                <option key={category} value={category}>{category}</option>
-              ))}
-            </select>
+              <SelectTrigger className="bg-white/80 backdrop-blur-sm rounded-lg">
+                <SelectValue placeholder="Select categories" />
+              </SelectTrigger>
+              <SelectContent>
+                {COMPETITION_CATEGORIES.map(category => (
+                  <SelectItem key={category} value={category}>
+                    {category}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
             <p className="text-xs text-gray-500 mt-1">Hold Ctrl/Cmd to select multiple categories</p>
           </div>
 
           <div className="space-y-2">
             <Label htmlFor="level" className="text-primary">Level *</Label>
-            <select
-              id="level"
-              name="level"
-              multiple
+            <Select
               value={formData.level}
-              onChange={handleInputChange}
+              onValueChange={(value) => setFormData(prev => ({ ...prev, level: value }))}
               required
-              className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-white"
             >
-              {COMPETITION_LEVELS.map(level => (
-                <option key={level} value={level}>{level}</option>
-              ))}
-            </select>
+              <SelectTrigger className="bg-white/80 backdrop-blur-sm rounded-lg">
+                <SelectValue placeholder="Select levels" />
+              </SelectTrigger>
+              <SelectContent>
+                {COMPETITION_LEVELS.map(level => (
+                  <SelectItem key={level} value={level}>
+                    {level}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
             <p className="text-xs text-gray-500 mt-1">Hold Ctrl/Cmd to select multiple levels</p>
           </div>
 
