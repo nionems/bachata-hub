@@ -42,7 +42,7 @@ export default function CalendarMenu() {
   }
 
   const getCalendarUrl = () => {
-    const baseParams = `ctz=Australia%2FSydney&wkst=1&bgcolor=%23ffffff&showTitle=0&showNav=1&showDate=1&showPrint=0&showTabs=0&showCalendars=0&showTz=1&showAdd=0&showColor=1&color=%23${encodeURIComponent(process.env.NEXT_PUBLIC_PRIMARY_COLOR?.replace('#', '') || '006B3F')}&showAdd=0&showNav=1&showPrint=0&showTabs=0&showCalendars=0&showTz=1&showAdd=0`
+    const baseParams = `ctz=Australia%2FSydney&wkst=1&bgcolor=%23ffffff&showTitle=0&showNav=1&showDate=1&showPrint=0&showTabs=0&showCalendars=0&showTz=1&showAdd=0&color=%23${encodeURIComponent(process.env.NEXT_PUBLIC_PRIMARY_COLOR?.replace('#', '') || '006B3F')}&showAdd=0&showNav=1&showPrint=0&showTabs=0&showCalendars=0&showTz=1&showAdd=0`
     const viewParam = selectedView === "agenda" ? "&mode=AGENDA" : "&mode=MONTH"
 
     if (selectedCalendar === calendarIds.allCities) {

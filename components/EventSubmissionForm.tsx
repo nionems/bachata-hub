@@ -9,7 +9,6 @@ import { Textarea } from "@/components/ui/textarea"
 import { StateSelect } from "@/components/ui/StateSelect"
 import { toast } from "sonner"
 import { X } from "lucide-react"
-import { Select, SelectItem, SelectTrigger, SelectValue, SelectContent } from "@/components/ui/select"
 
 interface EventSubmissionFormProps {
   isOpen: boolean
@@ -29,7 +28,6 @@ interface EventFormData {
   organizerEmail: string
   ticketLink: string
   eventLink: string
-  colorId: string
 }
 
 export function EventSubmissionForm({ isOpen, onClose }: EventSubmissionFormProps) {
@@ -45,26 +43,11 @@ export function EventSubmissionForm({ isOpen, onClose }: EventSubmissionFormProp
     organizerName: '',
     organizerEmail: '',
     ticketLink: '',
-    eventLink: '',
-    colorId: '1'
+    eventLink: ''
   })
 
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-
-  const colorOptions = [
-    { id: "1", name: "Lavender", value: "#7986cb" },
-    { id: "2", name: "Sage", value: "#33b679" },
-    { id: "3", name: "Grape", value: "#8e24aa" },
-    { id: "4", name: "Flamingo", value: "#e67c73" },
-    { id: "5", name: "Banana", value: "#f6c026" },
-    { id: "6", name: "Tangerine", value: "#f5511d" },
-    { id: "7", name: "Peacock", value: "#039be5" },
-    { id: "8", name: "Graphite", value: "#616161" },
-    { id: "9", name: "Blueberry", value: "#3f51b5" },
-    { id: "10", name: "Basil", value: "#0b8043" },
-    { id: "11", name: "Tomato", value: "#d60000" },
-  ];
 
   const handleInputChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target
@@ -77,19 +60,22 @@ export function EventSubmissionForm({ isOpen, onClose }: EventSubmissionFormProp
     setError(null)
 
     try {
-      const response = await fetch('/api/send-email', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          type: 'event_submission',
-          data: formData
-        }),
+      const formDataToSend = new FormData()
+      Object.entries(formData).forEach(([key, value]) => {
+        if (value !== null) {
+          formDataToSend.append(key, value)
+        }
       })
 
+      const response = await fetch("/api/submit-event", {
+        method: "POST",
+        body: formDataToSend,
+      })
+
+      const data = await response.json()
+
       if (!response.ok) {
-        throw new Error('Failed to submit event')
+        throw new Error(data.details || data.error || "Failed to submit event")
       }
 
       toast.success("Event submitted successfully! We'll review it and add it to the calendar.")
@@ -106,8 +92,7 @@ export function EventSubmissionForm({ isOpen, onClose }: EventSubmissionFormProp
         organizerName: '',
         organizerEmail: '',
         ticketLink: '',
-        eventLink: '',
-        colorId: '1'
+        eventLink: ''
       })
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to submit form. Please try again.'
@@ -275,31 +260,6 @@ export function EventSubmissionForm({ isOpen, onClose }: EventSubmissionFormProp
                 placeholder="https://"
                 className="bg-white/80 backdrop-blur-sm rounded-lg"
               />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="colorId" className="text-primary">Event Color</Label>
-              <Select
-                value={formData.colorId}
-                onValueChange={(value) => setFormData(prev => ({ ...prev, colorId: value }))}
-              >
-                <SelectTrigger className="bg-white/80 backdrop-blur-sm rounded-lg">
-                  <SelectValue placeholder="Select a color" />
-                </SelectTrigger>
-                <SelectContent>
-                  {colorOptions.map((color) => (
-                    <SelectItem key={color.id} value={color.id}>
-                      <div className="flex items-center">
-                        <div
-                          className="w-4 h-4 rounded-full mr-2"
-                          style={{ backgroundColor: color.value }}
-                        />
-                        {color.name}
-                      </div>
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
             </div>
           </div>
 

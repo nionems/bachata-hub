@@ -1,7 +1,6 @@
 'use client'
 
 import React from 'react'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
 interface StateSelectProps {
   value: string;
@@ -23,21 +22,21 @@ const AUSTRALIAN_STATES = [
 
 export function StateSelect({ value, onChange, required = false, className }: StateSelectProps) {
   return (
-    <Select
-      value={value}
-      onValueChange={onChange}
-      required={required}
-    >
-      <SelectTrigger className={className}>
-        <SelectValue placeholder="Select a state" />
-      </SelectTrigger>
-      <SelectContent>
+    <div>
+      <label className="block text-sm font-medium text-gray-700">State</label>
+      <select
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        className={`mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 ${className || ''}`}
+        required={required}
+      >
+        <option value="">Select a state</option>
         {AUSTRALIAN_STATES.map((state) => (
-          <SelectItem key={state.value} value={state.value}>
+          <option key={state.value} value={state.value}>
             {state.label}
-          </SelectItem>
+          </option>
         ))}
-      </SelectContent>
-    </Select>
+      </select>
+    </div>
   )
 } 

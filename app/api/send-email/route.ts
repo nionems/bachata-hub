@@ -16,24 +16,6 @@ export async function POST(request: Request) {
     let html = ''
 
     switch (type) {
-      case 'event_submission':
-        subject = 'New Event Submission'
-        html = `
-          <h2>New Event Submission</h2>
-          <p><strong>Event Name:</strong> ${data.eventName}</p>
-          <p><strong>Date:</strong> ${data.eventDate}</p>
-          <p><strong>Time:</strong> ${data.eventTime} - ${data.endTime}</p>
-          <p><strong>Location:</strong> ${data.location}</p>
-          <p><strong>State:</strong> ${data.state}</p>
-          <p><strong>City:</strong> ${data.city}</p>
-          <p><strong>Description:</strong> ${data.description || 'N/A'}</p>
-          <p><strong>Organizer:</strong> ${data.organizerName}</p>
-          <p><strong>Organizer Email:</strong> ${data.organizerEmail}</p>
-          <p><strong>Event Link:</strong> ${data.eventLink || 'N/A'}</p>
-          <p><strong>Ticket Link:</strong> ${data.ticketLink || 'N/A'}</p>
-          <p><strong>Color ID:</strong> ${data.colorId}</p>
-        `
-        break
       case 'school_submission':
         subject = 'New School Submission'
         html = `

@@ -9,13 +9,6 @@ import { Textarea } from "@/components/ui/textarea"
 import { StateSelect } from "@/components/ui/StateSelect"
 import { toast } from "sonner"
 import { X } from "lucide-react"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
 
 interface CompetitionSubmissionFormProps {
   isOpen: boolean
@@ -39,8 +32,8 @@ interface CompetitionFormData {
   imageUrl: string
   comment: string
   googleMapLink: string
-  categories: string
-  level: string
+  categories: string[]
+  level: string[]
   socialLink: string
 }
 
@@ -81,8 +74,8 @@ export function CompetitionSubmissionForm({ isOpen, onClose }: CompetitionSubmis
     imageUrl: '',
     comment: '',
     googleMapLink: '',
-    categories: '',
-    level: '',
+    categories: [],
+    level: [],
     socialLink: ''
   })
 
@@ -139,8 +132,8 @@ export function CompetitionSubmissionForm({ isOpen, onClose }: CompetitionSubmis
         imageUrl: '',
         comment: '',
         googleMapLink: '',
-        categories: '',
-        level: '',
+        categories: [],
+        level: [],
         socialLink: ''
       })
     } catch (error) {
@@ -360,42 +353,38 @@ export function CompetitionSubmissionForm({ isOpen, onClose }: CompetitionSubmis
 
           <div className="space-y-2">
             <Label htmlFor="categories" className="text-primary">Categories *</Label>
-            <Select
+            <select
+              id="categories"
+              name="categories"
+              multiple
               value={formData.categories}
-              onValueChange={(value) => setFormData(prev => ({ ...prev, categories: value }))}
+              onChange={handleInputChange}
               required
+              className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-white"
             >
-              <SelectTrigger className="bg-white/80 backdrop-blur-sm rounded-lg">
-                <SelectValue placeholder="Select categories" />
-              </SelectTrigger>
-              <SelectContent position="popper" className="z-[100]">
-                {COMPETITION_CATEGORIES.map(category => (
-                  <SelectItem key={category} value={category}>
-                    {category}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+              {COMPETITION_CATEGORIES.map(category => (
+                <option key={category} value={category}>{category}</option>
+              ))}
+            </select>
+            <p className="text-xs text-gray-500 mt-1">Hold Ctrl/Cmd to select multiple categories</p>
           </div>
 
           <div className="space-y-2">
             <Label htmlFor="level" className="text-primary">Level *</Label>
-            <Select
+            <select
+              id="level"
+              name="level"
+              multiple
               value={formData.level}
-              onValueChange={(value) => setFormData(prev => ({ ...prev, level: value }))}
+              onChange={handleInputChange}
               required
+              className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-white"
             >
-              <SelectTrigger className="bg-white/80 backdrop-blur-sm rounded-lg">
-                <SelectValue placeholder="Select levels" />
-              </SelectTrigger>
-              <SelectContent position="popper" className="z-[100]">
-                {COMPETITION_LEVELS.map(level => (
-                  <SelectItem key={level} value={level}>
-                    {level}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+              {COMPETITION_LEVELS.map(level => (
+                <option key={level} value={level}>{level}</option>
+              ))}
+            </select>
+            <p className="text-xs text-gray-500 mt-1">Hold Ctrl/Cmd to select multiple levels</p>
           </div>
 
           <div className="space-y-2">
