@@ -9,7 +9,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { StateSelect } from "@/components/ui/StateSelect"
 import { toast } from "sonner"
 import { X } from "lucide-react"
-import { Select, SelectItem } from "@/components/ui/select"
+import { Select, SelectItem, SelectTrigger, SelectValue, SelectContent } from "@/components/ui/select"
 
 interface EventSubmissionFormProps {
   isOpen: boolean
@@ -77,22 +77,19 @@ export function EventSubmissionForm({ isOpen, onClose }: EventSubmissionFormProp
     setError(null)
 
     try {
-      const formDataToSend = new FormData()
-      Object.entries(formData).forEach(([key, value]) => {
-        if (value !== null) {
-          formDataToSend.append(key, value)
-        }
+      const response = await fetch('/api/send-email', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          type: 'event_submission',
+          data: formData
+        }),
       })
-
-      const response = await fetch("/api/submit-event", {
-        method: "POST",
-        body: formDataToSend,
-      })
-
-      const data = await response.json()
 
       if (!response.ok) {
-        throw new Error(data.details || data.error || "Failed to submit event")
+        throw new Error('Failed to submit event')
       }
 
       toast.success("Event submitted successfully! We'll review it and add it to the calendar.")
@@ -286,17 +283,22 @@ export function EventSubmissionForm({ isOpen, onClose }: EventSubmissionFormProp
                 value={formData.colorId}
                 onValueChange={(value) => setFormData(prev => ({ ...prev, colorId: value }))}
               >
-                {colorOptions.map((color) => (
-                  <SelectItem key={color.id} value={color.id}>
-                    <div className="flex items-center">
-                      <div
-                        className="w-4 h-4 rounded-full mr-2"
-                        style={{ backgroundColor: color.value }}
-                      />
-                      {color.name}
-                    </div>
-                  </SelectItem>
-                ))}
+                <SelectTrigger className="bg-white/80 backdrop-blur-sm rounded-lg">
+                  <SelectValue placeholder="Select a color" />
+                </SelectTrigger>
+                <SelectContent>
+                  {colorOptions.map((color) => (
+                    <SelectItem key={color.id} value={color.id}>
+                      <div className="flex items-center">
+                        <div
+                          className="w-4 h-4 rounded-full mr-2"
+                          style={{ backgroundColor: color.value }}
+                        />
+                        {color.name}
+                      </div>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
               </Select>
             </div>
           </div>

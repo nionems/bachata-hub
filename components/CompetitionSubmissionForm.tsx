@@ -9,7 +9,13 @@ import { Textarea } from "@/components/ui/textarea"
 import { StateSelect } from "@/components/ui/StateSelect"
 import { toast } from "sonner"
 import { X } from "lucide-react"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 
 interface CompetitionSubmissionFormProps {
   isOpen: boolean
@@ -362,7 +368,7 @@ export function CompetitionSubmissionForm({ isOpen, onClose }: CompetitionSubmis
               <SelectTrigger className="bg-white/80 backdrop-blur-sm rounded-lg">
                 <SelectValue placeholder="Select categories" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent position="popper" className="z-[100]">
                 {COMPETITION_CATEGORIES.map(category => (
                   <SelectItem key={category} value={category}>
                     {category}
@@ -382,7 +388,7 @@ export function CompetitionSubmissionForm({ isOpen, onClose }: CompetitionSubmis
               <SelectTrigger className="bg-white/80 backdrop-blur-sm rounded-lg">
                 <SelectValue placeholder="Select levels" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent position="popper" className="z-[100]">
                 {COMPETITION_LEVELS.map(level => (
                   <SelectItem key={level} value={level}>
                     {level}
