@@ -107,13 +107,14 @@ function getAdminEmailHtml(type: string, data: any) {
         <p><strong>Name:</strong> ${data.name}</p>
         <p><strong>Location:</strong> ${data.location}</p>
         <p><strong>State:</strong> ${data.state}</p>
-        <p><strong>Bio:</strong> ${data.bio}</p>
-        <p><strong>Website:</strong> ${data.website || 'N/A'}</p>
-        <p><strong>Social URL:</strong> ${data.socialUrl || 'N/A'}</p>
-        <p><strong>Contact Info:</strong> ${data.contactInfo}</p>
+        <p><strong>Contact:</strong> ${data.contact}</p>
         <p><strong>Email:</strong> ${data.email}</p>
-        <p><strong>Dance Styles:</strong> ${data.danceStyles}</p>
-        <p><strong>Experience:</strong> ${data.experience}</p>
+        <p><strong>Music Styles:</strong> ${data.musicStyles}</p>
+        <p><strong>Comment:</strong> ${data.comment || 'N/A'}</p>
+        <p><strong>Instagram:</strong> ${data.instagramLink || 'N/A'}</p>
+        <p><strong>Facebook:</strong> ${data.facebookLink || 'N/A'}</p>
+        <p><strong>Email Link:</strong> ${data.emailLink || 'N/A'}</p>
+        <p><strong>Music Link:</strong> ${data.musicLink || 'N/A'}</p>
         <p><strong>Image URL:</strong> ${data.imageUrl}</p>
       `
       break;
@@ -215,8 +216,8 @@ export async function POST(request: Request) {
 
     // Send email
     const emailResponse = await resend.emails.send({
-      from: process.env.EMAIL_FROM || 'Bachata Hub <noreply@bachata-hub.com>',
-      to: process.env.EMAIL_TO || 'contact@bachata-hub.com',
+      from: "Bachata Hub <onboarding@resend.dev>",
+      to: "bachata.au@gmail.com",
       subject: subject,
       html: html
     });
