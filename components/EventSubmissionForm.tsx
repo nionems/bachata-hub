@@ -32,18 +32,18 @@ interface EventFormData {
 
 export function EventSubmissionForm({ isOpen, onClose }: EventSubmissionFormProps) {
   const [formData, setFormData] = useState<EventFormData>({
-    eventName: '',
-    eventDate: '',
-    eventTime: '',
-    endTime: '',
-    location: '',
-    city: '',
-    state: '',
-    description: '',
-    organizerName: '',
-    organizerEmail: '',
-    ticketLink: '',
-    eventLink: ''
+    eventName: "",
+    eventDate: "",
+    eventTime: "",
+    endTime: "",
+    location: "",
+    city: "",
+    state: "",
+    description: "",
+    organizerName: "",
+    organizerEmail: "",
+    ticketLink: "",
+    eventLink: ""
   })
 
   const [isLoading, setIsLoading] = useState(false)
