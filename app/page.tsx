@@ -1,7 +1,7 @@
 'use client'
 
 import Link from "next/link"
-import { Calendar, Users, Music, School, ShoppingBag, Trophy, MapPin, Clock, Video, Info, Headphones, Film, Building2, Lightbulb, ChevronRight, ChevronLeft } from "lucide-react"
+import { Calendar, Users, Music, School, ShoppingBag, Trophy, MapPin, Clock, Video, Info, Headphones, Film, Building2, Lightbulb, ChevronRight, ChevronLeft, ExternalLink, ZoomIn } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useState, useEffect } from 'react'
 import { School as SchoolType } from '@/types/school'
@@ -303,13 +303,15 @@ export default function Home() {
   }
 
   // Add this handler function
-  const handleEventClick = (event: any) => {
-    console.log('Clicked event ID:', event.id)
-    router.push(`/events/${event.id || event.iCalUID}`)
+  const handleEventClick = (event: Event) => {
+    if (event.eventLink) {
+      window.open(event.eventLink, '_blank')
+    }
   }
 
   // Add this function to handle image clicks
-  const handleImageClick = (event: Event) => {
+  const handleImageClick = (event: Event, e: React.MouseEvent) => {
+    e.stopPropagation()
     setSelectedImage({
       url: event.imageUrl,
       title: event.name
@@ -377,42 +379,45 @@ export default function Home() {
                     <div key={event.id} className="px-2">
                       <div 
                         className="bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden cursor-pointer hover:shadow-xl transition-shadow relative h-72"
-                        onClick={(e) => handleImageClick(event)}
+                        onClick={() => handleEventClick(event)}
                       >
-                        <div 
-                          className="absolute inset-0 flex items-center justify-center bg-gradient-to-r from-primary/30 to-secondary/30"
-                        >
+                        <div className="relative w-full h-full">
                           {event.imageUrl && event.imageUrl !== '/images/placeholder.svg' ? (
                             <div className="relative w-full h-full">
-                            <Image
-                              src={event.imageUrl}
-                              alt={event.name}
-                              fill
+                              <Image
+                                src={event.imageUrl}
+                                alt={event.name}
+                                fill
                                 className="object-contain"
                                 sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                              onError={(e) => {
-                                console.error('Error loading image:', event.imageUrl)
-                                const target = e.target as HTMLImageElement
-                                target.src = '/images/placeholder.svg'
-                              }}
-                            />
+                                onError={(e) => {
+                                  console.error('Error loading image:', event.imageUrl)
+                                  const target = e.target as HTMLImageElement
+                                  target.src = '/images/placeholder.svg'
+                                }}
+                              />
+                              <div className="absolute inset-0 bg-gradient-to-r from-primary/30 to-secondary/30" />
+                              <button
+                                onClick={(e) => handleImageClick(event, e)}
+                                className="absolute top-2 right-2 bg-black/60 hover:bg-black/80 text-white p-2 rounded-full transition-colors duration-200"
+                                aria-label="View image"
+                              >
+                                <ZoomIn className="h-5 w-5" />
+                              </button>
+                              <div className="absolute bottom-2 right-2 bg-black/60 hover:bg-black/80 text-white p-2 rounded-full transition-colors duration-200">
+                                <ExternalLink className="h-5 w-5" />
+                              </div>
+                              <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-3">
+                                <h3 className="text-base font-semibold text-white mb-0.5 line-clamp-1">{event.name}</h3>
+                                <p className="text-white/90 text-xs mb-0.5">{event.date}</p>
+                                <p className="text-white/90 text-xs line-clamp-1">{event.location}</p>
+                              </div>
                             </div>
                           ) : (
-                            <div className="relative w-full h-full">
-                            <Image
-                              src="/images/placeholder.svg"
-                              alt="No image available"
-                              fill
-                              className="object-contain p-8 bg-white"
-                                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                            />
+                            <div className="w-full h-full flex items-center justify-center bg-gray-100">
+                              <span className="text-gray-400">No image available</span>
                             </div>
                           )}
-                        </div>
-                        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-3">
-                          <h3 className="text-base font-semibold text-white mb-0.5 line-clamp-1">{event.name}</h3>
-                          <p className="text-white/90 text-xs mb-0.5">{event.date}</p>
-                          <p className="text-white/90 text-xs line-clamp-1">{event.location}</p>
                         </div>
                       </div>
                     </div>
