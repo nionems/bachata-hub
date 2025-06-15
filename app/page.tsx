@@ -336,7 +336,7 @@ export default function Home() {
                 Your Bachata Guide in Australia
               </p>
               <div className="flex items-center justify-center gap-1 sm:gap-2 md:gap-4 relative w-full px-2 sm:px-4 md:px-8">
-                <Link href="/events" className="w-20 sm:w-24 md:w-32 ml-4 sm:ml-12 md:ml-24">
+                <Link href="/events" className="w-24 sm:w-28 md:w-36 ml-4 sm:ml-12 md:ml-24">
                   <Button size="sm" className="w-full bg-white text-primary hover:bg-gray-100 text-xs sm:text-sm whitespace-nowrap">
                     Explore Events
                   </Button>
@@ -346,11 +346,11 @@ export default function Home() {
                   alt="Bachata Australia Logo"
                   width={600}
                   height={600}
-                  className="w-32 h-32 sm:w-40 sm:h-40 md:w-72 md:h-72 relative z-10 -mt-2 sm:-mt-4 md:-mt-6"
+                  className="w-40 h-40 sm:w-48 sm:h-48 md:w-80 md:h-80 relative z-10 -mt-2 sm:-mt-4 md:-mt-6"
                   priority
                   style={{ objectFit: 'contain', mixBlendMode: 'multiply' }}
                 />
-                <Link href="/community" className="w-20 sm:w-24 md:w-32 mr-4 sm:mr-12 md:mr-24">
+                <Link href="/community" className="w-24 sm:w-28 md:w-36 mr-4 sm:mr-12 md:mr-24">
                   <Button size="sm" className="w-full bg-white/20 text-white hover:bg-white/30 text-xs sm:text-sm whitespace-nowrap">
                     Join Community
                   </Button>
