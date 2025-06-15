@@ -379,11 +379,13 @@ export default function Home() {
                     <div key={event.id} className="px-2">
                       <div 
                         className="bg-gradient-to-r from-primary/30 to-secondary/30 rounded-lg shadow-lg overflow-hidden relative h-72"
-                        onClick={() => handleEventClick(event)}
                       >
                         <div className="relative w-full h-full p-2">
                           {event.imageUrl && event.imageUrl !== '/images/placeholder.svg' ? (
-                            <div className="relative w-full h-full bg-white rounded-lg overflow-hidden flex items-center justify-center">
+                            <div 
+                              className="relative w-full h-full bg-white rounded-lg overflow-hidden flex items-center justify-center cursor-pointer"
+                              onClick={(e) => handleImageClick(event, e)}
+                            >
                               <div className="relative w-full h-full max-w-[90%] max-h-[90%]">
                                 <Image
                                   src={event.imageUrl}
@@ -398,13 +400,6 @@ export default function Home() {
                                   }}
                                 />
                               </div>
-                              <button
-                                onClick={(e) => handleImageClick(event, e)}
-                                className="absolute top-2 right-2 bg-black/60 hover:bg-black/80 text-white p-2 rounded-full transition-colors duration-200"
-                                aria-label="View image"
-                              >
-                                <ZoomIn className="h-5 w-5" />
-                              </button>
                               <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-3">
                                 <h3 className="text-base font-semibold text-white mb-0.5 line-clamp-1">{event.name}</h3>
                                 <p className="text-white/90 text-xs mb-0.5">{event.date}</p>
