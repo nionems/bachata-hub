@@ -378,25 +378,26 @@ export default function Home() {
                   {filteredEvents.map((event) => (
                     <div key={event.id} className="px-2">
                       <div 
-                        className="bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden cursor-pointer hover:shadow-xl transition-shadow relative h-72"
+                        className="bg-gradient-to-r from-primary/30 to-secondary/30 rounded-lg shadow-lg overflow-hidden relative h-72"
                         onClick={() => handleEventClick(event)}
                       >
-                        <div className="relative w-full h-full">
+                        <div className="relative w-full h-full p-2">
                           {event.imageUrl && event.imageUrl !== '/images/placeholder.svg' ? (
-                            <div className="relative w-full h-full">
-                              <Image
-                                src={event.imageUrl}
-                                alt={event.name}
-                                fill
-                                className="object-contain"
-                                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                                onError={(e) => {
-                                  console.error('Error loading image:', event.imageUrl)
-                                  const target = e.target as HTMLImageElement
-                                  target.src = '/images/placeholder.svg'
-                                }}
-                              />
-                              <div className="absolute inset-0 bg-gradient-to-r from-primary/30 to-secondary/30" />
+                            <div className="relative w-full h-full bg-white rounded-lg overflow-hidden flex items-center justify-center">
+                              <div className="relative w-full h-full max-w-[90%] max-h-[90%]">
+                                <Image
+                                  src={event.imageUrl}
+                                  alt={event.name}
+                                  fill
+                                  className="object-contain"
+                                  sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                                  onError={(e) => {
+                                    console.error('Error loading image:', event.imageUrl)
+                                    const target = e.target as HTMLImageElement
+                                    target.src = '/images/placeholder.svg'
+                                  }}
+                                />
+                              </div>
                               <button
                                 onClick={(e) => handleImageClick(event, e)}
                                 className="absolute top-2 right-2 bg-black/60 hover:bg-black/80 text-white p-2 rounded-full transition-colors duration-200"
@@ -404,9 +405,6 @@ export default function Home() {
                               >
                                 <ZoomIn className="h-5 w-5" />
                               </button>
-                              <div className="absolute bottom-2 right-2 bg-black/60 hover:bg-black/80 text-white p-2 rounded-full transition-colors duration-200">
-                                <ExternalLink className="h-5 w-5" />
-                              </div>
                               <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-3">
                                 <h3 className="text-base font-semibold text-white mb-0.5 line-clamp-1">{event.name}</h3>
                                 <p className="text-white/90 text-xs mb-0.5">{event.date}</p>
@@ -414,7 +412,7 @@ export default function Home() {
                               </div>
                             </div>
                           ) : (
-                            <div className="w-full h-full flex items-center justify-center bg-gray-100">
+                            <div className="w-full h-full flex items-center justify-center bg-white rounded-lg">
                               <span className="text-gray-400">No image available</span>
                             </div>
                           )}
