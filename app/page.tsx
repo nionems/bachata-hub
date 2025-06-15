@@ -332,11 +332,11 @@ export default function Home() {
           <div className="absolute inset-0 bg-gradient-to-r from-primary to-secondary"></div>
           <div className="container mx-auto px-0 relative z-10 h-full flex flex-col items-center justify-center">
             <div className="w-full flex flex-col items-center justify-center">
-              <p className="text-xs sm:text-base md:text-lg lg:text-xl text-white/90 text-center comic-neue px-4 mt-12 md:mt-16 lg:mt-20">
+              <p className="text-xs sm:text-base md:text-lg lg:text-xl text-white/90 text-center comic-neue px-4 mt-8 sm:mt-12 md:mt-16 lg:mt-20">
                 Your Bachata Guide in Australia
               </p>
-              <div className="flex items-center justify-center gap-2 sm:gap-4 relative w-full px-4 sm:px-8">
-                <Link href="/events" className="w-24 sm:w-32 ml-12 sm:ml-24">
+              <div className="flex items-center justify-center gap-1 sm:gap-2 md:gap-4 relative w-full px-2 sm:px-4 md:px-8">
+                <Link href="/events" className="w-20 sm:w-24 md:w-32 ml-4 sm:ml-12 md:ml-24">
                   <Button size="sm" className="w-full bg-white text-primary hover:bg-gray-100 text-xs sm:text-sm whitespace-nowrap">
                     Explore Events
                   </Button>
@@ -346,19 +346,19 @@ export default function Home() {
                   alt="Bachata Australia Logo"
                   width={600}
                   height={600}
-                  className="w-48 h-48 sm:w-40 sm:h-40 md:w-72 md:h-72 relative z-10 -mt-4 sm:-mt-6 md:-mt-8"
+                  className="w-32 h-32 sm:w-40 sm:h-40 md:w-72 md:h-72 relative z-10 -mt-2 sm:-mt-4 md:-mt-6"
                   priority
                   style={{ objectFit: 'contain', mixBlendMode: 'multiply' }}
                 />
-                <Link href="/community" className="w-24 sm:w-32 mr-12 sm:mr-24">
+                <Link href="/community" className="w-20 sm:w-24 md:w-32 mr-4 sm:mr-12 md:mr-24">
                   <Button size="sm" className="w-full bg-white/20 text-white hover:bg-white/30 text-xs sm:text-sm whitespace-nowrap">
-                      Join Community
-                    </Button>
-                  </Link>
+                    Join Community
+                  </Button>
+                </Link>
               </div>
             </div>
-            <div className="max-w-3xl mx-auto text-center mt-4">
-            {  /* Social media and support links - Hidden on mobile */}
+            <div className="max-w-3xl mx-auto text-center mt-2 sm:mt-4">
+              {/* Social media and support links - Hidden on mobile */}
               <div className="mt-2 sm:mt-4 hidden sm:flex flex-col items-center gap-1">
               </div>
             </div>
@@ -407,8 +407,15 @@ export default function Home() {
                               </div>
                             </div>
                           ) : (
-                            <div className="w-full h-full flex items-center justify-center bg-white rounded-lg">
-                              <span className="text-gray-400">No image available</span>
+                            <div className="w-full h-full bg-white rounded-lg p-4 flex flex-col justify-between">
+                              <div>
+                                <h3 className="text-base font-semibold text-gray-900 mb-2 line-clamp-2">{event.name}</h3>
+                                <p className="text-gray-600 text-sm mb-1">{event.date}</p>
+                                <p className="text-gray-600 text-sm line-clamp-2">{event.location}</p>
+                              </div>
+                              {event.description && (
+                                <p className="text-gray-500 text-xs line-clamp-3 mt-2">{event.description}</p>
+                              )}
                             </div>
                           )}
                         </div>
