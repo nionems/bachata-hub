@@ -78,28 +78,8 @@ export default function AccommodationsPage() {
     fetchAccommodations()
   }, [])
 
-  if (isLoading) return (
-    <div className="min-h-screen flex items-center justify-center">
-      <div className="flex flex-col items-center gap-4">
-        <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
-        <p className="text-primary text-center">Loading accommodations...</p>
-      </div>
-    </div>
-  )
-  
-  if (error) return (
-    <div className="min-h-screen flex items-center justify-center">
-      <div className="text-center max-w-md mx-auto p-6">
-        <div className="flex flex-col items-center gap-4">
-          <div className="w-12 h-12 border-4 border-red-500 border-t-transparent rounded-full animate-spin"></div>
-          <p className="text-red-500 text-center">{error}</p>
-        </div>
-        <p className="mt-4 text-sm text-gray-600">
-          If this error persists, please check your Firebase configuration and ensure all required environment variables are set correctly.
-        </p>
-      </div>
-    </div>
-  )
+  if (isLoading) return <LoadingSpinner message="Loading accommodations..." />
+  if (error) return <div className="text-center py-8 text-red-500">{error}</div>
 
   return (
     <div className="min-h-screen bg-gray-50">
