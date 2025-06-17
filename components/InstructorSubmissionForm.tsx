@@ -21,7 +21,8 @@ interface InstructorFormData {
   state: string
   bio: string
   website: string
-  socialUrl: string
+  facebookLink: string
+  instagramLink: string
   contactInfo: string
   email: string
   danceStyles: string
@@ -36,7 +37,8 @@ export function InstructorSubmissionForm({ isOpen, onClose }: InstructorSubmissi
     state: '',
     bio: '',
     website: '',
-    socialUrl: '',
+    facebookLink: '',
+    instagramLink: '',
     contactInfo: '',
     email: '',
     danceStyles: '',
@@ -82,7 +84,8 @@ export function InstructorSubmissionForm({ isOpen, onClose }: InstructorSubmissi
         state: '',
         bio: '',
         website: '',
-        socialUrl: '',
+        facebookLink: '',
+        instagramLink: '',
         contactInfo: '',
         email: '',
         danceStyles: '',
@@ -166,14 +169,27 @@ export function InstructorSubmissionForm({ isOpen, onClose }: InstructorSubmissi
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="socialUrl" className="text-primary">Social Media URL</Label>
+              <Label htmlFor="facebookLink" className="text-primary">Facebook Link</Label>
               <Input
-                id="socialUrl"
-                name="socialUrl"
+                id="facebookLink"
+                name="facebookLink"
                 type="url"
-                value={formData.socialUrl}
+                value={formData.facebookLink}
                 onChange={handleInputChange}
-                placeholder="https://"
+                placeholder="https://facebook.com/..."
+                className="bg-white/80 backdrop-blur-sm rounded-lg"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="instagramLink" className="text-primary">Instagram Link</Label>
+              <Input
+                id="instagramLink"
+                name="instagramLink"
+                type="url"
+                value={formData.instagramLink}
+                onChange={handleInputChange}
+                placeholder="https://instagram.com/..."
                 className="bg-white/80 backdrop-blur-sm rounded-lg"
               />
             </div>
