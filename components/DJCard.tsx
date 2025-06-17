@@ -90,17 +90,6 @@ export function DJCard({ dj }: DJCardProps) {
             </div>
           )}
           <div className="flex gap-4 mt-3 sm:mt-2">
-            {dj.emailLink && (
-              <a
-                href={dj.emailLink}
-                target="_blank"
-                rel="noopener noreferrer"
-                onClick={(e) => e.stopPropagation()}
-                className="text-white hover:text-primary transition-colors p-1"
-              >
-                <ExternalLink className="h-6 w-6 sm:h-5 sm:w-5" />
-              </a>
-            )}
             {dj.instagramLink && (
               <a
                 href={dj.instagramLink}
