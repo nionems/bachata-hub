@@ -11,6 +11,7 @@ import { useStateFilter } from '@/hooks/useStateFilter'
 import { MediaCard } from '@/components/MediaCard'
 import { ContactForm } from "@/components/ContactForm"
 import { MediaSubmissionForm } from "@/components/MediaSubmissionForm"
+import { GridSkeleton } from "@/components/loading-skeleton"
 
 export default function MediaPage() {
   const [mediaList, setMediaList] = useState<Media[]>([])
@@ -50,8 +51,47 @@ export default function MediaPage() {
     fetchMedia()
   }, [])
 
-  if (isLoading) return <div>Loading...</div>
-  if (error) return <div>Error: {error}</div>
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-8">
+          <div className="text-center mb-4 sm:mb-12">
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent mb-2 sm:mb-4">
+              Bachata Media
+            </h1>
+            <p className="text-base sm:text-xl text-gray-600">
+              Find Bachata media content from your state.
+            </p>
+          </div>
+          <div className="mb-4 sm:mb-8">
+            <StateFilter
+              selectedState={selectedState}
+              onChange={setSelectedState}
+              isLoading={isGeoLoading}
+            />
+          </div>
+          <GridSkeleton count={6} />
+        </div>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <h2 className="text-2xl font-bold text-red-500 mb-4">Error Loading Media</h2>
+          <p className="text-gray-600 mb-4">{error}</p>
+          <button
+            onClick={() => window.location.reload()}
+            className="px-4 py-2 bg-primary text-white rounded-md hover:bg-primary/90 transition-colors"
+          >
+            Try Again
+          </button>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
