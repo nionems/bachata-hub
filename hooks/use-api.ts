@@ -1,66 +1,81 @@
-import { useState, useCallback } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { toast } from '@/components/ui/use-toast'
 
 interface UseApiOptions<T> {
+  initialData?: T
   onSuccess?: (data: T) => void
   onError?: (error: Error) => void
-  successMessage?: string
-  errorMessage?: string
+  retryCount?: number
+  retryDelay?: number
+  cacheTime?: number
 }
 
-export function useApi<T>() {
-  const [data, setData] = useState<T | null>(null)
-  const [isLoading, setIsLoading] = useState(false)
+interface UseApiResult<T> {
+  data: T | null
+  isLoading: boolean
+  error: Error | null
+  refetch: () => Promise<void>
+}
+
+export function useApi<T>(
+  fetchFn: () => Promise<T>,
+  options: UseApiOptions<T> = {}
+): UseApiResult<T> {
+  const {
+    initialData = null,
+    onSuccess,
+    onError,
+    retryCount = 3,
+    retryDelay = 1000,
+    cacheTime = 5 * 60 * 1000, // 5 minutes
+  } = options
+
+  const [data, setData] = useState<T | null>(initialData)
+  const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<Error | null>(null)
+  const [lastFetchTime, setLastFetchTime] = useState<number>(0)
 
-  const execute = useCallback(async (
-    request: () => Promise<T>,
-    options: UseApiOptions<T> = {}
-  ) => {
-    const {
-      onSuccess,
-      onError,
-      successMessage,
-      errorMessage = 'An error occurred'
-    } = options
-
-    setIsLoading(true)
-    setError(null)
-
+  const fetchData = useCallback(async (retryAttempt = 0) => {
     try {
-      const result = await request()
+      setIsLoading(true)
+      setError(null)
+
+      const result = await fetchFn()
       setData(result)
-      if (successMessage) {
-        toast({
-          title: "Success",
-          description: successMessage,
-        })
-      }
+      setLastFetchTime(Date.now())
       onSuccess?.(result)
-      return result
     } catch (err) {
-      const error = err instanceof Error ? err : new Error(errorMessage)
+      const error = err instanceof Error ? err : new Error('An error occurred')
       setError(error)
-      if (errorMessage) {
+      onError?.(error)
+
+      if (retryAttempt < retryCount) {
+        setTimeout(() => {
+          fetchData(retryAttempt + 1)
+        }, retryDelay * Math.pow(2, retryAttempt))
+      } else {
         toast({
           title: "Error",
-          description: errorMessage,
+          description: error.message,
           variant: "destructive",
         })
       }
-      onError?.(error)
-      throw error
     } finally {
       setIsLoading(false)
     }
-  }, [])
+  }, [fetchFn, onSuccess, onError, retryCount, retryDelay])
+
+  useEffect(() => {
+    const shouldRefetch = Date.now() - lastFetchTime > cacheTime
+    if (shouldRefetch) {
+      fetchData()
+    }
+  }, [fetchData, lastFetchTime, cacheTime])
 
   return {
     data,
     isLoading,
     error,
-    execute,
-    setData,
-    setError
+    refetch: () => fetchData(),
   }
 } 
