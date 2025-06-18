@@ -102,7 +102,8 @@ function getAdminEmailHtml(type: string, data: any) {
         <p><strong>State:</strong> ${data.state}</p>
         <p><strong>Bio:</strong> ${data.bio}</p>
         <p><strong>Website:</strong> ${data.website || 'N/A'}</p>
-        <p><strong>Social URL:</strong> ${data.socialUrl || 'N/A'}</p>
+        <p><strong>Facebook:</strong> ${data.facebookLink || 'N/A'}</p>
+        <p><strong>Instagram:</strong> ${data.instagramLink || 'N/A'}</p>
         <p><strong>Contact Info:</strong> ${data.contactInfo}</p>
         <p><strong>Email:</strong> ${data.email}</p>
         <p><strong>Dance Styles:</strong> ${data.danceStyles}</p>

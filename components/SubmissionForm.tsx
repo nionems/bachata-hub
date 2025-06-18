@@ -13,7 +13,7 @@ import { X } from "lucide-react"
 interface SubmissionFormProps {
   isOpen: boolean
   onClose: () => void
-  type: 'school' | 'shop' | 'accommodation' | 'teacher' | 'dj' | 'media'
+  type: 'school' | 'shop' | 'accommodation' | 'instructor' | 'dj' | 'media'
 }
 
 interface FormData {
@@ -68,7 +68,7 @@ export function SubmissionForm({ isOpen, onClose, type }: SubmissionFormProps) {
       case 'school': return 'Submit Your School'
       case 'shop': return 'Submit Your Shop'
       case 'accommodation': return 'Submit Your Accommodation'
-      case 'teacher': return 'Submit Your Profile'
+      case 'instructor': return 'Submit Your Profile'
       case 'dj': return 'Submit Your DJ Profile'
       case 'media': return 'Submit Your Media'
       default: return 'Submit'
@@ -80,7 +80,7 @@ export function SubmissionForm({ isOpen, onClose, type }: SubmissionFormProps) {
       case 'school': return 'Share your bachata school with our community'
       case 'shop': return 'List your dance wear and accessories shop'
       case 'accommodation': return 'Add your accommodation for dance events'
-      case 'teacher': return 'Create your teacher profile'
+      case 'instructor': return 'Create your instructor profile'
       case 'dj': return 'Add your DJ profile'
       case 'media': return 'Share your dance media content'
       default: return 'Submit your information'
@@ -99,7 +99,7 @@ export function SubmissionForm({ isOpen, onClose, type }: SubmissionFormProps) {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          type: 'accommodation_submission',
+          type: `${type}_submission`,
           data: formData
         }),
       })
@@ -240,65 +240,99 @@ export function SubmissionForm({ isOpen, onClose, type }: SubmissionFormProps) {
               />
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="address" className="text-primary">Address *</Label>
-              <Input
-                id="address"
-                name="address"
-                value={formData.address}
-                onChange={handleInputChange}
-                required
-                className="bg-white/80 backdrop-blur-sm rounded-lg"
-              />
-            </div>
+            {type === 'instructor' && (
+              <>
+                <div className="space-y-2">
+                  <Label htmlFor="facebookLink" className="text-primary">Facebook Link</Label>
+                  <Input
+                    id="facebookLink"
+                    name="facebookLink"
+                    type="url"
+                    value={formData.facebookLink}
+                    onChange={handleInputChange}
+                    placeholder="https://facebook.com/..."
+                    className="bg-white/80 backdrop-blur-sm rounded-lg"
+                  />
+                </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="contactInfo" className="text-primary">Contact Info *</Label>
-              <Input
-                id="contactInfo"
-                name="contactInfo"
-                value={formData.contactInfo}
-                onChange={handleInputChange}
-                required
-                className="bg-white/80 backdrop-blur-sm rounded-lg"
-              />
-            </div>
+                <div className="space-y-2">
+                  <Label htmlFor="instagramLink" className="text-primary">Instagram Link</Label>
+                  <Input
+                    id="instagramLink"
+                    name="instagramLink"
+                    type="url"
+                    value={formData.instagramLink}
+                    onChange={handleInputChange}
+                    placeholder="https://instagram.com/..."
+                    className="bg-white/80 backdrop-blur-sm rounded-lg"
+                  />
+                </div>
+              </>
+            )}
 
-            <div className="space-y-2">
-              <Label htmlFor="price" className="text-primary">Price *</Label>
-              <Input
-                id="price"
-                name="price"
-                value={formData.price}
-                onChange={handleInputChange}
-                required
-                className="bg-white/80 backdrop-blur-sm rounded-lg"
-              />
-            </div>
+            {type === 'accommodation' && (
+              <>
+                <div className="space-y-2">
+                  <Label htmlFor="address" className="text-primary">Address *</Label>
+                  <Input
+                    id="address"
+                    name="address"
+                    value={formData.address}
+                    onChange={handleInputChange}
+                    required
+                    className="bg-white/80 backdrop-blur-sm rounded-lg"
+                  />
+                </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="rooms" className="text-primary">Number of Rooms *</Label>
-              <Input
-                id="rooms"
-                name="rooms"
-                value={formData.rooms}
-                onChange={handleInputChange}
-                required
-                className="bg-white/80 backdrop-blur-sm rounded-lg"
-              />
-            </div>
+                <div className="space-y-2">
+                  <Label htmlFor="contactInfo" className="text-primary">Contact Info *</Label>
+                  <Input
+                    id="contactInfo"
+                    name="contactInfo"
+                    value={formData.contactInfo}
+                    onChange={handleInputChange}
+                    required
+                    className="bg-white/80 backdrop-blur-sm rounded-lg"
+                  />
+                </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="capacity" className="text-primary">Capacity *</Label>
-              <Input
-                id="capacity"
-                name="capacity"
-                value={formData.capacity}
-                onChange={handleInputChange}
-                required
-                className="bg-white/80 backdrop-blur-sm rounded-lg"
-              />
-            </div>
+                <div className="space-y-2">
+                  <Label htmlFor="price" className="text-primary">Price *</Label>
+                  <Input
+                    id="price"
+                    name="price"
+                    value={formData.price}
+                    onChange={handleInputChange}
+                    required
+                    className="bg-white/80 backdrop-blur-sm rounded-lg"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="rooms" className="text-primary">Number of Rooms *</Label>
+                  <Input
+                    id="rooms"
+                    name="rooms"
+                    value={formData.rooms}
+                    onChange={handleInputChange}
+                    required
+                    className="bg-white/80 backdrop-blur-sm rounded-lg"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="capacity" className="text-primary">Capacity *</Label>
+                  <Input
+                    id="capacity"
+                    name="capacity"
+                    value={formData.capacity}
+                    onChange={handleInputChange}
+                    required
+                    className="bg-white/80 backdrop-blur-sm rounded-lg"
+                  />
+                </div>
+              </>
+            )}
 
             <div className="space-y-2">
               <Label htmlFor="imageUrl" className="text-primary">Image URL *</Label>
@@ -329,32 +363,6 @@ export function SubmissionForm({ isOpen, onClose, type }: SubmissionFormProps) {
                 type="url"
                 value={formData.googleMapLink}
                 onChange={handleInputChange}
-                className="bg-white/80 backdrop-blur-sm rounded-lg"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="facebookLink" className="text-primary">Facebook Link</Label>
-              <Input
-                id="facebookLink"
-                name="facebookLink"
-                type="url"
-                value={formData.facebookLink}
-                onChange={handleInputChange}
-                placeholder="https://facebook.com/..."
-                className="bg-white/80 backdrop-blur-sm rounded-lg"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="instagramLink" className="text-primary">Instagram Link</Label>
-              <Input
-                id="instagramLink"
-                name="instagramLink"
-                type="url"
-                value={formData.instagramLink}
-                onChange={handleInputChange}
-                placeholder="https://instagram.com/..."
                 className="bg-white/80 backdrop-blur-sm rounded-lg"
               />
             </div>

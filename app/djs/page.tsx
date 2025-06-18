@@ -16,26 +16,12 @@ import { ImageModal } from "@/components/ImageModal"
 import { format } from "date-fns"
 import { Badge } from "@/components/ui/badge"
 import { DJCard } from '@/components/DJCard'
-
-interface DJ {
-  id: string
-  name: string
-  location: string
-  state: string
-  contact: string
-  emailLink: string
-  facebookLink: string
-  instagramLink: string
-  imageUrl: string
-  comment: string
-  musicStyles: string | string[]
-  createdAt: string
-  updatedAt: string
-  musicLink: string
-}
+import { GridSkeleton } from '@/components/loading-skeleton'
+import { toast } from '@/components/ui/use-toast'
+import { Dj } from '@/types/dj'
 
 export default function DJsPage() {
-  const [djs, setDJs] = useState<DJ[]>([])
+  const [djs, setDJs] = useState<Dj[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [isSubmissionFormOpen, setIsSubmissionFormOpen] = useState(false)
@@ -43,61 +29,34 @@ export default function DJsPage() {
   const [selectedImage, setSelectedImage] = useState<{ url: string; title: string } | null>(null)
   const [expandedComments, setExpandedComments] = useState<Record<string, boolean>>({})
   
-  const { selectedState, setSelectedState, filteredItems: filteredDJs, isGeoLoading } = useStateFilter(djs)
+  const { selectedState, setSelectedState, filteredItems: filteredDJs, isGeoLoading } = useStateFilter(djs, { useGeolocation: true })
 
   useEffect(() => {
     const fetchDJs = async () => {
       setIsLoading(true)
       setError(null)
       try {
-        console.log('Fetching DJs...')
         const djsCollection = collection(db, 'djs')
         const djsSnapshot = await getDocs(djsCollection)
-        
-        if (djsSnapshot.empty) {
-          console.log('No DJs found in collection')
-          setDJs([])
-          return
-        }
-
-        const djsList = djsSnapshot.docs.map(doc => {
-          const data = doc.data()
-          // Ensure all required fields are present
-          return {
-            id: doc.id,
-            name: data.name || '',
-            location: data.location || '',
-            state: data.state || '',
-            contact: data.contact || '',
-            emailLink: data.emailLink || '',
-            facebookLink: data.facebookLink || '',
-            instagramLink: data.instagramLink || '',
-            imageUrl: data.imageUrl || '',
-            comment: data.comment || '',
-            musicStyles: data.musicStyles || [],
-            createdAt: data.createdAt || '',
-            updatedAt: data.updatedAt || '',
-            musicLink: data.musicLink || ''
-          }
-        }) as DJ[]
+        const djsList = djsSnapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        })) as Dj[]
         
         // Sort DJs alphabetically by name
         const sortedDJs = djsList.sort((a, b) => 
           a.name.localeCompare(b.name)
         )
         
-        console.log('Processed DJs list:', sortedDJs)
         setDJs(sortedDJs)
       } catch (err) {
         console.error('Error fetching DJs:', err)
-        if (err instanceof Error) {
-          console.error('Error details:', {
-            message: err.message,
-            name: err.name,
-            stack: err.stack
-          })
-        }
         setError('Failed to load DJs')
+        toast({
+          title: "Error",
+          description: "Failed to load DJs. Please try again later.",
+          variant: "destructive",
+        })
       } finally {
         setIsLoading(false)
       }
@@ -114,11 +73,45 @@ export default function DJsPage() {
   }
 
   if (isLoading) {
-    return <div className="text-center py-8">Loading DJs...</div>
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-8">
+          <div className="text-center mb-4 sm:mb-12">
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent mb-2 sm:mb-4">
+              Bachata DJs
+            </h1>
+            <p className="text-base sm:text-xl text-gray-600">
+              Find Bachata DJs near you.
+            </p>
+          </div>
+          <div className="mb-4 sm:mb-8">
+            <StateFilter
+              selectedState={selectedState}
+              onChange={setSelectedState}
+              isLoading={isGeoLoading}
+            />
+          </div>
+          <GridSkeleton count={6} />
+        </div>
+      </div>
+    )
   }
 
   if (error) {
-    return <div className="text-red-500 text-center py-8">{error}</div>
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <h2 className="text-2xl font-bold text-red-500 mb-4">Error Loading DJs</h2>
+          <p className="text-gray-600 mb-4">{error}</p>
+          <button
+            onClick={() => window.location.reload()}
+            className="px-4 py-2 bg-primary text-white rounded-md hover:bg-primary/90 transition-colors"
+          >
+            Try Again
+          </button>
+        </div>
+      </div>
+    )
   }
 
   return (

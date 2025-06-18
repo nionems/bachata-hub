@@ -1,4 +1,4 @@
-'use client'
+"use client"
 
 import Link from "next/link"
 import { Calendar, Users, Music, School, ShoppingBag, Trophy, MapPin, Clock, Video, Info, Headphones, Film, Building2, Lightbulb, ChevronRight, ChevronLeft, ExternalLink, ZoomIn } from "lucide-react"
@@ -344,11 +344,17 @@ export default function Home() {
                 <Image
                   src="/images/BACHATA.AU (13).png"
                   alt="Bachata Australia Logo"
-                  width={600}
-                  height={600}
-                  className="w-40 h-40 sm:w-48 sm:h-48 md:w-80 md:h-80 relative z-10 -mt-2 sm:-mt-4 md:-mt-6"
+                  width={400}
+                  height={400}
+                  quality={90}
                   priority
-                  style={{ objectFit: 'contain', mixBlendMode: 'multiply' }}
+                  className="w-40 h-40 sm:w-48 sm:h-48 md:w-80 md:h-80 relative z-10 -mt-2 sm:-mt-4 md:-mt-6"
+                  style={{ 
+                    objectFit: 'contain', 
+                    mixBlendMode: 'multiply',
+                    maxWidth: '100%',
+                    height: 'auto'
+                  }}
                 />
                 <Link href="/community" className="w-24 sm:w-28 md:w-36 mr-4 sm:mr-12 md:mr-24">
                   <Button size="sm" className="w-full bg-white/20 text-white hover:bg-white/30 text-xs sm:text-sm whitespace-nowrap">
@@ -391,6 +397,7 @@ export default function Home() {
                                   src={event.imageUrl}
                                   alt={event.name}
                                   fill
+                                  loading="lazy"
                                   className="object-contain"
                                   sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                                   onError={(e) => {
