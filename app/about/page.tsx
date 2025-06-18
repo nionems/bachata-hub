@@ -3,7 +3,7 @@
 import Image from 'next/image'
 import { Button } from "@/components/ui/button"
 import Link from 'next/link'
-import { Heart, Users, Globe, Award } from 'lucide-react'
+import { Heart, Users, Globe, Award, Instagram, Coffee } from 'lucide-react'
 import { useState } from 'react'
 import { PrivacyPolicyModal } from '@/components/PrivacyPolicyModal'
 import { TermsOfServiceModal } from '@/components/TermsOfServiceModal'
@@ -14,6 +14,52 @@ export default function AboutPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      {/* Community Header */}
+      <section className="bg-gradient-to-r from-primary to-secondary text-white py-4">
+        <div className="container mx-auto px-4">
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4">
+            <Button
+              variant="ghost"
+              className="w-full sm:w-auto text-white hover:text-white hover:bg-white/10 flex items-center justify-center gap-2"
+              asChild
+            >
+              <Link href="/community">
+                <Users className="w-5 h-5" />
+                <span>Join the Community</span>
+              </Link>
+            </Button>
+            <Button
+              variant="ghost"
+              className="w-full sm:w-auto text-white hover:text-white hover:bg-white/10 flex items-center justify-center gap-2"
+              asChild
+            >
+              <a
+                href="https://instagram.com/bachata.au"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <Instagram className="w-5 h-5" />
+                <span>Follow us on Instagram</span>
+              </a>
+            </Button>
+            <Button
+              variant="ghost"
+              className="w-full sm:w-auto text-white hover:text-white hover:bg-white/10 flex items-center justify-center gap-2"
+              asChild
+            >
+              <a
+                href="https://www.buymeacoffee.com/bachata.au"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <Coffee className="w-5 h-5" />
+                <span>Keep the Server Running</span>
+              </a>
+            </Button>
+          </div>
+        </div>
+      </section>
+
       {/* Hero Section */}
       <section className="relative py-8 sm:py-12 md:py-16 lg:py-20">
         <div className="absolute inset-0 bg-gradient-to-r from-primary to-secondary opacity-10"></div>
