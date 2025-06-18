@@ -9,7 +9,7 @@ import CollapsibleFilter from "@/components/collapsible-filter"
 import { StateFilter } from '@/components/StateFilter'
 import { useStateFilter } from '@/hooks/useStateFilter'
 import { SubmissionForm } from '@/components/SubmissionForm'
-import { LoadingSpinner } from "@/components/loading-spinner"
+import { GridSkeleton } from "@/components/loading-skeleton"
 
 interface Accommodation {
   id: string
@@ -78,8 +78,46 @@ export default function AccommodationsPage() {
     fetchAccommodations()
   }, [])
 
-  if (isLoading) return <LoadingSpinner message="Loading accommodations..." />
-  if (error) return <div className="text-center py-8 text-red-500">{error}</div>
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-8">
+          <div className="text-center mb-4 sm:mb-12">
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent mb-2 sm:mb-4">
+              Accommodations
+            </h1>
+            <p className="text-base sm:text-xl text-gray-600">
+              Find places to stay near Australia's top dance events.
+            </p>
+          </div>
+          <div className="mb-4 sm:mb-8">
+            <StateFilter
+              selectedState={selectedState}
+              onChange={setSelectedState}
+            />
+          </div>
+          <GridSkeleton count={6} />
+        </div>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <h2 className="text-2xl font-bold text-red-500 mb-4">Error Loading Accommodations</h2>
+          <p className="text-gray-600 mb-4">{error}</p>
+          <button
+            onClick={() => window.location.reload()}
+            className="px-4 py-2 bg-primary text-white rounded-md hover:bg-primary/90 transition-colors"
+          >
+            Try Again
+          </button>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
