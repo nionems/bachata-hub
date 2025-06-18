@@ -35,7 +35,7 @@ export default function Navbar() {
   return (
     <header className="bg-white/90 backdrop-blur-sm shadow-sm sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-4">
-        <div className="flex justify-between h-12 sm:h-14">
+        <div className="flex justify-between h-20 sm:h-20">
           <div className="flex items-center">
             <Link href="/" className="flex-shrink-0 flex items-center">
               <Image
@@ -43,7 +43,7 @@ export default function Navbar() {
                 alt="Bachata Australia Logo"
                 width={200}
                 height={200}
-                className="h-20 w-20 sm:h-16 sm:w-16 md:h-20 md:w-20 lg:h-24 lg:w-24 rounded-full"
+                className="h-[72px] w-[72px] sm:h-20 sm:w-20 md:h-20 md:w-20 lg:h-24 lg:w-24 rounded-full"
                 priority
                 style={{ objectFit: 'contain' }}
               />
