@@ -302,7 +302,47 @@ export default function Home() {
     );
   }
 
-  // Add this handler function
+  // Add this function to get the best event link (excluding Google Drive links)
+  const getEventLink = (event: Event) => {
+    // First check if there are any links in the description
+    if (event.description) {
+      // Look for various event platform links in the description
+      const linkPatterns = [
+        /https:\/\/[^\s"']*(facebook\.com|fb\.com)[^\s"']*/i,
+        /https:\/\/[^\s"']*(trybooking\.com|humanitix\.com|eventbrite\.com|ticketek\.com|ticketmaster\.com)[^\s"']*/i,
+        /https:\/\/[^\s"']*(instagram\.com|ig\.com)[^\s"']*/i,
+        /https:\/\/[^\s"']*(meetup\.com)[^\s"']*/i,
+        /https:\/\/[^\s"']*(eventbrite\.com)[^\s"']*/i
+      ]
+      
+      for (const pattern of linkPatterns) {
+        const match = event.description.match(pattern)
+        if (match && !match[0].includes('drive.google.com')) {
+          return match[0].trim()
+        }
+      }
+    }
+    
+    // Fallback to ticketLink or eventLink if no description links found
+    if (event.ticketLink && !event.ticketLink.includes('drive.google.com')) {
+      return event.ticketLink
+    }
+    if (event.eventLink && !event.eventLink.includes('drive.google.com') && !event.eventLink.includes('calendar.google.com')) {
+      return event.eventLink
+    }
+    return null
+  }
+
+  // Add this function to handle event link clicks
+  const handleEventLinkClick = (event: Event, e: React.MouseEvent) => {
+    e.stopPropagation()
+    const link = getEventLink(event)
+    if (link) {
+      window.open(link, '_blank')
+    }
+  }
+
+  // Add this function to handle event clicks
   const handleEventClick = (event: Event) => {
     if (event.eventLink) {
       window.open(event.eventLink, '_blank')
@@ -412,6 +452,19 @@ export default function Home() {
                                 <p className="text-white/90 text-xs mb-0.5">{event.date}</p>
                                 <p className="text-white/90 text-xs line-clamp-1">{event.location}</p>
                               </div>
+                              {/* Event Link Button */}
+                              {getEventLink(event) && (
+                                <div className="absolute top-3 right-3">
+                                  <Button
+                                    size="sm"
+                                    className="bg-primary hover:bg-primary/90 text-white text-xs h-7 px-2 flex items-center gap-1"
+                                    onClick={(e) => handleEventLinkClick(event, e)}
+                                  >
+                                    <ExternalLink className="w-3 h-3" />
+                                    <span>Event</span>
+                                  </Button>
+                                </div>
+                              )}
                             </div>
                           ) : (
                             <div className="w-full h-full bg-white rounded-lg p-4 flex flex-col justify-between">
@@ -422,6 +475,19 @@ export default function Home() {
                               </div>
                               {event.description && (
                                 <p className="text-gray-500 text-xs line-clamp-3 mt-2">{event.description}</p>
+                              )}
+                              {/* Event Link Button for no-image cards */}
+                              {getEventLink(event) && (
+                                <div className="mt-2">
+                                  <Button
+                                    size="sm"
+                                    className="w-full bg-primary hover:bg-primary/90 text-white text-xs h-7 flex items-center justify-center gap-1"
+                                    onClick={(e) => handleEventLinkClick(event, e)}
+                                  >
+                                    <ExternalLink className="w-3 h-3" />
+                                    <span>View Event Details</span>
+                                  </Button>
+                                </div>
                               )}
                             </div>
                           )}
