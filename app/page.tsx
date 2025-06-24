@@ -414,7 +414,7 @@ export default function Home() {
         {/* Featured Events This Week - Carousel */}
         <section className="py-4 sm:py-8 bg-white">
           <div className="container mx-auto px-4">
-            <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-center mb-3 sm:mb-4 bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+            <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-center mb-3 sm:mb-4 bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
               Featured Events This Week
               {selectedState !== 'all' && ` in ${selectedState}`}
             </h2>
@@ -422,11 +422,11 @@ export default function Home() {
               <div className="relative">
                 <Slider {...settings}>
                   {filteredEvents.map((event) => (
-                    <div key={event.id} className="px-2">
+                    <div key={event.id}>
                       <div 
-                        className="bg-gradient-to-r from-primary/30 to-secondary/30 rounded-lg shadow-lg overflow-hidden relative h-72"
+                        className="bg-gradient-to-r from-emerald-400 to-violet-500 p-1 rounded-lg shadow-lg overflow-hidden relative h-72"
                       >
-                        <div className="relative w-full h-full p-2">
+                        <div className="relative w-full h-full bg-white rounded-md">
                           {event.imageUrl && event.imageUrl !== '/images/placeholder.svg' ? (
                             <div 
                               className="relative w-full h-full bg-white rounded-lg overflow-hidden flex items-center justify-center cursor-pointer"
@@ -457,10 +457,10 @@ export default function Home() {
                                 <div className="absolute top-3 right-3">
                                   <Button
                                     size="sm"
-                                    className="bg-primary hover:bg-primary/90 text-white text-xs h-7 px-2 flex items-center gap-1"
+                                    className="bg-gradient-to-r from-emerald-400 to-violet-500 hover:from-emerald-500 hover:to-violet-600 text-white text-xs h-8 px-3 flex items-center gap-1.5 rounded-full shadow-lg hover:shadow-xl transition-all duration-200 font-semibold border-0"
                                     onClick={(e) => handleEventLinkClick(event, e)}
                                   >
-                                    <ExternalLink className="w-3 h-3" />
+                                    <ExternalLink className="w-3.5 h-3.5" />
                                     <span>Event</span>
                                   </Button>
                                 </div>
@@ -481,10 +481,10 @@ export default function Home() {
                                 <div className="mt-2">
                                   <Button
                                     size="sm"
-                                    className="w-full bg-primary hover:bg-primary/90 text-white text-xs h-7 flex items-center justify-center gap-1"
+                                    className="w-full bg-gradient-to-r from-emerald-400 to-violet-500 hover:from-emerald-500 hover:to-violet-600 text-white text-xs h-8 flex items-center justify-center gap-1.5 rounded-full shadow-lg hover:shadow-xl transition-all duration-200 font-semibold border-0"
                                     onClick={(e) => handleEventLinkClick(event, e)}
                                   >
-                                    <ExternalLink className="w-3 h-3" />
+                                    <ExternalLink className="w-3.5 h-3.5" />
                                     <span>View Event Details</span>
                                   </Button>
                                 </div>
