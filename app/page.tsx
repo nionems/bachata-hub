@@ -429,7 +429,7 @@ export default function Home() {
                         <div className="relative w-full h-full bg-white">
                           {event.imageUrl && event.imageUrl !== '/images/placeholder.svg' ? (
                             <div 
-                              className="relative w-full h-full bg-white overflow-hidden flex items-start justify-center cursor-pointer"
+                              className="relative w-full h-full bg-gradient-to-r from-emerald-400 to-violet-500 overflow-hidden flex items-start justify-center cursor-pointer"
                               onClick={(e) => handleImageClick(event, e)}
                             >
                               <div className="relative w-full h-full">
