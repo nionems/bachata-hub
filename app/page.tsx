@@ -426,19 +426,19 @@ export default function Home() {
                       <div 
                         className="bg-gradient-to-r from-emerald-400 to-violet-500 p-1 rounded-lg shadow-lg overflow-hidden relative h-72"
                       >
-                        <div className="relative w-full h-full bg-white rounded-md">
+                        <div className="relative w-full h-full bg-white">
                           {event.imageUrl && event.imageUrl !== '/images/placeholder.svg' ? (
                             <div 
-                              className="relative w-full h-full bg-white rounded-lg overflow-hidden flex items-center justify-center cursor-pointer"
+                              className="relative w-full h-full bg-white overflow-hidden flex items-start justify-center cursor-pointer"
                               onClick={(e) => handleImageClick(event, e)}
                             >
-                              <div className="relative w-full h-full max-w-[90%] max-h-[90%]">
+                              <div className="relative w-full h-full">
                                 <Image
                                   src={event.imageUrl}
                                   alt={event.name}
                                   fill
                                   loading="lazy"
-                                  className="object-contain"
+                                  className="object-contain object-top"
                                   sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                                   onError={(e) => {
                                     console.error('Error loading image:', event.imageUrl)
@@ -467,7 +467,7 @@ export default function Home() {
                               )}
                             </div>
                           ) : (
-                            <div className="w-full h-full bg-white rounded-lg p-4 flex flex-col justify-between">
+                            <div className="w-full h-full bg-white flex flex-col justify-between">
                               <div>
                                 <h3 className="text-base font-semibold text-gray-900 mb-2 line-clamp-2">{event.name}</h3>
                                 <p className="text-gray-600 text-sm mb-1">{event.date}</p>
