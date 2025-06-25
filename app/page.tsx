@@ -422,7 +422,7 @@ export default function Home() {
               <div className="relative">
                 <Slider {...settings}>
                   {filteredEvents.map((event) => (
-                    <div key={event.id}>
+                    <div key={event.id} className="px-1 md:px-2">
                       <div 
                         className="bg-gradient-to-r from-emerald-400 to-violet-500 p-1 rounded-lg shadow-lg overflow-hidden relative h-72"
                       >

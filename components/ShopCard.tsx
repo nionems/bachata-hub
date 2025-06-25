@@ -2,6 +2,7 @@
 
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
 import { Globe, Share, Instagram, Facebook, MapPin, Tag } from "lucide-react"
 import { toast } from "@/components/ui/use-toast"
 import { Shop } from "@/types/shop"
@@ -35,8 +36,10 @@ export function ShopCard({ shop }: ShopCardProps) {
           <span className="line-clamp-1">{shop.location}</span>
         </div>
         {shop.comment && (
-          <div className="text-xs sm:text-sm text-gray-300 mt-1 line-clamp-2">
-            {shop.comment}
+          <div className="mt-1">
+            <Badge variant="secondary" className="bg-white/90 text-secondary border-secondary/30 text-xs font-medium">
+              {shop.comment}
+            </Badge>
           </div>
         )}
         <div className="flex flex-col gap-2 mt-2 sm:mt-3">
