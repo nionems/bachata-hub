@@ -8,11 +8,9 @@ import { db } from '../../firebase/config'
 import { ContactForm } from "@/components/ContactForm"
 import { ShopSubmissionForm } from "@/components/ShopSubmissionForm"
 import { Button } from "@/components/ui/button"
-import { StateFilter } from "@/components/StateFilter"
 import { ImageModal } from "@/components/ImageModal"
 import { toast } from "@/components/ui/use-toast"
 import { ShopCard } from '@/components/ShopCard'
-import { useStateFilter } from '@/hooks/useStateFilter'
 import { Shop } from '@/types/shop'
 import { LoadingSpinner } from '@/components/loading-spinner'
 
@@ -23,20 +21,6 @@ export default function ShopsPage() {
   const [isContactFormOpen, setIsContactFormOpen] = useState(false)
   const [isSubmissionFormOpen, setIsSubmissionFormOpen] = useState(false)
   const [selectedImage, setSelectedImage] = useState<{ url: string; title: string } | null>(null)
-
-  const { selectedState, setSelectedState, filteredItems: filteredShops } = useStateFilter(shops, { useGeolocation: false })
-
-  const states = [
-    { value: 'all', label: 'All States' },
-    { value: 'NSW', label: 'New South Wales' },
-    { value: 'VIC', label: 'Victoria' },
-    { value: 'QLD', label: 'Queensland' },
-    { value: 'WA', label: 'Western Australia' },
-    { value: 'SA', label: 'South Australia' },
-    { value: 'TAS', label: 'Tasmania' },
-    { value: 'ACT', label: 'Australian Capital Territory' },
-    { value: 'NT', label: 'Northern Territory' },
-  ]
 
   useEffect(() => {
     const fetchShops = async () => {
@@ -62,10 +46,6 @@ export default function ShopsPage() {
     fetchShops()
   }, [])
 
-  const handleStateChange = (value: string) => {
-    setSelectedState(value)
-  }
-
   if (isLoading) {
     return <LoadingSpinner message="Loading shops..." />
   }
@@ -85,27 +65,20 @@ export default function ShopsPage() {
       <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-8">
         <div className="text-center mb-4 sm:mb-12">
           <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent mb-2 sm:mb-4">
-            Dance Shops
+            Marketplace
           </h1>
           <p className="text-base sm:text-xl text-gray-600">
-            Shop HERE & support BACHATA.AU
+          Use code BACHATAAU at checkout — every purchase helps support and grow Bachata.au for the Australian dance community!
           </p>
         </div>
 
-        <div className="mb-4 sm:mb-8">
-          <StateFilter
-            selectedState={selectedState}
-            onChange={setSelectedState}
-          />
-        </div>
-
         <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-4 md:gap-6">
-          {filteredShops.length === 0 ? (
+          {shops.length === 0 ? (
             <div className="col-span-full text-center py-6 sm:py-8 text-gray-500">
-              No shops found {selectedState !== 'all' && `in ${selectedState}`}
+              No shops found
             </div>
           ) : (
-            filteredShops.map((shop) => (
+            shops.map((shop) => (
               <ShopCard key={shop.id} shop={shop} />
             ))
           )}
