@@ -27,7 +27,7 @@ export default function Navbar() {
     { name: "DJs", href: "/djs" },
     { name: "Media", href: "/media" },
     { name: "Competitions", href: "/competitions" },
-    { name: "Shops", href: "/shop" },
+    { name: "Marketplace", href: "/shop" },
     { name: "Accommodations", href: "/accommodations" },
     { name: "Calendar", href: "/calendar" },
   ]
