@@ -99,7 +99,7 @@ export default function ShopsPage() {
           />
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 md:gap-8">
+        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-4 md:gap-6">
           {filteredShops.length === 0 ? (
             <div className="col-span-full text-center py-6 sm:py-8 text-gray-500">
               No shops found {selectedState !== 'all' && `in ${selectedState}`}
