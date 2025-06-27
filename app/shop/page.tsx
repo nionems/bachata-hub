@@ -14,6 +14,7 @@ import { toast } from "@/components/ui/use-toast"
 import { ShopCard } from '@/components/ShopCard'
 import { Shop } from '@/types/shop'
 import { LoadingSpinner } from '@/components/loading-spinner'
+import { StateFilter } from "@/components/StateFilter"
 
 export default function ShopsPage() {
   const [shops, setShops] = useState<Shop[]>([])
@@ -23,6 +24,7 @@ export default function ShopsPage() {
   const [isSubmissionFormOpen, setIsSubmissionFormOpen] = useState(false)
   const [selectedImage, setSelectedImage] = useState<{ url: string; title: string } | null>(null)
   const [activeTab, setActiveTab] = useState("new")
+  const [selectedState, setSelectedState] = useState("all")
 
   useEffect(() => {
     const fetchShops = async () => {
@@ -48,9 +50,11 @@ export default function ShopsPage() {
     fetchShops()
   }, [])
 
-  // Filter shops by condition
-  const newShops = shops.filter(shop => shop.condition === 'New')
-  const secondHandShops = shops.filter(shop => shop.condition === 'Second Hand')
+  // Filter shops by condition and state
+  const filterByState = (shops: Shop[]) =>
+    selectedState && selectedState !== 'all' ? shops.filter(shop => shop.state === selectedState) : shops
+  const newShops = filterByState(shops.filter(shop => shop.condition === 'New'))
+  const secondHandShops = filterByState(shops.filter(shop => shop.condition === 'Second Hand'))
 
   if (isLoading) {
     return <LoadingSpinner message="Loading shops..." />
@@ -77,11 +81,13 @@ export default function ShopsPage() {
           Use code BACHATAAU at checkout — every purchase helps support and grow Bachata.au for the Australian dance community!
           </p>
         </div>
-
+        <div className="mb-4 sm:mb-8">
+          <StateFilter selectedState={selectedState} onChange={setSelectedState} />
+        </div>
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="grid w-full grid-cols-2 mb-6 sm:mb-8">
             <TabsTrigger value="new" className="text-sm sm:text-base font-semibold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-secondary data-[state=active]:bg-clip-text data-[state=active]:text-transparent">
-              New  ({newShops.length})
+              New ({newShops.length})
             </TabsTrigger>
             <TabsTrigger value="second-hand" className="text-sm sm:text-base font-semibold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-secondary data-[state=active]:bg-clip-text data-[state=active]:text-transparent">
               Second Hand ({secondHandShops.length})
