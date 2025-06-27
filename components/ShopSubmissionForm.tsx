@@ -21,8 +21,8 @@ interface ShopFormData {
   state: string
   address: string
   website: string
-  instagramLink: string
-  facebookLink: string
+  instagramUrl: string
+  facebookUrl: string
   googleMapLink: string
   contactName: string
   contactEmail: string
@@ -40,8 +40,8 @@ export function ShopSubmissionForm({ isOpen, onClose }: ShopSubmissionFormProps)
     state: '',
     address: '',
     website: '',
-    instagramLink: '',
-    facebookLink: '',
+    instagramUrl: '',
+    facebookUrl: '',
     googleMapLink: '',
     contactName: '',
     contactEmail: '',
@@ -95,8 +95,8 @@ export function ShopSubmissionForm({ isOpen, onClose }: ShopSubmissionFormProps)
         state: '',
         address: '',
         website: '',
-        instagramLink: '',
-        facebookLink: '',
+        instagramUrl: '',
+        facebookUrl: '',
         googleMapLink: '',
         contactName: '',
         contactEmail: '',
@@ -196,12 +196,12 @@ export function ShopSubmissionForm({ isOpen, onClose }: ShopSubmissionFormProps)
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="instagramLink" className="text-primary">Instagram Link</Label>
+              <Label htmlFor="instagramUrl" className="text-primary">Instagram Link</Label>
               <Input
-                id="instagramLink"
-                name="instagramLink"
+                id="instagramUrl"
+                name="instagramUrl"
                 type="url"
-                value={formData.instagramLink}
+                value={formData.instagramUrl}
                 onChange={handleInputChange}
                 placeholder="https://instagram.com/username"
                 className="bg-white/80 backdrop-blur-sm rounded-lg"
@@ -209,12 +209,12 @@ export function ShopSubmissionForm({ isOpen, onClose }: ShopSubmissionFormProps)
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="facebookLink" className="text-primary">Facebook Link</Label>
+              <Label htmlFor="facebookUrl" className="text-primary">Facebook Link</Label>
               <Input
-                id="facebookLink"
-                name="facebookLink"
+                id="facebookUrl"
+                name="facebookUrl"
                 type="url"
-                value={formData.facebookLink}
+                value={formData.facebookUrl}
                 onChange={handleInputChange}
                 placeholder="https://facebook.com/username"
                 className="bg-white/80 backdrop-blur-sm rounded-lg"

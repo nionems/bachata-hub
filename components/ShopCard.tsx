@@ -16,11 +16,18 @@ export function ShopCard({ shop }: ShopCardProps) {
     e.stopPropagation();
     console.log('Image clicked for shop:', shop.name);
     console.log('Website URL:', shop.website);
+    
     if (shop.website) {
       console.log('Opening website:', shop.website);
       window.open(shop.website, '_blank');
+    } else if (shop.instagramUrl) {
+      console.log('Opening Instagram:', shop.instagramUrl);
+      window.open(shop.instagramUrl, '_blank');
+    } else if (shop.facebookUrl) {
+      console.log('Opening Facebook:', shop.facebookUrl);
+      window.open(shop.facebookUrl, '_blank');
     } else {
-      console.log('No website available for this shop');
+      console.log('No website or social media links available for this shop');
     }
   }
 
@@ -86,9 +93,9 @@ export function ShopCard({ shop }: ShopCardProps) {
                   </div>
                 </div>
               )}
-              {shop.instagramLink && (
+              {shop.instagramUrl && (
                 <a
-                  href={shop.instagramLink}
+                  href={shop.instagramUrl}
                   target="_blank"
                   rel="noopener noreferrer"
                   onClick={(e) => e.stopPropagation()}
@@ -97,9 +104,9 @@ export function ShopCard({ shop }: ShopCardProps) {
                   <Instagram className="h-6 w-6 sm:h-5 sm:w-5" />
                 </a>
               )}
-              {shop.facebookLink && (
+              {shop.facebookUrl && (
                 <a
-                  href={shop.facebookLink}
+                  href={shop.facebookUrl}
                   target="_blank"
                   rel="noopener noreferrer"
                   onClick={(e) => e.stopPropagation()}

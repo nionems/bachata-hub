@@ -8,8 +8,8 @@ export interface Shop {
   imageUrl: string
   comment: string
   website: string
-  instagramLink: string
-  facebookLink: string
+  instagramUrl: string
+  facebookUrl: string
   googleMapLink: string
   price: string
   createdAt: string
