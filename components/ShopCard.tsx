@@ -38,7 +38,7 @@ export function ShopCard({ shop }: ShopCardProps) {
           </div>
         )}
         {shop.discountCode && (
-          <div className="absolute top-4 right-4 bg-gradient-to-r from-primary via-primary/90 to-secondary text-white px-4 py-2 rounded-full text-sm font-bold shadow-xl transform rotate-3 hover:rotate-0 hover:scale-110 transition-all duration-300 flex items-center gap-2 border-2 border-white/20 backdrop-blur-sm">
+          <div className="absolute top-4 right-4 bg-gradient-to-r from-primary via-primary/90 to-secondary text-white px-4 py-2 rounded-full text-sm font-bold shadow-xl transform rotate-3 hover:rotate-0 hover:scale-110 transition-all duration-300 flex items-center gap-2 border-2 border-white/20 backdrop-blur-sm hidden sm:flex">
             <Tag className="h-4 w-4 drop-shadow-sm" />
             <span className="drop-shadow-sm">{shop.discountCode}</span>
             <div className="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent rounded-full opacity-50"></div>
@@ -57,6 +57,14 @@ export function ShopCard({ shop }: ShopCardProps) {
             <Badge variant="secondary" className="bg-white/90 text-secondary border-secondary/30 text-xs font-medium">
               {shop.comment}
             </Badge>
+          </div>
+        )}
+        {shop.discountCode && (
+          <div className="mt-1 sm:hidden">
+            <div className="inline-flex items-center gap-1 bg-gradient-to-r from-primary/90 to-secondary/90 text-white px-2 py-1 rounded-full text-xs font-medium border border-primary/30">
+              <Tag className="h-3 w-3" />
+              {shop.discountCode}
+            </div>
           </div>
         )}
         <div className="flex flex-col gap-2 mt-2 sm:mt-3">
