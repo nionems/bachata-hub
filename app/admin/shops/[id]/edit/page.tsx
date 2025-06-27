@@ -17,6 +17,7 @@ interface Shop {
   imageUrl: string
   comment: string
   googleReviewLink: string
+  price: string
   createdAt: string
   updatedAt: string
   discountCode: string
@@ -120,6 +121,7 @@ export default function EditShopPage({ params }: { params: { id: string } }) {
         googleReviewLink: shop.googleReviewLink,
         imageUrl: imageUrl,
         website: shop.website || '',
+        price: shop.price || '',
         discountCode: shop.discountCode || '',
         updatedAt: new Date().toISOString()
       }
@@ -238,6 +240,18 @@ export default function EditShopPage({ params }: { params: { id: string } }) {
               value={shop.website || ''}
               onChange={(e) => setShop({ ...shop, website: e.target.value })}
               className="w-full p-2 border rounded"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium mb-1">Price Range</label>
+            <input
+              type="text"
+              name="price"
+              value={shop.price || ''}
+              onChange={(e) => setShop({ ...shop, price: e.target.value })}
+              className="w-full p-2 border rounded"
+              placeholder="Enter price range (e.g., $10-50, Free, etc.)"
             />
           </div>
 

@@ -29,10 +29,19 @@ export function ShopCard({ shop }: ShopCardProps) {
           onClick={handleImageClick}
         />
         <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
+        {shop.price && (
+          <div className="absolute top-4 left-4 bg-gradient-to-r from-yellow-300 via-yellow-400 to-yellow-500 text-gray-800 px-3 py-1 rounded-lg text-base font-bold shadow-xl transform -rotate-3 hover:rotate-0 hover:scale-110 transition-all duration-300 z-10 border-2 border-yellow-200">
+            <div className="flex items-center gap-1 relative">
+              <span className="drop-shadow-sm">{shop.price}</span>
+            </div>
+            <div className="absolute inset-0 bg-gradient-to-r from-white/40 to-transparent rounded-lg opacity-50"></div>
+          </div>
+        )}
         {shop.discountCode && (
-          <div className="absolute top-4 right-4 bg-primary text-white px-3 py-1 rounded-full text-sm font-semibold flex items-center gap-1 shadow-lg transform rotate-3 hover:rotate-0 transition-transform duration-200">
-            <Tag className="h-4 w-4" />
-            {shop.discountCode}
+          <div className="absolute top-4 right-4 bg-gradient-to-r from-primary via-primary/90 to-secondary text-white px-4 py-2 rounded-full text-sm font-bold shadow-xl transform rotate-3 hover:rotate-0 hover:scale-110 transition-all duration-300 flex items-center gap-2 border-2 border-white/20 backdrop-blur-sm">
+            <Tag className="h-4 w-4 drop-shadow-sm" />
+            <span className="drop-shadow-sm">{shop.discountCode}</span>
+            <div className="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent rounded-full opacity-50"></div>
           </div>
         )}
       </div>

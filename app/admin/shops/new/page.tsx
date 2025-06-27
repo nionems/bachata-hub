@@ -22,6 +22,7 @@ interface ShopFormData {
   address: string
   comment: string
   googleReviewLink: string
+  price: string
   image: File | null
   discountCode: string
 }
@@ -44,6 +45,7 @@ export default function NewShopPage() {
     address: '',
     comment: '',
     googleReviewLink: '',
+    price: '',
     image: null,
     discountCode: ''
   })
@@ -119,6 +121,7 @@ export default function NewShopPage() {
         googleReviewLink: formData.googleReviewLink,
         imageUrl: imageUrl,
         website: formData.website,
+        price: formData.price,
         contactInfo: `${formData.phone}${formData.email ? `, ${formData.email}` : ''}`,
         discountCode: formData.discountCode,
         createdAt: new Date().toISOString(),
@@ -309,6 +312,17 @@ export default function NewShopPage() {
                 value={formData.googleReviewLink}
                 onChange={handleChange}
                 placeholder="Enter Google Review Link"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="price">Price Range</Label>
+              <Input
+                id="price"
+                name="price"
+                value={formData.price}
+                onChange={handleChange}
+                placeholder="Enter price range (e.g., $10-50, Free, etc.)"
               />
             </div>
 

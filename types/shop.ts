@@ -11,6 +11,7 @@ export interface Shop {
   instagramLink: string
   facebookLink: string
   googleMapLink: string
+  price: string
   createdAt: string
   updatedAt: string
   discountCode?: string

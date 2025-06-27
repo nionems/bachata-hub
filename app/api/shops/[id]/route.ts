@@ -68,7 +68,8 @@ export async function PUT(
       googleReviewLink,
       imageUrl,
       website,
-      discountCode
+      discountCode,
+      price
     } = body
 
     if (!name || !location || !state) {
@@ -89,6 +90,7 @@ export async function PUT(
       imageUrl,
       website,
       discountCode,
+      price,
       updatedAt: new Date().toISOString(),
     })
 

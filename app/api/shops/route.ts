@@ -22,7 +22,8 @@ export async function POST(request: Request) {
       instagramUrl,
       facebookUrl,
       googleMapLink,
-      comment
+      comment,
+      price
     } = data
 
     // Validate required fields
@@ -47,6 +48,7 @@ export async function POST(request: Request) {
       facebookUrl: facebookUrl || '',
       googleMapLink: googleMapLink || '',
       comment: comment || '',
+      price: price || '',
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString()
     }

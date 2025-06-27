@@ -30,6 +30,7 @@ interface ShopFormData {
   comment: string
   additionalInfo: string
   imageUrl: string
+  price: string
 }
 
 export function ShopSubmissionForm({ isOpen, onClose }: ShopSubmissionFormProps) {
@@ -47,7 +48,8 @@ export function ShopSubmissionForm({ isOpen, onClose }: ShopSubmissionFormProps)
     contactPhone: '',
     comment: '',
     additionalInfo: '',
-    imageUrl: ''
+    imageUrl: '',
+    price: ''
   })
 
   const [isLoading, setIsLoading] = useState(false)
@@ -101,7 +103,8 @@ export function ShopSubmissionForm({ isOpen, onClose }: ShopSubmissionFormProps)
         contactPhone: '',
         comment: '',
         additionalInfo: '',
-        imageUrl: ''
+        imageUrl: '',
+        price: ''
       })
     } catch (error) {
       console.error('Error submitting shop:', error)
@@ -250,6 +253,18 @@ export function ShopSubmissionForm({ isOpen, onClose }: ShopSubmissionFormProps)
                 name="contactPhone"
                 value={formData.contactPhone}
                 onChange={handleInputChange}
+                className="bg-white/80 backdrop-blur-sm rounded-lg"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="price" className="text-primary">Price Range</Label>
+              <Input
+                id="price"
+                name="price"
+                value={formData.price}
+                onChange={handleInputChange}
+                placeholder="e.g., $10-50, Free, etc."
                 className="bg-white/80 backdrop-blur-sm rounded-lg"
               />
             </div>
