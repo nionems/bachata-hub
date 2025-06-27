@@ -138,7 +138,7 @@ export function ShopSubmissionForm({ isOpen, onClose }: ShopSubmissionFormProps)
         <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="name" className="text-primary">Shop Name *</Label>
+              <Label htmlFor="name" className="text-primary">Shop Name or Item You Are Selling *</Label>
               <Input
                 id="name"
                 name="name"
@@ -271,26 +271,26 @@ export function ShopSubmissionForm({ isOpen, onClose }: ShopSubmissionFormProps)
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="comment" className="text-primary">Comment</Label>
+            <Label htmlFor="comment" className="text-primary">Comment and How to Contact You</Label>
             <Textarea
               id="comment"
               name="comment"
               value={formData.comment}
               onChange={handleInputChange}
               className="min-h-[100px] bg-white/80 backdrop-blur-sm rounded-lg"
-              placeholder="Any additional comments or notes..."
+              placeholder="Describe your shop/item and how customers can contact you..."
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="additionalInfo" className="text-primary">Additional Information</Label>
+            <Label htmlFor="additionalInfo" className="text-primary">Additional Information About Shop, Item, or Service</Label>
             <Textarea
               id="additionalInfo"
               name="additionalInfo"
               value={formData.additionalInfo}
               onChange={handleInputChange}
               className="min-h-[100px] bg-white/80 backdrop-blur-sm rounded-lg"
-              placeholder="Any additional information about the shop..."
+              placeholder="Any additional details about your shop, item, or service..."
             />
           </div>
 
