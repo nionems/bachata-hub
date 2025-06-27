@@ -71,7 +71,8 @@ export async function PUT(
       discountCode,
       price,
       instagramUrl,
-      facebookUrl
+      facebookUrl,
+      condition
     } = body
 
     if (!name || !location || !state) {
@@ -95,6 +96,7 @@ export async function PUT(
       price,
       instagramUrl,
       facebookUrl,
+      condition,
       updatedAt: new Date().toISOString(),
     })
 

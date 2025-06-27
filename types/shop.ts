@@ -12,6 +12,7 @@ export interface Shop {
   facebookUrl: string
   googleMapLink: string
   price: string
+  condition: string
   createdAt: string
   updatedAt: string
   discountCode?: string

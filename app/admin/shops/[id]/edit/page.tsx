@@ -18,6 +18,7 @@ interface Shop {
   comment: string
   googleReviewLink: string
   price: string
+  condition: string
   instagramUrl: string
   facebookUrl: string
   createdAt: string
@@ -126,6 +127,7 @@ export default function EditShopPage({ params }: { params: { id: string } }) {
         instagramUrl: shop.instagramUrl || '',
         facebookUrl: shop.facebookUrl || '',
         price: shop.price || '',
+        condition: shop.condition || '',
         discountCode: shop.discountCode || '',
         updatedAt: new Date().toISOString()
       }
@@ -281,6 +283,21 @@ export default function EditShopPage({ params }: { params: { id: string } }) {
               className="w-full p-2 border rounded"
               placeholder="Enter price range (e.g., $10-50, Free, etc.)"
             />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium mb-1">Condition</label>
+            <select
+              name="condition"
+              value={shop.condition || ''}
+              onChange={(e) => setShop({ ...shop, condition: e.target.value })}
+              className="w-full p-2 border rounded bg-white"
+              required
+            >
+              <option value="">Select condition</option>
+              <option value="New">New</option>
+              <option value="Second Hand">Second Hand</option>
+            </select>
           </div>
 
           <div>

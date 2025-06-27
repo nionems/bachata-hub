@@ -25,6 +25,7 @@ interface ShopFormData {
   comment: string
   googleReviewLink: string
   price: string
+  condition: string
   image: File | null
   discountCode: string
 }
@@ -50,6 +51,7 @@ export default function NewShopPage() {
     comment: '',
     googleReviewLink: '',
     price: '',
+    condition: '',
     image: null,
     discountCode: ''
   })
@@ -128,6 +130,7 @@ export default function NewShopPage() {
         instagramUrl: formData.instagramUrl,
         facebookUrl: formData.facebookUrl,
         price: formData.price,
+        condition: formData.condition,
         contactInfo: `${formData.phone}${formData.email ? `, ${formData.email}` : ''}`,
         discountCode: formData.discountCode,
         createdAt: new Date().toISOString(),
@@ -352,6 +355,22 @@ export default function NewShopPage() {
                 onChange={handleChange}
                 placeholder="Enter price range (e.g., $10-50, Free, etc.)"
               />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="condition">Condition</Label>
+              <select
+                id="condition"
+                name="condition"
+                value={formData.condition}
+                onChange={handleChange}
+                required
+                className="w-full p-2 border rounded bg-white"
+              >
+                <option value="">Select condition</option>
+                <option value="New">New</option>
+                <option value="Second Hand">Second Hand</option>
+              </select>
             </div>
 
             <div className="space-y-2">

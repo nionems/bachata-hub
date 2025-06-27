@@ -31,6 +31,7 @@ interface ShopFormData {
   additionalInfo: string
   imageUrl: string
   price: string
+  condition: string
 }
 
 export function ShopSubmissionForm({ isOpen, onClose }: ShopSubmissionFormProps) {
@@ -49,7 +50,8 @@ export function ShopSubmissionForm({ isOpen, onClose }: ShopSubmissionFormProps)
     comment: '',
     additionalInfo: '',
     imageUrl: '',
-    price: ''
+    price: '',
+    condition: ''
   })
 
   const [isLoading, setIsLoading] = useState(false)
@@ -104,7 +106,8 @@ export function ShopSubmissionForm({ isOpen, onClose }: ShopSubmissionFormProps)
         comment: '',
         additionalInfo: '',
         imageUrl: '',
-        price: ''
+        price: '',
+        condition: ''
       })
     } catch (error) {
       console.error('Error submitting shop:', error)
@@ -267,6 +270,22 @@ export function ShopSubmissionForm({ isOpen, onClose }: ShopSubmissionFormProps)
                 placeholder="e.g., $10-50, Free, etc."
                 className="bg-white/80 backdrop-blur-sm rounded-lg"
               />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="condition" className="text-primary">Condition *</Label>
+              <select
+                id="condition"
+                name="condition"
+                value={formData.condition}
+                onChange={(e) => setFormData(prev => ({ ...prev, condition: e.target.value }))}
+                required
+                className="w-full p-2 border rounded bg-white/80 backdrop-blur-sm"
+              >
+                <option value="">Select condition</option>
+                <option value="New">New</option>
+                <option value="Second Hand">Second Hand</option>
+              </select>
             </div>
           </div>
 

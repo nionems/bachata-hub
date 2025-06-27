@@ -23,7 +23,8 @@ export async function POST(request: Request) {
       facebookUrl,
       googleMapLink,
       comment,
-      price
+      price,
+      condition
     } = data
 
     // Validate required fields
@@ -49,6 +50,7 @@ export async function POST(request: Request) {
       googleMapLink: googleMapLink || '',
       comment: comment || '',
       price: price || '',
+      condition: condition || '',
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString()
     }

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { Card, CardFooter } from "@/components/ui/card"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { MapPin, Star, Globe, MessageSquare, ExternalLink, Instagram, Facebook, Share } from "lucide-react"
 import { collection, getDocs } from 'firebase/firestore'
 import { db } from '../../firebase/config'
@@ -21,6 +22,7 @@ export default function ShopsPage() {
   const [isContactFormOpen, setIsContactFormOpen] = useState(false)
   const [isSubmissionFormOpen, setIsSubmissionFormOpen] = useState(false)
   const [selectedImage, setSelectedImage] = useState<{ url: string; title: string } | null>(null)
+  const [activeTab, setActiveTab] = useState("new")
 
   useEffect(() => {
     const fetchShops = async () => {
@@ -45,6 +47,10 @@ export default function ShopsPage() {
 
     fetchShops()
   }, [])
+
+  // Filter shops by condition
+  const newShops = shops.filter(shop => shop.condition === 'New')
+  const secondHandShops = shops.filter(shop => shop.condition === 'Second Hand')
 
   if (isLoading) {
     return <LoadingSpinner message="Loading shops..." />
@@ -72,17 +78,44 @@ export default function ShopsPage() {
           </p>
         </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-4 md:gap-6">
-          {shops.length === 0 ? (
-            <div className="col-span-full text-center py-6 sm:py-8 text-gray-500">
-              No shops found
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+          <TabsList className="grid w-full grid-cols-2 mb-6 sm:mb-8">
+            <TabsTrigger value="new" className="text-sm sm:text-base font-semibold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-secondary data-[state=active]:bg-clip-text data-[state=active]:text-transparent">
+              New  ({newShops.length})
+            </TabsTrigger>
+            <TabsTrigger value="second-hand" className="text-sm sm:text-base font-semibold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-secondary data-[state=active]:bg-clip-text data-[state=active]:text-transparent">
+              Second Hand ({secondHandShops.length})
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="new" className="mt-0">
+            <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-4 md:gap-6">
+              {newShops.length === 0 ? (
+                <div className="col-span-full text-center py-6 sm:py-8 text-gray-500">
+                  No new items found
+                </div>
+              ) : (
+                newShops.map((shop) => (
+                  <ShopCard key={shop.id} shop={shop} />
+                ))
+              )}
             </div>
-          ) : (
-            shops.map((shop) => (
-              <ShopCard key={shop.id} shop={shop} />
-            ))
-          )}
-        </div>
+          </TabsContent>
+
+          <TabsContent value="second-hand" className="mt-0">
+            <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-4 md:gap-6">
+              {secondHandShops.length === 0 ? (
+                <div className="col-span-full text-center py-6 sm:py-8 text-gray-500">
+                  No second hand items found
+                </div>
+              ) : (
+                secondHandShops.map((shop) => (
+                  <ShopCard key={shop.id} shop={shop} />
+                ))
+              )}
+            </div>
+          </TabsContent>
+        </Tabs>
 
         {/* Submit Your Shop Card */}
         <div className="mt-8 sm:mt-16 bg-gradient-to-r from-primary to-secondary rounded-xl shadow-xl overflow-hidden">
