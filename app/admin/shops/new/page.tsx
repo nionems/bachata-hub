@@ -16,6 +16,8 @@ interface ShopFormData {
   location: string
   imageUrl: string
   website: string
+  instagramUrl: string
+  facebookUrl: string
   phone: string
   email: string
   state: string
@@ -39,6 +41,8 @@ export default function NewShopPage() {
     location: '',
     imageUrl: '',
     website: '',
+    instagramUrl: '',
+    facebookUrl: '',
     phone: '',
     email: '',
     state: '',
@@ -121,6 +125,8 @@ export default function NewShopPage() {
         googleReviewLink: formData.googleReviewLink,
         imageUrl: imageUrl,
         website: formData.website,
+        instagramUrl: formData.instagramUrl,
+        facebookUrl: formData.facebookUrl,
         price: formData.price,
         contactInfo: `${formData.phone}${formData.email ? `, ${formData.email}` : ''}`,
         discountCode: formData.discountCode,
@@ -233,6 +239,28 @@ export default function NewShopPage() {
                 value={formData.website}
                 onChange={handleChange}
                 placeholder="Enter website URL"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="instagramUrl">Instagram Link</Label>
+              <Input
+                id="instagramUrl"
+                name="instagramUrl"
+                value={formData.instagramUrl}
+                onChange={handleChange}
+                placeholder="Enter Instagram Link"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="facebookUrl">Facebook Link</Label>
+              <Input
+                id="facebookUrl"
+                name="facebookUrl"
+                value={formData.facebookUrl}
+                onChange={handleChange}
+                placeholder="Enter Facebook Link"
               />
             </div>
 

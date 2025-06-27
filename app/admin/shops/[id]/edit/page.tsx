@@ -18,6 +18,8 @@ interface Shop {
   comment: string
   googleReviewLink: string
   price: string
+  instagramUrl: string
+  facebookUrl: string
   createdAt: string
   updatedAt: string
   discountCode: string
@@ -121,6 +123,8 @@ export default function EditShopPage({ params }: { params: { id: string } }) {
         googleReviewLink: shop.googleReviewLink,
         imageUrl: imageUrl,
         website: shop.website || '',
+        instagramUrl: shop.instagramUrl || '',
+        facebookUrl: shop.facebookUrl || '',
         price: shop.price || '',
         discountCode: shop.discountCode || '',
         updatedAt: new Date().toISOString()
@@ -240,6 +244,30 @@ export default function EditShopPage({ params }: { params: { id: string } }) {
               value={shop.website || ''}
               onChange={(e) => setShop({ ...shop, website: e.target.value })}
               className="w-full p-2 border rounded"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium mb-1">Instagram Link</label>
+            <input
+              type="url"
+              name="instagramUrl"
+              value={shop.instagramUrl || ''}
+              onChange={(e) => setShop({ ...shop, instagramUrl: e.target.value })}
+              className="w-full p-2 border rounded"
+              placeholder="Enter Instagram Link"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium mb-1">Facebook Link</label>
+            <input
+              type="url"
+              name="facebookUrl"
+              value={shop.facebookUrl || ''}
+              onChange={(e) => setShop({ ...shop, facebookUrl: e.target.value })}
+              className="w-full p-2 border rounded"
+              placeholder="Enter Facebook Link"
             />
           </div>
 
