@@ -123,7 +123,7 @@ export function ShopSubmissionForm({ isOpen, onClose }: ShopSubmissionFormProps)
       <DialogContent className="max-w-[95vw] sm:max-w-[600px] bg-gradient-to-br from-primary/10 to-secondary/10 max-h-[90vh] overflow-y-auto rounded-xl sm:rounded-2xl">
         <DialogHeader className="sticky top-0 z-10 bg-white/80 backdrop-blur-sm rounded-t-xl sm:rounded-t-2xl">
           <DialogTitle className="text-primary text-lg sm:text-xl flex justify-between items-center">
-            Submit Your Shop
+            Submit your Shop or Item
             <Button
               variant="ghost"
               size="icon"

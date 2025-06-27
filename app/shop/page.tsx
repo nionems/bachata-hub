@@ -120,9 +120,9 @@ export default function ShopsPage() {
         {/* Submit Your Shop Card */}
         <div className="mt-8 sm:mt-16 bg-gradient-to-r from-primary to-secondary rounded-xl shadow-xl overflow-hidden">
           <div className="p-4 sm:p-8 md:p-12 flex flex-col md:flex-row items-center justify-between">
-            <div className="text-white mb-4 sm:mb-6 md:mb-0 md:mr-8">
+            <div className="text-white mb-2 sm:mb-6 md:mb-0 md:mr-8">
               <h2 className="text-xl sm:text-3xl font-bold mb-2 sm:mb-4">
-                Submit Your Shop
+                Submit Shop New or SecondHand
               </h2>
               <p className="text-white/90 text-sm sm:text-lg mb-3 sm:mb-6">
                 Are you a dance shop owner? Get featured in our directory and reach dancers across Australia!
@@ -132,7 +132,7 @@ export default function ShopsPage() {
                   <svg className="w-5 h-5 sm:w-6 sm:h-6 mr-2 sm:mr-3" fill="currentColor" viewBox="0 0 20 20">
                     <path d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/>
                   </svg>
-                  Reach a wider audience of dance enthusiasts
+                  List brand new/second-hand products here.
                 </li>
                 <li className="flex items-center text-sm sm:text-base">
                   <svg className="w-5 h-5 sm:w-6 sm:h-6 mr-2 sm:mr-3" fill="currentColor" viewBox="0 0 20 20">
