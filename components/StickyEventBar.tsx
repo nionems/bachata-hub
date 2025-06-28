@@ -169,20 +169,15 @@ export function StickyEventBar() {
   }
 
   return (
-    <div 
-      className="absolute bottom-0 left-0 right-0 bg-gradient-to-r from-primary/90 to-secondary/90 text-white shadow-lg backdrop-blur-sm"
-      onTouchStart={onTouchStart}
-      onTouchMove={onTouchMove}
-      onTouchEnd={onTouchEnd}
-    >
+    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-r from-primary/90 to-secondary/90 text-white shadow-lg backdrop-blur-sm">
       {/* Collapsed State */}
       {!isExpanded && (
         <div 
-          className="px-2 py-1 cursor-pointer hover:bg-white/10 transition-colors"
+          className="px-2 py-1 cursor-pointer hover:bg-white/10 transition-colors sm:hover:bg-white/10"
           onClick={() => setIsExpanded(true)}
         >
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 sm:animate-none animate-pulse">
               {/* Image - Show on mobile in collapsed state, always on desktop */}
               <div className="block sm:hidden w-8 h-6 rounded overflow-hidden flex-shrink-0">
                 <img
@@ -240,7 +235,12 @@ export function StickyEventBar() {
 
       {/* Expanded State */}
       {isExpanded && (
-        <div className="px-2 py-2">
+        <div 
+          className="px-2 py-2"
+          onTouchStart={onTouchStart}
+          onTouchMove={onTouchMove}
+          onTouchEnd={onTouchEnd}
+        >
           <div className="flex items-center justify-between mb-1 sm:mb-2">
             <div className="flex items-center gap-2 sm:gap-3">
               {featuredItems.length > 0 ? (
@@ -253,6 +253,17 @@ export function StickyEventBar() {
               </span>
             </div>
             <div className="flex items-center gap-1 sm:gap-2">
+              {/* Swipe indicator for mobile when expanded */}
+              {featuredItems.length > 1 && (
+                <div className="flex sm:hidden items-center gap-1 mr-2">
+                  <div className="text-xs text-white/60">Swipe</div>
+                  <div className="flex items-center gap-0.5">
+                    <div className="w-1 h-1 bg-white/60 rounded-full animate-pulse"></div>
+                    <div className="w-1 h-1 bg-white/60 rounded-full animate-pulse" style={{animationDelay: '0.2s'}}></div>
+                    <div className="w-1 h-1 bg-white/60 rounded-full animate-pulse" style={{animationDelay: '0.4s'}}></div>
+                  </div>
+                </div>
+              )}
               {featuredItems.length > 1 && (
                 <div className="hidden sm:flex items-center gap-1 mr-2">
                   {featuredItems.map((_, index) => (
