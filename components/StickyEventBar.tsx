@@ -46,14 +46,16 @@ interface Festival {
 
 export function StickyEventBar() {
   const [isExpanded, setIsExpanded] = useState(false)
-  const [nextEvent, setNextEvent] = useState<Event | null>(null)
-  const [featuredFestival, setFeaturedFestival] = useState<Festival | null>(null)
+  const [featuredItems, setFeaturedItems] = useState<(Festival | Event)[]>([])
+  const [currentItemIndex, setCurrentItemIndex] = useState(0)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // First, try to fetch featured festivals
+        const items: (Festival | Event)[] = []
+        
+        // Fetch featured festivals only
         const festivalsCollection = collection(db, 'festivals')
         const festivalsSnapshot = await getDocs(festivalsCollection)
         const festivalsList = festivalsSnapshot.docs.map(doc => ({
@@ -63,102 +65,32 @@ export function StickyEventBar() {
 
         console.log('All festivals fetched:', festivalsList.map(f => ({ name: f.name, featured: f.featured, startDate: f.startDate })))
 
-        // Find the next upcoming featured festival
+        // Find featured festivals only
         const now = new Date()
         console.log('Current date:', now)
         
-        // First, let's see all featured festivals regardless of date
-        const allFeaturedFestivals = festivalsList.filter(festival => festival.featured === 'yes')
-        console.log('All featured festivals (regardless of date):', allFeaturedFestivals)
+        const featuredFestivals = festivalsList.filter(festival => festival.featured === 'yes')
+        console.log('Featured festivals found:', featuredFestivals)
         
-        const upcomingFeaturedFestivals = festivalsList.filter(festival => {
-          if (festival.featured !== 'yes') {
-            console.log(`Festival ${festival.name} is not featured (${festival.featured})`)
-            return false
-          }
-          const festivalDate = new Date(festival.startDate)
-          console.log(`Festival ${festival.name} date:`, festivalDate, 'is future:', festivalDate > now)
-          return festivalDate > now
-        })
-
-        console.log('Upcoming featured festivals found:', upcomingFeaturedFestivals)
-
-        // For testing: if no upcoming featured festivals, show any featured festival
-        const festivalsToShow = upcomingFeaturedFestivals.length > 0 ? upcomingFeaturedFestivals : allFeaturedFestivals
-        console.log('Festivals to show:', festivalsToShow)
-
-        if (festivalsToShow.length > 0) {
-          // Sort by date and take the first one
-          festivalsToShow.sort((a, b) => {
+        if (featuredFestivals.length > 0) {
+          // Sort by date and take up to 3
+          featuredFestivals.sort((a, b) => {
             const dateA = new Date(a.startDate)
             const dateB = new Date(b.startDate)
             return dateA.getTime() - dateB.getTime()
           })
           
-          console.log('Setting featured festival:', festivalsToShow[0])
-          setFeaturedFestival(festivalsToShow[0])
-          setLoading(false)
-          return
+          // Add up to 3 featured festivals
+          const festivalsToAdd = featuredFestivals.slice(0, 3)
+          items.push(...festivalsToAdd)
+          console.log('Adding featured festivals:', festivalsToAdd.map(f => f.name))
         }
 
-        console.log('No upcoming featured festivals found, falling back to events')
-
-        // If no featured festivals, fall back to regular events
-        const weekEvents = await getWeekEvents()
-        if (weekEvents && weekEvents.length > 0) {
-          // Find the next upcoming event
-          const upcomingEvents = weekEvents.filter((event: any) => {
-            const eventDate = event.start.dateTime ? new Date(event.start.dateTime) : new Date(event.start.date)
-            return eventDate > now
-          })
-          
-          if (upcomingEvents.length > 0) {
-            // Sort by date and take the first one
-            upcomingEvents.sort((a: any, b: any) => {
-              const dateA = a.start.dateTime ? new Date(a.start.dateTime) : new Date(a.start.date)
-              const dateB = b.start.dateTime ? new Date(b.start.dateTime) : new Date(b.start.date)
-              return dateA.getTime() - dateB.getTime()
-            })
-            
-            const nextEventData = upcomingEvents[0]
-            const formattedEvent: Event = {
-              id: nextEventData.id || nextEventData.iCalUID,
-              name: nextEventData.summary || 'Untitled Event',
-              date: nextEventData.start.dateTime ? 
-                new Date(nextEventData.start.dateTime).toLocaleDateString('en-AU', { 
-                  weekday: 'short', 
-                  month: 'short', 
-                  day: 'numeric' 
-                }) :
-                new Date(nextEventData.start.date).toLocaleDateString('en-AU', { 
-                  weekday: 'short', 
-                  month: 'short', 
-                  day: 'numeric' 
-                }),
-              time: nextEventData.start.dateTime ? 
-                new Date(nextEventData.start.dateTime).toLocaleTimeString('en-AU', { 
-                  hour: '2-digit', 
-                  minute: '2-digit' 
-                }) : 'All day',
-              start: nextEventData.start.dateTime || nextEventData.start.date,
-              end: nextEventData.end.dateTime || nextEventData.end.date,
-              description: nextEventData.description || '',
-              location: nextEventData.location || '',
-              state: '',
-              address: '',
-              eventLink: nextEventData.htmlLink || '',
-              price: '',
-              ticketLink: '',
-              imageUrl: nextEventData.image || '',
-              comment: '',
-              googleMapLink: ''
-            }
-            setNextEvent(formattedEvent)
-          }
-        }
+        console.log('Final items to display:', items.map(item => ({ name: item.name, type: 'startDate' in item ? 'festival' : 'event' })))
+        setFeaturedItems(items)
+        setLoading(false)
       } catch (error) {
         console.error('Error fetching data:', error)
-      } finally {
         setLoading(false)
       }
     }
@@ -166,7 +98,7 @@ export function StickyEventBar() {
     fetchData()
   }, [])
 
-  if (loading || (!nextEvent && !featuredFestival)) {
+  if (loading || featuredItems.length === 0) {
     return null
   }
 
@@ -178,14 +110,16 @@ export function StickyEventBar() {
     return festival.eventLink || festival.ticketLink || festival.websiteUrl || null
   }
 
-  const handleEventClick = () => {
-    if (featuredFestival) {
-      const link = getFestivalLink(featuredFestival)
+  const handleEventClick = (item: Festival | Event) => {
+    if ('startDate' in item) {
+      // It's a festival
+      const link = getFestivalLink(item)
       if (link) {
         window.open(link, '_blank', 'noopener,noreferrer')
       }
-    } else if (nextEvent) {
-      const link = getEventLink(nextEvent)
+    } else {
+      // It's an event
+      const link = getEventLink(item)
       if (link) {
         window.open(link, '_blank', 'noopener,noreferrer')
       }
@@ -215,20 +149,45 @@ export function StickyEventBar() {
         >
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              {featuredFestival ? (
-                <Star className="h-3 w-3" />
+              {/* Image - Only show on desktop */}
+              <div className="hidden sm:block sm:w-16 sm:h-12 rounded overflow-hidden flex-shrink-0">
+                <img
+                  src={featuredItems.length > 0 && 'imageUrl' in featuredItems[currentItemIndex] && featuredItems[currentItemIndex].imageUrl ? featuredItems[currentItemIndex].imageUrl : '/images/placeholder.svg'}
+                  alt={featuredItems.length > 0 ? featuredItems[currentItemIndex].name : 'Event'}
+                  className="w-full h-full object-cover"
+                  onError={(e) => {
+                    const target = e.target as HTMLImageElement
+                    target.src = '/images/placeholder.svg'
+                  }}
+                />
+              </div>
+              
+              {featuredItems.length > 0 ? (
+                <Star className="h-3 w-3 sm:h-4 sm:w-4" />
               ) : (
-                <Calendar className="h-3 w-3" />
+                <Calendar className="h-3 w-3 sm:h-4 sm:w-4" />
               )}
-              <span className="text-xs font-medium">
-                {featuredFestival ? (
-                  `Featured Festival: ${featuredFestival.name} - ${formatFestivalDate(featuredFestival.startDate)}`
+              <span className="text-xs sm:text-sm font-medium">
+                {featuredItems.length > 0 ? (
+                  `Featured Festival: ${featuredItems[currentItemIndex].name} - ${formatFestivalDate(featuredItems[currentItemIndex].startDate)}`
                 ) : (
-                  `Next Major Event: ${nextEvent!.name} - ${nextEvent!.date}`
+                  'No Featured Festivals'
                 )}
               </span>
             </div>
-            <ChevronUp className="h-3 w-3" />
+            <div className="flex items-center gap-1">
+              {featuredItems.length > 1 && (
+                <div className="flex items-center gap-1 mr-2">
+                  {featuredItems.map((_, index) => (
+                    <div
+                      key={index}
+                      className={`w-1.5 h-1.5 rounded-full ${index === currentItemIndex ? 'bg-white' : 'bg-white/40'}`}
+                    />
+                  ))}
+                </div>
+              )}
+              <ChevronUp className="h-3 w-3" />
+            </div>
           </div>
         </div>
       )}
@@ -236,67 +195,121 @@ export function StickyEventBar() {
       {/* Expanded State */}
       {isExpanded && (
         <div className="px-2 py-2">
-          <div className="flex items-center justify-between mb-1">
-            <div className="flex items-center gap-2">
-              {featuredFestival ? (
-                <Star className="h-3 w-3" />
+          <div className="flex items-center justify-between mb-1 sm:mb-2">
+            <div className="flex items-center gap-2 sm:gap-3">
+              {featuredItems.length > 0 ? (
+                <Star className="h-3 w-3 sm:h-4 sm:w-4" />
               ) : (
-                <Calendar className="h-3 w-3" />
+                <Calendar className="h-3 w-3 sm:h-4 sm:w-4" />
               )}
-              <span className="text-xs font-semibold">
-                {featuredFestival ? 'Featured Festival' : 'Next Major Event'}
+              <span className="text-xs sm:text-sm font-semibold">
+                Featured Festival
               </span>
             </div>
-            <div className="flex items-center gap-1">
-              {(featuredFestival && getFestivalLink(featuredFestival)) || (nextEvent && getEventLink(nextEvent)) ? (
+            <div className="flex items-center gap-1 sm:gap-2">
+              {featuredItems.length > 1 && (
+                <div className="flex items-center gap-1 mr-2">
+                  {featuredItems.map((_, index) => (
+                    <button
+                      key={index}
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        setCurrentItemIndex(index)
+                      }}
+                      className={`w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full transition-colors ${index === currentItemIndex ? 'bg-white' : 'bg-white/40 hover:bg-white/60'}`}
+                    />
+                  ))}
+                </div>
+              )}
+              {featuredItems.length > 0 && 'startDate' in featuredItems[currentItemIndex] && getFestivalLink(featuredItems[currentItemIndex]) ? (
                 <Button
                   size="sm"
                   variant="secondary"
-                  className="h-5 px-1.5 text-xs bg-white/20 hover:bg-white/30"
-                  onClick={handleEventClick}
+                  className="h-5 sm:h-6 px-1.5 sm:px-2 text-xs sm:text-sm bg-white/20 hover:bg-white/30"
+                  onClick={() => handleEventClick(featuredItems[currentItemIndex])}
                 >
-                  <ExternalLink className="h-2.5 w-2.5 mr-0.5" />
+                  <ExternalLink className="h-2.5 w-2.5 sm:h-3 sm:w-3 mr-0.5" />
+                  View
+                </Button>
+              ) : featuredItems.length > 0 && !('startDate' in featuredItems[currentItemIndex]) && getEventLink(featuredItems[currentItemIndex]) ? (
+                <Button
+                  size="sm"
+                  variant="secondary"
+                  className="h-5 sm:h-6 px-1.5 sm:px-2 text-xs sm:text-sm bg-white/20 hover:bg-white/30"
+                  onClick={() => handleEventClick(featuredItems[currentItemIndex])}
+                >
+                  <ExternalLink className="h-2.5 w-2.5 sm:h-3 sm:w-3 mr-0.5" />
                   View
                 </Button>
               ) : null}
               <Button
                 size="sm"
                 variant="ghost"
-                className="h-5 w-5 p-0 text-white hover:bg-white/20"
+                className="h-5 w-5 sm:h-6 sm:w-6 p-0 text-white hover:bg-white/20"
                 onClick={() => setIsExpanded(false)}
               >
-                <X className="h-2.5 w-2.5" />
+                <X className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
               </Button>
             </div>
           </div>
           
-          <div className="space-y-0.5">
-            <h3 className="text-xs font-semibold">
-              {featuredFestival ? featuredFestival.name : nextEvent!.name}
-            </h3>
-            <div className="flex items-center gap-3 text-xs text-white/90">
-              <div className="flex items-center gap-1">
-                <Calendar className="h-2.5 w-2.5" />
-                <span>
-                  {featuredFestival ? (
-                    `${formatFestivalDate(featuredFestival.startDate)}${featuredFestival.endDate && featuredFestival.endDate !== featuredFestival.startDate ? ` - ${formatFestivalDate(featuredFestival.endDate)}` : ''}`
-                  ) : (
-                    `${nextEvent!.date} at ${nextEvent!.time}`
-                  )}
-                </span>
-              </div>
-              {(featuredFestival?.location || nextEvent?.location) && (
-                <div className="flex items-center gap-1">
-                  <MapPin className="h-2.5 w-2.5" />
-                  <span>{featuredFestival ? featuredFestival.location : nextEvent!.location}</span>
-                </div>
-              )}
+          <div className="flex flex-col sm:flex-row gap-2 sm:gap-4">
+            {/* Image - Show on mobile when expanded, always on desktop */}
+            <div className="block sm:hidden w-16 h-12 rounded-lg overflow-hidden flex-shrink-0">
+              <img
+                src={featuredItems.length > 0 && 'imageUrl' in featuredItems[currentItemIndex] && featuredItems[currentItemIndex].imageUrl ? featuredItems[currentItemIndex].imageUrl : '/images/placeholder.svg'}
+                alt={featuredItems.length > 0 ? featuredItems[currentItemIndex].name : 'Event'}
+                className="w-full h-full object-cover"
+                onError={(e) => {
+                  const target = e.target as HTMLImageElement
+                  target.src = '/images/placeholder.svg'
+                }}
+              />
             </div>
-            {(featuredFestival?.comment || nextEvent?.description) && (
-              <p className="text-xs text-white/80 line-clamp-1 mt-0.5">
-                {featuredFestival ? featuredFestival.comment : nextEvent!.description.replace(/<[^>]*>/g, '')}
-              </p>
-            )}
+            {/* Image - Only show on desktop */}
+            <div className="hidden sm:block sm:w-32 sm:h-20 rounded-lg overflow-hidden flex-shrink-0">
+              <img
+                src={featuredItems.length > 0 && 'imageUrl' in featuredItems[currentItemIndex] && featuredItems[currentItemIndex].imageUrl ? featuredItems[currentItemIndex].imageUrl : '/images/placeholder.svg'}
+                alt={featuredItems.length > 0 ? featuredItems[currentItemIndex].name : 'Event'}
+                className="w-full h-full object-cover"
+                onError={(e) => {
+                  const target = e.target as HTMLImageElement
+                  target.src = '/images/placeholder.svg'
+                }}
+              />
+            </div>
+            
+            {/* Content */}
+            <div className="space-y-0.5 sm:space-y-1 flex-1">
+              <h3 className="text-xs sm:text-base font-semibold">
+                {featuredItems.length > 0 ? featuredItems[currentItemIndex].name : 'Event'}
+              </h3>
+              <div className="flex items-center gap-3 text-xs sm:text-sm text-white/90">
+                <div className="flex items-center gap-1 sm:gap-2">
+                  <Calendar className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
+                  <span>
+                    {featuredItems.length > 0 && 'startDate' in featuredItems[currentItemIndex] ? (
+                      `${formatFestivalDate(featuredItems[currentItemIndex].startDate)}${featuredItems[currentItemIndex].endDate && featuredItems[currentItemIndex].endDate !== featuredItems[currentItemIndex].startDate ? ` - ${formatFestivalDate(featuredItems[currentItemIndex].endDate)}` : ''}`
+                    ) : featuredItems.length > 0 && 'date' in featuredItems[currentItemIndex] ? (
+                      `${featuredItems[currentItemIndex].date} at ${featuredItems[currentItemIndex].time}`
+                    ) : (
+                      'Date TBD'
+                    )}
+                  </span>
+                </div>
+                {(featuredItems.length > 0 && 'startDate' in featuredItems[currentItemIndex] && featuredItems[currentItemIndex].location) || (featuredItems.length > 0 && !('startDate' in featuredItems[currentItemIndex]) && featuredItems[currentItemIndex].location) ? (
+                  <div className="flex items-center gap-1 sm:gap-2">
+                    <MapPin className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
+                    <span>{featuredItems.length > 0 && 'startDate' in featuredItems[currentItemIndex] && featuredItems[currentItemIndex].location ? featuredItems[currentItemIndex].location : (featuredItems.length > 0 && !('startDate' in featuredItems[currentItemIndex]) && featuredItems[currentItemIndex].location ? featuredItems[currentItemIndex].location : '')}</span>
+                  </div>
+                ) : null}
+              </div>
+              {(featuredItems.length > 0 && 'startDate' in featuredItems[currentItemIndex] && featuredItems[currentItemIndex].comment) || (featuredItems.length > 0 && !('startDate' in featuredItems[currentItemIndex]) && featuredItems[currentItemIndex].description) ? (
+                <p className="text-xs sm:text-sm text-white/80 line-clamp-1 mt-0.5 sm:mt-1">
+                  {featuredItems.length > 0 && 'startDate' in featuredItems[currentItemIndex] ? featuredItems[currentItemIndex].comment : featuredItems[currentItemIndex].description.replace(/<[^>]*>/g, '')}
+                </p>
+              ) : null}
+            </div>
           </div>
         </div>
       )}

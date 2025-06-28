@@ -368,7 +368,7 @@ export default function Home() {
       <main className="min-h-screen">
         
         {/* Hero Section - Full height on mobile */}
-        <section className="relative h-[25vh] sm:h-[35vh] md:h-[28vh] lg:h-[35vh] pb-6 sm:pb-8">
+        <section className="relative h-[25vh] sm:h-[35vh] md:h-[28vh] lg:h-[35vh]">
           {/* Background gradient overlay */}
           <div className="absolute inset-0 bg-gradient-to-r from-primary to-secondary"></div>
           <div className="container mx-auto px-0 relative z-10 h-full flex flex-col items-center justify-center">
