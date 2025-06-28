@@ -39,6 +39,7 @@ interface Festival {
   startTime: string
   endTime: string
   time: string
+  featured?: 'yes' | 'no'
 }
 
 export default function FestivalsPage() {
@@ -96,7 +97,8 @@ export default function FestivalsPage() {
             date: data.date || '',
             startTime: data.startTime || '',
             endTime: data.endTime || '',
-            time: data.time || `${data.startTime || ''} - ${data.endTime || ''}`
+            time: data.time || `${data.startTime || ''} - ${data.endTime || ''}`,
+            featured: data.featured || 'no'
           } as Festival
         })
         
@@ -173,6 +175,10 @@ export default function FestivalsPage() {
     .filter((festival) => selectedState === "all" || festival.state === selectedState)
     .sort((a, b) => getDateSortValue(a.startDate) - getDateSortValue(b.startDate))
 
+  // Separate featured and regular festivals
+  const featuredFestivals = upcomingFestivals.filter(festival => festival.featured === 'yes')
+  const regularFestivals = upcomingFestivals.filter(festival => festival.featured !== 'yes')
+
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gray-50">
@@ -233,13 +239,99 @@ export default function FestivalsPage() {
           />
         </div>
 
+        {/* Featured Festivals Section */}
+        {featuredFestivals.length > 0 && (
+          <div className="mb-8">
+            <h2 className="text-xl sm:text-2xl font-bold text-center mb-4 sm:mb-6 bg-gradient-to-r from-yellow-500 to-orange-500 bg-clip-text text-transparent">
+              ⭐ Featured Festivals
+            </h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 md:gap-8">
+              {featuredFestivals.map((festival) => (
+                <Card key={festival.id} className="overflow-hidden bg-white shadow-lg hover:shadow-xl transition-shadow duration-300 border-2 border-yellow-300">
+                  <div className="relative h-48 w-full overflow-hidden rounded-t-lg">
+                    <Image
+                      src={festival.imageUrl}
+                      alt={festival.name}
+                      fill
+                      className="object-cover transition-transform duration-300 hover:scale-105 cursor-pointer"
+                      onClick={(e) => handleImageClick(e, festival)}
+                    />
+                    <div className="absolute top-2 right-2">
+                      <Badge className="bg-gradient-to-r from-yellow-400 to-orange-500 text-white border-0 shadow-lg">
+                        ⭐ Featured
+                      </Badge>
+                    </div>
+                  </div>
+                  <div className="p-4">
+                    <h3 className="text-lg font-semibold mb-2">{festival.name}</h3>
+                    <div className="flex items-center text-gray-600 text-sm mb-2">
+                      <Calendar className="w-4 h-4 mr-1" />
+                      <span>{formatDate(festival.startDate)}</span>
+                      {festival.endDate && festival.endDate !== festival.startDate && (
+                        <span className="mx-1">-</span>
+                      )}
+                      {festival.endDate && festival.endDate !== festival.startDate && (
+                        <span>{formatDate(festival.endDate)}</span>
+                      )}
+                    </div>
+                    {festival.comment && (
+                      <div className="mb-2">
+                        <Badge variant="secondary" className="bg-secondary/20 text-secondary hover:bg-secondary/30">
+                          {festival.comment}
+                        </Badge>
+                      </div>
+                    )}
+                    <div className="flex items-center justify-between text-gray-600 text-sm space-x-2">
+                      <div className="flex items-center">
+                        <MapPin className="w-4 h-4 mr-1" />
+                        <span className="truncate">{festival.location}, {festival.state}</span>
+                      </div>
+                      {festival.danceStyles && (
+                        <div className="flex items-center">
+                          <Music className="w-4 h-4 mr-1" />
+                          <span className="truncate">{festival.danceStyles}</span>
+                        </div>
+                      )}
+                      {festival.price && (
+                        <div className="flex items-center">
+                          <DollarSign className="w-4 h-4 mr-1" />
+                          <span className="truncate">{festival.price}</span>
+                        </div>
+                      )}
+                    </div>
+                    <div className="mt-4 grid grid-cols-2 gap-2">
+                      {festival.eventLink && (
+                        <Link href={festival.eventLink} target="_blank" rel="noopener noreferrer" className="w-full">
+                          <Button className="w-full bg-primary hover:bg-primary/90 text-white text-xs h-7 sm:h-8 flex items-center justify-center gap-2">
+                            <Info className="h-3 w-3 sm:h-4 sm:w-4" />
+                            <span>Event Details</span>
+                          </Button>
+                        </Link>
+                      )}
+                      {festival.ticketLink && (
+                        <Link href={festival.ticketLink} target="_blank" rel="noopener noreferrer" className="w-full">
+                          <Button className="w-full bg-primary hover:bg-primary/90 text-white text-xs h-7 sm:h-8 flex items-center justify-center gap-2">
+                            <Ticket className="h-3 w-3 sm:h-4 sm:w-4" />
+                            <span>Buy Tickets</span>
+                          </Button>
+                        </Link>
+                      )}
+                    </div>
+                  </div>
+                </Card>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Regular Festivals Section */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 md:gap-8">
-          {upcomingFestivals.length === 0 ? (
+          {regularFestivals.length === 0 && featuredFestivals.length === 0 ? (
             <div className="col-span-full text-center py-6 sm:py-8 text-gray-500">
               No festivals found {selectedState !== 'all' && `in ${selectedState}`}
             </div>
           ) : (
-            upcomingFestivals.map((festival) => (
+            regularFestivals.map((festival) => (
               <Card key={festival.id} className="overflow-hidden bg-white shadow-lg hover:shadow-xl transition-shadow duration-300">
                 <div className="relative h-48 w-full overflow-hidden rounded-t-lg">
                   <Image

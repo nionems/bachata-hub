@@ -30,6 +30,7 @@ interface FestivalFormData {
   image: File | null
   comment: string
   googleMapLink: string
+  featured: 'yes' | 'no'
 }
 
 export function FestivalSubmissionForm({ isOpen, onClose }: FestivalSubmissionFormProps) {
@@ -47,7 +48,8 @@ export function FestivalSubmissionForm({ isOpen, onClose }: FestivalSubmissionFo
     imageUrl: '',
     image: null,
     comment: '',
-    googleMapLink: ''
+    googleMapLink: '',
+    featured: 'no'
   })
 
   const [isLoading, setIsLoading] = useState(false)
@@ -123,7 +125,8 @@ export function FestivalSubmissionForm({ isOpen, onClose }: FestivalSubmissionFo
         imageUrl: '',
         image: null,
         comment: '',
-        googleMapLink: ''
+        googleMapLink: '',
+        featured: 'no'
       })
     } catch (error) {
       console.error('Error submitting festival:', error)
@@ -275,6 +278,23 @@ export function FestivalSubmissionForm({ isOpen, onClose }: FestivalSubmissionFo
                 required
                 className="bg-white/80 backdrop-blur-sm"
               />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="featured" className="text-primary">Featured Festival</Label>
+              <select
+                id="featured"
+                name="featured"
+                value={formData.featured}
+                onChange={handleInputChange}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md bg-white/80 backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+              >
+                <option value="no">No</option>
+                <option value="yes">Yes</option>
+              </select>
+              <p className="text-xs text-muted-foreground mt-1">
+                Featured festivals will be highlighted on the website
+              </p>
             </div>
 
             <div className="space-y-2">

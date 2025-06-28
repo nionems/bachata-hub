@@ -17,6 +17,7 @@ interface FestivalFormData {
   imageUrl: string
   comment: string
   googleMapLink: string
+  featured: 'yes' | 'no'
 }
 
 // List of Australian states and territories
@@ -50,7 +51,8 @@ export default function NewFestivalPage() {
     danceStyles: '',
     imageUrl: '',
     comment: '',
-    googleMapLink: ''
+    googleMapLink: '',
+    featured: 'no'
   })
 
   const handleImageUpload = async (file: File): Promise<string> => {
@@ -275,6 +277,23 @@ export default function NewFestivalPage() {
             placeholder="e.g., Bachata, Salsa, Kizomba"
             required
           />
+        </div>
+
+        {/* Featured Festival */}
+        <div>
+          <label className="block text-sm font-medium mb-1">Featured Festival</label>
+          <select
+            value={formData.featured}
+            onChange={handleChange}
+            name="featured"
+            className="w-full p-2 border rounded"
+          >
+            <option value="no">No</option>
+            <option value="yes">Yes</option>
+          </select>
+          <p className="text-xs text-gray-500 mt-1">
+            Featured festivals will be highlighted on the website
+          </p>
         </div>
 
         {/* Image Upload */}

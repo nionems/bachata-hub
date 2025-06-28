@@ -1,26 +1,8 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { MapPin, Calendar, Clock, Users, Info, ExternalLink, Ticket } from "lucide-react"
-
-interface Festival {
-  id: string;
-  name: string;
-  date: string;
-  time: string;
-  location: string;
-  state: string;
-  price?: string;
-  description?: string;
-  imageUrl?: string;
-  websiteUrl?: string;
-  ticketLink?: string;
-  googleMapLink?: string;
-  startDate?: string;
-  endDate?: string;
-  eventLink?: string;
-  comment?: string;
-}
+import { MapPin, Calendar, Clock, Users, Info, ExternalLink, Ticket, Star } from "lucide-react"
+import { Festival } from "@/types/festival"
 
 interface FestivalCardProps {
   festival: Festival;
@@ -29,12 +11,20 @@ interface FestivalCardProps {
 export function FestivalCard({ festival }: FestivalCardProps) {
   return (
     <Card className="overflow-hidden hover:shadow-lg transition-shadow">
-      <div className="h-48 overflow-hidden">
+      <div className="h-48 overflow-hidden relative">
         <img
           src={festival.imageUrl || '/placeholder.svg'}
           alt={festival.name}
           className="w-full h-full object-cover transition-transform hover:scale-105"
         />
+        {festival.featured === 'yes' && (
+          <div className="absolute top-2 right-2">
+            <Badge className="bg-gradient-to-r from-yellow-400 to-orange-500 text-white border-0 shadow-lg">
+              <Star className="h-3 w-3 mr-1" />
+              Featured
+            </Badge>
+          </div>
+        )}
       </div>
       <CardHeader className="p-3">
         <CardTitle className="text-base text-primary">{festival.name}</CardTitle>

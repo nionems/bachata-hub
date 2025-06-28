@@ -18,6 +18,7 @@ interface Festival {
   imageUrl: string
   comment: string
   googleMapLink: string
+  featured?: 'yes' | 'no'
 }
 
 const AUSTRALIAN_STATES = [
@@ -49,7 +50,8 @@ export default function EditFestivalPage({ params }: { params: { id: string } })
     danceStyles: '',
     imageUrl: '',
     comment: '',
-    googleMapLink: ''
+    googleMapLink: '',
+    featured: undefined
   })
   const [imagePreviewUrl, setImagePreviewUrl] = useState<string | null>(null)
 
@@ -238,6 +240,22 @@ export default function EditFestivalPage({ params }: { params: { id: string } })
             placeholder="e.g., Bachata, Salsa, Kizomba"
             required
           />
+        </div>
+
+        {/* Featured Festival */}
+        <div>
+          <label className="block text-sm font-medium mb-1">Featured Festival</label>
+          <select
+            value={formData.featured || 'no'}
+            onChange={(e) => setFormData({ ...formData, featured: e.target.value as 'yes' | 'no' })}
+            className="w-full p-2 border rounded"
+          >
+            <option value="no">No</option>
+            <option value="yes">Yes</option>
+          </select>
+          <p className="text-xs text-gray-500 mt-1">
+            Featured festivals will be highlighted on the website
+          </p>
         </div>
 
         {/* Image Upload */}
