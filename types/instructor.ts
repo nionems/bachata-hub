@@ -9,6 +9,7 @@ export interface Instructor {
   emailLink?: string;
   facebookLink?: string;
   instagramLink?: string;
+  privatePricePerHour?: string;
   createdAt: string;
   updatedAt: string;
 } 

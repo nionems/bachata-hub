@@ -28,6 +28,7 @@ interface InstructorFormData {
   danceStyles: string
   experience: string
   imageUrl: string
+  privatePricePerHour: string
 }
 
 export function InstructorSubmissionForm({ isOpen, onClose }: InstructorSubmissionFormProps) {
@@ -43,7 +44,8 @@ export function InstructorSubmissionForm({ isOpen, onClose }: InstructorSubmissi
     email: '',
     danceStyles: '',
     experience: '',
-    imageUrl: ''
+    imageUrl: '',
+    privatePricePerHour: ''
   })
 
   const [isLoading, setIsLoading] = useState(false)
@@ -90,7 +92,8 @@ export function InstructorSubmissionForm({ isOpen, onClose }: InstructorSubmissi
         email: '',
         danceStyles: '',
         experience: '',
-        imageUrl: ''
+        imageUrl: '',
+        privatePricePerHour: ''
       })
     } catch (error) {
       console.error('Error submitting instructor:', error)
@@ -242,6 +245,18 @@ export function InstructorSubmissionForm({ isOpen, onClose }: InstructorSubmissi
                 onChange={handleInputChange}
                 required
                 min="0"
+                className="bg-white/80 backdrop-blur-sm rounded-lg"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="privatePricePerHour" className="text-primary">Private Price per Hour</Label>
+              <Input
+                id="privatePricePerHour"
+                name="privatePricePerHour"
+                value={formData.privatePricePerHour}
+                onChange={handleInputChange}
+                placeholder="e.g., $80, $100/hour"
                 className="bg-white/80 backdrop-blur-sm rounded-lg"
               />
             </div>

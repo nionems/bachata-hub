@@ -52,6 +52,7 @@ export default function InstructorsPage() {
             emailLink: data.emailLink || '',
             facebookLink: data.facebookLink || '',
             instagramLink: data.instagramLink || '',
+            privatePricePerHour: data.privatePricePerHour || '',
             createdAt: data.createdAt || new Date().toISOString(),
             updatedAt: data.updatedAt || new Date().toISOString()
           } as Instructor

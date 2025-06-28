@@ -14,6 +14,7 @@ interface InstructorFormData {
   instagramLink: string
   facebookLink: string
   emailLink: string
+  privatePricePerHour: string
 }
 
 // List of Australian states and territories
@@ -46,7 +47,8 @@ export default function NewInstructorPage() {
     comment: '',
     instagramLink: '',
     facebookLink: '',
-    emailLink: ''
+    emailLink: '',
+    privatePricePerHour: ''
   })
 
   const handleImageUpload = async (file: File) => {
@@ -208,6 +210,18 @@ export default function NewInstructorPage() {
             className="w-full p-2 border rounded"
             placeholder="e.g., Bachata, Salsa, Kizomba"
             required
+          />
+        </div>
+
+        {/* Private Price per Hour */}
+        <div>
+          <label className="block text-sm font-medium mb-1">Private Price per Hour</label>
+          <input
+            type="text"
+            value={formData.privatePricePerHour}
+            onChange={(e) => setFormData({...formData, privatePricePerHour: e.target.value})}
+            className="w-full p-2 border rounded"
+            placeholder="e.g., $80, $100/hour"
           />
         </div>
 
