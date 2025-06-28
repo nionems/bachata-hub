@@ -175,7 +175,7 @@ export default function ShopsPage() {
         <ImageModal
           isOpen={!!selectedImage}
           onClose={() => setSelectedImage(null)}
-          imageUrl={selectedImage?.url || ''}
+          imageUrl={selectedImage?.url || ''}n
           title={selectedImage?.title || ''}
         />
 

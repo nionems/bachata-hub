@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { ExternalLink, Share, Instagram, Facebook, MapPin, Tag, X } from "lucide-react"
+import { ExternalLink, Share, Instagram, Facebook, MapPin, Tag, X, ChevronDown, ChevronUp } from "lucide-react"
 import { toast } from "@/components/ui/use-toast"
 import { Shop } from "@/types/shop"
 
@@ -14,6 +14,7 @@ interface ShopCardProps {
 
 export function ShopCard({ shop }: ShopCardProps) {
   const [isImageModalOpen, setIsImageModalOpen] = useState(false)
+  const [isInfoExpanded, setIsInfoExpanded] = useState(false)
 
   const handleImageClick = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -63,6 +64,32 @@ export function ShopCard({ shop }: ShopCardProps) {
               <Badge variant="secondary" className="bg-white/90 text-secondary border-secondary/30 text-xs font-medium">
                 {shop.comment}
               </Badge>
+            </div>
+          )}
+          {shop.info && (
+            <div className="mt-1">
+              <div className={`text-xs sm:text-sm text-gray-300 ${!isInfoExpanded ? 'line-clamp-2' : ''}`}>
+                {shop.info}
+              </div>
+              {shop.info.length > 100 && (
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setIsInfoExpanded(!isInfoExpanded);
+                  }}
+                  className="text-primary hover:text-primary/80 text-xs mt-1 flex items-center gap-1"
+                >
+                  {isInfoExpanded ? (
+                    <>
+                      Show Less <ChevronUp className="h-3 w-3" />
+                    </>
+                  ) : (
+                    <>
+                      Read More <ChevronDown className="h-3 w-3" />
+                    </>
+                  )}
+                </button>
+              )}
             </div>
           )}
           <div className="flex flex-col gap-2 mt-1">
