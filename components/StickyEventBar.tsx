@@ -49,6 +49,35 @@ export function StickyEventBar() {
   const [featuredItems, setFeaturedItems] = useState<(Festival | Event)[]>([])
   const [currentItemIndex, setCurrentItemIndex] = useState(0)
   const [loading, setLoading] = useState(true)
+  const [touchStart, setTouchStart] = useState<number | null>(null)
+  const [touchEnd, setTouchEnd] = useState<number | null>(null)
+
+  // Minimum swipe distance (in px)
+  const minSwipeDistance = 50
+
+  const onTouchStart = (e: React.TouchEvent) => {
+    setTouchEnd(null)
+    setTouchStart(e.targetTouches[0].clientX)
+  }
+
+  const onTouchMove = (e: React.TouchEvent) => {
+    setTouchEnd(e.targetTouches[0].clientX)
+  }
+
+  const onTouchEnd = () => {
+    if (!touchStart || !touchEnd) return
+    
+    const distance = touchStart - touchEnd
+    const isLeftSwipe = distance > minSwipeDistance
+    const isRightSwipe = distance < -minSwipeDistance
+
+    if (isLeftSwipe && currentItemIndex < featuredItems.length - 1) {
+      setCurrentItemIndex(currentItemIndex + 1)
+    }
+    if (isRightSwipe && currentItemIndex > 0) {
+      setCurrentItemIndex(currentItemIndex - 1)
+    }
+  }
 
   useEffect(() => {
     const fetchData = async () => {
@@ -140,7 +169,12 @@ export function StickyEventBar() {
   }
 
   return (
-    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-r from-primary/90 to-secondary/90 text-white shadow-lg backdrop-blur-sm">
+    <div 
+      className="absolute bottom-0 left-0 right-0 bg-gradient-to-r from-primary/90 to-secondary/90 text-white shadow-lg backdrop-blur-sm"
+      onTouchStart={onTouchStart}
+      onTouchMove={onTouchMove}
+      onTouchEnd={onTouchEnd}
+    >
       {/* Collapsed State */}
       {!isExpanded && (
         <div 
@@ -189,11 +223,11 @@ export function StickyEventBar() {
             </div>
             <div className="flex items-center gap-1">
               {featuredItems.length > 1 && (
-                <div className="flex items-center gap-1.5 sm:gap-1 mr-2">
+                <div className="hidden sm:flex items-center gap-1 mr-2">
                   {featuredItems.map((_, index) => (
                     <div
                       key={index}
-                      className={`w-2 h-2 sm:w-1.5 sm:h-1.5 rounded-full ${index === currentItemIndex ? 'bg-white' : 'bg-white/40'}`}
+                      className={`w-1.5 h-1.5 rounded-full ${index === currentItemIndex ? 'bg-white' : 'bg-white/40'}`}
                     />
                   ))}
                 </div>
@@ -220,7 +254,7 @@ export function StickyEventBar() {
             </div>
             <div className="flex items-center gap-1 sm:gap-2">
               {featuredItems.length > 1 && (
-                <div className="flex items-center gap-1.5 sm:gap-1 mr-2">
+                <div className="hidden sm:flex items-center gap-1 mr-2">
                   {featuredItems.map((_, index) => (
                     <button
                       key={index}
@@ -228,7 +262,7 @@ export function StickyEventBar() {
                         e.stopPropagation()
                         setCurrentItemIndex(index)
                       }}
-                      className={`w-2 h-2 sm:w-1.5 sm:h-1.5 rounded-full transition-colors ${index === currentItemIndex ? 'bg-white' : 'bg-white/40 hover:bg-white/60'}`}
+                      className={`w-1.5 h-1.5 rounded-full transition-colors ${index === currentItemIndex ? 'bg-white' : 'bg-white/40 hover:bg-white/60'}`}
                     />
                   ))}
                 </div>
