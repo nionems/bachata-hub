@@ -19,6 +19,7 @@ interface Shop {
   googleReviewLink: string
   price: string
   condition: string
+  info: string
   instagramUrl: string
   facebookUrl: string
   createdAt: string
@@ -128,6 +129,7 @@ export default function EditShopPage({ params }: { params: { id: string } }) {
         facebookUrl: shop.facebookUrl || '',
         price: shop.price || '',
         condition: shop.condition || '',
+        info: shop.info || '',
         discountCode: shop.discountCode || '',
         updatedAt: new Date().toISOString()
       }
@@ -308,6 +310,18 @@ export default function EditShopPage({ params }: { params: { id: string } }) {
               onChange={(e) => setShop({ ...shop, comment: e.target.value })}
               className="w-full p-2 border rounded"
               rows={3}
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium mb-1">Info</label>
+            <textarea
+              name="info"
+              value={shop.info || ''}
+              onChange={(e) => setShop({ ...shop, info: e.target.value })}
+              className="w-full p-2 border rounded"
+              rows={3}
+              placeholder="Enter additional info"
             />
           </div>
 

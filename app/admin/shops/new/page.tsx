@@ -26,6 +26,7 @@ interface ShopFormData {
   googleReviewLink: string
   price: string
   condition: string
+  info: string
   image: File | null
   discountCode: string
 }
@@ -52,6 +53,7 @@ export default function NewShopPage() {
     googleReviewLink: '',
     price: '',
     condition: '',
+    info: '',
     image: null,
     discountCode: ''
   })
@@ -131,6 +133,7 @@ export default function NewShopPage() {
         facebookUrl: formData.facebookUrl,
         price: formData.price,
         condition: formData.condition,
+        info: formData.info,
         contactInfo: `${formData.phone}${formData.email ? `, ${formData.email}` : ''}`,
         discountCode: formData.discountCode,
         createdAt: new Date().toISOString(),
@@ -332,6 +335,17 @@ export default function NewShopPage() {
                 onChange={handleChange}
                 required
                 placeholder="Enter comment"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="info">Info</Label>
+              <Textarea
+                id="info"
+                name="info"
+                value={formData.info}
+                onChange={handleChange}
+                placeholder="Enter additional info"
               />
             </div>
 

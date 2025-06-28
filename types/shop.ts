@@ -13,6 +13,7 @@ export interface Shop {
   googleMapLink: string
   price: string
   condition: string
+  info: string
   createdAt: string
   updatedAt: string
   discountCode?: string

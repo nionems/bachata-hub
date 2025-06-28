@@ -29,6 +29,7 @@ interface ShopFormData {
   contactPhone: string
   comment: string
   additionalInfo: string
+  info: string
   imageUrl: string
   price: string
   condition: string
@@ -49,6 +50,7 @@ export function ShopSubmissionForm({ isOpen, onClose }: ShopSubmissionFormProps)
     contactPhone: '',
     comment: '',
     additionalInfo: '',
+    info: '',
     imageUrl: '',
     price: '',
     condition: ''
@@ -105,6 +107,7 @@ export function ShopSubmissionForm({ isOpen, onClose }: ShopSubmissionFormProps)
         contactPhone: '',
         comment: '',
         additionalInfo: '',
+        info: '',
         imageUrl: '',
         price: '',
         condition: ''
@@ -310,6 +313,18 @@ export function ShopSubmissionForm({ isOpen, onClose }: ShopSubmissionFormProps)
               onChange={handleInputChange}
               className="min-h-[100px] bg-white/80 backdrop-blur-sm rounded-lg"
               placeholder="Any additional details about your shop, item, or service..."
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="info" className="text-primary">Info</Label>
+            <Textarea
+              id="info"
+              name="info"
+              value={formData.info}
+              onChange={handleInputChange}
+              className="min-h-[100px] bg-white/80 backdrop-blur-sm rounded-lg"
+              placeholder="Any additional info about your shop, item, or service..."
             />
           </div>
 
