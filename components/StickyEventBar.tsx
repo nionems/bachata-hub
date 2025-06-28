@@ -168,7 +168,7 @@ export function StickyEventBar() {
                 <Calendar className="h-3 w-3 sm:h-4 sm:w-4" />
               )}
               <span className="text-xs sm:text-sm font-medium">
-                {featuredItems.length > 0 ? (
+                {featuredItems.length > 0 && 'startDate' in featuredItems[currentItemIndex] ? (
                   `Featured Festival: ${featuredItems[currentItemIndex].name} - ${formatFestivalDate(featuredItems[currentItemIndex].startDate)}`
                 ) : (
                   'No Featured Festivals'
