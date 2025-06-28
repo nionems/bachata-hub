@@ -22,17 +22,6 @@ export function ShopCard({ shop }: ShopCardProps) {
     }
   }
 
-  const handleWebsiteClick = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    if (shop.website) {
-      window.open(shop.website, '_blank');
-    } else if (shop.instagramUrl) {
-      window.open(shop.instagramUrl, '_blank');
-    } else if (shop.facebookUrl) {
-      window.open(shop.facebookUrl, '_blank');
-    }
-  }
-
   return (
     <>
       <Card className="relative overflow-hidden group cursor-pointer h-[250px] sm:h-[300px]">
@@ -79,14 +68,6 @@ export function ShopCard({ shop }: ShopCardProps) {
           <div className="flex flex-col gap-2 mt-1">
             <div className="flex items-center justify-between gap-1">
               <div className="flex gap-0.5 items-center">
-                {(shop.website || shop.instagramUrl || shop.facebookUrl) && (
-                  <button
-                    onClick={handleWebsiteClick}
-                    className="text-white hover:text-primary transition-colors p-1"
-                  >
-                    <ExternalLink className="h-6 w-6 sm:h-5 sm:w-5" />
-                  </button>
-                )}
                 {shop.discountCode && (
                   <div className="sm:hidden flex items-center">
                     <div className="inline-flex items-center gap-1 bg-gradient-to-r from-primary/90 to-secondary/90 text-white px-1.5 py-1 rounded-full text-xs font-medium border border-primary/30">
@@ -95,7 +76,18 @@ export function ShopCard({ shop }: ShopCardProps) {
                     </div>
                   </div>
                 )}
-                {shop.instagramUrl && (
+                {shop.website && (
+                  <a
+                    href={shop.website}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={(e) => e.stopPropagation()}
+                    className="text-white hover:text-primary transition-colors p-1"
+                  >
+                    <ExternalLink className="h-6 w-6 sm:h-5 sm:w-5" />
+                  </a>
+                )}
+                {!shop.website && shop.instagramUrl && (
                   <a
                     href={shop.instagramUrl}
                     target="_blank"
@@ -106,7 +98,7 @@ export function ShopCard({ shop }: ShopCardProps) {
                     <Instagram className="h-6 w-6 sm:h-5 sm:w-5" />
                   </a>
                 )}
-                {shop.facebookUrl && (
+                {!shop.website && !shop.instagramUrl && shop.facebookUrl && (
                   <a
                     href={shop.facebookUrl}
                     target="_blank"
