@@ -559,7 +559,7 @@ export default function Home() {
               />
               <FeatureCard
                 icon={<ShoppingBag className="h-6 w-6 sm:h-8 sm:w-8 text-yellow-500" />}
-                title="Shops"
+                title="Marketplace"
                 description="Find dance shoes,clothing..."
                 link="/shop"
               />
