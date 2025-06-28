@@ -71,9 +71,28 @@ export function ShopCard({ shop }: ShopCardProps) {
           )}
           {shop.info && (
             <div className="mt-1">
-              <div className="text-xs sm:text-sm text-gray-300">
+              <div className={`text-xs sm:text-sm text-gray-300 ${!isInfoExpanded ? 'line-clamp-1' : ''}`}>
                 {shop.info}
               </div>
+              {shop.info.length > 50 && (
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setIsInfoExpanded(!isInfoExpanded);
+                  }}
+                  className="text-primary hover:text-primary/80 text-xs mt-1 flex items-center gap-1"
+                >
+                  {isInfoExpanded ? (
+                    <>
+                      Show Less <ChevronUp className="h-3 w-3" />
+                    </>
+                  ) : (
+                    <>
+                      Read More <ChevronDown className="h-3 w-3" />
+                    </>
+                  )}
+                </button>
+              )}
             </div>
           )}
           <div className="flex flex-col gap-2 mt-1">
