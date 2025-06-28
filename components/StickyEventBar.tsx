@@ -306,7 +306,7 @@ export function StickyEventBar() {
               </div>
               {(featuredItems.length > 0 && 'startDate' in featuredItems[currentItemIndex] && featuredItems[currentItemIndex].comment) || (featuredItems.length > 0 && !('startDate' in featuredItems[currentItemIndex]) && featuredItems[currentItemIndex].description) ? (
                 <p className="text-xs sm:text-sm text-white/80 line-clamp-1 mt-0.5 sm:mt-1">
-                  {featuredItems.length > 0 && 'startDate' in featuredItems[currentItemIndex] ? featuredItems[currentItemIndex].comment : featuredItems[currentItemIndex].description.replace(/<[^>]*>/g, '')}
+                  {featuredItems.length > 0 && 'startDate' in featuredItems[currentItemIndex] && featuredItems[currentItemIndex].comment ? featuredItems[currentItemIndex].comment : (featuredItems.length > 0 && !('startDate' in featuredItems[currentItemIndex]) && featuredItems[currentItemIndex].description ? featuredItems[currentItemIndex].description.replace(/<[^>]*>/g, '') : '')}
                 </p>
               ) : null}
             </div>
