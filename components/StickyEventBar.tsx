@@ -149,6 +149,18 @@ export function StickyEventBar() {
         >
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
+              {/* Image - Show on mobile in collapsed state, always on desktop */}
+              <div className="block sm:hidden w-8 h-6 rounded overflow-hidden flex-shrink-0">
+                <img
+                  src={featuredItems.length > 0 && 'imageUrl' in featuredItems[currentItemIndex] && featuredItems[currentItemIndex].imageUrl ? featuredItems[currentItemIndex].imageUrl : '/images/placeholder.svg'}
+                  alt={featuredItems.length > 0 ? featuredItems[currentItemIndex].name : 'Event'}
+                  className="w-full h-full object-cover"
+                  onError={(e) => {
+                    const target = e.target as HTMLImageElement
+                    target.src = '/images/placeholder.svg'
+                  }}
+                />
+              </div>
               {/* Image - Only show on desktop */}
               <div className="hidden sm:block sm:w-16 sm:h-12 rounded overflow-hidden flex-shrink-0">
                 <img
@@ -163,13 +175,13 @@ export function StickyEventBar() {
               </div>
               
               {featuredItems.length > 0 ? (
-                <Star className="h-3 w-3 sm:h-4 sm:w-4" />
+                <Calendar className="h-3 w-3 sm:h-4 sm:w-4" />
               ) : (
                 <Calendar className="h-3 w-3 sm:h-4 sm:w-4" />
               )}
               <span className="text-xs sm:text-sm font-medium">
                 {featuredItems.length > 0 && 'startDate' in featuredItems[currentItemIndex] ? (
-                  `Featured Festival: ${featuredItems[currentItemIndex].name} - ${formatFestivalDate(featuredItems[currentItemIndex].startDate)}`
+                  `${featuredItems[currentItemIndex].name} - ${formatFestivalDate(featuredItems[currentItemIndex].startDate)}`
                 ) : (
                   'No Featured Festivals'
                 )}
@@ -177,11 +189,11 @@ export function StickyEventBar() {
             </div>
             <div className="flex items-center gap-1">
               {featuredItems.length > 1 && (
-                <div className="flex items-center gap-1 mr-2">
+                <div className="flex items-center gap-1.5 sm:gap-1 mr-2">
                   {featuredItems.map((_, index) => (
                     <div
                       key={index}
-                      className={`w-1.5 h-1.5 rounded-full ${index === currentItemIndex ? 'bg-white' : 'bg-white/40'}`}
+                      className={`w-2 h-2 sm:w-1.5 sm:h-1.5 rounded-full ${index === currentItemIndex ? 'bg-white' : 'bg-white/40'}`}
                     />
                   ))}
                 </div>
@@ -198,17 +210,17 @@ export function StickyEventBar() {
           <div className="flex items-center justify-between mb-1 sm:mb-2">
             <div className="flex items-center gap-2 sm:gap-3">
               {featuredItems.length > 0 ? (
-                <Star className="h-3 w-3 sm:h-4 sm:w-4" />
+                <Calendar className="h-3 w-3 sm:h-4 sm:w-4" />
               ) : (
                 <Calendar className="h-3 w-3 sm:h-4 sm:w-4" />
               )}
               <span className="text-xs sm:text-sm font-semibold">
-                Featured Festival
+                Upcoming Event
               </span>
             </div>
             <div className="flex items-center gap-1 sm:gap-2">
               {featuredItems.length > 1 && (
-                <div className="flex items-center gap-1 mr-2">
+                <div className="flex items-center gap-1.5 sm:gap-1 mr-2">
                   {featuredItems.map((_, index) => (
                     <button
                       key={index}
@@ -216,7 +228,7 @@ export function StickyEventBar() {
                         e.stopPropagation()
                         setCurrentItemIndex(index)
                       }}
-                      className={`w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full transition-colors ${index === currentItemIndex ? 'bg-white' : 'bg-white/40 hover:bg-white/60'}`}
+                      className={`w-2 h-2 sm:w-1.5 sm:h-1.5 rounded-full transition-colors ${index === currentItemIndex ? 'bg-white' : 'bg-white/40 hover:bg-white/60'}`}
                     />
                   ))}
                 </div>
