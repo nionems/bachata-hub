@@ -1,4 +1,9 @@
 import { NextResponse } from 'next/server'
+import { collection, addDoc } from 'firebase/firestore'
+import { db } from '@/lib/firebase'
+
+// Force dynamic rendering for this route
+export const dynamic = 'force-dynamic'
 
 export async function GET(request: Request) {
   try {

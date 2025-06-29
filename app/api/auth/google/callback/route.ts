@@ -1,6 +1,8 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { google } from 'googleapis';
 import { OAuth2Client } from 'google-auth-library';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth';
 
 const oauth2Client = new OAuth2Client(
   process.env.GOOGLE_CLIENT_ID,
@@ -8,7 +10,10 @@ const oauth2Client = new OAuth2Client(
   process.env.GOOGLE_REDIRECT_URI
 );
 
-export async function GET(request: Request) {
+// Force dynamic rendering for this route
+export const dynamic = 'force-dynamic';
+
+export async function GET(request: NextRequest) {
   try {
     const url = new URL(request.url);
     const code = url.searchParams.get('code');
