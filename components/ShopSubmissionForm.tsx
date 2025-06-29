@@ -128,44 +128,22 @@ export function ShopSubmissionForm({ isOpen, onClose }: ShopSubmissionFormProps)
         throw new Error('Please provide an image for your item')
       }
 
-      const submissionData = {
-        ...formData,
-        imageUrl: finalImageUrl
-      }
-
-      // First, submit to the existing submit-form API for email notification
-      const emailResponse = await fetch('/api/submit-form', {
+      // Submit to the shops API with status: 'pending'
+      const shopResponse = await fetch('/api/shops', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          type: 'shop_submission',
-          data: submissionData
+          ...formData,
+          imageUrl: finalImageUrl,
+          status: 'pending',
         }),
       })
 
-      if (!emailResponse.ok) {
-        const emailData = await emailResponse.json()
-        throw new Error(emailData.details || emailData.error || 'Failed to submit shop')
-      }
-
-      // Then, try to save to pending_items collection
-      try {
-        const pendingResponse = await fetch('/api/pending-items', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(submissionData),
-        })
-
-        if (!pendingResponse.ok) {
-          console.warn('Failed to save to pending items, but email was sent')
-        }
-      } catch (pendingError) {
-        console.warn('Error saving to pending items:', pendingError)
-        // Don't fail the entire submission if pending items fails
+      if (!shopResponse.ok) {
+        const shopData = await shopResponse.json()
+        throw new Error(shopData.details || shopData.error || 'Failed to submit shop')
       }
 
       toast.success('Shop submitted successfully! It will be reviewed by our team.')
@@ -209,7 +187,7 @@ export function ShopSubmissionForm({ isOpen, onClose }: ShopSubmissionFormProps)
       <DialogContent className="max-w-[95vw] sm:max-w-[600px] bg-gradient-to-br from-primary/10 to-secondary/10 max-h-[90vh] overflow-y-auto rounded-xl sm:rounded-2xl">
         <DialogHeader className="sticky top-0 z-10 bg-white/80 backdrop-blur-sm rounded-t-xl sm:rounded-t-2xl">
           <DialogTitle className="text-primary text-lg sm:text-xl flex justify-between items-center">
-            Submit your Shop or Item
+            Add Listing
             <Button
               variant="ghost"
               size="icon"
