@@ -235,6 +235,7 @@ export function ShopSubmissionForm({ isOpen, onClose }: ShopSubmissionFormProps)
                 value={formData.name}
                 onChange={handleInputChange}
                 required
+                placeholder="e.g., Dance Shoes Store, Fuego Heels, etc."
                 className="bg-white/80 backdrop-blur-sm rounded-lg"
               />
             </div>
@@ -247,6 +248,7 @@ export function ShopSubmissionForm({ isOpen, onClose }: ShopSubmissionFormProps)
                 value={formData.location}
                 onChange={handleInputChange}
                 required
+                placeholder="e.g., Sydney, Melbourne, Brisbane"
                 className="bg-white/80 backdrop-blur-sm rounded-lg"
               />
             </div>
@@ -267,6 +269,7 @@ export function ShopSubmissionForm({ isOpen, onClose }: ShopSubmissionFormProps)
                 name="address"
                 value={formData.address}
                 onChange={handleInputChange}
+                placeholder="not mandatory..."
                 className="bg-white/80 backdrop-blur-sm rounded-lg"
               />
             </div>
@@ -282,6 +285,7 @@ export function ShopSubmissionForm({ isOpen, onClose }: ShopSubmissionFormProps)
                 value={formData.contactName}
                 onChange={handleInputChange}
                 required
+                placeholder="e.g., John Smith, Maria Garcia"
                 className="bg-white/80 backdrop-blur-sm rounded-lg"
               />
             </div>
@@ -295,63 +299,70 @@ export function ShopSubmissionForm({ isOpen, onClose }: ShopSubmissionFormProps)
                 value={formData.contactEmail}
                 onChange={handleInputChange}
                 required
-                className="bg-white/80 backdrop-blur-sm rounded-lg"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="contactPhone" className="text-primary">Contact phone</Label>
-              <Input
-                id="contactPhone"
-                name="contactPhone"
-                value={formData.contactPhone}
-                onChange={handleInputChange}
-                className="bg-white/80 backdrop-blur-sm rounded-lg"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="website" className="text-primary">Website</Label>
-              <Input
-                id="website"
-                name="website"
-                type="url"
-                value={formData.website}
-                onChange={handleInputChange}
-                placeholder="https://"
-                className="bg-white/80 backdrop-blur-sm rounded-lg"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="instagramUrl" className="text-primary">Instagram</Label>
-              <Input
-                id="instagramUrl"
-                name="instagramUrl"
-                type="url"
-                value={formData.instagramUrl}
-                onChange={handleInputChange}
-                placeholder="https://instagram.com/username"
-                className="bg-white/80 backdrop-blur-sm rounded-lg"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="facebookUrl" className="text-primary">Facebook</Label>
-              <Input
-                id="facebookUrl"
-                name="facebookUrl"
-                type="url"
-                value={formData.facebookUrl}
-                onChange={handleInputChange}
-                placeholder="https://facebook.com/username"
+                placeholder="for admin approval(won't be shared)"
                 className="bg-white/80 backdrop-blur-sm rounded-lg"
               />
             </div>
           </div>
 
-          <div className="text-xs text-gray-600 bg-blue-50 p-3 rounded-lg">
-            <strong>Note:</strong> Enter at least one contact method (email, phone, website, Instagram, or Facebook) so buyers can contact you.
+          {/* Contact Methods Group */}
+          <div className="space-y-3 bg-red-50 p-4 rounded-lg border border-red-200">
+            <div className="text-xs text-gray-600 bg-blue-50 p-3 rounded-lg">
+              <strong>Note:</strong> Enter at least one contact method (email, phone, website, Instagram, or Facebook) so buyers can contact you.
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="contactPhone" className="text-primary">Contact phone</Label>
+                <Input
+                  id="contactPhone"
+                  name="contactPhone"
+                  value={formData.contactPhone}
+                  onChange={handleInputChange}
+                  placeholder="e.g., 0412 345 678"
+                  className="bg-white/80 backdrop-blur-sm rounded-lg"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="website" className="text-primary">Website</Label>
+                <Input
+                  id="website"
+                  name="website"
+                  type="url"
+                  value={formData.website}
+                  onChange={handleInputChange}
+                  placeholder="https://yourwebsite.com"
+                  className="bg-white/80 backdrop-blur-sm rounded-lg"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="instagramUrl" className="text-primary">Instagram</Label>
+                <Input
+                  id="instagramUrl"
+                  name="instagramUrl"
+                  type="url"
+                  value={formData.instagramUrl}
+                  onChange={handleInputChange}
+                  placeholder="https://instagram.com/yourusername"
+                  className="bg-white/80 backdrop-blur-sm rounded-lg"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="facebookUrl" className="text-primary">Facebook</Label>
+                <Input
+                  id="facebookUrl"
+                  name="facebookUrl"
+                  type="url"
+                  value={formData.facebookUrl}
+                  onChange={handleInputChange}
+                  placeholder="https://facebook.com/yourpage"
+                  className="bg-white/80 backdrop-blur-sm rounded-lg"
+                />
+              </div>
+            </div>
           </div>
 
           {/* Item Details */}
@@ -394,7 +405,7 @@ export function ShopSubmissionForm({ isOpen, onClose }: ShopSubmissionFormProps)
               value={formData.comment}
               onChange={handleInputChange}
               className="min-h-[100px] bg-white/80 backdrop-blur-sm rounded-lg"
-              placeholder="Any special instructions, contact preferences, or promotional messages..."
+              placeholder="how you want to be contacted unless website is provided or discount percentage."
             />
           </div>
 
@@ -405,13 +416,13 @@ export function ShopSubmissionForm({ isOpen, onClose }: ShopSubmissionFormProps)
               name="discountCode"
               value={formData.discountCode}
               onChange={handleInputChange}
-              placeholder="e.g., BACHATA10, SUMMER20"
+              placeholder="e.g., BACHATAAU"
               className="bg-white/80 backdrop-blur-sm rounded-lg"
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="image" className="text-primary">Item Image *</Label>
+            <Label htmlFor="image" className="text-primary">Shop/Item Image *</Label>
             
             {/* File Upload Section */}
             <div className="space-y-3">
@@ -527,7 +538,7 @@ export function ShopSubmissionForm({ isOpen, onClose }: ShopSubmissionFormProps)
               type="url"
               value={formData.googleMapLink}
               onChange={handleInputChange}
-              placeholder="https://maps.google.com/..."
+              placeholder="for shops only not mandatory"
               className="bg-white/80 backdrop-blur-sm rounded-lg"
             />
           </div>
@@ -541,7 +552,7 @@ export function ShopSubmissionForm({ isOpen, onClose }: ShopSubmissionFormProps)
               onChange={handleInputChange}
               required
               className="min-h-[100px] bg-white/80 backdrop-blur-sm rounded-lg"
-              placeholder="Describe your item: condition, size, material, usage, comfort, etc."
+              placeholder="Describe your item: size, material, comfort level, wear history, special features, etc. (e.g., Size 8, leather, worn only twice, very comfortable for dancing)"
             />
           </div>
 
