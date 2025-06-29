@@ -3,6 +3,7 @@ import { collection, addDoc, getDocs } from 'firebase/firestore'
 import { db } from '@/lib/firebase'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
+import { Shop } from '@/types/shop'
 
 export async function POST(request: Request) {
   try {
@@ -89,7 +90,7 @@ export async function GET() {
     const shops = shopsSnapshot.docs.map(doc => ({
       id: doc.id,
       ...doc.data()
-    }))
+    })) as Shop[]
 
     // Only return approved shops for the public page
     const approvedShops = shops.filter(shop => shop.status === 'approved' || !shop.status) // Include shops without status for backward compatibility
