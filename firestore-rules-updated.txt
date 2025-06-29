@@ -1,3 +1,7 @@
+Updated Firestore Security Rules
+
+Copy and paste these rules into your Firebase Console > Firestore Database > Rules:
+
 rules_version = '2';
 
 service cloud.firestore {
@@ -38,4 +42,17 @@ service cloud.firestore {
       allow write: if request.auth != null;
     }
   }
-} 
+}
+
+IMPORTANT: 
+1. Go to Firebase Console (https://console.firebase.google.com)
+2. Select your project
+3. Go to Firestore Database
+4. Click on the "Rules" tab
+5. Replace the existing rules with the above rules
+6. Click "Publish" to save the changes
+
+This will allow:
+- Public users to submit shop items to the pending_items collection
+- Only authenticated users (admins) to read, update, and delete pending items
+- All other existing functionality to continue working 

@@ -69,10 +69,22 @@ interface Shop {
   location: string;
   state: string;
   address: string;
-  googleReviewLink: string;
+  contactName: string;
+  contactEmail: string;
+  contactPhone: string;
   website: string;
-  imageUrl: string;
+  instagramUrl: string;
+  facebookUrl: string;
+  price: string;
+  condition: string;
   comment: string;
+  discountCode: string;
+  imageUrl: string;
+  googleMapLink: string;
+  info: string;
+  status: 'pending' | 'approved' | 'rejected';
+  createdAt: string;
+  updatedAt: string;
 }
 
 // Add DJ interface
@@ -172,6 +184,7 @@ export default function AdminDashboard() {
   const [showCurrentPassword, setShowCurrentPassword] = useState(false)
   const [showNewPassword, setShowNewPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
+  const [shopStatusFilter, setShopStatusFilter] = useState('all')
   const router = useRouter()
 
   // useEffect(() => {
@@ -213,10 +226,10 @@ export default function AdminDashboard() {
   useEffect(() => {
     const loadShops = async () => {
       try {
-        const shopsData = await fetchShops()
-        setShops(shopsData)
-      } catch (error) {
-        console.error('Error fetching shops:', error)
+        await fetchShops()
+      } catch (err) {
+        console.error('Error loading shops:', err)
+        setError('Failed to load shops')
       }
     }
     loadShops()
@@ -392,12 +405,18 @@ export default function AdminDashboard() {
   }
 
   const fetchShops = async () => {
-    const shopsCollection = collection(db, 'shops')
-    const shopsSnapshot = await getDocs(shopsCollection)
-    return shopsSnapshot.docs.map(doc => ({
-      id: doc.id,
-      ...doc.data()
-    })) as Shop[]
+    try {
+      setIsLoading(true)
+      const response = await fetch('/api/admin/shops')
+      if (!response.ok) throw new Error('Failed to fetch shops')
+      const data = await response.json()
+      setShops(data)
+    } catch (err) {
+      console.error('Error fetching shops:', err)
+      setError('Failed to load shops')
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   const fetchDJs = async () => {
@@ -553,11 +572,48 @@ export default function AdminDashboard() {
       if (!response.ok) throw new Error('Failed to delete shop')
       
       // Refresh shops list
-      const updatedShops = await fetchShops()
-      setShops(updatedShops)
+      await fetchShops()
     } catch (err) {
       console.error('Failed to delete shop:', err)
       setError('Failed to delete shop')
+    }
+  }
+
+  const handleApproveShop = async (shopId: string) => {
+    if (!confirm('Are you sure you want to approve this shop?')) return
+
+    try {
+      const response = await fetch(`/api/shops/${shopId}/approve`, {
+        method: 'POST',
+      })
+
+      if (!response.ok) throw new Error('Failed to approve shop')
+      
+      // Refresh shops list
+      await fetchShops()
+      toast.success('Shop approved successfully')
+    } catch (err) {
+      console.error('Failed to approve shop:', err)
+      toast.error('Failed to approve shop')
+    }
+  }
+
+  const handleRejectShop = async (shopId: string) => {
+    if (!confirm('Are you sure you want to reject this shop?')) return
+
+    try {
+      const response = await fetch(`/api/shops/${shopId}/reject`, {
+        method: 'POST',
+      })
+
+      if (!response.ok) throw new Error('Failed to reject shop')
+      
+      // Refresh shops list
+      await fetchShops()
+      toast.success('Shop rejected successfully')
+    } catch (err) {
+      console.error('Failed to reject shop:', err)
+      toast.error('Failed to reject shop')
     }
   }
 
@@ -762,6 +818,8 @@ export default function AdminDashboard() {
     { id: 'shops', label: 'Shops' },
     { id: 'accommodations', label: 'Accommodations' },
     { id: 'media', label: 'Media' },
+    { id: 'pending-items', label: 'Pending Items' },
+    { id: 'submissions', label: 'Email Submissions' },
     { id: 'users', label: 'Community Users' }
   ]
 
@@ -1500,12 +1558,24 @@ export default function AdminDashboard() {
           <div>
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-xl font-semibold">Shops Management</h2>
-              <button
-                onClick={() => router.push('/admin/shops/new')}
-                className="bg-blue-500 text-white px-3 py-1.5 rounded hover:bg-blue-600 text-sm"
-              >
-                Add New Shop
-              </button>
+              <div className="flex gap-2">
+                <select
+                  value={shopStatusFilter}
+                  onChange={(e) => setShopStatusFilter(e.target.value)}
+                  className="px-3 py-1.5 border rounded text-sm"
+                >
+                  <option value="all">All Shops</option>
+                  <option value="pending">Pending Only</option>
+                  <option value="approved">Approved Only</option>
+                  <option value="rejected">Rejected Only</option>
+                </select>
+                <button
+                  onClick={() => router.push('/admin/shops/new')}
+                  className="bg-blue-500 text-white px-3 py-1.5 rounded hover:bg-blue-600 text-sm"
+                >
+                  Add New Shop
+                </button>
+              </div>
             </div>
 
             {isLoading ? (
@@ -1516,6 +1586,16 @@ export default function AdminDashboard() {
               <div className="text-center py-8 text-gray-500">
                 No shops found. Click "Add New Shop" to create one.
               </div>
+            ) : shops.filter(shop => {
+                if (shopStatusFilter === 'all') return true
+                return shop.status === shopStatusFilter
+              }).length === 0 ? (
+              <div className="text-center py-8 text-gray-500">
+                No {shopStatusFilter === 'all' ? '' : shopStatusFilter} shops found.
+                {shopStatusFilter === 'pending' && ' All shops have been processed.'}
+                {shopStatusFilter === 'approved' && ' No shops have been approved yet.'}
+                {shopStatusFilter === 'rejected' && ' No shops have been rejected.'}
+              </div>
             ) : (
               <div className={`
                 ${layout === 'grid' 
@@ -1523,83 +1603,151 @@ export default function AdminDashboard() {
                   : 'flex flex-col gap-4'
                 }
               `}>
-                {shops.map((shop) => (
-                  <div
-                    key={shop.id}
-                    className={`bg-white rounded-lg shadow overflow-hidden ${
-                      layout === 'grid' ? 'flex flex-col' : 'flex flex-row'
-                    }`}
-                  >
-                    {/* Image */}
-                    <div className={`relative ${
-                      layout === 'grid' ? 'w-full h-48' : 'w-32 h-32 flex-shrink-0'
-                    }`}>
-                      <img
-                        src={shop.imageUrl || '/placeholder-shop.jpg'}
-                        alt={shop.name}
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
+                {shops
+                  .filter(shop => {
+                    if (shopStatusFilter === 'all') return true
+                    return shop.status === shopStatusFilter
+                  })
+                  .map((shop) => (
+                    <div
+                      key={shop.id}
+                      className={`bg-white rounded-lg shadow overflow-hidden ${
+                        layout === 'grid' ? 'flex flex-col' : 'flex flex-row'
+                      }`}
+                    >
+                      {/* Image */}
+                      <div className={`relative ${
+                        layout === 'grid' ? 'w-full h-48' : 'w-32 h-32 flex-shrink-0'
+                      }`}>
+                        <img
+                          src={shop.imageUrl || '/placeholder-shop.jpg'}
+                          alt={shop.name}
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
 
-                    {/* Content */}
-                    <div className="p-4 flex-1">
-                      <h3 className="text-xl font-semibold mb-2">{shop.name}</h3>
-                      <div className="space-y-2">
-                        <p className="text-gray-600">
-                          <span className="font-medium">Location:</span> {shop.location}, {shop.state}
-                        </p>
-                        <p className="text-gray-600">
-                          <span className="font-medium">Address:</span> {shop.address}
-                        </p>
-                        {shop.comment && (
+                      {/* Content */}
+                      <div className="p-4 flex-1">
+                        <h3 className="text-xl font-semibold mb-2">{shop.name}</h3>
+                        <div className="space-y-2">
                           <p className="text-gray-600">
-                            <span className="font-medium">Comment:</span> {shop.comment}
+                            <span className="font-medium">Location:</span> {shop.location}, {shop.state}
                           </p>
-                        )}
-
-                        {/* Links */}
-                        <div className="flex gap-4 mt-2">
-                          {shop.website && (
-                            <a
-                              href={shop.website}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="text-blue-600 hover:text-blue-700"
-                            >
-                              Website
-                            </a>
+                          <p className="text-gray-600">
+                            <span className="font-medium">Address:</span> {shop.address}
+                          </p>
+                          <p className="text-gray-600">
+                            <span className="font-medium">Price:</span> {shop.price}
+                          </p>
+                          <p className="text-gray-600">
+                            <span className="font-medium">Condition:</span> {shop.condition}
+                          </p>
+                          <p className="text-gray-600">
+                            <span className="font-medium">Status:</span> 
+                            <span className={`ml-1 px-2 py-1 rounded text-xs font-medium ${
+                              shop.status === 'approved' ? 'bg-green-100 text-green-800' :
+                              shop.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
+                              'bg-red-100 text-red-800'
+                            }`}>
+                              {shop.status || 'No Status'}
+                            </span>
+                          </p>
+                          <p className="text-gray-600">
+                            <span className="font-medium">Contact:</span> {shop.contactName} ({shop.contactEmail})
+                          </p>
+                          {shop.comment && (
+                            <p className="text-gray-600">
+                              <span className="font-medium">Comment:</span> {shop.comment}
+                            </p>
                           )}
-                          {shop.googleReviewLink && (
-                            <a
-                              href={shop.googleReviewLink}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="text-blue-600 hover:text-blue-700"
+
+                          {/* Links */}
+                          <div className="flex gap-4 mt-2">
+                            {shop.website && (
+                              <a
+                                href={shop.website}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-blue-600 hover:text-blue-700"
+                              >
+                                Website
+                              </a>
+                            )}
+                            {shop.instagramUrl && (
+                              <a
+                                href={shop.instagramUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-blue-600 hover:text-blue-700"
+                              >
+                                Instagram
+                              </a>
+                            )}
+                            {shop.facebookUrl && (
+                              <a
+                                href={shop.facebookUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-blue-600 hover:text-blue-700"
+                              >
+                                Facebook
+                              </a>
+                            )}
+                            {shop.googleMapLink && (
+                              <a
+                                href={shop.googleMapLink}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-blue-600 hover:text-blue-700"
+                              >
+                                Map
+                              </a>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Action Buttons */}
+                        <div className="mt-4 flex gap-2 flex-wrap">
+                          <button
+                            onClick={() => router.push(`/admin/shops/${shop.id}/edit`)}
+                            className="bg-yellow-500 text-white px-2.5 py-1 rounded hover:bg-yellow-600 text-sm"
+                          >
+                            Edit
+                          </button>
+                          <button
+                            onClick={() => handleDeleteShop(shop.id)}
+                            className="bg-red-500 text-white px-2.5 py-1 rounded hover:bg-red-600 text-sm"
+                          >
+                            Delete
+                          </button>
+                          {shop.status === 'pending' && (
+                            <>
+                              <button
+                                onClick={() => handleApproveShop(shop.id)}
+                                className="bg-green-500 text-white px-2.5 py-1 rounded hover:bg-green-600 text-sm"
+                              >
+                                Approve
+                              </button>
+                              <button
+                                onClick={() => handleRejectShop(shop.id)}
+                                className="bg-orange-500 text-white px-2.5 py-1 rounded hover:bg-orange-600 text-sm"
+                              >
+                                Reject
+                              </button>
+                            </>
+                          )}
+                          {shop.status === 'rejected' && (
+                            <button
+                              onClick={() => handleApproveShop(shop.id)}
+                              className="bg-green-500 text-white px-2.5 py-1 rounded hover:bg-green-600 text-sm"
                             >
-                              Reviews
-                            </a>
+                              Re-approve
+                            </button>
                           )}
                         </div>
                       </div>
-
-                      {/* Action Buttons */}
-                      <div className="mt-4 flex gap-2">
-                        <button
-                          onClick={() => router.push(`/admin/shops/${shop.id}/edit`)}
-                          className="bg-yellow-500 text-white px-2.5 py-1 rounded hover:bg-yellow-600 text-sm"
-                        >
-                          Edit
-                        </button>
-                        <button
-                          onClick={() => handleDeleteShop(shop.id)}
-                          className="bg-red-500 text-white px-2.5 py-1 rounded hover:bg-red-600 text-sm"
-                        >
-                          Delete
-                        </button>
-                      </div>
                     </div>
-                  </div>
-                ))}
+                  ))}
               </div>
             )}
           </div>
@@ -1760,6 +1908,40 @@ export default function AdminDashboard() {
           </div>
         )}
 
+        {activeTab === 'pending-items' && (
+          <div>
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-xl font-semibold">Pending Items Review</h2>
+              <button
+                onClick={() => router.push('/admin/pending-items')}
+                className="bg-blue-500 text-white px-3 py-1.5 rounded hover:bg-blue-600 text-sm"
+              >
+                View All Pending Items
+              </button>
+            </div>
+            <div className="text-center py-8 text-gray-500">
+              Click "View All Pending Items" to review and approve/reject submitted shop items.
+            </div>
+          </div>
+        )}
+
+        {activeTab === 'submissions' && (
+          <div>
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-xl font-semibold">Email Submissions</h2>
+              <button
+                onClick={() => router.push('/admin/submissions')}
+                className="bg-blue-500 text-white px-3 py-1.5 rounded hover:bg-blue-600 text-sm"
+              >
+                View All Submissions
+              </button>
+            </div>
+            <div className="text-center py-8 text-gray-500">
+              Click "View All Submissions" to review and manage email submissions.
+            </div>
+          </div>
+        )}
+
         {activeTab === 'users' && (
           <div>
             <div className="flex justify-between items-center mb-6">
@@ -1884,6 +2066,12 @@ export default function AdminDashboard() {
                 break
               case 'media':
                 router.push('/admin/media/new')
+                break
+              case 'pending-items':
+                router.push('/admin/pending-items')
+                break
+              case 'submissions':
+                router.push('/admin/submissions')
                 break
               case 'users':
                 router.push('/admin/users/new')

@@ -127,6 +127,9 @@ export default function AdminPage() {
           <Button onClick={() => router.push('/admin/accommodations/new')}>
             Add New Accommodation
           </Button>
+          <Button onClick={() => router.push('/admin/submissions')} variant="outline">
+            Manage Email Submissions
+          </Button>
         </div>
       </div>
 
@@ -248,6 +251,37 @@ export default function AdminPage() {
               </Card>
             ))}
           </div>
+        </section>
+
+        <section>
+          <h2 className="text-2xl font-semibold mb-4">Email Submissions Management</h2>
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Mail className="h-5 w-5" />
+                Shop Submissions
+              </CardTitle>
+              <CardDescription>
+                Review and manage shop submissions that come via email
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+                <h3 className="font-semibold text-blue-800 mb-2">📧 Email-Based Approval System</h3>
+                <p className="text-blue-700 mb-3">
+                  When someone submits a shop, you'll receive an email with approval/rejection buttons.
+                </p>
+                <ul className="list-disc list-inside text-blue-700 space-y-1 ml-4">
+                  <li><strong>Complete shop details</strong> - All the information submitted</li>
+                  <li><strong>Approve button</strong> - Adds the shop directly to the database</li>
+                  <li><strong>Reject button</strong> - Records the rejection</li>
+                </ul>
+              </div>
+              <Button onClick={() => router.push('/admin/submissions')} className="w-full">
+                View Submissions Management
+              </Button>
+            </CardContent>
+          </Card>
         </section>
       </div>
     </div>

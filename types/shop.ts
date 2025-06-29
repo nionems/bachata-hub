@@ -17,6 +17,7 @@ export interface Shop {
   imageUrl: string
   googleMapLink: string
   info: string
+  status: 'pending' | 'approved' | 'rejected'
   createdAt: string
   updatedAt: string
 } 

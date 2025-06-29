@@ -68,7 +68,8 @@ export function ShopSubmissionForm({ isOpen, onClose }: ShopSubmissionFormProps)
     setIsLoading(true)
 
     try {
-      const response = await fetch('/api/submit-form', {
+      // First, submit to the existing submit-form API for email notification
+      const emailResponse = await fetch('/api/submit-form', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -79,19 +80,30 @@ export function ShopSubmissionForm({ isOpen, onClose }: ShopSubmissionFormProps)
         }),
       })
 
-      let data;
+      if (!emailResponse.ok) {
+        const emailData = await emailResponse.json()
+        throw new Error(emailData.details || emailData.error || 'Failed to submit shop')
+      }
+
+      // Then, try to save to pending_items collection
       try {
-        data = await response.json();
-      } catch (e) {
-        console.error('Failed to parse response:', e);
-        throw new Error('Failed to parse server response');
+        const pendingResponse = await fetch('/api/pending-items', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(formData),
+        })
+
+        if (!pendingResponse.ok) {
+          console.warn('Failed to save to pending items, but email was sent')
+        }
+      } catch (pendingError) {
+        console.warn('Error saving to pending items:', pendingError)
+        // Don't fail the entire submission if pending items fails
       }
 
-      if (!response.ok) {
-        throw new Error(data.details || data.error || 'Failed to submit shop')
-      }
-
-      toast.success('Shop submitted successfully!')
+      toast.success('Shop submitted successfully! It will be reviewed by our team.')
       onClose()
       setFormData({
         name: '',

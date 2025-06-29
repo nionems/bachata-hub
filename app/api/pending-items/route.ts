@@ -1,15 +1,10 @@
 import { NextResponse } from 'next/server'
-import { collection, addDoc, getDocs } from 'firebase/firestore'
+import { collection, addDoc, getDocs, query, orderBy } from 'firebase/firestore'
 import { db } from '@/lib/firebase'
-import { getServerSession } from 'next-auth'
-import { authOptions } from '@/lib/auth'
 
 export async function POST(request: Request) {
   try {
-    console.log('Received shop creation request')
-    const data = await request.json()
-    console.log('Received data:', data)
-
+    const body = await request.json()
     const {
       name,
       location,
@@ -28,18 +23,18 @@ export async function POST(request: Request) {
       imageUrl,
       googleMapLink,
       info
-    } = data
+    } = body
 
     // Validate required fields
     if (!name || !location || !state || !contactName || !contactEmail || !price || !condition || !imageUrl || !info) {
-      console.error('Missing required fields')
       return NextResponse.json(
         { error: 'Missing required fields' },
         { status: 400 }
       )
     }
 
-    const shopData = {
+    const pendingItemData = {
+      type: 'shop',
       name,
       location,
       state,
@@ -57,27 +52,24 @@ export async function POST(request: Request) {
       imageUrl,
       googleMapLink: googleMapLink || '',
       info,
-      status: 'approved' as const,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString()
+      status: 'pending', // pending, approved, rejected
+      submittedAt: new Date().toISOString(),
+      reviewedAt: null,
+      reviewedBy: null,
+      reviewNotes: null
     }
 
-    console.log('Processed shop data:', shopData)
-
-    const docRef = await addDoc(collection(db, 'shops'), shopData)
-    console.log('Shop created with ID:', docRef.id)
+    const docRef = await addDoc(collection(db, 'pending_items'), pendingItemData)
     
-    return NextResponse.json({ id: docRef.id, ...shopData })
-  } catch (error) {
-    console.error('Error creating shop:', error)
-    if (error instanceof Error) {
-      console.error('Error details:', {
-        message: error.message,
-        stack: error.stack
-      })
-    }
     return NextResponse.json({ 
-      error: 'Failed to create shop',
+      id: docRef.id, 
+      message: 'Shop item submitted for review',
+      ...pendingItemData 
+    })
+  } catch (error) {
+    console.error('Error creating pending item:', error)
+    return NextResponse.json({ 
+      error: 'Failed to submit item for review',
       details: error instanceof Error ? error.message : 'Unknown error'
     }, { status: 500 })
   }
@@ -85,20 +77,20 @@ export async function POST(request: Request) {
 
 export async function GET() {
   try {
-    const shopsSnapshot = await getDocs(collection(db, 'shops'))
-    const shops = shopsSnapshot.docs.map(doc => ({
+    const pendingItemsSnapshot = await getDocs(
+      query(collection(db, 'pending_items'), orderBy('submittedAt', 'desc'))
+    )
+    
+    const pendingItems = pendingItemsSnapshot.docs.map(doc => ({
       id: doc.id,
       ...doc.data()
     }))
 
-    // Only return approved shops for the public page
-    const approvedShops = shops.filter(shop => shop.status === 'approved' || !shop.status) // Include shops without status for backward compatibility
-
-    return NextResponse.json(approvedShops)
+    return NextResponse.json(pendingItems)
   } catch (error) {
-    console.error('Error fetching shops:', error)
+    console.error('Error fetching pending items:', error)
     return NextResponse.json(
-      { error: 'Failed to fetch shops' },
+      { error: 'Failed to fetch pending items' },
       { status: 500 }
     )
   }

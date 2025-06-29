@@ -19,7 +19,7 @@ async function verifyResendConfig() {
 }
 
 // Add this function to format the admin email HTML
-function getAdminEmailHtml(type: string, data: any) {
+async function getAdminEmailHtml(type: string, data: any) {
   let subject = '';
   let html = '';
 
@@ -73,7 +73,63 @@ function getAdminEmailHtml(type: string, data: any) {
         <p><strong>Image URL (Google Drive):</strong> ${data.imageUrl}</p>
         <p><strong>Google map link:</strong> ${data.googleMapLink || 'N/A'}</p>
         <p><strong>Item info:</strong> ${data.info}</p>
+        
+        <hr style="margin: 20px 0;">
+        
+        <h3>Quick Actions:</h3>
+        <p>Click the buttons below to approve or reject this submission:</p>
+        
+        <div style="margin: 20px 0;">
+          <a href="${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/approve-shop?name=${encodeURIComponent(data.name)}&location=${encodeURIComponent(data.location)}&state=${encodeURIComponent(data.state)}&address=${encodeURIComponent(data.address || '')}&contactName=${encodeURIComponent(data.contactName)}&contactEmail=${encodeURIComponent(data.contactEmail)}&contactPhone=${encodeURIComponent(data.contactPhone || '')}&website=${encodeURIComponent(data.website || '')}&instagramUrl=${encodeURIComponent(data.instagramUrl || '')}&facebookUrl=${encodeURIComponent(data.facebookUrl || '')}&price=${encodeURIComponent(data.price)}&condition=${encodeURIComponent(data.condition)}&comment=${encodeURIComponent(data.comment || '')}&discountCode=${encodeURIComponent(data.discountCode || '')}&imageUrl=${encodeURIComponent(data.imageUrl)}&googleMapLink=${encodeURIComponent(data.googleMapLink || '')}&info=${encodeURIComponent(data.info)}" 
+             style="background-color: #10B981; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; margin-right: 10px; display: inline-block;">
+            ✅ Approve & Add to Database
+          </a>
+          
+          <a href="${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/reject-shop?name=${encodeURIComponent(data.name)}&location=${encodeURIComponent(data.location)}&state=${encodeURIComponent(data.state)}&contactName=${encodeURIComponent(data.contactName)}&contactEmail=${encodeURIComponent(data.contactEmail)}" 
+             style="background-color: #EF4444; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block;">
+            ❌ Reject Submission
+          </a>
+        </div>
+        
+        <p style="font-size: 12px; color: #666; margin-top: 20px;">
+          Note: These links will immediately approve or reject the submission. Use with caution.
+        </p>
       `
+
+      // Also save to database with pending status
+      try {
+        const { collection, addDoc } = await import('firebase/firestore')
+        const { db } = await import('@/lib/firebase')
+        
+        const shopData = {
+          name: data.name,
+          location: data.location,
+          state: data.state,
+          address: data.address || '',
+          contactName: data.contactName,
+          contactEmail: data.contactEmail,
+          contactPhone: data.contactPhone || '',
+          website: data.website || '',
+          instagramUrl: data.instagramUrl || '',
+          facebookUrl: data.facebookUrl || '',
+          price: data.price,
+          condition: data.condition,
+          comment: data.comment || '',
+          discountCode: data.discountCode || '',
+          imageUrl: data.imageUrl,
+          googleMapLink: data.googleMapLink || '',
+          info: data.info,
+          status: 'pending' as const,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString()
+        }
+
+        await addDoc(collection(db, 'shops'), shopData)
+        console.log('Shop submission saved to database with pending status')
+      } catch (dbError) {
+        console.error('Error saving shop to database:', dbError)
+        // Continue with email sending even if database save fails
+      }
       break;
     case 'festival_submission':
       subject = 'New Festival Submission'
@@ -259,7 +315,7 @@ export async function POST(request: Request) {
     }
 
     // Generate email content
-    const { subject, html } = getAdminEmailHtml(type, data);
+    const { subject, html } = await getAdminEmailHtml(type, data);
 
     if (!subject || !html) {
       return NextResponse.json(

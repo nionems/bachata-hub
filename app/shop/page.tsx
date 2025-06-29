@@ -4,8 +4,6 @@ import { useState, useEffect } from 'react'
 import { Card, CardFooter } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { MapPin, Star, Globe, MessageSquare, ExternalLink, Instagram, Facebook, Share } from "lucide-react"
-import { collection, getDocs } from 'firebase/firestore'
-import { db } from '../../firebase/config'
 import { ContactForm } from "@/components/ContactForm"
 import { ShopSubmissionForm } from "@/components/ShopSubmissionForm"
 import { Button } from "@/components/ui/button"
@@ -31,13 +29,11 @@ export default function ShopsPage() {
       setIsLoading(true)
       setError(null)
       try {
-        const shopsCollection = collection(db, 'shops')
-        const shopsSnapshot = await getDocs(shopsCollection)
-        const shopsList = shopsSnapshot.docs.map(doc => ({
-          id: doc.id,
-          ...doc.data()
-        })) as Shop[]
-        
+        const response = await fetch('/api/shops')
+        if (!response.ok) {
+          throw new Error('Failed to fetch shops')
+        }
+        const shopsList = await response.json()
         setShops(shopsList)
       } catch (err) {
         console.error('Error fetching shops:', err)
