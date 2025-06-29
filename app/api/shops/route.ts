@@ -28,7 +28,8 @@ export async function POST(request: Request) {
       discountCode,
       imageUrl,
       googleMapLink,
-      info
+      info,
+      status
     } = data
 
     // Validate required fields
@@ -58,7 +59,7 @@ export async function POST(request: Request) {
       imageUrl,
       googleMapLink: googleMapLink || '',
       info,
-      status: 'approved' as const,
+      status: status || 'pending',
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString()
     }

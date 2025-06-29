@@ -28,6 +28,7 @@ interface ShopFormData {
   imageUrl: string
   googleMapLink: string
   info: string
+  status: 'pending' | 'approved' | 'rejected'
   image: File | null
 }
 
@@ -55,6 +56,7 @@ export default function NewShopPage() {
     imageUrl: '',
     googleMapLink: '',
     info: '',
+    status: 'pending',
     image: null
   })
 
@@ -138,6 +140,7 @@ export default function NewShopPage() {
         imageUrl: imageUrl,
         googleMapLink: formData.googleMapLink,
         info: formData.info,
+        status: formData.status,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString()
       }
@@ -361,6 +364,22 @@ export default function NewShopPage() {
                 onChange={handleChange}
                 placeholder="Enter additional info"
               />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="status">Status</Label>
+              <select
+                id="status"
+                name="status"
+                value={formData.status}
+                onChange={handleChange}
+                required
+                className="w-full p-2 border rounded bg-white"
+              >
+                <option value="pending">Pending</option>
+                <option value="approved">Approved</option>
+                <option value="rejected">Rejected</option>
+              </select>
             </div>
 
             <div className="space-y-2">

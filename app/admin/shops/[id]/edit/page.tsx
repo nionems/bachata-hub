@@ -23,6 +23,7 @@ interface Shop {
   info: string
   instagramUrl: string
   facebookUrl: string
+  status?: 'pending' | 'approved' | 'rejected'
   createdAt: string
   updatedAt: string
   discountCode: string
@@ -135,6 +136,7 @@ export default function EditShopPage({ params }: { params: { id: string } }) {
         condition: shop.condition || '',
         info: shop.info || '',
         discountCode: shop.discountCode || '',
+        status: shop.status || 'pending',
         updatedAt: new Date().toISOString()
       }
 
@@ -326,6 +328,21 @@ export default function EditShopPage({ params }: { params: { id: string } }) {
               <option value="">Select condition</option>
               <option value="New">New</option>
               <option value="Second Hand">Second Hand</option>
+            </select>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium mb-1">Status</label>
+            <select
+              name="status"
+              value={shop.status || 'pending'}
+              onChange={(e) => setShop({ ...shop, status: e.target.value as 'pending' | 'approved' | 'rejected' })}
+              className="w-full p-2 border rounded bg-white"
+              required
+            >
+              <option value="pending">Pending</option>
+              <option value="approved">Approved</option>
+              <option value="rejected">Rejected</option>
             </select>
           </div>
 
