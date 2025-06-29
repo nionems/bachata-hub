@@ -82,6 +82,14 @@ export default function ShopsPage() {
           <p className="text-center text-sm font-medium bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent mt-2">
             Always Mention ❤️ BACHATAAU ❤️
           </p>
+          <div className="text-center mt-4">
+            <Button
+              onClick={() => setIsSubmissionFormOpen(true)}
+              className="bg-gradient-to-r from-primary to-secondary text-white px-6 py-2 rounded-full font-semibold hover:opacity-90 transition-all duration-200 shadow-lg"
+            >
+              Add Listing
+            </Button>
+          </div>
         </div>
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="grid w-full grid-cols-2 mb-6 sm:mb-8">
@@ -164,7 +172,7 @@ export default function ShopsPage() {
                 onClick={() => setIsSubmissionFormOpen(true)}
                 className="bg-secondary text-white px-6 sm:px-8 py-2 sm:py-3 rounded-full font-semibold hover:bg-secondary/90 transition-colors duration-200 text-center w-full sm:w-auto"
               >
-                Submit via Form
+                Add Listing
               </Button>
             </div>
           </div>

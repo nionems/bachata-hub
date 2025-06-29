@@ -77,7 +77,7 @@ export function ShopSubmissionForm({ isOpen, onClose }: ShopSubmissionFormProps)
 
       // Validate file size (max 5MB)
       if (file.size > 5 * 1024 * 1024) {
-        toast.error('Image must be less than 5MB')
+        toast.error('Image size is too big. Please select an image smaller than 5MB.')
         return
       }
 
@@ -94,6 +94,14 @@ export function ShopSubmissionForm({ isOpen, onClose }: ShopSubmissionFormProps)
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
+    
+    // Validate that at least one contact method is provided
+    const hasContactMethod = formData.website || formData.instagramUrl || formData.facebookUrl || formData.contactPhone
+    if (!hasContactMethod) {
+      toast.error('Please provide at least one contact method (website, Instagram, Facebook, or phone) so buyers can contact you.')
+      return
+    }
+    
     setIsLoading(true)
     setUploadProgress(0)
 
@@ -309,10 +317,18 @@ export function ShopSubmissionForm({ isOpen, onClose }: ShopSubmissionFormProps)
                   name="website"
                   type="url"
                   value={formData.website}
-                  onChange={handleInputChange}
-                  placeholder="https://yourwebsite.com"
+                  onChange={(e) => {
+                    let value = e.target.value
+                    // Auto-add https:// if user just enters domain
+                    if (value && !value.startsWith('http://') && !value.startsWith('https://')) {
+                      value = 'https://' + value
+                    }
+                    setFormData(prev => ({ ...prev, website: value }))
+                  }}
+                  placeholder="yourwebsite.com or https://yourwebsite.com"
                   className="bg-white/80 backdrop-blur-sm rounded-lg"
                 />
+                <p className="text-xs text-gray-500">Just enter your domain (e.g., mydanceshop.com) or full URL</p>
               </div>
 
               <div className="space-y-2">
@@ -322,10 +338,27 @@ export function ShopSubmissionForm({ isOpen, onClose }: ShopSubmissionFormProps)
                   name="instagramUrl"
                   type="url"
                   value={formData.instagramUrl}
-                  onChange={handleInputChange}
-                  placeholder="https://instagram.com/yourusername"
+                  onChange={(e) => {
+                    let value = e.target.value
+                    // Auto-format Instagram URLs
+                    if (value) {
+                      if (value.includes('instagram.com/')) {
+                        // Already a full URL
+                        if (!value.startsWith('http://') && !value.startsWith('https://')) {
+                          value = 'https://' + value
+                        }
+                      } else {
+                        // Just username - convert to full URL
+                        const username = value.replace('@', '').replace('https://', '').replace('http://', '').replace('instagram.com/', '')
+                        value = `https://instagram.com/${username}`
+                      }
+                    }
+                    setFormData(prev => ({ ...prev, instagramUrl: value }))
+                  }}
+                  placeholder="@yourusername or instagram.com/yourusername"
                   className="bg-white/80 backdrop-blur-sm rounded-lg"
                 />
+                <p className="text-xs text-gray-500">Enter @username, username, or full Instagram URL</p>
               </div>
 
               <div className="space-y-2">
@@ -335,10 +368,27 @@ export function ShopSubmissionForm({ isOpen, onClose }: ShopSubmissionFormProps)
                   name="facebookUrl"
                   type="url"
                   value={formData.facebookUrl}
-                  onChange={handleInputChange}
-                  placeholder="https://facebook.com/yourpage"
+                  onChange={(e) => {
+                    let value = e.target.value
+                    // Auto-format Facebook URLs
+                    if (value) {
+                      if (value.includes('facebook.com/')) {
+                        // Already a full URL
+                        if (!value.startsWith('http://') && !value.startsWith('https://')) {
+                          value = 'https://' + value
+                        }
+                      } else {
+                        // Just username/page name - convert to full URL
+                        const username = value.replace('@', '').replace('https://', '').replace('http://', '').replace('facebook.com/', '')
+                        value = `https://facebook.com/${username}`
+                      }
+                    }
+                    setFormData(prev => ({ ...prev, facebookUrl: value }))
+                  }}
+                  placeholder="@yourpage or facebook.com/yourpage"
                   className="bg-white/80 backdrop-blur-sm rounded-lg"
                 />
+                <p className="text-xs text-gray-500">Enter @pagename, pagename, or full Facebook URL</p>
               </div>
             </div>
           </div>
@@ -401,6 +451,9 @@ export function ShopSubmissionForm({ isOpen, onClose }: ShopSubmissionFormProps)
 
           <div className="space-y-2">
             <Label htmlFor="image" className="text-primary">Shop/Item Image *</Label>
+            <p className="text-xs text-gray-600 bg-yellow-50 p-2 rounded-lg border border-yellow-200">
+              📸 <strong>1 photo only per item</strong> - Choose your best image that shows the item clearly
+            </p>
             
             {/* File Upload Section */}
             <div className="space-y-3">
@@ -452,12 +505,42 @@ export function ShopSubmissionForm({ isOpen, onClose }: ShopSubmissionFormProps)
 
               {/* Image Preview */}
               {imagePreview && (
-                <div className="relative">
-                  <img
-                    src={imagePreview}
-                    alt="Preview"
-                    className="w-full h-48 object-cover rounded-lg border"
-                  />
+                <div className="relative group">
+                  <div 
+                    className="relative cursor-pointer overflow-hidden rounded-lg border"
+                    onClick={() => {
+                      // Open image in new tab/window
+                      const newWindow = window.open()
+                      if (newWindow) {
+                        newWindow.document.write(`
+                          <html>
+                            <head><title>Image Preview</title></head>
+                            <body style="margin:0;display:flex;justify-content:center;align-items:center;min-height:100vh;background:#f5f5f5;">
+                              <img src="${imagePreview}" style="max-width:90%;max-height:90%;object-fit:contain;border-radius:8px;box-shadow:0 4px 20px rgba(0,0,0,0.15);" />
+                            </body>
+                          </html>
+                        `)
+                      }
+                    }}
+                  >
+                    <img
+                      src={imagePreview}
+                      alt="Preview"
+                      className="w-full h-48 object-cover transition-transform duration-200 group-hover:scale-105"
+                    />
+                    {/* Clickable overlay with zoom icon */}
+                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all duration-200 flex items-center justify-center">
+                      <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 bg-white/90 rounded-full p-2 shadow-lg">
+                        <svg className="w-6 h-6 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7" />
+                        </svg>
+                      </div>
+                    </div>
+                    {/* Click hint text */}
+                    <div className="absolute bottom-2 left-2 bg-black/70 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                      Click to enlarge
+                    </div>
+                  </div>
                   <Button
                     type="button"
                     variant="destructive"
@@ -549,7 +632,7 @@ export function ShopSubmissionForm({ isOpen, onClose }: ShopSubmissionFormProps)
               disabled={isLoading}
               className="w-full bg-primary hover:bg-primary/90 text-white rounded-lg"
             >
-              {isLoading ? 'Submitting...' : 'Submit Shop'}
+              {isLoading ? 'Submitting...' : 'Add Listing'}
             </Button>
           </div>
         </form>
