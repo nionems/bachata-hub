@@ -59,6 +59,8 @@ export async function PUT(
   try {
     const { id } = params
     const body = await request.json()
+    console.log('Received update data:', body)
+    
     const {
       name,
       location,
@@ -76,8 +78,11 @@ export async function PUT(
       instagramUrl,
       facebookUrl,
       condition,
-      info
+      info,
+      status
     } = body
+
+    console.log('Status being updated:', status)
 
     if (!name || !location || !state) {
       return NextResponse.json(
@@ -86,8 +91,7 @@ export async function PUT(
       )
     }
 
-    const docRef = doc(db, 'shops', id)
-    await updateDoc(docRef, {
+    const updateData = {
       name,
       location,
       state,
@@ -105,9 +109,16 @@ export async function PUT(
       facebookUrl,
       condition,
       info,
+      status,
       updatedAt: new Date().toISOString(),
-    })
+    }
 
+    console.log('Updating shop with data:', updateData)
+
+    const docRef = doc(db, 'shops', id)
+    await updateDoc(docRef, updateData)
+
+    console.log('Shop updated successfully')
     return NextResponse.json({ message: 'Shop updated successfully' })
   } catch (error) {
     console.error('Error updating shop:', error)
