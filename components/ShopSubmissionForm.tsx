@@ -415,31 +415,50 @@ export function ShopSubmissionForm({ isOpen, onClose }: ShopSubmissionFormProps)
             
             {/* File Upload Section */}
             <div className="space-y-3">
-              {/* File Input */}
-              <div className="relative">
-                <input
-                  id="image"
-                  name="image"
-                  type="file"
-                  accept="image/*"
-                  capture="environment"
-                  onChange={handleFileChange}
-                  className="hidden"
-                />
-                <label
-                  htmlFor="image"
-                  className="flex items-center justify-center w-full h-32 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-primary transition-colors bg-white/80 backdrop-blur-sm"
-                >
-                  <div className="text-center">
-                    <Camera className="mx-auto h-8 w-8 text-gray-400 mb-2" />
-                    <p className="text-sm text-gray-600">
-                      <span className="font-medium text-primary">Click to upload</span> or take a photo
+              {/* Camera and Gallery Options */}
+              <div className="grid grid-cols-2 gap-3">
+                {/* Camera Option */}
+                <div className="relative">
+                  <input
+                    id="camera-input"
+                    name="camera-input"
+                    type="file"
+                    accept="image/*"
+                    capture="environment"
+                    onChange={handleFileChange}
+                    className="hidden"
+                  />
+                  <label
+                    htmlFor="camera-input"
+                    className="flex flex-col items-center justify-center w-full h-24 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-primary transition-colors bg-white/80 backdrop-blur-sm"
+                  >
+                    <Camera className="h-6 w-6 text-gray-400 mb-1" />
+                    <p className="text-xs text-gray-600 text-center">
+                      <span className="font-medium text-primary">Take Photo</span>
                     </p>
-                    <p className="text-xs text-gray-500 mt-1">
-                      PNG, JPG, JPEG up to 5MB
+                  </label>
+                </div>
+
+                {/* Gallery Option */}
+                <div className="relative">
+                  <input
+                    id="gallery-input"
+                    name="gallery-input"
+                    type="file"
+                    accept="image/*"
+                    onChange={handleFileChange}
+                    className="hidden"
+                  />
+                  <label
+                    htmlFor="gallery-input"
+                    className="flex flex-col items-center justify-center w-full h-24 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-primary transition-colors bg-white/80 backdrop-blur-sm"
+                  >
+                    <ImageIcon className="h-6 w-6 text-gray-400 mb-1" />
+                    <p className="text-xs text-gray-600 text-center">
+                      <span className="font-medium text-primary">Choose from Gallery</span>
                     </p>
-                  </div>
-                </label>
+                  </label>
+                </div>
               </div>
 
               {/* Image Preview */}
@@ -493,7 +512,7 @@ export function ShopSubmissionForm({ isOpen, onClose }: ShopSubmissionFormProps)
 
               {/* Instructions */}
               <div className="text-xs text-gray-600 bg-blue-50 p-3 rounded-lg">
-                <strong>📱 Mobile-friendly:</strong> Tap the upload area to take a photo directly with your camera or select from your gallery.
+                <strong>📱 Mobile-friendly:</strong> Choose "Take Photo" to use your camera or "Choose from Gallery" to select an existing image.
                 <br />
                 <strong>💡 Tip:</strong> Good lighting and clear photos help sell your items faster!
               </div>
