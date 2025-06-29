@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { StateSelect } from "@/components/ui/StateSelect"
 import { toast } from "sonner"
-import { X } from "lucide-react"
+import { X, Upload, Camera, Image as ImageIcon } from "lucide-react"
 
 interface ShopSubmissionFormProps {
   isOpen: boolean
@@ -57,17 +57,82 @@ export function ShopSubmissionForm({ isOpen, onClose }: ShopSubmissionFormProps)
   })
 
   const [isLoading, setIsLoading] = useState(false)
+  const [selectedFile, setSelectedFile] = useState<File | null>(null)
+  const [imagePreview, setImagePreview] = useState<string | null>(null)
+  const [uploadProgress, setUploadProgress] = useState(0)
 
   const handleInputChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target
     setFormData(prev => ({ ...prev, [name]: value }))
   }
 
+  const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file) {
+      // Validate file type
+      if (!file.type.startsWith('image/')) {
+        toast.error('Please select an image file')
+        return
+      }
+
+      // Validate file size (max 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        toast.error('Image must be less than 5MB')
+        return
+      }
+
+      setSelectedFile(file)
+      
+      // Create preview
+      const reader = new FileReader()
+      reader.onloadend = () => {
+        setImagePreview(reader.result as string)
+      }
+      reader.readAsDataURL(file)
+    }
+  }
+
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
     setIsLoading(true)
+    setUploadProgress(0)
 
     try {
+      let finalImageUrl = formData.imageUrl
+
+      // Upload image if file is selected
+      if (selectedFile) {
+        setUploadProgress(10)
+        
+        const formDataUpload = new FormData()
+        formDataUpload.append('file', selectedFile)
+        
+        const uploadResponse = await fetch('/api/upload', {
+          method: 'POST',
+          body: formDataUpload,
+        })
+
+        setUploadProgress(50)
+
+        if (!uploadResponse.ok) {
+          throw new Error('Failed to upload image')
+        }
+
+        const uploadData = await uploadResponse.json()
+        finalImageUrl = uploadData.imageUrl
+        setUploadProgress(100)
+      }
+
+      // Validate that we have an image URL
+      if (!finalImageUrl) {
+        throw new Error('Please provide an image for your item')
+      }
+
+      const submissionData = {
+        ...formData,
+        imageUrl: finalImageUrl
+      }
+
       // First, submit to the existing submit-form API for email notification
       const emailResponse = await fetch('/api/submit-form', {
         method: 'POST',
@@ -76,7 +141,7 @@ export function ShopSubmissionForm({ isOpen, onClose }: ShopSubmissionFormProps)
         },
         body: JSON.stringify({
           type: 'shop_submission',
-          data: formData
+          data: submissionData
         }),
       })
 
@@ -92,7 +157,7 @@ export function ShopSubmissionForm({ isOpen, onClose }: ShopSubmissionFormProps)
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify(formData),
+          body: JSON.stringify(submissionData),
         })
 
         if (!pendingResponse.ok) {
@@ -105,6 +170,8 @@ export function ShopSubmissionForm({ isOpen, onClose }: ShopSubmissionFormProps)
 
       toast.success('Shop submitted successfully! It will be reviewed by our team.')
       onClose()
+      
+      // Reset form
       setFormData({
         name: '',
         location: '',
@@ -124,12 +191,16 @@ export function ShopSubmissionForm({ isOpen, onClose }: ShopSubmissionFormProps)
         googleMapLink: '',
         info: ''
       })
+      setSelectedFile(null)
+      setImagePreview(null)
+      setUploadProgress(0)
     } catch (error) {
       console.error('Error submitting shop:', error)
       const errorMessage = error instanceof Error ? error.message : 'Failed to submit shop. Please try again.'
       toast.error(errorMessage)
     } finally {
       setIsLoading(false)
+      setUploadProgress(0)
     }
   }
 
@@ -340,23 +411,92 @@ export function ShopSubmissionForm({ isOpen, onClose }: ShopSubmissionFormProps)
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="imageUrl" className="text-primary">Image URL (Google Drive) *</Label>
-            <Input
-              id="imageUrl"
-              name="imageUrl"
-              type="url"
-              value={formData.imageUrl}
-              onChange={handleInputChange}
-              required
-              placeholder="Enter Google Drive image URL"
-              className="bg-white/80 backdrop-blur-sm rounded-lg"
-            />
-            <div className="text-xs text-gray-600 bg-yellow-50 p-3 rounded-lg">
-              <strong>How to add an image:</strong>
-              <br />1. Upload your image to Google Drive
-              <br />2. Right-click the image and select "Share"
-              <br />3. Set access to "Anyone with the link"
-              <br />4. Copy the link and paste it here
+            <Label htmlFor="image" className="text-primary">Item Image *</Label>
+            
+            {/* File Upload Section */}
+            <div className="space-y-3">
+              {/* File Input */}
+              <div className="relative">
+                <input
+                  id="image"
+                  name="image"
+                  type="file"
+                  accept="image/*"
+                  capture="environment"
+                  onChange={handleFileChange}
+                  className="hidden"
+                />
+                <label
+                  htmlFor="image"
+                  className="flex items-center justify-center w-full h-32 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-primary transition-colors bg-white/80 backdrop-blur-sm"
+                >
+                  <div className="text-center">
+                    <Camera className="mx-auto h-8 w-8 text-gray-400 mb-2" />
+                    <p className="text-sm text-gray-600">
+                      <span className="font-medium text-primary">Click to upload</span> or take a photo
+                    </p>
+                    <p className="text-xs text-gray-500 mt-1">
+                      PNG, JPG, JPEG up to 5MB
+                    </p>
+                  </div>
+                </label>
+              </div>
+
+              {/* Image Preview */}
+              {imagePreview && (
+                <div className="relative">
+                  <img
+                    src={imagePreview}
+                    alt="Preview"
+                    className="w-full h-48 object-cover rounded-lg border"
+                  />
+                  <Button
+                    type="button"
+                    variant="destructive"
+                    size="sm"
+                    onClick={() => {
+                      setSelectedFile(null)
+                      setImagePreview(null)
+                    }}
+                    className="absolute top-2 right-2"
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                </div>
+              )}
+
+              {/* Upload Progress */}
+              {uploadProgress > 0 && uploadProgress < 100 && (
+                <div className="w-full bg-gray-200 rounded-full h-2">
+                  <div
+                    className="bg-primary h-2 rounded-full transition-all duration-300"
+                    style={{ width: `${uploadProgress}%` }}
+                  ></div>
+                </div>
+              )}
+
+              {/* Alternative: Image URL (fallback) */}
+              <div className="space-y-2">
+                <Label htmlFor="imageUrl" className="text-sm text-gray-600">
+                  Or provide image URL (Google Drive, etc.)
+                </Label>
+                <Input
+                  id="imageUrl"
+                  name="imageUrl"
+                  type="url"
+                  value={formData.imageUrl}
+                  onChange={handleInputChange}
+                  placeholder="https://drive.google.com/..."
+                  className="bg-white/80 backdrop-blur-sm rounded-lg text-sm"
+                />
+              </div>
+
+              {/* Instructions */}
+              <div className="text-xs text-gray-600 bg-blue-50 p-3 rounded-lg">
+                <strong>📱 Mobile-friendly:</strong> Tap the upload area to take a photo directly with your camera or select from your gallery.
+                <br />
+                <strong>💡 Tip:</strong> Good lighting and clear photos help sell your items faster!
+              </div>
             </div>
           </div>
 
