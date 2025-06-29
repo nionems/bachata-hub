@@ -12,23 +12,23 @@ import { AUSTRALIAN_STATES } from '@/lib/constants'
 
 interface ShopFormData {
   name: string
-  description: string
   location: string
-  imageUrl: string
+  state: string
+  address: string
+  contactName: string
+  contactEmail: string
+  contactPhone: string
   website: string
   instagramUrl: string
   facebookUrl: string
-  phone: string
-  email: string
-  state: string
-  address: string
-  comment: string
-  googleReviewLink: string
   price: string
   condition: string
+  comment: string
+  discountCode: string
+  imageUrl: string
+  googleMapLink: string
   info: string
   image: File | null
-  discountCode: string
 }
 
 export default function NewShopPage() {
@@ -39,23 +39,23 @@ export default function NewShopPage() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
   const [formData, setFormData] = useState<ShopFormData>({
     name: '',
-    description: '',
     location: '',
-    imageUrl: '',
+    state: '',
+    address: '',
+    contactName: '',
+    contactEmail: '',
+    contactPhone: '',
     website: '',
     instagramUrl: '',
     facebookUrl: '',
-    phone: '',
-    email: '',
-    state: '',
-    address: '',
-    comment: '',
-    googleReviewLink: '',
     price: '',
     condition: '',
+    comment: '',
+    discountCode: '',
+    imageUrl: '',
+    googleMapLink: '',
     info: '',
-    image: null,
-    discountCode: ''
+    image: null
   })
 
   useEffect(() => {
@@ -125,17 +125,19 @@ export default function NewShopPage() {
         location: formData.location,
         state: formData.state,
         address: formData.address,
-        comment: formData.comment,
-        googleReviewLink: formData.googleReviewLink,
-        imageUrl: imageUrl,
+        contactName: formData.contactName,
+        contactEmail: formData.contactEmail,
+        contactPhone: formData.contactPhone,
         website: formData.website,
         instagramUrl: formData.instagramUrl,
         facebookUrl: formData.facebookUrl,
         price: formData.price,
         condition: formData.condition,
-        info: formData.info,
-        contactInfo: `${formData.phone}${formData.email ? `, ${formData.email}` : ''}`,
+        comment: formData.comment,
         discountCode: formData.discountCode,
+        imageUrl: imageUrl,
+        googleMapLink: formData.googleMapLink,
+        info: formData.info,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString()
       }
@@ -188,18 +190,6 @@ export default function NewShopPage() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="description">Description</Label>
-              <Textarea
-                id="description"
-                name="description"
-                value={formData.description}
-                onChange={handleChange}
-                required
-                placeholder="Enter shop description"
-              />
-            </div>
-
-            <div className="space-y-2">
               <Label htmlFor="location">Location</Label>
               <Input
                 id="location"
@@ -208,89 +198,6 @@ export default function NewShopPage() {
                 onChange={handleChange}
                 required
                 placeholder="Enter shop location"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="image">Shop Image</Label>
-              {imagePreview && (
-                <div className="mt-2">
-                  <img
-                    src={imagePreview}
-                    alt="Preview"
-                    className="w-32 h-32 object-cover rounded-lg"
-                  />
-                </div>
-              )}
-              <Input
-                id="image"
-                name="image"
-                type="file"
-                accept="image/*"
-                onChange={handleImageChange}
-                required
-                className="cursor-pointer"
-              />
-              <p className="text-sm text-gray-500">
-                Upload a high-quality image of your shop (max 5MB)
-              </p>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="website">Website</Label>
-              <Input
-                id="website"
-                name="website"
-                type="url"
-                value={formData.website}
-                onChange={handleChange}
-                placeholder="Enter website URL"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="instagramUrl">Instagram Link</Label>
-              <Input
-                id="instagramUrl"
-                name="instagramUrl"
-                value={formData.instagramUrl}
-                onChange={handleChange}
-                placeholder="Enter Instagram Link"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="facebookUrl">Facebook Link</Label>
-              <Input
-                id="facebookUrl"
-                name="facebookUrl"
-                value={formData.facebookUrl}
-                onChange={handleChange}
-                placeholder="Enter Facebook Link"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="phone">Phone</Label>
-              <Input
-                id="phone"
-                name="phone"
-                type="tel"
-                value={formData.phone}
-                onChange={handleChange}
-                placeholder="Enter phone number"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                name="email"
-                type="email"
-                value={formData.email}
-                onChange={handleChange}
-                placeholder="Enter email address"
               />
             </div>
 
@@ -327,36 +234,72 @@ export default function NewShopPage() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="comment">Comment</Label>
-              <Textarea
-                id="comment"
-                name="comment"
-                value={formData.comment}
+              <Label htmlFor="contactName">Contact Name</Label>
+              <Input
+                id="contactName"
+                name="contactName"
+                value={formData.contactName}
                 onChange={handleChange}
                 required
-                placeholder="Enter comment"
+                placeholder="Enter contact name"
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="info">Info</Label>
-              <Textarea
-                id="info"
-                name="info"
-                value={formData.info}
-                onChange={handleChange}
-                placeholder="Enter additional info"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="googleReviewLink">Google Review Link</Label>
+              <Label htmlFor="contactEmail">Contact Email</Label>
               <Input
-                id="googleReviewLink"
-                name="googleReviewLink"
-                value={formData.googleReviewLink}
+                id="contactEmail"
+                name="contactEmail"
+                type="email"
+                value={formData.contactEmail}
                 onChange={handleChange}
-                placeholder="Enter Google Review Link"
+                placeholder="Enter contact email"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="contactPhone">Contact Phone</Label>
+              <Input
+                id="contactPhone"
+                name="contactPhone"
+                type="tel"
+                value={formData.contactPhone}
+                onChange={handleChange}
+                placeholder="Enter contact phone"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="website">Website</Label>
+              <Input
+                id="website"
+                name="website"
+                type="url"
+                value={formData.website}
+                onChange={handleChange}
+                placeholder="Enter website URL"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="instagramUrl">Instagram Link</Label>
+              <Input
+                id="instagramUrl"
+                name="instagramUrl"
+                value={formData.instagramUrl}
+                onChange={handleChange}
+                placeholder="Enter Instagram Link"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="facebookUrl">Facebook Link</Label>
+              <Input
+                id="facebookUrl"
+                name="facebookUrl"
+                value={formData.facebookUrl}
+                onChange={handleChange}
+                placeholder="Enter Facebook Link"
               />
             </div>
 
@@ -396,6 +339,53 @@ export default function NewShopPage() {
                 onChange={handleChange}
                 placeholder="Enter discount code"
               />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="googleMapLink">Google Map Link</Label>
+              <Input
+                id="googleMapLink"
+                name="googleMapLink"
+                value={formData.googleMapLink}
+                onChange={handleChange}
+                placeholder="Enter Google Map Link"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="info">Info</Label>
+              <Textarea
+                id="info"
+                name="info"
+                value={formData.info}
+                onChange={handleChange}
+                placeholder="Enter additional info"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="image">Shop Image</Label>
+              {imagePreview && (
+                <div className="mt-2">
+                  <img
+                    src={imagePreview}
+                    alt="Preview"
+                    className="w-32 h-32 object-cover rounded-lg"
+                  />
+                </div>
+              )}
+              <Input
+                id="image"
+                name="image"
+                type="file"
+                accept="image/*"
+                onChange={handleImageChange}
+                required
+                className="cursor-pointer"
+              />
+              <p className="text-sm text-gray-500">
+                Upload a high-quality image of your shop (max 5MB)
+              </p>
             </div>
 
             {error && (

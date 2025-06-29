@@ -15,21 +15,23 @@ export async function POST(request: Request) {
       location,
       state,
       address,
+      contactName,
+      contactEmail,
+      contactPhone,
       website,
-      googleReviewLink,
-      contactInfo,
-      imageUrl,
       instagramUrl,
       facebookUrl,
-      googleMapLink,
-      comment,
       price,
       condition,
+      comment,
+      discountCode,
+      imageUrl,
+      googleMapLink,
       info
     } = data
 
     // Validate required fields
-    if (!name || !location || !state || !address) {
+    if (!name || !location || !state || !contactName || !contactEmail || !price || !condition || !imageUrl || !info) {
       console.error('Missing required fields')
       return NextResponse.json(
         { error: 'Missing required fields' },
@@ -41,18 +43,20 @@ export async function POST(request: Request) {
       name,
       location,
       state,
-      address,
+      address: address || '',
+      contactName,
+      contactEmail,
+      contactPhone: contactPhone || '',
       website: website || '',
-      googleReviewLink: googleReviewLink || '',
-      contactInfo: contactInfo || '',
-      imageUrl: imageUrl || '',
       instagramUrl: instagramUrl || '',
       facebookUrl: facebookUrl || '',
-      googleMapLink: googleMapLink || '',
+      price,
+      condition,
       comment: comment || '',
-      price: price || '',
-      condition: condition || '',
-      info: info || '',
+      discountCode: discountCode || '',
+      imageUrl,
+      googleMapLink: googleMapLink || '',
+      info,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString()
     }

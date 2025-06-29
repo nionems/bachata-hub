@@ -12,11 +12,12 @@ interface Shop {
   location: string
   state: string
   address: string
-  contactInfo: string
-  email: string
+  contactName: string
+  contactEmail: string
+  contactPhone: string
   imageUrl: string
   comment: string
-  googleReviewLink: string
+  googleMapLink: string
   price: string
   condition: string
   info: string
@@ -121,8 +122,11 @@ export default function EditShopPage({ params }: { params: { id: string } }) {
         location: shop.location,
         state: shop.state,
         address: shop.address,
+        contactName: shop.contactName || '',
+        contactEmail: shop.contactEmail || '',
+        contactPhone: shop.contactPhone || '',
         comment: shop.comment,
-        googleReviewLink: shop.googleReviewLink,
+        googleMapLink: shop.googleMapLink || '',
         imageUrl: imageUrl,
         website: shop.website || '',
         instagramUrl: shop.instagramUrl || '',
@@ -219,23 +223,34 @@ export default function EditShopPage({ params }: { params: { id: string } }) {
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-1">Contact Info</label>
+            <label className="block text-sm font-medium mb-1">Contact Name</label>
             <input
               type="text"
-              name="contactInfo"
-              value={shop.contactInfo}
-              onChange={(e) => setShop({ ...shop, contactInfo: e.target.value })}
+              name="contactName"
+              value={shop.contactName}
+              onChange={(e) => setShop({ ...shop, contactName: e.target.value })}
               className="w-full p-2 border rounded"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-1">Email</label>
+            <label className="block text-sm font-medium mb-1">Contact Email</label>
             <input
               type="email"
-              name="email"
-              value={shop.email}
-              onChange={(e) => setShop({ ...shop, email: e.target.value })}
+              name="contactEmail"
+              value={shop.contactEmail}
+              onChange={(e) => setShop({ ...shop, contactEmail: e.target.value })}
+              className="w-full p-2 border rounded"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium mb-1">Contact Phone</label>
+            <input
+              type="text"
+              name="contactPhone"
+              value={shop.contactPhone}
+              onChange={(e) => setShop({ ...shop, contactPhone: e.target.value })}
               className="w-full p-2 border rounded"
             />
           </div>
@@ -272,6 +287,18 @@ export default function EditShopPage({ params }: { params: { id: string } }) {
               onChange={(e) => setShop({ ...shop, facebookUrl: e.target.value })}
               className="w-full p-2 border rounded"
               placeholder="Enter Facebook Link"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium mb-1">Google Map Link</label>
+            <input
+              type="url"
+              name="googleMapLink"
+              value={shop.googleMapLink || ''}
+              onChange={(e) => setShop({ ...shop, googleMapLink: e.target.value })}
+              className="w-full p-2 border rounded"
+              placeholder="Enter Google Map Link"
             />
           </div>
 

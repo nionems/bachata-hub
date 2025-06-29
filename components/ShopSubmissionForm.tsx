@@ -20,19 +20,19 @@ interface ShopFormData {
   location: string
   state: string
   address: string
-  website: string
-  instagramUrl: string
-  facebookUrl: string
-  googleMapLink: string
   contactName: string
   contactEmail: string
   contactPhone: string
-  comment: string
-  additionalInfo: string
-  info: string
-  imageUrl: string
+  website: string
+  instagramUrl: string
+  facebookUrl: string
   price: string
   condition: string
+  comment: string
+  discountCode: string
+  imageUrl: string
+  googleMapLink: string
+  info: string
 }
 
 export function ShopSubmissionForm({ isOpen, onClose }: ShopSubmissionFormProps) {
@@ -41,19 +41,19 @@ export function ShopSubmissionForm({ isOpen, onClose }: ShopSubmissionFormProps)
     location: '',
     state: '',
     address: '',
-    website: '',
-    instagramUrl: '',
-    facebookUrl: '',
-    googleMapLink: '',
     contactName: '',
     contactEmail: '',
     contactPhone: '',
-    comment: '',
-    additionalInfo: '',
-    info: '',
-    imageUrl: '',
+    website: '',
+    instagramUrl: '',
+    facebookUrl: '',
     price: '',
-    condition: ''
+    condition: '',
+    comment: '',
+    discountCode: '',
+    imageUrl: '',
+    googleMapLink: '',
+    info: ''
   })
 
   const [isLoading, setIsLoading] = useState(false)
@@ -98,19 +98,19 @@ export function ShopSubmissionForm({ isOpen, onClose }: ShopSubmissionFormProps)
         location: '',
         state: '',
         address: '',
-        website: '',
-        instagramUrl: '',
-        facebookUrl: '',
-        googleMapLink: '',
         contactName: '',
         contactEmail: '',
         contactPhone: '',
-        comment: '',
-        additionalInfo: '',
-        info: '',
-        imageUrl: '',
+        website: '',
+        instagramUrl: '',
+        facebookUrl: '',
         price: '',
-        condition: ''
+        condition: '',
+        comment: '',
+        discountCode: '',
+        imageUrl: '',
+        googleMapLink: '',
+        info: ''
       })
     } catch (error) {
       console.error('Error submitting shop:', error)
@@ -142,9 +142,10 @@ export function ShopSubmissionForm({ isOpen, onClose }: ShopSubmissionFormProps)
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4">
+          {/* Basic Information */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="name" className="text-primary">Shop Name or Item You Are Selling *</Label>
+              <Label htmlFor="name" className="text-primary">Shop name / Item name *</Label>
               <Input
                 id="name"
                 name="name"
@@ -156,7 +157,7 @@ export function ShopSubmissionForm({ isOpen, onClose }: ShopSubmissionFormProps)
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="location" className="text-primary">Location *</Label>
+              <Label htmlFor="location" className="text-primary">Location (city) *</Label>
               <Input
                 id="location"
                 name="location"
@@ -177,13 +178,51 @@ export function ShopSubmissionForm({ isOpen, onClose }: ShopSubmissionFormProps)
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="address" className="text-primary">Address *</Label>
+              <Label htmlFor="address" className="text-primary">Address</Label>
               <Input
                 id="address"
                 name="address"
                 value={formData.address}
                 onChange={handleInputChange}
+                className="bg-white/80 backdrop-blur-sm rounded-lg"
+              />
+            </div>
+          </div>
+
+          {/* Contact Information */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="contactName" className="text-primary">Contact name *</Label>
+              <Input
+                id="contactName"
+                name="contactName"
+                value={formData.contactName}
+                onChange={handleInputChange}
                 required
+                className="bg-white/80 backdrop-blur-sm rounded-lg"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="contactEmail" className="text-primary">Contact email *</Label>
+              <Input
+                id="contactEmail"
+                name="contactEmail"
+                type="email"
+                value={formData.contactEmail}
+                onChange={handleInputChange}
+                required
+                className="bg-white/80 backdrop-blur-sm rounded-lg"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="contactPhone" className="text-primary">Contact phone</Label>
+              <Input
+                id="contactPhone"
+                name="contactPhone"
+                value={formData.contactPhone}
+                onChange={handleInputChange}
                 className="bg-white/80 backdrop-blur-sm rounded-lg"
               />
             </div>
@@ -202,7 +241,7 @@ export function ShopSubmissionForm({ isOpen, onClose }: ShopSubmissionFormProps)
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="instagramUrl" className="text-primary">Instagram Link</Label>
+              <Label htmlFor="instagramUrl" className="text-primary">Instagram</Label>
               <Input
                 id="instagramUrl"
                 name="instagramUrl"
@@ -215,7 +254,7 @@ export function ShopSubmissionForm({ isOpen, onClose }: ShopSubmissionFormProps)
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="facebookUrl" className="text-primary">Facebook Link</Label>
+              <Label htmlFor="facebookUrl" className="text-primary">Facebook</Label>
               <Input
                 id="facebookUrl"
                 name="facebookUrl"
@@ -226,50 +265,22 @@ export function ShopSubmissionForm({ isOpen, onClose }: ShopSubmissionFormProps)
                 className="bg-white/80 backdrop-blur-sm rounded-lg"
               />
             </div>
+          </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="contactName" className="text-primary">Contact Name *</Label>
-              <Input
-                id="contactName"
-                name="contactName"
-                value={formData.contactName}
-                onChange={handleInputChange}
-                required
-                className="bg-white/80 backdrop-blur-sm rounded-lg"
-              />
-            </div>
+          <div className="text-xs text-gray-600 bg-blue-50 p-3 rounded-lg">
+            <strong>Note:</strong> Enter at least one contact method (email, phone, website, Instagram, or Facebook) so buyers can contact you.
+          </div>
 
+          {/* Item Details */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="contactEmail" className="text-primary">Contact Email *</Label>
-              <Input
-                id="contactEmail"
-                name="contactEmail"
-                type="email"
-                value={formData.contactEmail}
-                onChange={handleInputChange}
-                required
-                className="bg-white/80 backdrop-blur-sm rounded-lg"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="contactPhone" className="text-primary">Contact Phone</Label>
-              <Input
-                id="contactPhone"
-                name="contactPhone"
-                value={formData.contactPhone}
-                onChange={handleInputChange}
-                className="bg-white/80 backdrop-blur-sm rounded-lg"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="price" className="text-primary">Price Range</Label>
+              <Label htmlFor="price" className="text-primary">Price range *</Label>
               <Input
                 id="price"
                 name="price"
                 value={formData.price}
                 onChange={handleInputChange}
+                required
                 placeholder="e.g., $10-50, Free, etc."
                 className="bg-white/80 backdrop-blur-sm rounded-lg"
               />
@@ -293,43 +304,31 @@ export function ShopSubmissionForm({ isOpen, onClose }: ShopSubmissionFormProps)
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="comment" className="text-primary">Comment and How to Contact You</Label>
+            <Label htmlFor="comment" className="text-primary">Comment (contact me on insta, 10% off, etc.)</Label>
             <Textarea
               id="comment"
               name="comment"
               value={formData.comment}
               onChange={handleInputChange}
               className="min-h-[100px] bg-white/80 backdrop-blur-sm rounded-lg"
-              placeholder="Describe your shop/item and how customers can contact you..."
+              placeholder="Any special instructions, contact preferences, or promotional messages..."
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="additionalInfo" className="text-primary">Additional Information About Shop, Item, or Service</Label>
-            <Textarea
-              id="additionalInfo"
-              name="additionalInfo"
-              value={formData.additionalInfo}
+            <Label htmlFor="discountCode" className="text-primary">Discount code</Label>
+            <Input
+              id="discountCode"
+              name="discountCode"
+              value={formData.discountCode}
               onChange={handleInputChange}
-              className="min-h-[100px] bg-white/80 backdrop-blur-sm rounded-lg"
-              placeholder="Any additional details about your shop, item, or service..."
+              placeholder="e.g., BACHATA10, SUMMER20"
+              className="bg-white/80 backdrop-blur-sm rounded-lg"
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="info" className="text-primary">Info</Label>
-            <Textarea
-              id="info"
-              name="info"
-              value={formData.info}
-              onChange={handleInputChange}
-              className="min-h-[100px] bg-white/80 backdrop-blur-sm rounded-lg"
-              placeholder="Any additional info about your shop, item, or service..."
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="imageUrl" className="text-primary">Image URL *</Label>
+            <Label htmlFor="imageUrl" className="text-primary">Image URL (Google Drive) *</Label>
             <Input
               id="imageUrl"
               name="imageUrl"
@@ -340,13 +339,39 @@ export function ShopSubmissionForm({ isOpen, onClose }: ShopSubmissionFormProps)
               placeholder="Enter Google Drive image URL"
               className="bg-white/80 backdrop-blur-sm rounded-lg"
             />
-            <p className="text-xs text-gray-500 mt-1">
-              To add an image:
+            <div className="text-xs text-gray-600 bg-yellow-50 p-3 rounded-lg">
+              <strong>How to add an image:</strong>
               <br />1. Upload your image to Google Drive
               <br />2. Right-click the image and select "Share"
               <br />3. Set access to "Anyone with the link"
               <br />4. Copy the link and paste it here
-            </p>
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="googleMapLink" className="text-primary">Google map link</Label>
+            <Input
+              id="googleMapLink"
+              name="googleMapLink"
+              type="url"
+              value={formData.googleMapLink}
+              onChange={handleInputChange}
+              placeholder="https://maps.google.com/..."
+              className="bg-white/80 backdrop-blur-sm rounded-lg"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="info" className="text-primary">Item info (worn twice, very comfortable, etc.) *</Label>
+            <Textarea
+              id="info"
+              name="info"
+              value={formData.info}
+              onChange={handleInputChange}
+              required
+              className="min-h-[100px] bg-white/80 backdrop-blur-sm rounded-lg"
+              placeholder="Describe your item: condition, size, material, usage, comfort, etc."
+            />
           </div>
 
           <div className="flex justify-end gap-2">

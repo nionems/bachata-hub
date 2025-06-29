@@ -56,20 +56,23 @@ function getAdminEmailHtml(type: string, data: any) {
       subject = 'New Shop Submission'
       html = `
         <h2>New Shop Submission</h2>
-        <p><strong>Shop Name:</strong> ${data.name}</p>
-        <p><strong>Location:</strong> ${data.location}</p>
+        <p><strong>Shop name / Item name:</strong> ${data.name}</p>
+        <p><strong>Location (city):</strong> ${data.location}</p>
         <p><strong>State:</strong> ${data.state}</p>
-        <p><strong>Address:</strong> ${data.address}</p>
+        <p><strong>Address:</strong> ${data.address || 'N/A'}</p>
+        <p><strong>Contact name:</strong> ${data.contactName}</p>
+        <p><strong>Contact email:</strong> ${data.contactEmail}</p>
+        <p><strong>Contact phone:</strong> ${data.contactPhone || 'N/A'}</p>
         <p><strong>Website:</strong> ${data.website || 'N/A'}</p>
-        <p><strong>Instagram:</strong> ${data.instagramLink || 'N/A'}</p>
-        <p><strong>Facebook:</strong> ${data.facebookLink || 'N/A'}</p>
-        <p><strong>Google Maps:</strong> ${data.googleMapLink || 'N/A'}</p>
-        <p><strong>Contact Name:</strong> ${data.contactName}</p>
-        <p><strong>Contact Email:</strong> ${data.contactEmail}</p>
-        <p><strong>Contact Phone:</strong> ${data.contactPhone || 'N/A'}</p>
+        <p><strong>Instagram:</strong> ${data.instagramUrl || 'N/A'}</p>
+        <p><strong>Facebook:</strong> ${data.facebookUrl || 'N/A'}</p>
+        <p><strong>Price range:</strong> ${data.price}</p>
+        <p><strong>Condition:</strong> ${data.condition}</p>
         <p><strong>Comment:</strong> ${data.comment || 'N/A'}</p>
-        <p><strong>Additional Information:</strong> ${data.additionalInfo || 'N/A'}</p>
-        <p><strong>Image URL:</strong> ${data.imageUrl}</p>
+        <p><strong>Discount code:</strong> ${data.discountCode || 'N/A'}</p>
+        <p><strong>Image URL (Google Drive):</strong> ${data.imageUrl}</p>
+        <p><strong>Google map link:</strong> ${data.googleMapLink || 'N/A'}</p>
+        <p><strong>Item info:</strong> ${data.info}</p>
       `
       break;
     case 'festival_submission':
