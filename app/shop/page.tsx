@@ -79,6 +79,9 @@ export default function ShopsPage() {
         </div>
         <div className="mb-4 sm:mb-8">
           <StateFilter selectedState={selectedState} onChange={setSelectedState} />
+          <p className="text-center text-sm font-medium bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mt-2">
+            mention BACHATAAU
+          </p>
         </div>
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="grid w-full grid-cols-2 mb-6 sm:mb-8">

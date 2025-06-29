@@ -258,9 +258,6 @@ export function ShopSubmissionForm({ isOpen, onClose }: ShopSubmissionFormProps)
                 onChange={(value) => setFormData(prev => ({ ...prev, state: value }))}
                 className="bg-white/80 backdrop-blur-sm rounded-lg"
               />
-              <p className="text-xs font-medium bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
-                mention BACHATAAU
-              </p>
             </div>
 
             <div className="space-y-2">
