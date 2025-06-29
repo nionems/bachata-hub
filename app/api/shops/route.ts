@@ -94,8 +94,9 @@ export async function GET() {
     })) as Shop[]
 
     // Only return approved shops for the public page
-    const approvedShops = shops.filter(shop => shop.status === 'approved' || !shop.status) // Include shops without status for backward compatibility
+    const approvedShops = shops.filter(shop => shop.status === 'approved')
 
+    console.log(`Total shops: ${shops.length}, Approved shops: ${approvedShops.length}`)
     return NextResponse.json(approvedShops)
   } catch (error) {
     console.error('Error fetching shops:', error)
