@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
-import { db } from '@/lib/firebase'
-import { collection, addDoc, getDocs } from 'firebase/firestore'
+import { db } from '@/lib/firebase-admin'
+
+export const dynamic = 'force-dynamic'
 
 interface FestivalData {
   id: string
@@ -26,8 +27,8 @@ interface FestivalData {
 
 export async function GET() {
   try {
-    const festivalsRef = collection(db, 'festivals')
-    const snapshot = await getDocs(festivalsRef)
+    const festivalsRef = db.collection('festivals')
+    const snapshot = await festivalsRef.get()
     
     const festivals = snapshot.docs.map(doc => ({
       id: doc.id,
@@ -64,8 +65,8 @@ export async function POST(request: Request) {
     console.log('Creating festival with data:', festivalData) // Debug log
 
     // Add to Firestore festivals collection
-    const festivalsRef = collection(db, 'festivals')
-    const docRef = await addDoc(festivalsRef, festivalData)
+    const festivalsRef = db.collection('festivals')
+    const docRef = await festivalsRef.add(festivalData)
 
     console.log('Festival created with ID:', docRef.id) // Debug log
 
