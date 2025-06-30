@@ -34,6 +34,7 @@ interface Event {
   imageUrl?: string
   eventLink?: string
   ticketLink?: string
+  published?: boolean
 }
 
 // Add Festival interface
@@ -334,45 +335,27 @@ export default function AdminDashboard() {
   }
 
   const fetchDbEvents = async () => {
-    setIsLoading(true);
-    setError(null);
-    console.log("Admin Dashboard: Attempting to fetch events from Firestore...");
-
     try {
-      // Use the client SDK 'db' instance
-      const eventsCollectionRef = collection(db, 'events');
-      // Optional: Add ordering, e.g., orderBy('eventDate', 'asc')
-      // const q = query(eventsCollectionRef, orderBy('eventDate', 'asc'));
-      // const eventsSnapshot = await getDocs(q);
-      const eventsSnapshot = await getDocs(eventsCollectionRef);
-
-      const fetchedEvents = eventsSnapshot.docs.map(doc => {
-        const data = doc.data();
-        // Convert Firestore Timestamps to string/Date if necessary for the Event interface
-        // Example: Assuming eventDate is stored as a string 'YYYY-MM-DD'
-        return {
-          id: doc.id,
-          ...data,
-          // Ensure data matches the Event interface structure
-          eventDate: data.eventDate, // Adjust if stored as Timestamp
-          startTime: data.startTime, // Adjust if stored as Timestamp
-          endTime: data.endTime,     // Adjust if stored as Timestamp
-        } as Event; // Assert type
-      });
-
-      console.log(`Admin Dashboard: Successfully fetched ${fetchedEvents.length} events from Firestore.`);
-      setEvents(fetchedEvents);
-
+      setIsLoading(true)
+      const response = await fetch('/api/admin/events')
+      if (!response.ok) throw new Error('Failed to fetch events')
+      const data = await response.json()
+      
+      // Sort events by date (earliest first)
+      const sortedEvents = data.sort((a: Event, b: Event) => {
+        const dateA = new Date(a.eventDate).getTime()
+        const dateB = new Date(b.eventDate).getTime()
+        return dateA - dateB
+      })
+      
+      setEvents(sortedEvents)
     } catch (err) {
-      console.error("Admin Dashboard: >>> Error caught fetching Firestore events <<<");
-      console.error("Admin Dashboard: Error details:", err);
-      setError(`Failed to fetch events from database. ${err instanceof Error ? `Details: ${err.message}` : 'Unknown error'}`);
-      setEvents([]); // Clear events on error
+      setError('Failed to load events')
+      console.error(err)
     } finally {
-      setIsLoading(false);
-      console.log("Admin Dashboard: fetchDbEvents execution finished.");
+      setIsLoading(false)
     }
-  };
+  }
 
   const fetchFestivals = async () => {
     try {
@@ -380,7 +363,15 @@ export default function AdminDashboard() {
       const response = await fetch('/api/admin/festivals')
       if (!response.ok) throw new Error('Failed to fetch festivals')
       const data = await response.json()
-      setFestivals(data)
+      
+      // Sort festivals by start date (earliest first)
+      const sortedFestivals = data.sort((a: Festival, b: Festival) => {
+        const dateA = new Date(a.startDate).getTime()
+        const dateB = new Date(b.startDate).getTime()
+        return dateA - dateB
+      })
+      
+      setFestivals(sortedFestivals)
     } catch (err) {
       setError('Failed to load festivals')
       console.error(err)
@@ -525,6 +516,29 @@ export default function AdminDashboard() {
     } catch (err) {
       console.error('Failed to delete event:', err)
       setError('Failed to delete event')
+    }
+  }
+
+  const handleToggleEventPublished = async (eventId: string, currentPublished: boolean) => {
+    try {
+      const response = await fetch(`/api/events/${eventId}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          published: !currentPublished,
+        }),
+      })
+
+      if (!response.ok) throw new Error('Failed to update event')
+      
+      // Refresh events list
+      fetchDbEvents()
+      toast.success(`Event ${!currentPublished ? 'published' : 'unpublished'} successfully`)
+    } catch (err) {
+      console.error('Failed to update event:', err)
+      toast.error('Failed to update event')
     }
   }
 
@@ -885,6 +899,16 @@ export default function AdminDashboard() {
                <span className="font-medium">Styles:</span> {event.danceStyles}
              </p>
           )}
+          <p className="text-gray-600">
+            <span className="font-medium">Status:</span>{' '}
+            <span className={`px-2 py-1 rounded text-xs font-medium ${
+              event.published !== false
+                ? 'bg-green-100 text-green-800' 
+                : 'bg-gray-100 text-gray-800'
+            }`}>
+              {event.published !== false ? 'Published' : 'Draft'}
+            </span>
+          </p>
           <div className="flex gap-4 mt-1">
             {event.eventLink && <a href={event.eventLink} target="_blank" rel="noopener noreferrer" className="text-blue-600 text-sm hover:underline">Event Link</a>}
             {event.ticketLink && <a href={event.ticketLink} target="_blank" rel="noopener noreferrer" className="text-blue-600 text-sm hover:underline">Tickets</a>}
@@ -892,7 +916,17 @@ export default function AdminDashboard() {
         </div>
 
         {/* Action Buttons */}
-        <div className="mt-4 flex gap-2">
+        <div className="mt-4 flex gap-2 flex-wrap">
+          <button
+            onClick={() => handleToggleEventPublished(event.id, event.published !== false)}
+            className={`px-2.5 py-1 rounded text-sm font-medium ${
+              event.published !== false
+                ? 'bg-orange-500 text-white hover:bg-orange-600'
+                : 'bg-green-500 text-white hover:bg-green-600'
+            }`}
+          >
+            {event.published !== false ? 'Unpublish' : 'Publish'}
+          </button>
           <button
             onClick={() => router.push(`/admin/events/${event.id}/edit`)}
             className="bg-yellow-500 text-white px-2.5 py-1 rounded hover:bg-yellow-600 text-sm"

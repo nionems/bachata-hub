@@ -16,6 +16,7 @@ export interface Event {
   facebookLink?: string;
   instagramLink?: string;
   websiteLink?: string;
+  published?: boolean;
   createdAt: string;
   updatedAt: string;
 } 

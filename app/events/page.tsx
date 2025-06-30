@@ -39,6 +39,7 @@ interface Event {
   isWeekly?: boolean
   recurrence?: string
   isWorkshop?: boolean
+  published?: boolean
 }
 
 export default function EventsPage() {
@@ -57,19 +58,19 @@ export default function EventsPage() {
       setIsLoading(true)
       setError(null)
       try {
-        const eventsCollection = collection(db, 'events')
-        const eventsSnapshot = await getDocs(eventsCollection)
-        const eventsList = eventsSnapshot.docs.map(doc => ({
-          id: doc.id,
-          ...doc.data()
-        })) as Event[]
+        // Use the public API route that filters for published events only
+        const response = await fetch('/api/events?t=' + Date.now())
+        if (!response.ok) {
+          throw new Error('Failed to fetch events')
+        }
+        const eventsList = await response.json() as Event[]
         
         // Sort events alphabetically by name
         const sortedEvents = eventsList.sort((a, b) => 
           a.name.localeCompare(b.name)
         )
         
-        console.log('Fetched events from Firebase:', sortedEvents)
+        console.log('Fetched published events from API:', sortedEvents)
         setEvents(sortedEvents)
       } catch (err) {
         console.error('Error fetching events:', err)

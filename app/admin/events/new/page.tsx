@@ -23,6 +23,7 @@ interface EventFormData {
   recurrence: string;
   googleMapLink: string;
   isWorkshop: boolean;
+  published: boolean;
 }
 
 export default function NewEventPage() {
@@ -44,7 +45,8 @@ export default function NewEventPage() {
     isWeekly: false,
     recurrence: '',
     googleMapLink: '',
-    isWorkshop: false
+    isWorkshop: false,
+    published: true // Default to published
   });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -161,7 +163,8 @@ export default function NewEventPage() {
       isWeekly: formData.isWeekly,
       recurrence: formData.recurrence,
       googleMapLink: formData.googleMapLink,
-      isWorkshop: formData.isWorkshop
+      isWorkshop: formData.isWorkshop,
+      published: formData.published
     };
 
     console.log("Event Form: Submitting data to /api/events:", eventData);
@@ -380,6 +383,24 @@ export default function NewEventPage() {
             </select>
           </div>
         )}
+
+        {/* Published Status */}
+        <div>
+          <label htmlFor="published" className="block text-sm font-medium text-gray-700 mb-1">Published Status</label>
+          <select
+            id="published"
+            name="published"
+            value={formData.published ? 'true' : 'false'}
+            onChange={(e) => setFormData(prev => ({ ...prev, published: e.target.value === 'true' }))}
+            className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-white"
+          >
+            <option value="true">Published (Visible to public)</option>
+            <option value="false">Draft (Hidden from public)</option>
+          </select>
+          <p className="text-xs text-gray-500 mt-1">
+            Draft events are hidden from the public but can be edited and published later
+          </p>
+        </div>
 
         {/* Submit Button */}
         <div className="pt-4">

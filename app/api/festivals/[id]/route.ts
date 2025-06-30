@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server'
 import { db } from '@/lib/firebase'
 import { doc, getDoc, updateDoc, deleteDoc } from 'firebase/firestore'
 
+export const dynamic = 'force-dynamic'
+
 export async function DELETE(
   request: Request,
   { params }: { params: { id: string } }
@@ -53,15 +55,23 @@ export async function PUT(
   { params }: { params: { id: string } }
 ) {
   try {
+    console.log('PUT request received for festival:', params.id)
     const data = await request.json()
+    console.log('Request data:', data)
+    
     const festivalRef = doc(db, 'festivals', params.id)
     
+    // Remove the id field from the update data since Firestore doesn't allow updating document IDs
+    const { id, ...updateDataWithoutId } = data
+    
     const updateData = {
-      ...data,
+      ...updateDataWithoutId,
       updatedAt: new Date().toISOString()
     }
 
+    console.log('Update data:', updateData)
     await updateDoc(festivalRef, updateData)
+    console.log('Festival updated successfully')
     
     return NextResponse.json({
       id: params.id,
@@ -69,8 +79,9 @@ export async function PUT(
     })
   } catch (error) {
     console.error('Failed to update festival:', error)
+    console.error('Error stack:', error instanceof Error ? error.stack : 'No stack trace')
     return NextResponse.json(
-      { error: 'Failed to update festival' },
+      { error: 'Failed to update festival', details: error instanceof Error ? error.message : 'Unknown error' },
       { status: 500 }
     )
   }
@@ -84,8 +95,11 @@ export async function PATCH(
     const data = await request.json()
     const festivalRef = doc(db, 'festivals', params.id)
     
+    // Remove the id field from the update data since Firestore doesn't allow updating document IDs
+    const { id, ...updateDataWithoutId } = data
+    
     const updateData = {
-      ...data,
+      ...updateDataWithoutId,
       updatedAt: new Date().toISOString()
     }
 
@@ -98,7 +112,7 @@ export async function PATCH(
   } catch (error) {
     console.error('Failed to update festival:', error)
     return NextResponse.json(
-      { error: 'Failed to update festival' },
+      { error: 'Failed to update festival', details: error instanceof Error ? error.message : 'Unknown error' },
       { status: 500 }
     )
   }

@@ -75,7 +75,10 @@ export async function GET() {
       ...doc.data()
     }))
 
-    return NextResponse.json(events)
+    // Filter to only return published events
+    const publishedEvents = events.filter((event: any) => event.published === true)
+
+    return NextResponse.json(publishedEvents)
   } catch (error) {
     console.error('Error fetching events:', error)
     return NextResponse.json(

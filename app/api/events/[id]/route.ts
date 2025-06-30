@@ -66,6 +66,12 @@ export async function GET(
     const eventData = docSnap.data()
     console.log(`API Route (GET /api/events/${eventId}): Successfully fetched event data from Firestore.`)
 
+    // Check if event is published (only return published events to public)
+    if (eventData.published === false) {
+      console.warn(`API Route (GET /api/events/${eventId}): Event is not published, returning 404.`)
+      return NextResponse.json({ error: 'Event not found' }, { status: 404 })
+    }
+
     // Prepare data for the response (ensure it matches the Event interface)
     // Convert Timestamps to strings if necessary, etc.
     const responseData = {
@@ -122,6 +128,42 @@ export async function PUT(
   } catch (error) {
     console.error(`API Route (PUT /api/events/${eventId}): >>> Critical Error <<<`)
     console.error("API Route (PUT): Error:", error)
+    return NextResponse.json({ error: 'Failed to update event', details: error instanceof Error ? error.message : 'Unknown error' }, { status: 500 })
+  }
+}
+
+export async function PATCH(
+  request: Request,
+  { params }: { params: { id: string } }
+) {
+  const eventId = params.id
+  console.log(`API Route (PATCH /api/events/${eventId}): Attempting to update event in Firestore.`)
+
+  try {
+    if (!db || typeof db.collection !== 'function') {
+      throw new Error("Firestore Admin instance is not available or invalid.")
+    }
+
+    const eventData = await request.json()
+    console.log(`API Route (PATCH /api/events/${eventId}): Received update data:`, eventData)
+
+    // Remove the id field from the update data since Firestore doesn't allow updating document IDs
+    const { id, ...updateDataWithoutId } = eventData
+    
+    // Add updatedAt timestamp
+    const updateData = {
+      ...updateDataWithoutId,
+      updatedAt: Timestamp.now()
+    }
+
+    const eventDocRef = db.collection('events').doc(eventId)
+    await eventDocRef.update(updateData)
+
+    console.log(`API Route (PATCH /api/events/${eventId}): Event updated successfully in Firestore.`)
+    return NextResponse.json({ message: 'Event updated successfully' })
+  } catch (error) {
+    console.error(`API Route (PATCH /api/events/${eventId}): >>> Critical Error <<<`)
+    console.error("API Route (PATCH): Error:", error)
     return NextResponse.json({ error: 'Failed to update event', details: error instanceof Error ? error.message : 'Unknown error' }, { status: 500 })
   }
 }

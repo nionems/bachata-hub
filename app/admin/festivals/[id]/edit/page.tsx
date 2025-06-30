@@ -99,10 +99,25 @@ export default function EditFestivalPage({ params }: { params: { id: string } })
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (file) {
+      // Check file size (1MB limit for Firestore)
+      const maxSize = 1024 * 1024 // 1MB in bytes
+      if (file.size > maxSize) {
+        setError('Image file is too large. Please choose an image smaller than 1MB.')
+        return
+      }
+
       const reader = new FileReader()
       reader.onloadend = () => {
-        setImagePreviewUrl(reader.result as string)
-        setFormData({ ...formData, imageUrl: reader.result as string })
+        const result = reader.result as string
+        // Additional check for base64 size (should be roughly 33% larger than file size)
+        if (result.length > 1400000) { // ~1.4MB base64 limit
+          setError('Image file is too large. Please choose an image smaller than 1MB.')
+          return
+        }
+        
+        setImagePreviewUrl(result)
+        setFormData({ ...formData, imageUrl: result })
+        setError(null) // Clear any previous errors
       }
       reader.readAsDataURL(file)
     }
@@ -288,6 +303,9 @@ export default function EditFestivalPage({ params }: { params: { id: string } })
                 name="image"
                 className="w-full p-2 border rounded"
               />
+              <p className="text-xs text-gray-500 mt-1">
+                Maximum file size: 1MB. Larger images will be rejected.
+              </p>
             </div>
             {imagePreviewUrl && (
               <div className="mt-4 p-4 border rounded-lg">
