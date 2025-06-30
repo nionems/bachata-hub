@@ -47,6 +47,7 @@ interface Festival {
   price: string
   danceStyles: string
   imageUrl: string
+  published: boolean
 }
 
 // Add Instructor interface
@@ -376,7 +377,7 @@ export default function AdminDashboard() {
   const fetchFestivals = async () => {
     try {
       setIsLoading(true)
-      const response = await fetch('/api/festivals')
+      const response = await fetch('/api/admin/festivals')
       if (!response.ok) throw new Error('Failed to fetch festivals')
       const data = await response.json()
       setFestivals(data)
@@ -542,6 +543,29 @@ export default function AdminDashboard() {
     } catch (err) {
       console.error('Failed to delete festival:', err)
       setError('Failed to delete festival')
+    }
+  }
+
+  const handleTogglePublished = async (festivalId: string, currentPublished: boolean) => {
+    try {
+      const response = await fetch(`/api/festivals/${festivalId}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          published: !currentPublished,
+        }),
+      })
+
+      if (!response.ok) throw new Error('Failed to update festival')
+      
+      // Refresh festivals list
+      fetchFestivals()
+      toast.success(`Festival ${!currentPublished ? 'published' : 'unpublished'} successfully`)
+    } catch (err) {
+      console.error('Failed to update festival:', err)
+      toast.error('Failed to update festival')
     }
   }
 
@@ -918,10 +942,30 @@ export default function AdminDashboard() {
           <p className="text-gray-600">
             <span className="font-medium">Styles:</span> {festival.danceStyles}
           </p>
+          <p className="text-gray-600">
+            <span className="font-medium">Status:</span>{' '}
+            <span className={`px-2 py-1 rounded text-xs font-medium ${
+              festival.published 
+                ? 'bg-green-100 text-green-800' 
+                : 'bg-gray-100 text-gray-800'
+            }`}>
+              {festival.published ? 'Published' : 'Draft'}
+            </span>
+          </p>
         </div>
 
         {/* Action Buttons */}
-        <div className="mt-4 flex gap-2">
+        <div className="mt-4 flex gap-2 flex-wrap">
+          <button
+            onClick={() => handleTogglePublished(festival.id, festival.published)}
+            className={`px-2.5 py-1 rounded text-sm font-medium ${
+              festival.published
+                ? 'bg-orange-500 text-white hover:bg-orange-600'
+                : 'bg-green-500 text-white hover:bg-green-600'
+            }`}
+          >
+            {festival.published ? 'Unpublish' : 'Publish'}
+          </button>
           <button
             onClick={() => router.push(`/admin/festivals/${festival.id}/edit`)}
             className="bg-yellow-500 text-white px-2.5 py-1 rounded hover:bg-yellow-600 text-sm"
@@ -1208,10 +1252,10 @@ export default function AdminDashboard() {
             ) : (
               <div className={`
                 ${layout === 'grid' 
-                  ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6' 
+                  ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 auto-rows-auto' 
                   : 'flex flex-col gap-4'
                 }
-              `}>
+              `} style={layout === 'grid' ? { gridAutoFlow: 'dense' } : {}}>
                 {festivals.map((festival) => (
                   <FestivalCard key={festival.id} festival={festival} />
                 ))}
@@ -1243,10 +1287,10 @@ export default function AdminDashboard() {
             ) : (
               <div className={`
                 ${layout === 'grid' 
-                  ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6' 
+                  ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 auto-rows-auto' 
                   : 'flex flex-col gap-4'
                 }
-              `}>
+              `} style={layout === 'grid' ? { gridAutoFlow: 'dense' } : {}}>
                 {instructors.map((instructor) => (
                   <div
                     key={instructor.id}
@@ -1358,10 +1402,10 @@ export default function AdminDashboard() {
             ) : (
               <div className={`
                 ${layout === 'grid' 
-                  ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6' 
+                  ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 auto-rows-auto' 
                   : 'flex flex-col gap-4'
                 }
-              `}>
+              `} style={layout === 'grid' ? { gridAutoFlow: 'dense' } : {}}>
                 {djs.map((dj) => (
                   <div
                     key={dj.id}

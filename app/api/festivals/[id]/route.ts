@@ -74,4 +74,32 @@ export async function PUT(
       { status: 500 }
     )
   }
+}
+
+export async function PATCH(
+  request: Request,
+  { params }: { params: { id: string } }
+) {
+  try {
+    const data = await request.json()
+    const festivalRef = doc(db, 'festivals', params.id)
+    
+    const updateData = {
+      ...data,
+      updatedAt: new Date().toISOString()
+    }
+
+    await updateDoc(festivalRef, updateData)
+    
+    return NextResponse.json({
+      id: params.id,
+      ...updateData
+    })
+  } catch (error) {
+    console.error('Failed to update festival:', error)
+    return NextResponse.json(
+      { error: 'Failed to update festival' },
+      { status: 500 }
+    )
+  }
 } 
