@@ -2,6 +2,28 @@ import { NextResponse } from 'next/server'
 import { db } from '@/lib/firebase'
 import { collection, addDoc, getDocs } from 'firebase/firestore'
 
+interface FestivalData {
+  id: string
+  name: string
+  date: string
+  time: string
+  location: string
+  state: string
+  price?: string
+  description?: string
+  imageUrl?: string
+  websiteUrl?: string
+  ticketLink?: string
+  googleMapLink?: string
+  startDate?: string
+  endDate?: string
+  eventLink?: string
+  comment?: string
+  featured?: 'yes' | 'no'
+  published?: boolean
+  [key: string]: any // Allow for additional properties
+}
+
 export async function GET() {
   try {
     const festivalsRef = collection(db, 'festivals')
@@ -10,7 +32,7 @@ export async function GET() {
     const festivals = snapshot.docs.map(doc => ({
       id: doc.id,
       ...doc.data()
-    }))
+    })) as FestivalData[]
 
     // Filter to only show published festivals (published: true or undefined for backward compatibility)
     const publishedFestivals = festivals.filter(festival => 
@@ -29,7 +51,7 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
-    const data = await request.json()
+    const data = await request.json() as Partial<FestivalData>
     
     // Add timestamp and published field to the festival data
     const festivalData = {
