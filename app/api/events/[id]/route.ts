@@ -66,8 +66,15 @@ export async function GET(
     const eventData = docSnap.data()
     console.log(`API Route (GET /api/events/${eventId}): Successfully fetched event data from Firestore.`)
 
+    // Ensure eventData exists
+    if (!eventData) {
+      console.warn(`API Route (GET /api/events/${eventId}): Event data is null/undefined, returning 404.`)
+      return NextResponse.json({ error: 'Event not found' }, { status: 404 })
+    }
+
     // Check if event is published (only return published events to public)
-    if (eventData.published === false) {
+    // Treat undefined as not published (legacy events without published field)
+    if (eventData.published !== true) {
       console.warn(`API Route (GET /api/events/${eventId}): Event is not published, returning 404.`)
       return NextResponse.json({ error: 'Event not found' }, { status: 404 })
     }
