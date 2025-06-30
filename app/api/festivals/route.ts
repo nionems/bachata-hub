@@ -3,6 +3,11 @@ import { db } from '@/lib/firebase-admin'
 
 export const dynamic = 'force-dynamic'
 
+// Simple in-memory cache for festivals
+let festivalsCache: any[] | null = null
+let cacheTimestamp: number = 0
+const CACHE_DURATION = 5 * 60 * 1000 // 5 minutes
+
 interface FestivalData {
   id: string
   name: string
@@ -26,9 +31,22 @@ interface FestivalData {
 }
 
 export async function GET() {
+  const startTime = Date.now()
+  
+  // Check cache first
+  const now = Date.now()
+  if (festivalsCache && (now - cacheTimestamp) < CACHE_DURATION) {
+    console.log(`API Route (GET /api/festivals): Returning cached data. Cache age: ${now - cacheTimestamp}ms`)
+    return NextResponse.json(festivalsCache)
+  }
+  
   try {
+    console.log('API Route (GET /api/festivals): Starting fetch...')
+    
     const festivalsRef = db.collection('festivals')
     const snapshot = await festivalsRef.get()
+    
+    console.log(`API Route (GET /api/festivals): Fetched ${snapshot.docs.length} festivals from Firestore in ${Date.now() - startTime}ms`)
     
     const festivals = snapshot.docs.map(doc => ({
       id: doc.id,
@@ -39,6 +57,12 @@ export async function GET() {
     const publishedFestivals = festivals.filter(festival => 
       festival.published !== false // Show if published is true or undefined
     )
+
+    // Update cache
+    festivalsCache = publishedFestivals
+    cacheTimestamp = now
+
+    console.log(`API Route (GET /api/festivals): Returning ${publishedFestivals.length} published festivals. Total time: ${Date.now() - startTime}ms`)
 
     return NextResponse.json(publishedFestivals)
   } catch (error) {

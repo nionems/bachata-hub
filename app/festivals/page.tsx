@@ -4,7 +4,7 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Calendar, MapPin, DollarSign, Users, Ticket, Hotel, CheckCircle, Info, Clock, ExternalLink, X, Music } from "lucide-react"
-import { useState, useEffect } from "react"
+import { useState, useEffect, useMemo } from "react"
 import CollapsibleFilter from "@/components/collapsible-filter"
 import { StateFilter } from '@/components/StateFilter'
 import { useStateFilter } from '@/hooks/useStateFilter'
@@ -73,8 +73,8 @@ export default function FestivalsPage() {
       setIsLoading(true)
       setError(null)
       try {
-        // Use the API route that filters published festivals with cache busting
-        const response = await fetch('/api/festivals?t=' + Date.now())
+        // Use the API route that filters published festivals
+        const response = await fetch('/api/festivals')
         if (!response.ok) {
           throw new Error('Failed to fetch festivals')
         }
@@ -147,15 +147,18 @@ export default function FestivalsPage() {
     }
   }
 
-  // Filter out past events and sort by date
-  const upcomingFestivals = festivals
-    .filter((festival) => isFutureDate(festival.startDate))
-    .filter((festival) => selectedState === "all" || festival.state === selectedState)
-    .sort((a, b) => getDateSortValue(a.startDate) - getDateSortValue(b.startDate))
+  // Memoize filtering and sorting operations for better performance
+  const { upcomingFestivals, featuredFestivals, regularFestivals } = useMemo(() => {
+    const filtered = festivals
+      .filter((festival) => isFutureDate(festival.startDate))
+      .filter((festival) => selectedState === "all" || festival.state === selectedState)
+      .sort((a, b) => getDateSortValue(a.startDate) - getDateSortValue(b.startDate));
 
-  // Separate featured and regular festivals
-  const featuredFestivals = upcomingFestivals.filter(festival => festival.featured === 'yes')
-  const regularFestivals = upcomingFestivals.filter(festival => festival.featured !== 'yes')
+    const featured = filtered.filter(festival => festival.featured === 'yes');
+    const regular = filtered.filter(festival => festival.featured !== 'yes');
+
+    return { upcomingFestivals: filtered, featuredFestivals: featured, regularFestivals: regular };
+  }, [festivals, selectedState]);
 
   if (isLoading) {
     return (

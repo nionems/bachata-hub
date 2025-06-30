@@ -616,7 +616,6 @@ export function ShopSubmissionForm({ isOpen, onClose }: ShopSubmissionFormProps)
               placeholder="Describe your item: size, material, comfort level, wear history, special features, etc. (e.g., Size 8, leather, worn only twice, very comfortable for dancing)"
             />
           </div>
-
           <div className="flex justify-end gap-2">
             <Button
               type="button"

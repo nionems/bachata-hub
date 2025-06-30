@@ -3,19 +3,41 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { MapPin, Calendar, Clock, Users, Info, ExternalLink, Ticket, Star } from "lucide-react"
 import { Festival } from "@/types/festival"
+import Image from "next/image"
+import { useMemo } from "react"
 
 interface FestivalCardProps {
   festival: Festival;
 }
 
 export function FestivalCard({ festival }: FestivalCardProps) {
+  // Memoize date formatting to avoid repeated calculations
+  const formattedDates = useMemo(() => {
+    const startDate = festival.startDate ? new Date(festival.startDate).toLocaleDateString("en-AU", {
+      day: "numeric",
+      month: "short",
+      year: "numeric",
+    }) : festival.date;
+    
+    const endDate = festival.endDate ? new Date(festival.endDate).toLocaleDateString("en-AU", {
+      day: "numeric",
+      month: "short",
+      year: "numeric",
+    }) : null;
+    
+    return { startDate, endDate };
+  }, [festival.startDate, festival.endDate, festival.date]);
+
   return (
     <Card className="overflow-hidden hover:shadow-lg transition-shadow">
       <div className="h-48 overflow-hidden relative">
-        <img
+        <Image
           src={festival.imageUrl || '/placeholder.svg'}
           alt={festival.name}
-          className="w-full h-full object-cover transition-transform hover:scale-105"
+          fill
+          className="object-cover transition-transform hover:scale-105"
+          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+          priority={false}
         />
         {festival.featured === 'yes' && (
           <div className="absolute top-2 right-2">
@@ -38,19 +60,11 @@ export function FestivalCard({ festival }: FestivalCardProps) {
           <div className="flex items-center gap-2 text-xs">
             <Calendar className="h-3 w-3 text-green-600" />
             <span>
-              {festival.startDate ? new Date(festival.startDate).toLocaleDateString("en-AU", {
-                day: "numeric",
-                month: "short",
-                year: "numeric",
-              }) : festival.date}{" "}
-              {festival.endDate && festival.startDate ? (
+              {formattedDates.startDate}{" "}
+              {formattedDates.endDate && festival.startDate ? (
                 <>
                   –{" "}
-                  {new Date(festival.endDate).toLocaleDateString("en-AU", {
-                    day: "numeric",
-                    month: "short",
-                    year: "numeric",
-                  })}
+                  {formattedDates.endDate}
                 </>
               ) : null}
             </span>

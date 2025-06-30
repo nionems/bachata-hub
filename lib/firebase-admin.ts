@@ -93,7 +93,17 @@ function initializeFirebaseAdmin() {
   }
 }
 
-// Initialize Firebase Admin
-const { db: firestoreDb, storage: firestoreStorage } = initializeFirebaseAdmin();
+// Initialize Firebase Admin only once
+let firestoreDb: Firestore;
+let firestoreStorage: Storage;
+
+try {
+  const { db, storage } = initializeFirebaseAdmin();
+  firestoreDb = db;
+  firestoreStorage = storage;
+} catch (error) {
+  console.error('Failed to initialize Firebase Admin:', error);
+  throw error;
+}
 
 export { firestoreDb as db, firestoreStorage as storage }; 
