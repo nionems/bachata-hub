@@ -19,6 +19,7 @@ interface Festival {
   comment: string
   googleMapLink: string
   featured?: 'yes' | 'no'
+  published?: boolean
 }
 
 const AUSTRALIAN_STATES = [
@@ -51,7 +52,8 @@ export default function EditFestivalPage({ params }: { params: { id: string } })
     imageUrl: '',
     comment: '',
     googleMapLink: '',
-    featured: undefined
+    featured: undefined,
+    published: true
   })
   const [imagePreviewUrl, setImagePreviewUrl] = useState<string | null>(null)
 
@@ -255,6 +257,22 @@ export default function EditFestivalPage({ params }: { params: { id: string } })
           </select>
           <p className="text-xs text-gray-500 mt-1">
             Featured festivals will be highlighted on the website
+          </p>
+        </div>
+
+        {/* Published Status */}
+        <div>
+          <label className="block text-sm font-medium mb-1">Published Status</label>
+          <select
+            value={formData.published ? 'true' : 'false'}
+            onChange={(e) => setFormData({ ...formData, published: e.target.value === 'true' })}
+            className="w-full p-2 border rounded"
+          >
+            <option value="true">Published (Visible to public)</option>
+            <option value="false">Draft (Hidden from public)</option>
+          </select>
+          <p className="text-xs text-gray-500 mt-1">
+            Draft festivals are hidden from the public but can be edited and published later
           </p>
         </div>
 

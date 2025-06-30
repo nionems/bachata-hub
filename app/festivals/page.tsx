@@ -8,8 +8,6 @@ import { useState, useEffect } from "react"
 import CollapsibleFilter from "@/components/collapsible-filter"
 import { StateFilter } from '@/components/StateFilter'
 import { useStateFilter } from '@/hooks/useStateFilter'
-import { collection, getDocs } from 'firebase/firestore'
-import { db } from '../../firebase/config'
 import { FestivalSubmissionForm } from "@/components/FestivalSubmissionForm"
 import { ContactForm } from "@/components/ContactForm"
 import { ImageModal } from "@/components/ImageModal"
@@ -40,6 +38,7 @@ interface Festival {
   endTime: string
   time: string
   featured?: 'yes' | 'no'
+  published?: boolean
 }
 
 export default function FestivalsPage() {
@@ -74,36 +73,15 @@ export default function FestivalsPage() {
       setIsLoading(true)
       setError(null)
       try {
-        const festivalsCollection = collection(db, 'festivals')
-        const festivalsSnapshot = await getDocs(festivalsCollection)
-        const festivalsList = festivalsSnapshot.docs.map(doc => {
-          const data = doc.data()
-          return {
-            id: doc.id,
-            name: data.name || '',
-            startDate: data.startDate || '',
-            endDate: data.endDate || '',
-            location: data.location || '',
-            state: data.state || '',
-            address: data.address || '',
-            eventLink: data.eventLink || '',
-            price: data.price || '',
-            ticketLink: data.ticketLink || '',
-            danceStyles: data.danceStyles || '',
-            imageUrl: data.imageUrl || '',
-            comment: data.comment || '',
-            googleMapLink: data.googleMapLink || '',
-            festivalLink: data.festivalLink || '',
-            date: data.date || '',
-            startTime: data.startTime || '',
-            endTime: data.endTime || '',
-            time: data.time || `${data.startTime || ''} - ${data.endTime || ''}`,
-            featured: data.featured || 'no'
-          } as Festival
-        })
+        // Use the API route that filters published festivals
+        const response = await fetch('/api/festivals')
+        if (!response.ok) {
+          throw new Error('Failed to fetch festivals')
+        }
+        const festivalsList = await response.json()
         
         // Sort festivals alphabetically by name
-        const sortedFestivals = festivalsList.sort((a, b) => 
+        const sortedFestivals = festivalsList.sort((a: Festival, b: Festival) => 
           a.name.localeCompare(b.name)
         )
         

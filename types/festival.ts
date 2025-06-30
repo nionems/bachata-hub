@@ -16,4 +16,5 @@ export interface Festival {
   eventLink?: string;
   comment?: string;
   featured?: 'yes' | 'no';
+  published?: boolean;
 } 

@@ -12,7 +12,12 @@ export async function GET() {
       ...doc.data()
     }))
 
-    return NextResponse.json(festivals)
+    // Filter to only show published festivals (published: true or undefined for backward compatibility)
+    const publishedFestivals = festivals.filter(festival => 
+      festival.published !== false // Show if published is true or undefined
+    )
+
+    return NextResponse.json(publishedFestivals)
   } catch (error) {
     console.error('Failed to fetch festivals:', error)
     return NextResponse.json(
@@ -26,9 +31,10 @@ export async function POST(request: Request) {
   try {
     const data = await request.json()
     
-    // Add timestamp to the festival data
+    // Add timestamp and published field to the festival data
     const festivalData = {
       ...data,
+      published: data.published !== undefined ? data.published : true, // Default to published
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString()
     }

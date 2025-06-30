@@ -18,6 +18,7 @@ interface FestivalFormData {
   comment: string
   googleMapLink: string
   featured: 'yes' | 'no'
+  published: boolean
 }
 
 // List of Australian states and territories
@@ -52,7 +53,8 @@ export default function NewFestivalPage() {
     imageUrl: '',
     comment: '',
     googleMapLink: '',
-    featured: 'no'
+    featured: 'no',
+    published: true
   })
 
   const handleImageUpload = async (file: File): Promise<string> => {
@@ -293,6 +295,23 @@ export default function NewFestivalPage() {
           </select>
           <p className="text-xs text-gray-500 mt-1">
             Featured festivals will be highlighted on the website
+          </p>
+        </div>
+
+        {/* Published Status */}
+        <div>
+          <label className="block text-sm font-medium mb-1">Published Status</label>
+          <select
+            value={formData.published ? 'true' : 'false'}
+            onChange={(e) => setFormData(prev => ({ ...prev, published: e.target.value === 'true' }))}
+            name="published"
+            className="w-full p-2 border rounded"
+          >
+            <option value="true">Published (Visible to public)</option>
+            <option value="false">Draft (Hidden from public)</option>
+          </select>
+          <p className="text-xs text-gray-500 mt-1">
+            Draft festivals are hidden from the public but can be edited and published later
           </p>
         </div>
 

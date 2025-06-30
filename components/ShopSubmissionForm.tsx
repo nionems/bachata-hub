@@ -599,7 +599,7 @@ export function ShopSubmissionForm({ isOpen, onClose }: ShopSubmissionFormProps)
               type="url"
               value={formData.googleMapLink}
               onChange={handleInputChange}
-              placeholder="for shops only not mandatory"
+              placeholder="for shops only not mandatorynpm "
               className="bg-white/80 backdrop-blur-sm rounded-lg"
             />
           </div>
