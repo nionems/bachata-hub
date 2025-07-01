@@ -32,35 +32,26 @@ interface FestivalData {
 
 export async function GET() {
   const startTime = Date.now()
-  
-  // Check cache first
-  const now = Date.now()
-  if (festivalsCache && (now - cacheTimestamp) < CACHE_DURATION) {
-    console.log(`API Route (GET /api/festivals): Returning cached data. Cache age: ${now - cacheTimestamp}ms`)
-    return NextResponse.json(festivalsCache)
-  }
-  
   try {
-    console.log('API Route (GET /api/festivals): Starting fetch...')
-    
-    const festivalsRef = db.collection('festivals')
+    // Check cache
+    if (festivalsCache && Date.now() - cacheTimestamp < CACHE_DURATION) {
+      console.log('API Route (GET /api/festivals): Returning cached festivals. Time:', Date.now() - startTime, 'ms')
+      return NextResponse.json(festivalsCache)
+    }
+
+    // Query only published festivals
+    const festivalsRef = db.collection('festivals').where('published', '==', true)
     const snapshot = await festivalsRef.get()
-    
-    console.log(`API Route (GET /api/festivals): Fetched ${snapshot.docs.length} festivals from Firestore in ${Date.now() - startTime}ms`)
-    
-    const festivals = snapshot.docs.map(doc => ({
+    console.log(`API Route (GET /api/festivals): Fetched ${snapshot.docs.length} published festivals from Firestore in ${Date.now() - startTime}ms`)
+
+    const publishedFestivals = snapshot.docs.map(doc => ({
       id: doc.id,
       ...doc.data()
-    })) as FestivalData[]
-
-    // Filter to only show published festivals (published: true or undefined for backward compatibility)
-    const publishedFestivals = festivals.filter(festival => 
-      festival.published !== false // Show if published is true or undefined
-    )
+    }))
 
     // Update cache
     festivalsCache = publishedFestivals
-    cacheTimestamp = now
+    cacheTimestamp = Date.now()
 
     console.log(`API Route (GET /api/festivals): Returning ${publishedFestivals.length} published festivals. Total time: ${Date.now() - startTime}ms`)
 
