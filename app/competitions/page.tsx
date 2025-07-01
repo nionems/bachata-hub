@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Calendar, MapPin, Users, Trophy, Clock } from "lucide-react"
+import { Calendar, MapPin, Users, Trophy, Clock, Search } from "lucide-react"
 import Link from "next/link"
 import { StateFilter } from '@/components/StateFilter'
 import { useStateFilter } from '@/hooks/useStateFilter'
@@ -14,6 +14,7 @@ import { collection, getDocs } from 'firebase/firestore'
 import { db } from '@/lib/firebase'
 import { LoadingSpinner } from '@/components/loading-spinner'
 import { CompetitionSubmissionForm } from '@/components/CompetitionSubmissionForm'
+import { Input } from "@/components/ui/input"
 
 export default function CompetitionsPage() {
   const [competitions, setCompetitions] = useState<Competition[]>([])
@@ -21,8 +22,14 @@ export default function CompetitionsPage() {
   const [error, setError] = useState<string | null>(null)
   const [expandedComments, setExpandedComments] = useState<Record<string, boolean>>({})
   const [isSubmissionFormOpen, setIsSubmissionFormOpen] = useState(false)
+  const [searchTerm, setSearchTerm] = useState("")
   
   const { selectedState, setSelectedState, filteredItems: filteredCompetitions } = useStateFilter(competitions, { useGeolocation: false })
+
+  // Filter competitions based on search term
+  const searchFilteredCompetitions = filteredCompetitions.filter(competition =>
+    competition.name.toLowerCase().includes(searchTerm.toLowerCase())
+  )
 
   const toggleComment = (id: string) => {
     setExpandedComments(prev => ({
@@ -90,10 +97,29 @@ export default function CompetitionsPage() {
         </div>
 
         <div className="mb-4 sm:mb-8">
-          <StateFilter
-            selectedState={selectedState}
-            onChange={setSelectedState}
-          />
+          <div className="flex flex-col sm:flex-row gap-0 sm:gap-4">
+            <StateFilter
+              selectedState={selectedState}
+              onChange={setSelectedState}
+            />
+            <div className="flex gap-2 w-full sm:w-auto -mt-1 sm:mt-0">
+              <Input
+                type="text"
+                placeholder="Search competitions..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full sm:w-[200px] bg-white border-gray-200 focus:border-primary focus:ring-primary rounded-md"
+              />
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={() => setSearchTerm("")}
+                className="shrink-0 border-gray-200 hover:bg-gray-50 hover:text-primary rounded-md"
+              >
+                <Search className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
         </div>
 
         <Tabs defaultValue="upcoming" className="w-full">
@@ -103,8 +129,8 @@ export default function CompetitionsPage() {
           </TabsList>
 
           <TabsContent value="upcoming" className="w-full">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
-              {filteredCompetitions
+            <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-4 md:gap-6">
+              {searchFilteredCompetitions
                 .filter(comp => comp.status === 'Upcoming')
                 .map((competition) => (
                   <CompetitionCard key={competition.id} competition={competition} />
@@ -113,8 +139,8 @@ export default function CompetitionsPage() {
           </TabsContent>
 
           <TabsContent value="past" className="w-full">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
-              {filteredCompetitions
+            <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-4 md:gap-6">
+              {searchFilteredCompetitions
                 .filter(comp => comp.status === 'Completed')
                 .map((competition) => (
                   <CompetitionCard key={competition.id} competition={competition} />
