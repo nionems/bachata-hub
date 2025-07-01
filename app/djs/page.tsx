@@ -3,7 +3,7 @@
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
-import { Calendar, MapPin, DollarSign, Users, Ticket, Hotel, CheckCircle, Info, Clock, ExternalLink, Instagram, Facebook, Music } from "lucide-react"
+import { Calendar, MapPin, DollarSign, Users, Ticket, Hotel, CheckCircle, Info, Clock, ExternalLink, Instagram, Facebook, Music, Search } from "lucide-react"
 import { useState, useEffect } from "react"
 import CollapsibleFilter from "@/components/collapsible-filter"
 import { StateFilter } from '@/components/StateFilter'
@@ -19,6 +19,7 @@ import { DJCard } from '@/components/DJCard'
 import { GridSkeleton } from '@/components/loading-skeleton'
 import { toast } from '@/components/ui/use-toast'
 import { Dj } from '@/types/dj'
+import { Input } from "@/components/ui/input"
 
 export default function DJsPage() {
   const [djs, setDJs] = useState<Dj[]>([])
@@ -28,8 +29,14 @@ export default function DJsPage() {
   const [isContactFormOpen, setIsContactFormOpen] = useState(false)
   const [selectedImage, setSelectedImage] = useState<{ url: string; title: string } | null>(null)
   const [expandedComments, setExpandedComments] = useState<Record<string, boolean>>({})
+  const [searchTerm, setSearchTerm] = useState("")
   
   const { selectedState, setSelectedState, filteredItems: filteredDJs, isGeoLoading } = useStateFilter(djs, { useGeolocation: true })
+
+  // Filter DJs based on search term
+  const searchFilteredDJs = filteredDJs.filter(dj =>
+    dj.name.toLowerCase().includes(searchTerm.toLowerCase())
+  )
 
   useEffect(() => {
     const fetchDJs = async () => {
@@ -85,11 +92,30 @@ export default function DJsPage() {
             </p>
           </div>
           <div className="mb-4 sm:mb-8">
-            <StateFilter
-              selectedState={selectedState}
-              onChange={setSelectedState}
-              isLoading={isGeoLoading}
-            />
+            <div className="flex flex-col sm:flex-row gap-0 sm:gap-4">
+              <StateFilter
+                selectedState={selectedState}
+                onChange={setSelectedState}
+                isLoading={isGeoLoading}
+              />
+              <div className="flex gap-2 w-full sm:w-auto -mt-1 sm:mt-0">
+                <Input
+                  type="text"
+                  placeholder="Search DJs..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-full sm:w-[200px] bg-white border-gray-200 focus:border-primary focus:ring-primary rounded-md"
+                />
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={() => setSearchTerm("")}
+                  className="shrink-0 border-gray-200 hover:bg-gray-50 hover:text-primary rounded-md"
+                >
+                  <Search className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
           </div>
           <GridSkeleton count={6} />
         </div>
@@ -127,20 +153,39 @@ export default function DJsPage() {
         </div>
 
         <div className="mb-4 sm:mb-8">
-          <StateFilter
-            selectedState={selectedState}
-            onChange={setSelectedState}
-            isLoading={isGeoLoading}
-          />
+          <div className="flex flex-col sm:flex-row gap-0 sm:gap-4">
+            <StateFilter
+              selectedState={selectedState}
+              onChange={setSelectedState}
+              isLoading={isGeoLoading}
+            />
+            <div className="flex gap-2 w-full sm:w-auto -mt-1 sm:mt-0">
+              <Input
+                type="text"
+                placeholder="Search DJs..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full sm:w-[200px] bg-white border-gray-200 focus:border-primary focus:ring-primary rounded-md"
+              />
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={() => setSearchTerm("")}
+                className="shrink-0 border-gray-200 hover:bg-gray-50 hover:text-primary rounded-md"
+              >
+                <Search className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 md:gap-8">
-          {filteredDJs.length === 0 ? (
+        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-4 md:gap-6">
+          {searchFilteredDJs.length === 0 ? (
             <div className="col-span-full text-center py-6 sm:py-8 text-gray-500">
               No DJs found {selectedState !== 'all' && `in ${selectedState}`}
             </div>
           ) : (
-            filteredDJs.map((dj) => (
+            searchFilteredDJs.map((dj) => (
               <DJCard key={dj.id} dj={dj} />
             ))
           )}
