@@ -114,7 +114,7 @@ export default function EventsPage() {
         />
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-4 md:gap-6">
           {filteredEvents.length === 0 ? (
             <div className="col-span-full text-center py-8 text-gray-500">
               No events found {selectedState !== 'all' && `in ${selectedState}`}
@@ -128,18 +128,18 @@ export default function EventsPage() {
               >
                 {/* Weekly Event Sticker */}
                 {event.isWeekly && (
-                  <div className="absolute top-3 right-3 z-20 bg-primary text-white text-xs font-semibold px-2 py-1 rounded-md shadow-lg">
+                  <div className="absolute top-2 right-2 z-20 bg-white/20 backdrop-blur-md border border-white/30 text-white text-xs font-medium px-3 py-1.5 rounded-full shadow-lg">
                     {event.recurrence && event.recurrence.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
                   </div>
                 )}
 
                 {/* Dance Style Stickers */}
                 {event.danceStyles && (
-                  <div className="absolute top-12 right-3 z-20 flex flex-col gap-1">
+                  <div className="absolute top-10 right-2 z-20 flex flex-col gap-1.5">
                     {event.danceStyles.split(',').map((style, index) => (
                       <div 
                         key={index}
-                        className="bg-primary/80 text-white text-xs font-semibold px-2 py-1 rounded-md shadow-lg"
+                        className="bg-black/40 backdrop-blur-md border border-white/20 text-white text-xs font-medium px-2.5 py-1 rounded-full shadow-lg"
                       >
                         {style.trim()}
                       </div>
@@ -149,8 +149,18 @@ export default function EventsPage() {
 
                 {/* Workshop Sticker */}
                 {event.isWorkshop && (
-                  <div className="absolute top-20 right-3 z-20 bg-yellow-500 text-black text-xs font-semibold px-2 py-1 rounded-md shadow-lg">
+                  <div className="absolute top-16 right-2 z-20 bg-primary/80 backdrop-blur-md border border-primary/50 text-white text-xs font-medium px-3 py-1.5 rounded-full shadow-lg">
                     + Workshop
+                  </div>
+                )}
+
+                {/* Price Badge - Bottom Right */}
+                {event.price && (
+                  <div className="absolute bottom-2 right-2 z-20 bg-gradient-to-r from-yellow-300 via-yellow-400 to-yellow-500 text-gray-800 px-2 py-1 rounded-lg text-xs font-bold shadow-xl transform -rotate-3 hover:rotate-0 hover:scale-110 transition-all duration-300 border-2 border-yellow-200 opacity-85 hover:opacity-100">
+                    <div className="flex items-center gap-1 relative">
+                      <span className="drop-shadow-sm">{event.price}</span>
+                    </div>
+                    <div className="absolute inset-0 bg-gradient-to-r from-white/40 to-transparent rounded-lg opacity-50"></div>
                   </div>
                 )}
 
@@ -159,7 +169,7 @@ export default function EventsPage() {
                 <img
                   src={event.imageUrl}
                   alt={event.name}
-                    className="w-full h-full object-cover object-center"
+                    className="w-full h-full object-cover object-center transition-transform hover:scale-102"
                 />
                 </div>
 
@@ -169,14 +179,9 @@ export default function EventsPage() {
                 {/* Bottom compact content */}
                 <div className="absolute bottom-0 left-0 right-0 z-20 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-3 sm:p-4">
                   <h3 className="text-base sm:text-lg font-semibold">{event.name}</h3>
-                  <div className="flex items-center gap-2 text-xs sm:text-sm text-gray-200 mt-1">
-                    <MapPin className="h-3 w-3 sm:h-4 sm:w-4" />
-                    {event.location}
-                    {event.price && (
-                      <span className="bg-yellow-500 text-black text-xs font-semibold px-2 py-0.5 rounded ml-2">
-                        {event.price}
-                      </span>
-                    )}
+                  <div className="flex items-center gap-2 text-[10px] text-gray-200 mt-1">
+                    <MapPin className="h-3 w-3 flex-shrink-0" />
+                    <span className="truncate">{event.location}</span>
                   </div>
                   {event.comment && (
                     <div className="mt-1">
@@ -206,35 +211,31 @@ export default function EventsPage() {
                       )}
                   </div>
                   )}
-                  <div className="flex flex-col gap-1 mt-2">
-                    <div className="grid grid-cols-2 gap-1">
-                      {event.eventLink && (
-                        <Button
-                          variant="outline"
-                          className="w-full border-primary text-primary hover:bg-primary/10 text-xs h-7 sm:h-8 flex items-center justify-center gap-2"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            window.open(event.eventLink, '_blank');
-                          }}
-                        >
-                          <ExternalLink className="h-3 w-3 sm:h-4 sm:w-4" />
-                          <span>Event Link</span>
-                        </Button>
-                      )}
-                      {event.googleMapLink && (
-                        <Button
-                          variant="outline"
-                          className="w-full border-primary text-primary hover:bg-primary/10 text-xs h-7 sm:h-8 flex items-center justify-center gap-2"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            window.open(event.googleMapLink, '_blank');
-                          }}
-                        >
-                          <MapPin className="h-3 w-3 sm:h-4 sm:w-4" />
-                          <span>View on Map</span>
-                        </Button>
-                      )}
-                    </div>
+                  <div className="flex gap-2 mt-2">
+                    {event.eventLink && (
+                      <button
+                        className="p-1.5 bg-primary/20 hover:bg-primary/30 text-primary rounded-full transition-colors duration-200"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          window.open(event.eventLink, '_blank');
+                        }}
+                        title="Event Link"
+                      >
+                        <ExternalLink className="h-4 w-4" />
+                      </button>
+                    )}
+                    {event.googleMapLink && (
+                      <button
+                        className="p-1.5 bg-primary/20 hover:bg-primary/30 text-primary rounded-full transition-colors duration-200"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          window.open(event.googleMapLink, '_blank');
+                        }}
+                        title="View on Map"
+                      >
+                        <MapPin className="h-4 w-4" />
+                      </button>
+                    )}
                   </div>
                 </div>
               </Card>
