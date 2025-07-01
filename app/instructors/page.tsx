@@ -18,6 +18,8 @@ import { Badge } from "@/components/ui/badge"
 import { InstructorCard } from '@/components/InstructorCard'
 import { Instructor } from '@/types/instructor'
 import { LoadingSpinner } from '@/components/loading-spinner'
+import { Input } from "@/components/ui/input"
+import { Search } from "lucide-react"
 
 export default function InstructorsPage() {
   const [instructors, setInstructors] = useState<Instructor[]>([])
@@ -25,8 +27,14 @@ export default function InstructorsPage() {
   const [error, setError] = useState<string | null>(null)
   const [isSubmissionFormOpen, setIsSubmissionFormOpen] = useState(false)
   const [isContactFormOpen, setIsContactFormOpen] = useState(false)
+  const [searchTerm, setSearchTerm] = useState("")
   
   const { selectedState, setSelectedState, filteredItems: filteredInstructors, isGeoLoading } = useStateFilter(instructors, { useGeolocation: true })
+
+  // Filter instructors based on search term
+  const searchFilteredInstructors = filteredInstructors.filter(instructor =>
+    instructor.name.toLowerCase().includes(searchTerm.toLowerCase())
+  )
 
   useEffect(() => {
     const fetchInstructors = async () => {
@@ -96,20 +104,39 @@ export default function InstructorsPage() {
         </div>
 
         <div className="mb-4 sm:mb-8">
-          <StateFilter
-            selectedState={selectedState}
-            onChange={setSelectedState}
-            isLoading={isGeoLoading}
-          />
+          <div className="flex flex-col sm:flex-row gap-0 sm:gap-4">
+            <StateFilter
+              selectedState={selectedState}
+              onChange={setSelectedState}
+              isLoading={isGeoLoading}
+            />
+            <div className="flex gap-2 w-full sm:w-auto -mt-1 sm:mt-0">
+              <Input
+                type="text"
+                placeholder="Search instructors..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full sm:w-[200px] bg-white border-gray-200 focus:border-primary focus:ring-primary rounded-md"
+              />
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={() => setSearchTerm("")}
+                className="shrink-0 border-gray-200 hover:bg-gray-50 hover:text-primary rounded-md"
+              >
+                <Search className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 md:gap-8">
-          {filteredInstructors.length === 0 ? (
+        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-4 md:gap-6">
+          {searchFilteredInstructors.length === 0 ? (
             <div className="col-span-full text-center py-6 sm:py-8 text-gray-500">
               No instructors found {selectedState !== 'all' && `in ${selectedState}`}
             </div>
           ) : (
-            filteredInstructors.map((instructor) => (
+            searchFilteredInstructors.map((instructor) => (
               <InstructorCard key={instructor.id} instructor={instructor} />
             ))
           )}
