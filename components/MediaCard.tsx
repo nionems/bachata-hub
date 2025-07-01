@@ -28,7 +28,7 @@ export function MediaCard({ media, layout = 'grid', onDelete, isAdmin = false }:
   return (
     <>
       <Card className={`relative overflow-hidden group cursor-pointer ${
-        layout === 'grid' ? 'h-[400px]' : 'h-auto'
+        layout === 'grid' ? 'h-[300px]' : 'h-auto'
       }`}>
         <div 
           className={`relative cursor-pointer ${
@@ -39,11 +39,13 @@ export function MediaCard({ media, layout = 'grid', onDelete, isAdmin = false }:
           <img
             src={media.imageUrl}
             alt={media.name}
-            className="object-cover w-full h-full"
+            className="object-cover w-full h-full transition-transform hover:scale-102"
           />
           <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
-          <div className="absolute top-3 right-3 bg-black/60 backdrop-blur-sm px-3 py-1.5 rounded-full z-10">
-            <span className="text-sm text-white/90 font-medium">DM for booking</span>
+          
+          {/* Media Name Sticker - Top Center */}
+          <div className="absolute top-3 left-1/2 transform -translate-x-1/2 z-20 bg-gradient-to-r from-primary/60 via-primary/50 to-primary/60 backdrop-blur-md border border-white/30 text-white text-xs font-bold px-4 py-1.5 shadow-2xl max-w-[calc(100%-0.5rem)] hover:shadow-primary/25 transition-all duration-300 rounded-full">
+            <span className="truncate block drop-shadow-sm">{media.name}</span>
           </div>
         </div>
 
@@ -52,23 +54,27 @@ export function MediaCard({ media, layout = 'grid', onDelete, isAdmin = false }:
             ? 'absolute bottom-0 left-0 right-0 z-20 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-3 sm:p-4'
             : 'p-4'
         }`}>
-          <h3 className="text-base sm:text-lg font-bold text-white line-clamp-1">{media.name}</h3>
-          <div className="flex items-center gap-2 text-xs sm:text-sm text-gray-200 mt-1">
-            <MapPin className="h-3 w-3 sm:h-4 sm:w-4" />
-            {media.location}, {media.state}
+          <div className="flex items-center gap-2 text-[10px] text-gray-200 mt-1">
+            <MapPin className="h-3 w-3 flex-shrink-0" />
+            <span className="truncate">{media.location}, {media.state}</span>
+            <div className="bg-black/60 backdrop-blur-sm px-1.5 py-0.5 rounded-full">
+              <span className="text-[8px] text-white/90">
+                DM for booking
+              </span>
+            </div>
           </div>
           {media.comment && (
-            <div className="mt-1">
-              <div className={`text-xs sm:text-sm text-gray-300 ${!isCommentExpanded ? 'line-clamp-2' : ''}`}>
+            <div className="mt-1 relative">
+              <div className={`text-xs sm:text-sm text-gray-300 ${!isCommentExpanded ? 'line-clamp-1' : 'max-h-32 overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-white/20 scrollbar-track-transparent border-r border-white/10'}`}>
                 {media.comment}
               </div>
-              {media.comment.length > 100 && (
+              {media.comment.length > 50 && (
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
                     setIsCommentExpanded(!isCommentExpanded);
                   }}
-                  className="text-primary hover:text-primary/80 text-xs mt-1 flex items-center gap-1"
+                  className="text-primary hover:text-primary/80 text-xs mt-1 flex items-center gap-1 transition-colors duration-200"
                 >
                   {isCommentExpanded ? (
                     <>
@@ -76,23 +82,24 @@ export function MediaCard({ media, layout = 'grid', onDelete, isAdmin = false }:
                     </>
                   ) : (
                     <>
-                      Read More <ChevronDown className="h-3 w-3" />
+                      Show More <ChevronDown className="h-3 w-3" />
                     </>
                   )}
                 </button>
               )}
             </div>
           )}
-          <div className="flex gap-4 mt-3 sm:mt-2">
+          <div className="flex gap-2 mt-3 sm:mt-2">
             {media.mediaLink && (
               <a
                 href={media.mediaLink}
                 target="_blank"
                 rel="noopener noreferrer"
                 onClick={(e) => e.stopPropagation()}
-                className="text-white hover:text-primary transition-colors p-1"
+                className="p-1.5 bg-primary/20 hover:bg-primary/30 text-primary rounded-full transition-colors duration-200"
+                title="Media"
               >
-                <ExternalLink className="h-6 w-6 sm:h-5 sm:w-5" />
+                <ExternalLink className="h-4 w-4" />
               </a>
             )}
             {media.instagramLink && (
@@ -101,9 +108,10 @@ export function MediaCard({ media, layout = 'grid', onDelete, isAdmin = false }:
                 target="_blank"
                 rel="noopener noreferrer"
                 onClick={(e) => e.stopPropagation()}
-                className="text-white hover:text-primary transition-colors p-1"
+                className="p-1.5 bg-primary/20 hover:bg-primary/30 text-primary rounded-full transition-colors duration-200"
+                title="Instagram"
               >
-                <Instagram className="h-6 w-6 sm:h-5 sm:w-5" />
+                <Instagram className="h-4 w-4" />
               </a>
             )}
             {media.facebookLink && (
@@ -112,18 +120,20 @@ export function MediaCard({ media, layout = 'grid', onDelete, isAdmin = false }:
                 target="_blank"
                 rel="noopener noreferrer"
                 onClick={(e) => e.stopPropagation()}
-                className="text-white hover:text-primary transition-colors p-1"
+                className="p-1.5 bg-primary/20 hover:bg-primary/30 text-primary rounded-full transition-colors duration-200"
+                title="Facebook"
               >
-                <Facebook className="h-6 w-6 sm:h-5 sm:w-5" />
+                <Facebook className="h-4 w-4" />
               </a>
             )}
             {media.emailLink && (
               <a
                 href={`mailto:${media.emailLink}`}
                 onClick={(e) => e.stopPropagation()}
-                className="text-white hover:text-primary transition-colors p-1"
+                className="p-1.5 bg-primary/20 hover:bg-primary/30 text-primary rounded-full transition-colors duration-200"
+                title="Email"
               >
-                <Mail className="h-6 w-6 sm:h-5 sm:w-5" />
+                <Mail className="h-4 w-4" />
               </a>
             )}
           </div>
@@ -151,6 +161,11 @@ export function MediaCard({ media, layout = 'grid', onDelete, isAdmin = false }:
             </div>
           )}
         </div>
+
+        {/* Darker overlay when comment is expanded */}
+        {isCommentExpanded && media.comment && layout === 'grid' && (
+          <div className="absolute inset-0 bg-black/60 z-15" />
+        )}
       </Card>
 
       {/* Image Modal */}

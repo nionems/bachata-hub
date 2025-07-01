@@ -12,6 +12,8 @@ import { MediaCard } from '@/components/MediaCard'
 import { ContactForm } from "@/components/ContactForm"
 import { MediaSubmissionForm } from "@/components/MediaSubmissionForm"
 import { GridSkeleton } from "@/components/loading-skeleton"
+import { Input } from "@/components/ui/input"
+import { Search } from "lucide-react"
 
 export default function MediaPage() {
   const [mediaList, setMediaList] = useState<Media[]>([])
@@ -19,8 +21,14 @@ export default function MediaPage() {
   const [error, setError] = useState<string | null>(null)
   const [isSubmissionFormOpen, setIsSubmissionFormOpen] = useState(false)
   const [isContactFormOpen, setIsContactFormOpen] = useState(false)
+  const [searchTerm, setSearchTerm] = useState("")
   
   const { selectedState, setSelectedState, filteredItems: filteredMedia, isGeoLoading } = useStateFilter(mediaList, { useGeolocation: true })
+
+  // Filter media based on search term
+  const searchFilteredMedia = filteredMedia.filter(media =>
+    media.name.toLowerCase().includes(searchTerm.toLowerCase())
+  )
 
   useEffect(() => {
     const fetchMedia = async () => {
@@ -64,11 +72,30 @@ export default function MediaPage() {
             </p>
           </div>
           <div className="mb-4 sm:mb-8">
-            <StateFilter
-              selectedState={selectedState}
-              onChange={setSelectedState}
-              isLoading={isGeoLoading}
-            />
+            <div className="flex flex-col sm:flex-row gap-0 sm:gap-4">
+              <StateFilter
+                selectedState={selectedState}
+                onChange={setSelectedState}
+                isLoading={isGeoLoading}
+              />
+              <div className="flex gap-2 w-full sm:w-auto -mt-1 sm:mt-0">
+                <Input
+                  type="text"
+                  placeholder="Search media..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-full sm:w-[200px] bg-white border-gray-200 focus:border-primary focus:ring-primary rounded-md"
+                />
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={() => setSearchTerm("")}
+                  className="shrink-0 border-gray-200 hover:bg-gray-50 hover:text-primary rounded-md"
+                >
+                  <Search className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
           </div>
           <GridSkeleton count={6} />
         </div>
@@ -106,20 +133,39 @@ export default function MediaPage() {
         </div>
 
         <div className="mb-4 sm:mb-8">
-          <StateFilter
-            selectedState={selectedState}
-            onChange={setSelectedState}
-            isLoading={isGeoLoading}
-          />
+          <div className="flex flex-col sm:flex-row gap-0 sm:gap-4">
+            <StateFilter
+              selectedState={selectedState}
+              onChange={setSelectedState}
+              isLoading={isGeoLoading}
+            />
+            <div className="flex gap-2 w-full sm:w-auto -mt-1 sm:mt-0">
+              <Input
+                type="text"
+                placeholder="Search media..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full sm:w-[200px] bg-white border-gray-200 focus:border-primary focus:ring-primary rounded-md"
+              />
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={() => setSearchTerm("")}
+                className="shrink-0 border-gray-200 hover:bg-gray-50 hover:text-primary rounded-md"
+              >
+                <Search className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 md:gap-8">
-          {filteredMedia.length === 0 ? (
+        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-4 md:gap-6">
+          {searchFilteredMedia.length === 0 ? (
             <div className="col-span-full text-center py-6 sm:py-8 text-gray-500">
               No media found {selectedState !== 'all' && `in ${selectedState}`}
             </div>
           ) : (
-            filteredMedia.map((media) => (
+            searchFilteredMedia.map((media) => (
               <MediaCard key={media.id} media={media} />
             ))
           )}
