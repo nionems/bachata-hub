@@ -39,13 +39,21 @@ export function MediaCard({ media, layout = 'grid', onDelete, isAdmin = false }:
           <img
             src={media.imageUrl}
             alt={media.name}
-            className="object-cover w-full h-full transition-transform hover:scale-102"
+            className="object-cover object-top w-full h-full transition-transform hover:scale-105"
+            style={{ objectPosition: 'center 20%' }}
           />
           <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
           
           {/* Media Name Sticker - Top on mobile, Bottom on desktop */}
-          <div className="absolute top-1 sm:top-auto sm:bottom-3 left-1/2 transform -translate-x-1/2 z-20 bg-gradient-to-r from-primary/60 via-primary/50 to-primary/60 backdrop-blur-md border border-white/30 text-white text-xs font-bold px-4 py-1.5 shadow-2xl max-w-[calc(100%-0.5rem)] hover:shadow-primary/25 transition-all duration-300 rounded-full">
+          <div className="absolute top-1 sm:top-auto sm:bottom-3 left-1/2 transform -translate-x-1/2 z-20 bg-gradient-to-r from-primary/60 via-primary/50 to-primary/60 backdrop-blur-md border border-white/30 text-white text-xs sm:text-base font-bold px-3 py-1 shadow-2xl max-w-[calc(100%-0.5rem)] hover:shadow-primary/25 transition-all duration-300 rounded-full">
             <span className="truncate block drop-shadow-sm">{media.name}</span>
+          </div>
+          
+          {/* DM for booking badge - Desktop only (top right) */}
+          <div className="absolute top-3 right-3 bg-black/60 backdrop-blur-sm px-2 py-1 rounded-full z-10 hidden sm:block">
+            <span className="text-xs text-white/90 font-medium">
+              DM for booking
+            </span>
           </div>
         </div>
 
@@ -57,7 +65,7 @@ export function MediaCard({ media, layout = 'grid', onDelete, isAdmin = false }:
           <div className="flex items-center gap-2 text-[10px] text-gray-200 mt-1">
             <MapPin className="h-3 w-3 flex-shrink-0" />
             <span className="truncate">{media.location}, {media.state}</span>
-            <div className="bg-black/60 backdrop-blur-sm px-1.5 py-0.5 rounded-full">
+            <div className="bg-black/60 backdrop-blur-sm px-1.5 py-0.5 rounded-full sm:hidden">
               <span className="text-[8px] text-white/90">
                 DM for booking
               </span>

@@ -22,7 +22,7 @@ export function SchoolCard({ school }: SchoolCardProps) {
 
   return (
     <>
-      <Card className="relative overflow-hidden group cursor-pointer h-[400px]">
+      <Card className="relative overflow-hidden group cursor-pointer h-[300px] sm:h-[400px]">
         <div 
           className="relative h-full cursor-pointer"
           onClick={handleImageClick}
@@ -34,13 +34,8 @@ export function SchoolCard({ school }: SchoolCardProps) {
           />
           <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
           
-          {/* School Name Sticker - Mobile (top) */}
-          <div className="absolute top-1 left-1/2 transform -translate-x-1/2 z-20 bg-gradient-to-r from-primary/60 via-primary/50 to-primary/60 backdrop-blur-md border border-white/30 text-white text-xs font-bold px-4 py-1.5 shadow-2xl max-w-[calc(100%-0.5rem)] hover:shadow-primary/25 transition-all duration-300 rounded-full sm:hidden">
-            <span className="truncate block drop-shadow-sm">{school.name}</span>
-          </div>
-          
-          {/* School Name Sticker - Desktop (bottom) */}
-          <div className="absolute bottom-3 left-1/2 transform -translate-x-1/2 z-20 bg-gradient-to-r from-primary/60 via-primary/50 to-primary/60 backdrop-blur-md border border-white/30 text-white text-sm font-bold px-4 py-1.5 shadow-2xl max-w-[calc(100%-0.5rem)] hover:shadow-primary/25 transition-all duration-300 rounded-full hidden sm:block">
+          {/* School Name Sticker - Top on mobile, Bottom on desktop */}
+          <div className="absolute top-0.5 sm:top-auto sm:bottom-4 left-1/2 transform -translate-x-1/2 z-30 bg-gradient-to-r from-primary/60 via-primary/50 to-primary/60 backdrop-blur-md border border-white/30 text-white text-xs sm:text-base font-bold px-3 py-1 shadow-2xl max-w-[calc(100%-0.5rem)] hover:shadow-primary/25 transition-all duration-300 rounded-full">
             <span className="truncate block drop-shadow-sm">{school.name}</span>
           </div>
         </div>
