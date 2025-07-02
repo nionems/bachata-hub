@@ -77,16 +77,37 @@ export async function POST(request: Request) {
 
 export async function GET() {
   try {
-    const pendingItemsSnapshot = await getDocs(
-      query(collection(db, 'pending_items'), orderBy('submittedAt', 'desc'))
-    )
+    // Fetch from both pending_items and shops collections
+    const [pendingItemsSnapshot, shopsSnapshot] = await Promise.all([
+      getDocs(query(collection(db, 'pending_items'), orderBy('submittedAt', 'desc'))),
+      getDocs(query(collection(db, 'shops'), orderBy('createdAt', 'desc')))
+    ])
     
     const pendingItems = pendingItemsSnapshot.docs.map(doc => ({
       id: doc.id,
       ...doc.data()
     }))
 
-    return NextResponse.json(pendingItems)
+    const pendingShops = shopsSnapshot.docs
+      .map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }))
+      .filter(shop => shop.status === 'pending')
+      .map(shop => ({
+        ...shop,
+        type: 'shop',
+        submittedAt: shop.createdAt || shop.submittedAt
+      }))
+
+    // Combine and sort by submission date
+    const allPendingItems = [...pendingItems, ...pendingShops].sort((a, b) => {
+      const dateA = new Date(a.submittedAt || a.createdAt || 0)
+      const dateB = new Date(b.submittedAt || b.createdAt || 0)
+      return dateB.getTime() - dateA.getTime()
+    })
+
+    return NextResponse.json(allPendingItems)
   } catch (error) {
     console.error('Error fetching pending items:', error)
     return NextResponse.json(

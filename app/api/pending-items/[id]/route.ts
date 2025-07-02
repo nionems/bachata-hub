@@ -48,8 +48,20 @@ export async function PUT(
       )
     }
 
-    const docRef = doc(db, 'pending_items', id)
-    const docSnap = await getDoc(docRef)
+    const now = new Date().toISOString()
+
+    // Try to find the item in pending_items collection first
+    let docRef = doc(db, 'pending_items', id)
+    let docSnap = await getDoc(docRef)
+    let itemData = null
+    let collectionName = 'pending_items'
+
+    if (!docSnap.exists()) {
+      // If not found in pending_items, try shops collection
+      docRef = doc(db, 'shops', id)
+      docSnap = await getDoc(docRef)
+      collectionName = 'shops'
+    }
 
     if (!docSnap.exists()) {
       return NextResponse.json(
@@ -58,55 +70,71 @@ export async function PUT(
       )
     }
 
-    const pendingItem = docSnap.data()
-    const now = new Date().toISOString()
+    itemData = docSnap.data()
 
     if (action === 'approve') {
-      // Move to shops collection
-      const shopData = {
-        name: pendingItem.name,
-        location: pendingItem.location,
-        state: pendingItem.state,
-        address: pendingItem.address,
-        contactName: pendingItem.contactName,
-        contactEmail: pendingItem.contactEmail,
-        contactPhone: pendingItem.contactPhone,
-        website: pendingItem.website,
-        instagramUrl: pendingItem.instagramUrl,
-        facebookUrl: pendingItem.facebookUrl,
-        price: pendingItem.price,
-        condition: pendingItem.condition,
-        comment: pendingItem.comment,
-        discountCode: pendingItem.discountCode,
-        imageUrl: pendingItem.imageUrl,
-        googleMapLink: pendingItem.googleMapLink,
-        info: pendingItem.info,
-        createdAt: now,
-        updatedAt: now
+      if (collectionName === 'pending_items') {
+        // Move from pending_items to shops collection
+        const shopData = {
+          name: itemData.name,
+          location: itemData.location,
+          state: itemData.state,
+          address: itemData.address,
+          contactName: itemData.contactName,
+          contactEmail: itemData.contactEmail,
+          contactPhone: itemData.contactPhone,
+          website: itemData.website,
+          instagramUrl: itemData.instagramUrl,
+          facebookUrl: itemData.facebookUrl,
+          price: itemData.price,
+          condition: itemData.condition,
+          comment: itemData.comment,
+          discountCode: itemData.discountCode,
+          imageUrl: itemData.imageUrl,
+          googleMapLink: itemData.googleMapLink,
+          info: itemData.info,
+          status: 'approved',
+          createdAt: now,
+          updatedAt: now
+        }
+
+        // Add to shops collection
+        await addDoc(collection(db, 'shops'), shopData)
+
+        // Update pending item status
+        await updateDoc(docRef, {
+          status: 'approved',
+          reviewedAt: now,
+          reviewedBy: reviewedBy || 'admin',
+          reviewNotes: reviewNotes || ''
+        })
+
+        return NextResponse.json({ 
+          message: 'Shop item approved and moved to shops collection',
+          shopData 
+        })
+      } else {
+        // Item is already in shops collection, just update status
+        await updateDoc(docRef, {
+          status: 'approved',
+          reviewedAt: now,
+          reviewedBy: reviewedBy || 'admin',
+          reviewNotes: reviewNotes || '',
+          updatedAt: now
+        })
+
+        return NextResponse.json({ 
+          message: 'Shop item approved' 
+        })
       }
-
-      // Add to shops collection
-      await addDoc(collection(db, 'shops'), shopData)
-
-      // Update pending item status
-      await updateDoc(docRef, {
-        status: 'approved',
-        reviewedAt: now,
-        reviewedBy: reviewedBy || 'admin',
-        reviewNotes: reviewNotes || ''
-      })
-
-      return NextResponse.json({ 
-        message: 'Shop item approved and moved to shops collection',
-        shopData 
-      })
     } else if (action === 'reject') {
-      // Update pending item status to rejected
+      // Update item status to rejected
       await updateDoc(docRef, {
         status: 'rejected',
         reviewedAt: now,
         reviewedBy: reviewedBy || 'admin',
-        reviewNotes: reviewNotes || ''
+        reviewNotes: reviewNotes || '',
+        updatedAt: now
       })
 
       return NextResponse.json({ 
