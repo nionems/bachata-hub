@@ -92,7 +92,7 @@ export default function Navbar() {
 
       {/* Mobile menu */}
       {isMenuOpen && (
-        <div className="md:hidden absolute top-full left-0 right-0 bg-white shadow-lg">
+        <div className="md:hidden absolute top-full left-0 right-0 bg-white shadow-lg z-[100]">
           <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3 max-h-[80vh] overflow-y-auto">
             {navItems.map((item) => (
               <Link
