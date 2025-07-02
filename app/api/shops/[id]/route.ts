@@ -1,8 +1,6 @@
-import { db, storage } from '../../../../firebase/config'
+import { db } from '@/lib/firebase'
 import { doc, getDoc, deleteDoc, updateDoc } from 'firebase/firestore'
-import { ref, deleteObject, uploadBytes, getDownloadURL } from 'firebase/storage'
 import { NextResponse } from 'next/server'
-import { Timestamp } from 'firebase/firestore'
 
 export async function GET(
   request: Request,
@@ -39,9 +37,12 @@ export async function DELETE(
 ) {
   try {
     const { id } = params
+    console.log('Attempting to delete shop with ID:', id)
+    
     const docRef = doc(db, 'shops', id)
     await deleteDoc(docRef)
-
+    
+    console.log('Shop deleted successfully:', id)
     return NextResponse.json({ message: 'Shop deleted successfully' })
   } catch (error) {
     console.error('Error deleting shop:', error)

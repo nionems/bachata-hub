@@ -12,7 +12,11 @@ export async function GET() {
     })) as Shop[]
 
     // Return all shops for admin management
-    return NextResponse.json(shops)
+    const response = NextResponse.json(shops)
+    response.headers.set('Cache-Control', 'no-cache, no-store, must-revalidate, max-age=0')
+    response.headers.set('Pragma', 'no-cache')
+    response.headers.set('Expires', '0')
+    return response
   } catch (error) {
     console.error('Error fetching shops for admin:', error)
     return NextResponse.json(

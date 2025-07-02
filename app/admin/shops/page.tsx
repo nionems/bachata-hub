@@ -12,6 +12,7 @@ interface Shop {
   location: string
   state: string
   imageUrl: string
+  status: 'pending' | 'approved' | 'rejected'
   createdAt: string
   updatedAt: string
 }
@@ -25,7 +26,7 @@ export default function ShopsPage() {
   useEffect(() => {
     const fetchShops = async () => {
       try {
-        const response = await fetch('/api/shops')
+        const response = await fetch('/api/admin/shops')
         if (!response.ok) {
           throw new Error('Failed to fetch shops')
         }
@@ -57,11 +58,88 @@ export default function ShopsPage() {
         throw new Error('Failed to delete shop')
       }
 
+      // Remove from local state immediately
       setShops(shops.filter(shop => shop.id !== id))
       toast.success('Shop deleted successfully')
+      
+      // Also refresh the data to ensure consistency
+      setTimeout(() => {
+        window.location.reload()
+      }, 1000)
     } catch (err) {
       console.error('Error deleting shop:', err)
       toast.error('Failed to delete shop')
+    }
+  }
+
+  const handleApprove = async (id: string) => {
+    try {
+      const response = await fetch(`/api/pending-items/${id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          action: 'approve',
+          reviewNotes: 'Approved from admin shops page',
+          reviewedBy: 'admin'
+        }),
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to approve shop')
+      }
+
+      // Update the shop status in the local state
+      setShops(shops.map(shop => 
+        shop.id === id ? { ...shop, status: 'approved' } : shop
+      ))
+      toast.success('Shop approved successfully')
+    } catch (err) {
+      console.error('Error approving shop:', err)
+      toast.error('Failed to approve shop')
+    }
+  }
+
+  const handleReject = async (id: string) => {
+    try {
+      const response = await fetch(`/api/pending-items/${id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          action: 'reject',
+          reviewNotes: 'Rejected from admin shops page',
+          reviewedBy: 'admin'
+        }),
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to reject shop')
+      }
+
+      // Update the shop status in the local state
+      setShops(shops.map(shop => 
+        shop.id === id ? { ...shop, status: 'rejected' } : shop
+      ))
+      toast.success('Shop rejected successfully')
+    } catch (err) {
+      console.error('Error rejecting shop:', err)
+      toast.error('Failed to reject shop')
+    }
+  }
+
+  const getStatusBadge = (status: string) => {
+    switch (status) {
+      case 'pending':
+        return <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">Pending</span>
+      case 'approved':
+        return <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">Approved</span>
+      case 'rejected':
+        return <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">Rejected</span>
+      default:
+        return <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">{status}</span>
     }
   }
 
@@ -81,7 +159,10 @@ export default function ShopsPage() {
         {shops.map((shop) => (
           <Card key={shop.id}>
             <CardHeader>
-              <CardTitle className="text-lg">{shop.name}</CardTitle>
+              <div className="flex justify-between items-start">
+                <CardTitle className="text-lg">{shop.name}</CardTitle>
+                {getStatusBadge(shop.status)}
+              </div>
             </CardHeader>
             <CardContent>
               {shop.imageUrl && (
@@ -96,14 +177,36 @@ export default function ShopsPage() {
                 <p><strong>State:</strong> {shop.state}</p>
                 <p><strong>Created:</strong> {new Date(shop.createdAt).toLocaleDateString()}</p>
                 <div className="flex justify-end space-x-2 mt-4">
+                  {shop.status === 'pending' && (
+                    <>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleApprove(shop.id)}
+                        className="bg-green-50 text-green-700 hover:bg-green-100"
+                      >
+                        Approve
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleReject(shop.id)}
+                        className="bg-red-50 text-red-700 hover:bg-red-100"
+                      >
+                        Reject
+                      </Button>
+                    </>
+                  )}
                   <Button
                     variant="outline"
+                    size="sm"
                     onClick={() => router.push(`/admin/shops/${shop.id}/edit`)}
                   >
                     Edit
                   </Button>
                   <Button
                     variant="destructive"
+                    size="sm"
                     onClick={() => handleDelete(shop.id)}
                   >
                     Delete
