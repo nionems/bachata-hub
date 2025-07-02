@@ -33,6 +33,11 @@ export function SchoolCard({ school }: SchoolCardProps) {
             className="object-cover w-full h-full"
           />
           <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
+          
+          {/* School Name Sticker - Bottom only on desktop, bigger on desktop */}
+          <div className="absolute sm:bottom-3 left-1/2 transform -translate-x-1/2 z-20 bg-gradient-to-r from-primary/60 via-primary/50 to-primary/60 backdrop-blur-md border border-white/30 text-white text-xs sm:text-sm font-bold px-4 sm:px-6 py-1.5 sm:py-2 shadow-2xl max-w-[calc(100%-0.5rem)] hover:shadow-primary/25 transition-all duration-300 rounded-full">
+            <span className="truncate block drop-shadow-sm">{school.name}</span>
+          </div>
         </div>
 
         <div className="absolute bottom-0 left-0 right-0 z-20 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-3 sm:p-4">
