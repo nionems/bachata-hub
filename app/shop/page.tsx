@@ -33,12 +33,15 @@ export default function ShopsPage() {
     setIsLoading(true)
     setError(null)
     try {
-      const response = await fetch('/api/shops', {
+      // Add timestamp to force cache busting
+      const timestamp = Date.now()
+      const response = await fetch(`/api/shops?t=${timestamp}`, {
         cache: 'no-store',
         headers: {
-          'Cache-Control': 'no-cache, no-store, must-revalidate',
+          'Cache-Control': 'no-cache, no-store, must-revalidate, max-age=0',
           'Pragma': 'no-cache',
-          'Expires': '0'
+          'Expires': '0',
+          'Surrogate-Control': 'no-store'
         }
       })
       if (!response.ok) {

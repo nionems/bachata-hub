@@ -68,17 +68,17 @@ export default function RootLayout({
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link rel="icon" href="/favicon.ico" sizes="any" />
-        <link rel="apple-touch-icon" href="/favicon.ico" />
-        <link rel="mask-icon" href="/favicon.ico" />
-        <meta name="msapplication-TileImage" content="/favicon.ico" />
+        <link rel="icon" href="/favicon.ico?v=2" sizes="any" />
+        <link rel="apple-touch-icon" href="/favicon.ico?v=2" />
+        <link rel="mask-icon" href="/favicon.ico?v=2" />
+        <meta name="msapplication-TileImage" content="/favicon.ico?v=2" />
         <meta name="msapplication-TileColor" content="#ffffff" />
         <meta name="theme-color" content="#ffffff" />
         <meta name="google-site-verification" content="your-verification-code" />
-        <link rel="icon" type="image/png" sizes="32x32" href="/favicon.ico" />
-        <link rel="icon" type="image/png" sizes="16x16" href="/favicon.ico" />
-        <link rel="shortcut icon" href="/favicon.ico" />
-        <meta property="og:image" content="/favicon.ico" />
+        <link rel="icon" type="image/png" sizes="32x32" href="/favicon.ico?v=2" />
+        <link rel="icon" type="image/png" sizes="16x16" href="/favicon.ico?v=2" />
+        <link rel="shortcut icon" href="/favicon.ico?v=2" />
+        <meta property="og:image" content="/favicon.ico?v=2" />
         <meta property="og:image:type" content="image/x-icon" />
         <meta property="og:image:width" content="32" />
         <meta property="og:image:height" content="32" />
