@@ -73,8 +73,8 @@ export function ShopCard({ shop }: ShopCardProps) {
           {/* Bottom section - Compact info */}
           <div className="absolute bottom-0 left-0 right-0 z-20 bg-gradient-to-t from-black/90 via-black/60 to-transparent p-2 sm:p-3">
             <h3 className="text-sm sm:text-base font-semibold text-white line-clamp-1 mb-1">{shop.name}</h3>
-            <div className="flex items-center gap-1 text-xs text-gray-200 mb-1">
-              <MapPin className="h-3 w-3" />
+            <div className="flex items-center gap-1 sm:gap-2 text-[10px] text-gray-200 mb-1">
+              <MapPin className="h-3 w-3 flex-shrink-0" />
               <span className="line-clamp-1">{shop.location}</span>
             </div>
             
@@ -87,7 +87,8 @@ export function ShopCard({ shop }: ShopCardProps) {
                     target="_blank"
                     rel="noopener noreferrer"
                     onClick={(e) => e.stopPropagation()}
-                    className="text-white hover:text-primary transition-colors p-1"
+                    className="p-1.5 bg-primary/20 hover:bg-primary/30 text-primary rounded-full transition-colors duration-200"
+                    title="Website"
                   >
                     <ExternalLink className="h-4 w-4" />
                   </a>
@@ -98,7 +99,8 @@ export function ShopCard({ shop }: ShopCardProps) {
                     target="_blank"
                     rel="noopener noreferrer"
                     onClick={(e) => e.stopPropagation()}
-                    className="text-white hover:text-primary transition-colors p-1"
+                    className="p-1.5 bg-primary/20 hover:bg-primary/30 text-primary rounded-full transition-colors duration-200"
+                    title="Instagram"
                   >
                     <Instagram className="h-4 w-4" />
                   </a>
@@ -109,7 +111,8 @@ export function ShopCard({ shop }: ShopCardProps) {
                     target="_blank"
                     rel="noopener noreferrer"
                     onClick={(e) => e.stopPropagation()}
-                    className="text-white hover:text-primary transition-colors p-1"
+                    className="p-1.5 bg-primary/20 hover:bg-primary/30 text-primary rounded-full transition-colors duration-200"
+                    title="Facebook"
                   >
                     <Facebook className="h-4 w-4" />
                   </a>
@@ -117,7 +120,7 @@ export function ShopCard({ shop }: ShopCardProps) {
               </div>
               <div className="flex gap-1 items-center">
                 <div
-                  className="text-white hover:text-primary transition-colors p-1 cursor-pointer"
+                  className="p-1.5 bg-primary/20 hover:bg-primary/30 text-primary rounded-full transition-colors duration-200 cursor-pointer"
                   onClick={(e) => {
                     e.stopPropagation();
                     if (navigator.share) {
@@ -134,6 +137,7 @@ export function ShopCard({ shop }: ShopCardProps) {
                       });
                     }
                   }}
+                  title="Share"
                 >
                   <Share className="h-4 w-4" />
                 </div>
@@ -143,7 +147,8 @@ export function ShopCard({ shop }: ShopCardProps) {
                     target="_blank"
                     rel="noopener noreferrer"
                     onClick={(e) => e.stopPropagation()}
-                    className="text-white hover:text-primary transition-colors p-1"
+                    className="p-1.5 bg-primary/20 hover:bg-primary/30 text-primary rounded-full transition-colors duration-200"
+                    title="Map"
                   >
                     <MapPin className="h-4 w-4" />
                   </a>

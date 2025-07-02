@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import Link from "next/link"
-import { Menu, X } from "lucide-react"
+import { Menu, X, RefreshCw } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import Image from "next/image"
 
@@ -15,6 +15,10 @@ export default function Navbar() {
 
   const handleLoginClick = () => {
     window.location.href = '/community'
+  }
+
+  const handleRefresh = () => {
+    window.location.reload()
   }
 
   const navItems = [
@@ -36,7 +40,7 @@ export default function Navbar() {
     <header className="bg-white/90 backdrop-blur-sm shadow-sm sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-4">
         <div className="flex justify-between h-20 sm:h-20">
-          <div className="flex items-center">
+          <div className="flex items-center gap-2">
             <Link href="/" className="flex-shrink-0 flex items-center">
               <Image
                 src="/images/BACHATA.AU (13).png"
@@ -48,6 +52,14 @@ export default function Navbar() {
                 style={{ objectFit: 'contain' }}
               />
             </Link>
+            {/* Mobile Refresh Button */}
+            <button
+              onClick={handleRefresh}
+              className="md:hidden inline-flex items-center justify-center p-2 rounded-full text-gray-500 hover:text-primary hover:bg-primary/10 transition-colors duration-200"
+              title="Refresh page"
+            >
+              <RefreshCw className="h-4 w-4" />
+            </button>
           </div>
 
           {/* Desktop Navigation */}
