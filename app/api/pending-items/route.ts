@@ -88,17 +88,23 @@ export async function GET() {
       ...doc.data()
     }))
 
-    const pendingShops = shopsSnapshot.docs
-      .map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      }))
+    const allShops = shopsSnapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data()
+    }))
+
+    console.log('All shops found:', allShops.length)
+    console.log('Shops with status:', allShops.map((shop: any) => ({ id: shop.id, status: shop.status, name: shop.name })))
+
+    const pendingShops = allShops
       .filter((shop: any) => shop.status === 'pending')
       .map((shop: any) => ({
         ...shop,
         type: 'shop',
-        submittedAt: shop.createdAt || shop.submittedAt
+        submittedAt: shop.createdAt || shop.submittedAt || shop.updatedAt
       }))
+
+    console.log('Pending shops found:', pendingShops.length)
 
     // Combine and sort by submission date
     const allPendingItems = [...pendingItems, ...pendingShops].sort((a, b) => {
@@ -106,6 +112,8 @@ export async function GET() {
       const dateB = new Date(b.submittedAt || b.createdAt || 0)
       return dateB.getTime() - dateA.getTime()
     })
+
+    console.log('Total pending items:', allPendingItems.length)
 
     return NextResponse.json(allPendingItems)
   } catch (error) {

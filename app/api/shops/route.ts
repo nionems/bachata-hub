@@ -72,6 +72,8 @@ export async function POST(request: Request) {
       updatedAt: new Date().toISOString()
     }
 
+    console.log('Saving shop with status:', shopData.status)
+
     console.log('Processed shop data:', shopData)
 
     const docRef = await addDoc(collection(db, 'shops'), shopData)

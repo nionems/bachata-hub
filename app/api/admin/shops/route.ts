@@ -11,7 +11,8 @@ export async function GET() {
       ...doc.data()
     })) as Shop[]
 
-    console.log('Admin shops API - Found shops:', shops.map(s => ({ id: s.id, name: s.name })))
+    console.log('Admin shops API - Total shops found:', shops.length)
+    console.log('Admin shops API - Shops with status:', shops.map(s => ({ id: s.id, name: s.name, status: s.status })))
 
     // Return all shops for admin management
     const response = NextResponse.json(shops)
