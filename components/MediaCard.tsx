@@ -62,9 +62,9 @@ export function MediaCard({ media, layout = 'grid', onDelete, isAdmin = false }:
             ? 'absolute bottom-0 left-0 right-0 z-20 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-3 sm:p-4'
             : 'p-4'
         }`}>
-          <div className="flex items-center gap-2 text-[10px] text-gray-200 mt-1">
+          <div className="flex items-center gap-1 sm:gap-2 text-[10px] text-gray-200 mt-1">
             <MapPin className="h-3 w-3 flex-shrink-0" />
-            <span className="truncate">{media.location}, {media.state}</span>
+            <span className="truncate">{media.location}</span>
             <div className="bg-black/60 backdrop-blur-sm px-1.5 py-0.5 rounded-full sm:hidden">
               <span className="text-[8px] text-white/90">
                 DM for booking

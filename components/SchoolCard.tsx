@@ -41,9 +41,9 @@ export function SchoolCard({ school }: SchoolCardProps) {
         </div>
 
         <div className="absolute bottom-0 left-0 right-0 z-20 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-3 sm:p-4">
-          <div className="flex items-center gap-2 text-xs sm:text-sm text-gray-200">
+          <div className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm text-gray-200">
             <MapPin className="h-3 w-3 sm:h-4 sm:w-4" />
-            {school.location}, {school.state}
+            {school.location}
           </div>
           {school.comment && (
             <div className="mt-1">
