@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { StateSelect } from "@/components/ui/StateSelect"
 import { toast } from "sonner"
-import { X, Upload, Camera, Image as ImageIcon } from "lucide-react"
+import { X, Upload, Camera, Image as ImageIcon, CheckCircle, AlertCircle, Loader2 } from "lucide-react"
 
 interface ShopSubmissionFormProps {
   isOpen: boolean
@@ -19,7 +19,6 @@ interface ShopFormData {
   name: string
   location: string
   state: string
-  address: string
   contactName: string
   contactEmail: string
   contactPhone: string
@@ -28,10 +27,7 @@ interface ShopFormData {
   facebookUrl: string
   price: string
   condition: string
-  comment: string
-  discountCode: string
   imageUrl: string
-  googleMapLink: string
   info: string
 }
 
@@ -40,7 +36,6 @@ export function ShopSubmissionForm({ isOpen, onClose }: ShopSubmissionFormProps)
     name: '',
     location: '',
     state: '',
-    address: '',
     contactName: '',
     contactEmail: '',
     contactPhone: '',
@@ -49,10 +44,7 @@ export function ShopSubmissionForm({ isOpen, onClose }: ShopSubmissionFormProps)
     facebookUrl: '',
     price: '',
     condition: '',
-    comment: '',
-    discountCode: '',
     imageUrl: '',
-    googleMapLink: '',
     info: ''
   })
 
@@ -60,6 +52,7 @@ export function ShopSubmissionForm({ isOpen, onClose }: ShopSubmissionFormProps)
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
   const [imagePreview, setImagePreview] = useState<string | null>(null)
   const [uploadProgress, setUploadProgress] = useState(0)
+  const [message, setMessage] = useState<{ type: 'success' | 'error' | 'loading', text: string } | null>(null)
 
   const handleInputChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target
@@ -71,13 +64,13 @@ export function ShopSubmissionForm({ isOpen, onClose }: ShopSubmissionFormProps)
     if (file) {
       // Validate file type
       if (!file.type.startsWith('image/')) {
-        toast.error('Please select an image file')
+        setMessage({ type: 'error', text: 'Please select an image file' })
         return
       }
 
       // Validate file size (max 5MB)
       if (file.size > 5 * 1024 * 1024) {
-        toast.error('Image size is too big. Please select an image smaller than 5MB.')
+        setMessage({ type: 'error', text: 'Image size is too big. Please select an image smaller than 5MB.' })
         return
       }
 
@@ -98,12 +91,13 @@ export function ShopSubmissionForm({ isOpen, onClose }: ShopSubmissionFormProps)
     // Validate that at least one contact method is provided
     const hasContactMethod = formData.website || formData.instagramUrl || formData.facebookUrl || formData.contactPhone
     if (!hasContactMethod) {
-      toast.error('Please provide at least one contact method (website, Instagram, Facebook, or phone) so buyers can contact you.')
+      setMessage({ type: 'error', text: 'Please provide at least one contact method (website, Instagram, Facebook, or phone) so buyers can contact you.' })
       return
     }
     
     setIsLoading(true)
     setUploadProgress(0)
+    setMessage({ type: 'loading', text: 'Submitting your item...' })
 
     try {
       let finalImageUrl = formData.imageUrl
@@ -154,36 +148,35 @@ export function ShopSubmissionForm({ isOpen, onClose }: ShopSubmissionFormProps)
         throw new Error(shopData.details || shopData.error || 'Failed to submit shop')
       }
 
-      toast.success('Shop submitted successfully! It will be reviewed by our team.')
-      onClose()
+      setMessage({ type: 'success', text: 'Item submitted successfully! It will be reviewed by our team.' })
+      setTimeout(() => {
+        onClose()
+        setMessage(null)
+      }, 2000)
       
       // Reset form
-      setFormData({
-        name: '',
-        location: '',
-        state: '',
-        address: '',
-        contactName: '',
-        contactEmail: '',
-        contactPhone: '',
-        website: '',
-        instagramUrl: '',
-        facebookUrl: '',
-        price: '',
-        condition: '',
-        comment: '',
-        discountCode: '',
-        imageUrl: '',
-        googleMapLink: '',
-        info: ''
-      })
+          setFormData({
+      name: '',
+      location: '',
+      state: '',
+      contactName: '',
+      contactEmail: '',
+      contactPhone: '',
+      website: '',
+      instagramUrl: '',
+      facebookUrl: '',
+      price: '',
+      condition: '',
+      imageUrl: '',
+      info: ''
+    })
       setSelectedFile(null)
       setImagePreview(null)
       setUploadProgress(0)
     } catch (error) {
       console.error('Error submitting shop:', error)
       const errorMessage = error instanceof Error ? error.message : 'Failed to submit shop. Please try again.'
-      toast.error(errorMessage)
+      setMessage({ type: 'error', text: errorMessage })
     } finally {
       setIsLoading(false)
       setUploadProgress(0)
@@ -191,93 +184,72 @@ export function ShopSubmissionForm({ isOpen, onClose }: ShopSubmissionFormProps)
   }
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-[95vw] sm:max-w-[600px] bg-gradient-to-br from-primary/10 to-secondary/10 max-h-[90vh] overflow-y-auto rounded-xl sm:rounded-2xl">
+    <>
+      <Dialog open={isOpen} onOpenChange={onClose}>
+        <DialogContent className="max-w-[95vw] sm:max-w-[600px] bg-gradient-to-br from-primary/10 to-secondary/10 max-h-[90vh] overflow-y-auto rounded-xl sm:rounded-2xl">
         <DialogHeader className="sticky top-0 z-10 bg-white/80 backdrop-blur-sm rounded-t-xl sm:rounded-t-2xl">
-          <DialogTitle className="text-primary text-lg sm:text-xl flex justify-between items-center">
+          <DialogTitle className="text-primary text-lg sm:text-xl">
             Add Listing
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={onClose}
-              className="h-8 w-8 p-0"
-            >
-              <X className="h-4 w-4" />
-            </Button>
           </DialogTitle>
-          <DialogDescription className="text-sm sm:text-base">
-            Fill out the form below to submit your shop for review.
-          </DialogDescription>
+        
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-1 sm:space-y-1.5">
           {/* Basic Information */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="name" className="text-primary">Shop name / Item name *</Label>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+            <div className="space-y-0.5">
+              <Label htmlFor="name" className="text-primary text-xs font-medium">Shop/Item name *</Label>
               <Input
                 id="name"
                 name="name"
                 value={formData.name}
                 onChange={handleInputChange}
                 required
-                placeholder="e.g., Dance Shoes Store, Fuego Heels, etc."
-                className="bg-white/80 backdrop-blur-sm rounded-lg"
+                placeholder="Dance Shoes Store, Fuego Heels"
+                className="bg-white/90 backdrop-blur-sm rounded-md h-8 text-sm border-gray-200 focus:border-primary focus:ring-1 focus:ring-primary"
               />
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="location" className="text-primary">Location (city) *</Label>
+            <div className="space-y-0.5">
+              <Label htmlFor="location" className="text-primary text-xs font-medium">Location *</Label>
               <Input
                 id="location"
                 name="location"
                 value={formData.location}
                 onChange={handleInputChange}
                 required
-                placeholder="e.g., Sydney, Melbourne, Brisbane"
-                className="bg-white/80 backdrop-blur-sm rounded-lg"
+                placeholder="Sydney, Melbourne, Brisbane"
+                className="bg-white/90 backdrop-blur-sm rounded-md h-8 text-sm border-gray-200 focus:border-primary focus:ring-1 focus:ring-primary"
               />
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="state" className="text-primary">State *</Label>
+            <div className="space-y-0.5">
+              <Label htmlFor="state" className="text-primary text-xs font-medium">State *</Label>
               <StateSelect
                 value={formData.state}
                 onChange={(value) => setFormData(prev => ({ ...prev, state: value }))}
-                className="bg-white/80 backdrop-blur-sm rounded-lg"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="address" className="text-primary">Address</Label>
-              <Input
-                id="address"
-                name="address"
-                value={formData.address}
-                onChange={handleInputChange}
-                placeholder="not mandatory..."
-                className="bg-white/80 backdrop-blur-sm rounded-lg"
+                className="bg-white/90 backdrop-blur-sm rounded-md h-8 text-sm border-gray-200 focus:border-primary focus:ring-1 focus:ring-primary"
               />
             </div>
           </div>
 
           {/* Contact Information */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="contactName" className="text-primary">Contact name *</Label>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+            <div className="space-y-0.5">
+              <Label htmlFor="contactName" className="text-primary text-xs font-medium">Contact name *</Label>
               <Input
                 id="contactName"
                 name="contactName"
                 value={formData.contactName}
                 onChange={handleInputChange}
                 required
-                placeholder="e.g., John Smith, Maria Garcia"
-                className="bg-white/80 backdrop-blur-sm rounded-lg"
+                placeholder="John Smith, Maria Garcia"
+                className="bg-white/90 backdrop-blur-sm rounded-md h-8 text-sm border-gray-200 focus:border-primary focus:ring-1 focus:ring-primary"
               />
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="contactEmail" className="text-primary">Contact email *</Label>
+            <div className="space-y-0.5">
+              <Label htmlFor="contactEmail" className="text-primary text-xs font-medium">Contact email *</Label>
               <Input
                 id="contactEmail"
                 name="contactEmail"
@@ -285,33 +257,33 @@ export function ShopSubmissionForm({ isOpen, onClose }: ShopSubmissionFormProps)
                 value={formData.contactEmail}
                 onChange={handleInputChange}
                 required
-                placeholder="for admin approval(won't be shared)"
-                className="bg-white/80 backdrop-blur-sm rounded-lg"
+                placeholder="for admin approval (won't be shared)"
+                className="bg-white/90 backdrop-blur-sm rounded-md h-8 text-sm border-gray-200 focus:border-primary focus:ring-1 focus:ring-primary"
               />
             </div>
           </div>
 
           {/* Contact Methods Group */}
-          <div className="space-y-3 bg-red-50 p-4 rounded-lg border border-red-200">
-            <div className="text-xs text-gray-600 bg-blue-50 p-3 rounded-lg">
-              <strong>Note:</strong> Enter at least one contact method (email, phone, website, Instagram, or Facebook) so buyers can contact you.
+          <div className="space-y-1 bg-gradient-to-r from-blue-50 to-indigo-50 p-2 rounded-lg border border-blue-200/50">
+            <div className="text-xs text-gray-600 font-medium">
+              📞 Contact Methods: Provide at least one way for buyers to contact you
             </div>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="contactPhone" className="text-primary">Contact phone</Label>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+              <div className="space-y-0.5">
+                <Label htmlFor="contactPhone" className="text-primary text-xs font-medium">Phone</Label>
                 <Input
                   id="contactPhone"
                   name="contactPhone"
                   value={formData.contactPhone}
                   onChange={handleInputChange}
-                  placeholder="e.g., 0412 345 678"
-                  className="bg-white/80 backdrop-blur-sm rounded-lg"
+                  placeholder="0412 345 678"
+                  className="bg-white/90 backdrop-blur-sm rounded-md h-8 text-sm border-gray-200 focus:border-primary focus:ring-1 focus:ring-primary"
                 />
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="website" className="text-primary">Website</Label>
+              <div className="space-y-0.5">
+                <Label htmlFor="website" className="text-primary text-xs font-medium">Website</Label>
                 <Input
                   id="website"
                   name="website"
@@ -319,50 +291,39 @@ export function ShopSubmissionForm({ isOpen, onClose }: ShopSubmissionFormProps)
                   value={formData.website}
                   onChange={(e) => {
                     let value = e.target.value
-                    // Auto-add https:// if user just enters domain
                     if (value && !value.startsWith('http://') && !value.startsWith('https://')) {
                       value = 'https://' + value
                     }
                     setFormData(prev => ({ ...prev, website: value }))
                   }}
-                  placeholder="yourwebsite.com or https://yourwebsite.com"
-                  className="bg-white/80 backdrop-blur-sm rounded-lg"
+                  placeholder="mydanceshop.com"
+                  className="bg-white/90 backdrop-blur-sm rounded-md h-8 text-sm border-gray-200 focus:border-primary focus:ring-1 focus:ring-primary"
                 />
-                <p className="text-xs text-gray-500">Just enter your domain (e.g., mydanceshop.com) or full URL</p>
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="instagramUrl" className="text-primary">Instagram</Label>
+              <div className="space-y-0.5">
+                <Label htmlFor="instagramUrl" className="text-primary text-xs font-medium">Instagram</Label>
                 <Input
                   id="instagramUrl"
                   name="instagramUrl"
-                  type="url"
+                  type="text"
                   value={formData.instagramUrl}
                   onChange={(e) => {
                     let value = e.target.value
-                    // Auto-format Instagram URLs
                     if (value) {
-                      if (value.includes('instagram.com/')) {
-                        // Already a full URL
-                        if (!value.startsWith('http://') && !value.startsWith('https://')) {
-                          value = 'https://' + value
-                        }
-                      } else {
-                        // Just username - convert to full URL
-                        const username = value.replace('@', '').replace('https://', '').replace('http://', '').replace('instagram.com/', '')
-                        value = `https://instagram.com/${username}`
-                      }
+                      // Remove any existing @ symbol and convert to username format
+                      const username = value.replace('@', '').replace('https://', '').replace('http://', '').replace('instagram.com/', '').replace('www.instagram.com/', '')
+                      value = `@${username}`
                     }
                     setFormData(prev => ({ ...prev, instagramUrl: value }))
                   }}
-                  placeholder="@yourusername or instagram.com/yourusername"
-                  className="bg-white/80 backdrop-blur-sm rounded-lg"
+                  placeholder="@yourusername"
+                  className="bg-white/90 backdrop-blur-sm rounded-md h-8 text-sm border-gray-200 focus:border-primary focus:ring-1 focus:ring-primary"
                 />
-                <p className="text-xs text-gray-500">Enter @username, username, or full Instagram URL</p>
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="facebookUrl" className="text-primary">Facebook</Label>
+              <div className="space-y-0.5">
+                <Label htmlFor="facebookUrl" className="text-primary text-xs font-medium">Facebook</Label>
                 <Input
                   id="facebookUrl"
                   name="facebookUrl"
@@ -370,53 +331,49 @@ export function ShopSubmissionForm({ isOpen, onClose }: ShopSubmissionFormProps)
                   value={formData.facebookUrl}
                   onChange={(e) => {
                     let value = e.target.value
-                    // Auto-format Facebook URLs
                     if (value) {
                       if (value.includes('facebook.com/')) {
-                        // Already a full URL
                         if (!value.startsWith('http://') && !value.startsWith('https://')) {
                           value = 'https://' + value
                         }
                       } else {
-                        // Just username/page name - convert to full URL
                         const username = value.replace('@', '').replace('https://', '').replace('http://', '').replace('facebook.com/', '')
                         value = `https://facebook.com/${username}`
                       }
                     }
                     setFormData(prev => ({ ...prev, facebookUrl: value }))
                   }}
-                  placeholder="@yourpage or facebook.com/yourpage"
-                  className="bg-white/80 backdrop-blur-sm rounded-lg"
+                  placeholder="facebook.com/yourpage"
+                  className="bg-white/90 backdrop-blur-sm rounded-md h-8 text-sm border-gray-200 focus:border-primary focus:ring-1 focus:ring-primary"
                 />
-                <p className="text-xs text-gray-500">Enter @pagename, pagename, or full Facebook URL</p>
               </div>
             </div>
           </div>
 
           {/* Item Details */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="price" className="text-primary">Price range *</Label>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+            <div className="space-y-0.5">
+              <Label htmlFor="price" className="text-primary text-xs font-medium">Price *</Label>
               <Input
                 id="price"
                 name="price"
                 value={formData.price}
                 onChange={handleInputChange}
                 required
-                placeholder="e.g., $10-50, Free, etc."
-                className="bg-white/80 backdrop-blur-sm rounded-lg"
+                placeholder="$10-50, Free, etc."
+                className="bg-white/90 backdrop-blur-sm rounded-md h-8 text-sm border-gray-200 focus:border-primary focus:ring-1 focus:ring-primary"
               />
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="condition" className="text-primary">Condition *</Label>
+            <div className="space-y-0.5">
+              <Label htmlFor="condition" className="text-primary text-xs font-medium">Condition *</Label>
               <select
                 id="condition"
                 name="condition"
                 value={formData.condition}
                 onChange={(e) => setFormData(prev => ({ ...prev, condition: e.target.value }))}
                 required
-                className="w-full p-2 border rounded bg-white/80 backdrop-blur-sm"
+                className="w-full p-2 border rounded-md bg-white/90 backdrop-blur-sm h-8 text-sm border-gray-200 focus:border-primary focus:ring-1 focus:ring-primary"
               >
                 <option value="">Select condition</option>
                 <option value="New">New</option>
@@ -425,82 +382,43 @@ export function ShopSubmissionForm({ isOpen, onClose }: ShopSubmissionFormProps)
             </div>
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="comment" className="text-primary">Comment (contact me on insta, 10% off, etc.)</Label>
+          {/* Item Description */}
+          <div className="space-y-0.5">
+            <Label htmlFor="info" className="text-primary text-xs font-medium">Item Description *</Label>
             <Textarea
-              id="comment"
-              name="comment"
-              value={formData.comment}
+              id="info"
+              name="info"
+              value={formData.info}
               onChange={handleInputChange}
-              className="min-h-[100px] bg-white/80 backdrop-blur-sm rounded-lg"
-              placeholder="how you want to be contacted unless website is provided or discount percentage."
+              required
+              className="min-h-[80px] bg-white/90 backdrop-blur-sm rounded-md text-sm border-gray-200 focus:border-primary focus:ring-1 focus:ring-primary"
+              placeholder="Size 8, leather, worn twice, very comfortable for dancing..."
             />
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="discountCode" className="text-primary">Discount code</Label>
-            <Input
-              id="discountCode"
-              name="discountCode"
-              value={formData.discountCode}
-              onChange={handleInputChange}
-              placeholder="e.g., BACHATAAU"
-              className="bg-white/80 backdrop-blur-sm rounded-lg"
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="image" className="text-primary">Shop/Item Image *</Label>
-            <p className="text-xs text-gray-600 bg-yellow-50 p-2 rounded-lg border border-yellow-200">
-              📸 <strong>1 photo only per item</strong> - Choose your best image that shows the item clearly
-            </p>
+          {/* Item Image */}
+          <div className="space-y-1">
+            <Label htmlFor="image" className="text-primary text-xs font-medium">Item Image *</Label>
             
             {/* File Upload Section */}
-            <div className="space-y-3">
-              {/* Camera and Gallery Options */}
-              <div className="grid grid-cols-2 gap-3">
-                {/* Camera Option */}
-                <div className="relative">
-                  <input
-                    id="camera-input"
-                    name="camera-input"
-                    type="file"
-                    accept="image/*"
-                    capture="environment"
-                    onChange={handleFileChange}
-                    className="hidden"
-                  />
-                  <label
-                    htmlFor="camera-input"
-                    className="flex flex-col items-center justify-center w-full h-24 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-primary transition-colors bg-white/80 backdrop-blur-sm"
-                  >
-                    <Camera className="h-6 w-6 text-gray-400 mb-1" />
-                    <p className="text-xs text-gray-600 text-center">
-                      <span className="font-medium text-primary">Take Photo</span>
-                    </p>
-                  </label>
-                </div>
-
-                {/* Gallery Option */}
-                <div className="relative">
-                  <input
-                    id="gallery-input"
-                    name="gallery-input"
-                    type="file"
-                    accept="image/*"
-                    onChange={handleFileChange}
-                    className="hidden"
-                  />
-                  <label
-                    htmlFor="gallery-input"
-                    className="flex flex-col items-center justify-center w-full h-24 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-primary transition-colors bg-white/80 backdrop-blur-sm"
-                  >
-                    <ImageIcon className="h-6 w-6 text-gray-400 mb-1" />
-                    <p className="text-xs text-gray-600 text-center">
-                      <span className="font-medium text-primary">Choose from Gallery</span>
-                    </p>
-                  </label>
-                </div>
+            <div className="space-y-1.5">
+              {/* Single Upload Box */}
+              <div className="relative">
+                <input
+                  id="image-input"
+                  name="image-input"
+                  type="file"
+                  accept="image/*"
+                  onChange={handleFileChange}
+                  className="hidden"
+                />
+                <label
+                  htmlFor="image-input"
+                  className="flex items-center justify-center w-full h-16 border-2 border-dashed border-gray-300 rounded-md cursor-pointer hover:border-primary transition-colors bg-white/90 backdrop-blur-sm"
+                >
+                  <ImageIcon className="h-5 w-5 text-gray-400 mr-2" />
+                  <span className="text-sm text-gray-600 font-medium">Upload Photo</span>
+                </label>
               </div>
 
               {/* Image Preview */}
@@ -567,7 +485,7 @@ export function ShopSubmissionForm({ isOpen, onClose }: ShopSubmissionFormProps)
               )}
 
               {/* Alternative: Image URL (fallback) */}
-              <div className="space-y-2">
+              <div className="space-y-1">
                 <Label htmlFor="imageUrl" className="text-sm text-gray-600">
                   Or provide image URL (Google Drive, etc.)
                 </Label>
@@ -583,59 +501,53 @@ export function ShopSubmissionForm({ isOpen, onClose }: ShopSubmissionFormProps)
               </div>
 
               {/* Instructions */}
-              <div className="text-xs text-gray-600 bg-blue-50 p-3 rounded-lg">
-                <strong>📱 Mobile-friendly:</strong> Choose "Take Photo" to use your camera or "Choose from Gallery" to select an existing image.
+              <div className="text-xs text-gray-600 bg-blue-50 p-2 rounded-lg">
+                <strong>📱 Mobile-friendly:</strong> Tap the upload box to take a photo or choose from your gallery.
                 <br />
                 <strong>💡 Tip:</strong> Good lighting and clear photos help sell your items faster!
               </div>
             </div>
           </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="googleMapLink" className="text-primary">Google map link</Label>
-            <Input
-              id="googleMapLink"
-              name="googleMapLink"
-              type="url"
-              value={formData.googleMapLink}
-              onChange={handleInputChange}
-              placeholder="for shops only not mandatorynpm "
-              className="bg-white/80 backdrop-blur-sm rounded-lg"
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="info" className="text-primary">Item info (worn twice, very comfortable, etc.) *</Label>
-            <Textarea
-              id="info"
-              name="info"
-              value={formData.info}
-              onChange={handleInputChange}
-              required
-              className="min-h-[100px] bg-white/80 backdrop-blur-sm rounded-lg"
-              placeholder="Describe your item: size, material, comfort level, wear history, special features, etc. (e.g., Size 8, leather, worn only twice, very comfortable for dancing)"
-            />
-          </div>
-          <div className="flex justify-end gap-2">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={onClose}
-              disabled={isLoading}
-              className="w-full rounded-lg"
-            >
-              Cancel
-            </Button>
+          <div className="pt-1">
             <Button
               type="submit"
               disabled={isLoading}
-              className="w-full bg-primary hover:bg-primary/90 text-white rounded-lg"
+              className="w-full bg-primary hover:bg-primary/90 text-white h-10"
             >
-              {isLoading ? 'Submitting...' : 'Add Listing'}
+              {isLoading ? 'Submitting...' : 'Submit Item'}
             </Button>
           </div>
         </form>
       </DialogContent>
     </Dialog>
+
+      {/* Centered Message Modal */}
+      {message && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+          <div className="bg-white rounded-lg p-6 max-w-sm mx-4 shadow-xl">
+            <div className="flex items-center justify-center mb-4">
+              {message.type === 'loading' && (
+                <Loader2 className="h-8 w-8 text-primary animate-spin" />
+              )}
+              {message.type === 'success' && (
+                <CheckCircle className="h-8 w-8 text-green-500" />
+              )}
+              {message.type === 'error' && (
+                <AlertCircle className="h-8 w-8 text-red-500" />
+              )}
+            </div>
+            <p className="text-center text-gray-700 mb-4">{message.text}</p>
+            <div className="flex justify-center">
+              <Button
+                onClick={() => setMessage(null)}
+                className="bg-primary hover:bg-primary/90 text-white"
+              >
+                {message.type === 'loading' ? 'Cancel' : 'OK'}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
   )
 } 

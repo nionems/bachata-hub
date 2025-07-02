@@ -4,6 +4,14 @@ import { db } from '@/lib/firebase'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { Shop } from '@/types/shop'
+import { Resend } from 'resend'
+
+// Check if Resend API key is properly configured
+if (!process.env.RESEND_API_KEY) {
+  console.error('Resend API key is not configured')
+}
+
+const resend = new Resend(process.env.RESEND_API_KEY)
 
 export async function POST(request: Request) {
   try {
@@ -68,6 +76,43 @@ export async function POST(request: Request) {
 
     const docRef = await addDoc(collection(db, 'shops'), shopData)
     console.log('Shop created with ID:', docRef.id)
+
+    // Send email notification
+    try {
+      const { data, error } = await resend.emails.send({
+        from: 'Bachata Hub <onboarding@resend.dev>',
+        to: 'bachata.au@gmail.com',
+        subject: 'New Shop/Item Submission from Bachata Hub',
+        html: `
+          <h2>New Shop/Item Submission</h2>
+          <p><strong>Item Name:</strong> ${name}</p>
+          <p><strong>Location:</strong> ${location}, ${state}</p>
+          <p><strong>Contact Name:</strong> ${contactName}</p>
+          <p><strong>Contact Email:</strong> ${contactEmail}</p>
+          <p><strong>Contact Phone:</strong> ${contactPhone || 'Not provided'}</p>
+          <p><strong>Website:</strong> ${website || 'Not provided'}</p>
+          <p><strong>Instagram:</strong> ${instagramUrl || 'Not provided'}</p>
+          <p><strong>Facebook:</strong> ${facebookUrl || 'Not provided'}</p>
+          <p><strong>Price:</strong> ${price}</p>
+          <p><strong>Condition:</strong> ${condition}</p>
+          <p><strong>Description:</strong></p>
+          <p>${info}</p>
+          <p><strong>Image URL:</strong> ${imageUrl}</p>
+          <p><strong>Status:</strong> ${status}</p>
+          <p><strong>Submitted:</strong> ${new Date().toLocaleString()}</p>
+        `,
+      })
+
+      if (error) {
+        console.error('Resend error:', error)
+        // Don't fail the submission if email fails, just log it
+      } else {
+        console.log('Email notification sent successfully:', data)
+      }
+    } catch (emailError) {
+      console.error('Error sending email notification:', emailError)
+      // Don't fail the submission if email fails, just log it
+    }
     
     return NextResponse.json({ id: docRef.id, ...shopData })
   } catch (error) {
