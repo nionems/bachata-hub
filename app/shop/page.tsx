@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { Card, CardFooter } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { MapPin, Star, Globe, MessageSquare, ExternalLink, Instagram, Facebook, Share } from "lucide-react"
+import { MapPin, Star, Globe, MessageSquare, ExternalLink, Instagram, Facebook, Share, RefreshCw } from "lucide-react"
 import { ContactForm } from "@/components/ContactForm"
 import { ShopSubmissionForm } from "@/components/ShopSubmissionForm"
 import { Button } from "@/components/ui/button"
@@ -23,26 +23,35 @@ export default function ShopsPage() {
   const [selectedImage, setSelectedImage] = useState<{ url: string; title: string } | null>(null)
   const [activeTab, setActiveTab] = useState("new")
   const [selectedState, setSelectedState] = useState("all")
+  const [lastUpdated, setLastUpdated] = useState<Date>(new Date())
+
+  const fetchShops = async () => {
+    setIsLoading(true)
+    setError(null)
+    try {
+      const response = await fetch('/api/shops', {
+        cache: 'no-store',
+        headers: {
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
+          'Pragma': 'no-cache',
+          'Expires': '0'
+        }
+      })
+      if (!response.ok) {
+        throw new Error('Failed to fetch shops')
+      }
+      const shopsList = await response.json()
+      setShops(shopsList)
+      setLastUpdated(new Date())
+    } catch (err) {
+      console.error('Error fetching shops:', err)
+      setError('Failed to load shops')
+    } finally {
+      setIsLoading(false)
+    }
+  }
 
   useEffect(() => {
-    const fetchShops = async () => {
-      setIsLoading(true)
-      setError(null)
-      try {
-        const response = await fetch('/api/shops')
-        if (!response.ok) {
-          throw new Error('Failed to fetch shops')
-        }
-        const shopsList = await response.json()
-        setShops(shopsList)
-      } catch (err) {
-        console.error('Error fetching shops:', err)
-        setError('Failed to load shops')
-      } finally {
-        setIsLoading(false)
-      }
-    }
-
     fetchShops()
   }, [])
 
@@ -82,13 +91,27 @@ export default function ShopsPage() {
           <p className="text-center text-sm font-medium bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent mt-2">
             Always Mention ❤️ BACHATAAU ❤️
           </p>
-          <div className="text-center mt-4">
-            <Button
-              onClick={() => setIsSubmissionFormOpen(true)}
-              className="bg-gradient-to-r from-primary to-secondary text-white px-6 py-2 rounded-full font-semibold hover:opacity-90 transition-all duration-200 shadow-lg"
-            >
-              Add Listing
-            </Button>
+          <div className="text-center mt-4 space-y-2">
+            <div className="flex justify-center space-x-2">
+              <Button
+                onClick={() => setIsSubmissionFormOpen(true)}
+                className="bg-gradient-to-r from-primary to-secondary text-white px-6 py-2 rounded-full font-semibold hover:opacity-90 transition-all duration-200 shadow-lg"
+              >
+                Add Listing
+              </Button>
+              <Button
+                onClick={fetchShops}
+                variant="outline"
+                className="px-4 py-2 rounded-full font-semibold hover:bg-gray-100 transition-all duration-200"
+                disabled={isLoading}
+              >
+                <RefreshCw className={`w-4 h-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
+                Refresh
+              </Button>
+            </div>
+            <p className="text-xs text-gray-500">
+              Last updated: {lastUpdated.toLocaleTimeString()}
+            </p>
           </div>
         </div>
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
