@@ -93,8 +93,8 @@ export async function GET() {
         id: doc.id,
         ...doc.data()
       }))
-      .filter(shop => shop.status === 'pending')
-      .map(shop => ({
+      .filter((shop: any) => shop.status === 'pending')
+      .map((shop: any) => ({
         ...shop,
         type: 'shop',
         submittedAt: shop.createdAt || shop.submittedAt
