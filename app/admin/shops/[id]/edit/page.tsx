@@ -41,14 +41,18 @@ export default function EditShopPage({ params }: { params: { id: string } }) {
   useEffect(() => {
     const fetchShop = async () => {
       try {
+        console.log('Fetching shop with ID:', params.id)
         const shopDoc = await getDoc(doc(db, 'shops', params.id))
+        console.log('Shop document exists:', shopDoc.exists())
         if (shopDoc.exists()) {
           const shopData = shopDoc.data() as Shop
+          console.log('Shop data:', shopData)
           setShop(shopData)
           if (shopData.imageUrl) {
             setImagePreview(shopData.imageUrl)
           }
         } else {
+          console.log('Shop document does not exist for ID:', params.id)
           setError('Shop not found')
         }
       } catch (error) {
