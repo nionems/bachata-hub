@@ -13,44 +13,16 @@ const firebaseConfig = {
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID
 }
 
-// Add this before the try block
-console.log('Firebase Config:', {
-  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY ? 'Set' : 'Missing',
-  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN ? 'Set' : 'Missing',
-  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID ? 'Set' : 'Missing',
-  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET ? 'Set' : 'Missing',
-  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID ? 'Set' : 'Missing',
-  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID ? 'Set' : 'Missing'
-});
-
 // Initialize Firebase
-let app;
-let auth;
-let db;
-let storage;
+const app = initializeApp(firebaseConfig)
 
-try {
-  app = initializeApp(firebaseConfig);
-  console.log('Firebase app initialized')
+// Initialize Auth
+const auth = getAuth(app)
 
-  // Initialize Auth
-  auth = getAuth(app);
-  console.log('Auth initialized')
+// Initialize Firestore
+const db = getFirestore(app)
 
-  // Initialize Firestore
-  db = getFirestore(app)
-  console.log('Firestore initialized')
-
-  // Initialize Storage
-  storage = getStorage(app);
-  console.log('Storage initialized successfully')
-} catch (error) {
-  console.error('Firebase initialization error:', error);
-  // Set to null if initialization fails
-  app = null;
-  auth = null;
-  db = null;
-  storage = null;
-}
+// Initialize Storage
+const storage = getStorage(app)
 
 export { db, storage, auth } 

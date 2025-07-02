@@ -42,9 +42,6 @@ export default function AccommodationsDashboard() {
 
   const fetchAccommodations = async () => {
     try {
-      if (!db) {
-        throw new Error('Firebase not initialized')
-      }
       const snapshot = await getDocs(collection(db, 'accommodations'))
       const accommodationsList = snapshot.docs.map(doc => ({
         id: doc.id,
