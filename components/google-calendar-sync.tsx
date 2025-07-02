@@ -12,7 +12,7 @@ export default function GoogleCalendarSync() {
   const [autoSync, setAutoSync] = useState(true)
   const [lastSynced, setLastSynced] = useState<Date | null>(null)
   const [calendarId, setCalendarId] = useState(
-    "8d27a79f37a74ab7aedc5c038cc4492cd36b87a71b57fb6d7d141d04e8ffe5c2@group.calendar.google.com",
+    "4ea35178b00a2daa33a492682e866bd67e8b83797a948a31caa8a37e2a982dce@group.calendar.google.com",
   )
 
   // This would be replaced with actual Google OAuth and Calendar API integration

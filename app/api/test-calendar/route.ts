@@ -4,7 +4,7 @@ import { google } from "googleapis"
 export async function GET(request: Request) {
   try {
     // Your calendar ID
-    const calendarId = "8d27a79f37a74ab7aedc5c038cc4492cd36b87a71b57fb6d7d141d04e8ffe5c2@group.calendar.google.com"
+    const calendarId = "4ea35178b00a2daa33a492682e866bd67e8b83797a948a31caa8a37e2a982dce@group.calendar.google.com"
 
     // For public calendars, we can access them with an API key
     const calendar = google.calendar({ version: "v3" })

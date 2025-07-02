@@ -9,7 +9,7 @@ export default function GoogleCalendarEmbed() {
   const [isConnected, setIsConnected] = useState(true)
   const [isLoading, setIsLoading] = useState(false)
 
-  const calendarId = "8d27a79f37a74ab7aedc5c038cc4492cd36b87a71b57fb6d7d141d04e8ffe5c2@group.calendar.google.com"
+  const calendarId = "4ea35178b00a2daa33a492682e866bd67e8b83797a948a31caa8a37e2a982dce@group.calendar.google.com"
 
   const disconnectCalendar = () => {
     setIsConnected(false)
