@@ -97,7 +97,14 @@ export async function GET() {
     const approvedShops = shops.filter(shop => shop.status === 'approved')
 
     console.log(`Total shops: ${shops.length}, Approved shops: ${approvedShops.length}`)
-    return NextResponse.json(approvedShops)
+    
+    // Add cache-busting headers
+    const response = NextResponse.json(approvedShops)
+    response.headers.set('Cache-Control', 'no-cache, no-store, must-revalidate, max-age=0')
+    response.headers.set('Pragma', 'no-cache')
+    response.headers.set('Expires', '0')
+    
+    return response
   } catch (error) {
     console.error('Error fetching shops:', error)
     return NextResponse.json(
