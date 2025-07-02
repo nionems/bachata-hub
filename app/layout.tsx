@@ -20,7 +20,6 @@ export const metadata: Metadata = {
   title: 'Bachata Hub',
   description: 'Your Bachata Guide in Australia',
   manifest: '/manifest.json',
-  themeColor: '#000000',
   appleWebApp: {
     capable: true,
     statusBarStyle: 'default',
@@ -40,12 +39,6 @@ export const metadata: Metadata = {
       }
     ]
   },
-  viewport: {
-    width: 'device-width',
-    initialScale: 1,
-    maximumScale: 1,
-    userScalable: false,
-  },
   icons: {
     icon: [
       { url: '/favicon.ico', sizes: '192x192', type: 'image/x-icon' }
@@ -55,6 +48,14 @@ export const metadata: Metadata = {
     ],
     shortcut: '/favicon.ico'
   },
+}
+
+export const viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+  themeColor: '#000000',
 }
 
 export default function RootLayout({
