@@ -44,7 +44,7 @@ export function MediaCard({ media, layout = 'grid', onDelete, isAdmin = false }:
           <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
           
           {/* Media Name Sticker - Top on mobile, Bottom on desktop */}
-          <div className="absolute top-3 sm:top-auto sm:bottom-3 left-1/2 transform -translate-x-1/2 z-20 bg-gradient-to-r from-primary/60 via-primary/50 to-primary/60 backdrop-blur-md border border-white/30 text-white text-xs font-bold px-4 py-1.5 shadow-2xl max-w-[calc(100%-0.5rem)] hover:shadow-primary/25 transition-all duration-300 rounded-full">
+          <div className="absolute top-1 sm:top-auto sm:bottom-3 left-1/2 transform -translate-x-1/2 z-20 bg-gradient-to-r from-primary/60 via-primary/50 to-primary/60 backdrop-blur-md border border-white/30 text-white text-xs font-bold px-4 py-1.5 shadow-2xl max-w-[calc(100%-0.5rem)] hover:shadow-primary/25 transition-all duration-300 rounded-full">
             <span className="truncate block drop-shadow-sm">{media.name}</span>
           </div>
         </div>

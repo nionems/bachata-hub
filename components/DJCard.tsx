@@ -29,7 +29,7 @@ export function DJCard({ dj }: DJCardProps) {
 
   return (
     <>
-      <Card className="relative overflow-hidden group cursor-pointer h-[300px]">
+      <Card className="relative overflow-hidden group cursor-pointer h-[300px] sm:h-[400px]">
         <div 
           className="relative h-full cursor-pointer"
           onClick={handleImageClick}
@@ -37,12 +37,12 @@ export function DJCard({ dj }: DJCardProps) {
           <img
             src={dj.imageUrl}
             alt={dj.name}
-            className="object-cover w-full h-full transition-transform hover:scale-102"
+            className="object-cover object-top w-full h-full transition-transform duration-300 hover:scale-110"
           />
           <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
           
           {/* DJ Name Sticker - Top on mobile, Bottom on desktop */}
-          <div className="absolute top-3 sm:top-auto sm:bottom-3 left-1/2 transform -translate-x-1/2 z-20 bg-gradient-to-r from-primary/60 via-primary/50 to-primary/60 backdrop-blur-md border border-white/30 text-white text-xs font-bold px-4 py-1.5 shadow-2xl max-w-[calc(100%-0.5rem)] hover:shadow-primary/25 transition-all duration-300 rounded-full">
+          <div className="absolute top-1 sm:top-auto sm:bottom-3 left-1/2 transform -translate-x-1/2 z-20 bg-gradient-to-r from-primary/60 via-primary/50 to-primary/60 backdrop-blur-md border border-white/30 text-white text-xs font-bold px-4 py-1.5 shadow-2xl max-w-[calc(100%-0.5rem)] hover:shadow-primary/25 transition-all duration-300 rounded-full">
             <span className="truncate block drop-shadow-sm">{dj.name}</span>
           </div>
         </div>
@@ -83,54 +83,56 @@ export function DJCard({ dj }: DJCardProps) {
               )}
             </div>
           )}
-          {musicStyles.length > 0 && (
-            <div className="flex flex-wrap gap-1 mt-2 sm:mt-3">
-              {musicStyles.map((style) => (
-                <span
-                  key={style}
-                  className="px-1.5 py-0.5 bg-primary/20 text-primary rounded-full text-[8px]"
+          <div className="flex items-center justify-between gap-4 mt-3 sm:mt-2">
+            <div className="flex gap-2">
+              {dj.instagramLink && (
+                <a
+                  href={dj.instagramLink}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={(e) => e.stopPropagation()}
+                  className="p-1.5 bg-primary/20 hover:bg-primary/30 text-primary rounded-full transition-colors duration-200"
+                  title="Instagram"
                 >
-                  {style}
-                </span>
-              ))}
+                  <Instagram className="h-4 w-4" />
+                </a>
+              )}
+              {dj.facebookLink && (
+                <a
+                  href={dj.facebookLink}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={(e) => e.stopPropagation()}
+                  className="p-1.5 bg-primary/20 hover:bg-primary/30 text-primary rounded-full transition-colors duration-200"
+                  title="Facebook"
+                >
+                  <Facebook className="h-4 w-4" />
+                </a>
+              )}
+              {dj.musicLink && (
+                <a
+                  href={dj.musicLink}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={(e) => e.stopPropagation()}
+                  className="p-1.5 bg-primary/20 hover:bg-primary/30 text-primary rounded-full transition-colors duration-200"
+                  title="Music"
+                >
+                  <Music className="h-4 w-4" />
+                </a>
+              )}
             </div>
-          )}
-          <div className="flex gap-2 mt-3 sm:mt-2">
-            {dj.instagramLink && (
-              <a
-                href={dj.instagramLink}
-                target="_blank"
-                rel="noopener noreferrer"
-                onClick={(e) => e.stopPropagation()}
-                className="p-1.5 bg-primary/20 hover:bg-primary/30 text-primary rounded-full transition-colors duration-200"
-                title="Instagram"
-              >
-                <Instagram className="h-4 w-4" />
-              </a>
-            )}
-            {dj.facebookLink && (
-              <a
-                href={dj.facebookLink}
-                target="_blank"
-                rel="noopener noreferrer"
-                onClick={(e) => e.stopPropagation()}
-                className="p-1.5 bg-primary/20 hover:bg-primary/30 text-primary rounded-full transition-colors duration-200"
-                title="Facebook"
-              >
-                <Facebook className="h-4 w-4" />
-              </a>
-            )}
-            {dj.musicLink && (
-              <a
-                href={dj.musicLink}
-                target="_blank"
-                rel="noopener noreferrer"
-                onClick={(e) => e.stopPropagation()}
-                className="p-1.5 bg-primary/20 hover:bg-primary/30 text-primary rounded-full transition-colors duration-200"
-                title="Music"
-              >
-                <Music className="h-4 w-4" />
-              </a>
+            {musicStyles.length > 0 && (
+              <div className="flex flex-wrap gap-1">
+                {musicStyles.map((style) => (
+                  <span
+                    key={style}
+                    className="px-1.5 py-0.5 bg-primary/20 text-primary rounded-full text-[8px] sm:text-xs sm:px-2 sm:py-1"
+                  >
+                    {style}
+                  </span>
+                ))}
+              </div>
             )}
           </div>
         </div>

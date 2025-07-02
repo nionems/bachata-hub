@@ -22,7 +22,7 @@ export function InstructorCard({ instructor }: InstructorCardProps) {
 
   return (
     <>
-      <Card className="relative overflow-hidden group cursor-pointer h-[300px]">
+      <Card className="relative overflow-hidden group cursor-pointer h-[300px] sm:h-[400px]">
         <div 
           className="relative h-full cursor-pointer"
           onClick={handleImageClick}
@@ -30,12 +30,12 @@ export function InstructorCard({ instructor }: InstructorCardProps) {
           <img
             src={instructor.imageUrl}
             alt={instructor.name}
-            className="object-cover w-full h-full transition-transform hover:scale-102"
+            className="object-cover object-top w-full h-full transition-transform duration-300 hover:scale-110"
           />
           <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
           
           {/* Instructor Name Sticker - Top on mobile, Bottom on desktop */}
-          <div className="absolute top-3 sm:top-auto sm:bottom-3 left-1/2 transform -translate-x-1/2 z-20 bg-gradient-to-r from-primary/60 via-primary/50 to-primary/60 backdrop-blur-md border border-white/30 text-white text-xs font-bold px-4 py-1.5 shadow-2xl max-w-[calc(100%-0.5rem)] hover:shadow-primary/25 transition-all duration-300 rounded-full">
+          <div className="absolute top-1 sm:top-auto sm:bottom-3 left-1/2 transform -translate-x-1/2 z-20 bg-gradient-to-r from-primary/60 via-primary/50 to-primary/60 backdrop-blur-md border border-white/30 text-white text-xs font-bold px-4 py-1.5 shadow-2xl max-w-[calc(100%-0.5rem)] hover:shadow-primary/25 transition-all duration-300 rounded-full">
             <span className="truncate block drop-shadow-sm">{instructor.name}</span>
           </div>
 
@@ -116,7 +116,7 @@ export function InstructorCard({ instructor }: InstructorCardProps) {
               {instructor.danceStyles.map((style) => (
                 <span
                   key={style}
-                  className="px-1.5 py-0.5 bg-primary/20 text-primary rounded-full text-[8px]"
+                  className="px-1.5 py-0.5 bg-primary/20 text-primary rounded-full text-[8px] sm:text-xs sm:px-2 sm:py-1"
                 >
                   {style}
                 </span>

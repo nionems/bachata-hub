@@ -34,15 +34,19 @@ export function SchoolCard({ school }: SchoolCardProps) {
           />
           <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
           
-          {/* School Name Sticker - Bottom only on desktop, same placement as MediaCard */}
-          <div className="absolute sm:bottom-3 left-1/2 transform -translate-x-1/2 z-20 bg-gradient-to-r from-primary/60 via-primary/50 to-primary/60 backdrop-blur-md border border-white/30 text-white text-xs sm:text-sm font-bold px-4 py-1.5 shadow-2xl max-w-[calc(100%-0.5rem)] hover:shadow-primary/25 transition-all duration-300 rounded-full">
+          {/* School Name Sticker - Mobile (top) */}
+          <div className="absolute top-1 left-1/2 transform -translate-x-1/2 z-20 bg-gradient-to-r from-primary/60 via-primary/50 to-primary/60 backdrop-blur-md border border-white/30 text-white text-xs font-bold px-4 py-1.5 shadow-2xl max-w-[calc(100%-0.5rem)] hover:shadow-primary/25 transition-all duration-300 rounded-full sm:hidden">
+            <span className="truncate block drop-shadow-sm">{school.name}</span>
+          </div>
+          
+          {/* School Name Sticker - Desktop (bottom) */}
+          <div className="absolute bottom-3 left-1/2 transform -translate-x-1/2 z-20 bg-gradient-to-r from-primary/60 via-primary/50 to-primary/60 backdrop-blur-md border border-white/30 text-white text-sm font-bold px-4 py-1.5 shadow-2xl max-w-[calc(100%-0.5rem)] hover:shadow-primary/25 transition-all duration-300 rounded-full hidden sm:block">
             <span className="truncate block drop-shadow-sm">{school.name}</span>
           </div>
         </div>
 
         <div className="absolute bottom-0 left-0 right-0 z-20 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-3 sm:p-4">
-          <h3 className="text-base sm:text-lg font-bold text-white line-clamp-1">{school.name}</h3>
-          <div className="flex items-center gap-2 text-xs sm:text-sm text-gray-200 mt-1">
+          <div className="flex items-center gap-2 text-xs sm:text-sm text-gray-200">
             <MapPin className="h-3 w-3 sm:h-4 sm:w-4" />
             {school.location}, {school.state}
           </div>
