@@ -42,7 +42,7 @@ export default function AccommodationsDashboard() {
 
   const fetchAccommodations = async () => {
     try {
-      const snapshot = await getDocs(collection(db, 'accommodations'))
+      const snapshot = await getDocs(collection(db!, 'accommodations'))
       const accommodationsList = snapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data()
