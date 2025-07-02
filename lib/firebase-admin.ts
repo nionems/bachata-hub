@@ -94,8 +94,8 @@ function initializeFirebaseAdmin() {
 }
 
 // Initialize Firebase Admin only once
-let firestoreDb: Firestore;
-let firestoreStorage: Storage;
+let firestoreDb: Firestore | null = null;
+let firestoreStorage: Storage | null = null;
 
 try {
   const { db, storage } = initializeFirebaseAdmin();
@@ -103,7 +103,7 @@ try {
   firestoreStorage = storage;
 } catch (error) {
   console.error('Failed to initialize Firebase Admin:', error);
-  throw error;
+  // Don't throw error, just log it and continue with null values
 }
 
 export { firestoreDb as db, firestoreStorage as storage }; 

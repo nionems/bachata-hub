@@ -24,19 +24,33 @@ console.log('Firebase Config:', {
 });
 
 // Initialize Firebase
-const app = initializeApp(firebaseConfig);
-console.log('Firebase app initialized')
+let app;
+let auth;
+let db;
+let storage;
 
-// Initialize Auth
-const auth = getAuth(app);
-console.log('Auth initialized')
+try {
+  app = initializeApp(firebaseConfig);
+  console.log('Firebase app initialized')
 
-// Initialize Firestore
-const db = getFirestore(app)
-console.log('Firestore initialized')
+  // Initialize Auth
+  auth = getAuth(app);
+  console.log('Auth initialized')
 
-// Initialize Storage
-const storage = getStorage(app);
-console.log('Storage initialized successfully')
+  // Initialize Firestore
+  db = getFirestore(app)
+  console.log('Firestore initialized')
+
+  // Initialize Storage
+  storage = getStorage(app);
+  console.log('Storage initialized successfully')
+} catch (error) {
+  console.error('Firebase initialization error:', error);
+  // Set to null if initialization fails
+  app = null;
+  auth = null;
+  db = null;
+  storage = null;
+}
 
 export { db, storage, auth } 
