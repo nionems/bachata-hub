@@ -107,201 +107,215 @@ export function EventSubmissionForm({ isOpen, onClose }: EventSubmissionFormProp
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-[95vw] sm:max-w-[600px] bg-gradient-to-br from-primary/10 to-secondary/10 max-h-[90vh] overflow-y-auto rounded-xl sm:rounded-2xl">
-        <DialogHeader className="sticky top-0 z-10 bg-white/80 backdrop-blur-sm rounded-t-xl sm:rounded-t-2xl">
-          <DialogTitle className="text-primary text-lg sm:text-xl flex justify-between items-center">
+        <DialogHeader className="sticky top-0 z-10 bg-white/80 backdrop-blur-sm rounded-t-xl sm:rounded-t-2xl pb-2">
+          <DialogTitle className="text-primary text-lg sm:text-xl">
             Submit Your Event
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={onClose}
-              className="h-8 w-8 p-0"
-            >
-              <X className="h-4 w-4" />
-            </Button>
           </DialogTitle>
-          <DialogDescription className="text-sm sm:text-base">
-            Fill out the form below to submit your event for review. You can include an image link in the description.
+          <DialogDescription className="text-sm">
+            Include an googledrive image link.
           </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="eventName" className="text-primary">Event Name *</Label>
-              <Input
-                id="eventName"
-                name="eventName"
-                value={formData.eventName}
-                onChange={handleInputChange}
-                required
-                className="bg-white/80 backdrop-blur-sm rounded-lg"
-              />
-            </div>
+        <form onSubmit={handleSubmit} className="space-y-2">
+          {/* Event Details Section */}
+          <div className="bg-blue-50/50 p-2 rounded-lg">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+              <div className="space-y-0.5">
+                <Label htmlFor="eventName" className="text-primary text-xs">Event Name *</Label>
+                <Input
+                  id="eventName"
+                  name="eventName"
+                  value={formData.eventName}
+                  onChange={handleInputChange}
+                  required
+                  placeholder="e.g., Bachata Social Night"
+                  className="bg-white/80 backdrop-blur-sm rounded-lg h-8 text-sm"
+                />
+              </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="eventDate" className="text-primary">Date *</Label>
-              <Input
-                id="eventDate"
-                name="eventDate"
-                type="date"
-                value={formData.eventDate}
-                onChange={handleInputChange}
-                required
-                className="bg-white/80 backdrop-blur-sm rounded-lg"
-              />
-            </div>
+              <div className="space-y-0.5">
+                <Label htmlFor="eventDate" className="text-primary text-xs">Date *</Label>
+                <Input
+                  id="eventDate"
+                  name="eventDate"
+                  type="date"
+                  value={formData.eventDate}
+                  onChange={handleInputChange}
+                  required
+                  min={new Date().toISOString().split('T')[0]}
+                  className="bg-white/80 backdrop-blur-sm rounded-lg h-8 text-sm"
+                />
+              </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="eventTime" className="text-primary">Start Time *</Label>
-              <Input
-                id="eventTime"
-                name="eventTime"
-                type="time"
-                value={formData.eventTime}
-                onChange={handleInputChange}
-                required
-                className="bg-white/80 backdrop-blur-sm rounded-lg"
-              />
-            </div>
+              <div className="space-y-0.5">
+                <Label htmlFor="eventTime" className="text-primary text-xs">Start Time *</Label>
+                <Input
+                  id="eventTime"
+                  name="eventTime"
+                  type="time"
+                  value={formData.eventTime}
+                  onChange={handleInputChange}
+                  required
+                  className="bg-white/80 backdrop-blur-sm rounded-lg h-8 text-sm"
+                />
+              </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="endTime" className="text-primary">End Time *</Label>
-              <Input
-                id="endTime"
-                name="endTime"
-                type="time"
-                value={formData.endTime}
-                onChange={handleInputChange}
-                required
-                className="bg-white/80 backdrop-blur-sm rounded-lg"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="location" className="text-primary">Full Address *</Label>
-              <Input
-                id="location"
-                name="location"
-                value={formData.location}
-                onChange={handleInputChange}
-                required
-                placeholder="Enter full address including postcode (e.g., 123 Dance Street, Sydney NSW 2000)"
-                className="bg-white/80 backdrop-blur-sm rounded-lg"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="city" className="text-primary">City *</Label>
-              <Input
-                id="city"
-                name="city"
-                value={formData.city}
-                onChange={handleInputChange}
-                required
-                className="bg-white/80 backdrop-blur-sm rounded-lg"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="state" className="text-primary">State *</Label>
-              <StateSelect
-                value={formData.state}
-                onChange={(value) => setFormData(prev => ({ ...prev, state: value }))}
-                className="bg-white/80 backdrop-blur-sm rounded-lg"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="organizerName" className="text-primary">Organizer Name *</Label>
-              <Input
-                id="organizerName"
-                name="organizerName"
-                value={formData.organizerName}
-                onChange={handleInputChange}
-                required
-                className="bg-white/80 backdrop-blur-sm rounded-lg"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="organizerEmail" className="text-primary">Organizer Email *</Label>
-              <Input
-                id="organizerEmail"
-                name="organizerEmail"
-                type="email"
-                value={formData.organizerEmail}
-                onChange={handleInputChange}
-                required
-                className="bg-white/80 backdrop-blur-sm rounded-lg"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="ticketLink" className="text-primary">Ticket Link</Label>
-              <Input
-                id="ticketLink"
-                name="ticketLink"
-                type="url"
-                value={formData.ticketLink}
-                onChange={handleInputChange}
-                placeholder="https://"
-                className="bg-white/80 backdrop-blur-sm rounded-lg"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="eventLink" className="text-primary">Event Link</Label>
-              <Input
-                id="eventLink"
-                name="eventLink"
-                type="url"
-                value={formData.eventLink}
-                onChange={handleInputChange}
-                placeholder="https://"
-                className="bg-white/80 backdrop-blur-sm rounded-lg"
-              />
+              <div className="space-y-0.5">
+                <Label htmlFor="endTime" className="text-primary text-xs">End Time *</Label>
+                <Input
+                  id="endTime"
+                  name="endTime"
+                  type="time"
+                  value={formData.endTime}
+                  onChange={handleInputChange}
+                  required
+                  className="bg-white/80 backdrop-blur-sm rounded-lg h-8 text-sm"
+                />
+              </div>
             </div>
           </div>
 
-          <div className="space-y-2">
-            <div className="bg-blue-50 p-4 rounded-md mb-4">
-              <h4 className="font-medium text-blue-800 mb-2">To include an image or flyer with your event:</h4>
-              <ol className="list-decimal list-inside text-blue-700 space-y-1">
-                <li>Upload the image to your own Google Drive.</li>
-                <li>Right-click the file and select "Get link".</li>
-                <li>Set the access to "Anyone with the link can view".</li>
-                <li>Copy the public share link and paste it below.</li>
-              </ol>
+          {/* Location Section */}
+          <div className="bg-green-50/50 p-2 rounded-lg">
+            <h3 className="font-medium text-green-800 mb-1 text-xs">Location</h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+              <div className="space-y-0.5">
+                <Label htmlFor="location" className="text-primary text-xs">Full Address *</Label>
+                <Input
+                  id="location"
+                  name="location"
+                  value={formData.location}
+                  onChange={handleInputChange}
+                  required
+                  placeholder="123 Dance Street, Sydney NSW 2000"
+                  className="bg-white/80 backdrop-blur-sm rounded-lg h-8 text-sm"
+                />
+              </div>
+
+              <div className="space-y-0.5">
+                <Label htmlFor="city" className="text-primary text-xs">City *</Label>
+                <Input
+                  id="city"
+                  name="city"
+                  value={formData.city}
+                  onChange={handleInputChange}
+                  required
+                  placeholder="e.g., Sydney"
+                  className="bg-white/80 backdrop-blur-sm rounded-lg h-8 text-sm"
+                />
+              </div>
+
+              <div className="space-y-0.5">
+                <Label htmlFor="state" className="text-primary text-xs">State *</Label>
+                <StateSelect
+                  value={formData.state}
+                  onChange={(value) => setFormData(prev => ({ ...prev, state: value }))}
+                  className="bg-white/80 backdrop-blur-sm rounded-lg h-8 text-sm"
+                />
+              </div>
             </div>
-            <Label htmlFor="description" className="text-primary">Description</Label>
-            <Textarea
-              id="description"
-              name="description"
-              value={formData.description}
-              onChange={handleInputChange}
-              className="min-h-[100px] bg-white/80 backdrop-blur-sm rounded-lg"
-              placeholder="Tell us more about your event... You can include an image link here."
-            />
+          </div>
+
+          {/* Organizer Section */}
+          <div className="bg-purple-50/50 p-2 rounded-lg">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+              <div className="space-y-0.5">
+                <Label htmlFor="organizerName" className="text-primary text-xs">Organizer Name *</Label>
+                <Input
+                  id="organizerName"
+                  name="organizerName"
+                  value={formData.organizerName}
+                  onChange={handleInputChange}
+                  required
+                  placeholder="e.g., John Smith"
+                  className="bg-white/80 backdrop-blur-sm rounded-lg h-8 text-sm"
+                />
+              </div>
+
+              <div className="space-y-0.5">
+                <Label htmlFor="organizerEmail" className="text-primary text-xs">Organizer Email *</Label>
+                <Input
+                  id="organizerEmail"
+                  name="organizerEmail"
+                  type="email"
+                  value={formData.organizerEmail}
+                  onChange={handleInputChange}
+                  required
+                  placeholder="john@example.com"
+                  className="bg-white/80 backdrop-blur-sm rounded-lg h-8 text-sm"
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Links Section */}
+          <div className="bg-orange-50/50 p-2 rounded-lg">
+            <h3 className="font-medium text-orange-800 mb-1 text-xs">Links (Optional)</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+              <div className="space-y-0.5">
+                <Label htmlFor="ticketLink" className="text-primary text-xs">Ticket Link</Label>
+                <Input
+                  id="ticketLink"
+                  name="ticketLink"
+                  type="url"
+                  value={formData.ticketLink}
+                  onChange={handleInputChange}
+                  placeholder="https://tickets.example.com"
+                  className="bg-white/80 backdrop-blur-sm rounded-lg h-8 text-sm"
+                />
+              </div>
+
+              <div className="space-y-0.5">
+                <Label htmlFor="eventLink" className="text-primary text-xs">Event Link</Label>
+                <Input
+                  id="eventLink"
+                  name="eventLink"
+                  type="url"
+                  value={formData.eventLink}
+                  onChange={handleInputChange}
+                  placeholder="https://event.example.com"
+                  className="bg-white/80 backdrop-blur-sm rounded-lg h-8 text-sm"
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Description Section */}
+          <div className="bg-yellow-50/50 p-2 rounded-lg">
+            <h3 className="font-medium text-yellow-800 mb-1 text-xs">Event Description & Image</h3>
+            <div className="space-y-1">
+              <div className="bg-blue-50 p-1.5 rounded-md">
+                <h4 className="font-medium text-blue-800 mb-0.5 text-xs">📸 To include an image/flyer:</h4>
+                <ol className="list-decimal list-inside text-blue-700 space-y-0 text-xs">
+                  <li>Upload image to Google Drive</li>
+                  <li>Right-click → "Get link"</li>
+                  <li>Set access to "Anyone with link can view"</li>
+                  <li>Paste the link in description below</li>
+                </ol>
+              </div>
+              <div className="space-y-0.5">
+                <Label htmlFor="description" className="text-primary text-xs">Description</Label>
+                <Textarea
+                  id="description"
+                  name="description"
+                  value={formData.description}
+                  onChange={handleInputChange}
+                  className="min-h-[60px] bg-white/80 backdrop-blur-sm rounded-lg text-sm"
+                  placeholder="Describe your event, what to expect, dress code, skill level, etc. You can paste an image link here too!"
+                />
+              </div>
+            </div>
           </div>
 
           {error && (
-            <div className="text-red-500 text-sm">{error}</div>
+            <div className="text-red-500 text-sm mt-2">{error}</div>
           )}
 
-          <div className="flex justify-end gap-2">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={onClose}
-              disabled={isLoading}
-              className="border-primary text-primary hover:bg-primary/10 rounded-lg"
-            >
-              Cancel
-            </Button>
+          <div className="flex justify-end pt-2">
             <Button
               type="submit"
               disabled={isLoading}
-              className="bg-primary hover:bg-primary/90 rounded-lg"
+              className="bg-primary hover:bg-primary/90 rounded-lg h-8"
             >
               {isLoading ? 'Submitting...' : 'Submit Event'}
             </Button>
