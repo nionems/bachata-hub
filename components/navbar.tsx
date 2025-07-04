@@ -64,7 +64,7 @@ export default function Navbar() {
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center overflow-x-auto scrollbar-hide">
-            <div className="flex space-x-1 md:space-x-2 lg:space-x-4 items-center">
+            <div className="flex space-x-1 md:space-x-1 lg:space-x-2 items-center">
             {navItems.map((item) => (
               <Link
                 key={item.name}
@@ -77,7 +77,7 @@ export default function Navbar() {
               </Link>
             ))}
               <Link href="/community">
-                <Button size="sm" className="bg-primary hover:bg-primary/90 text-white ml-2 whitespace-nowrap text-xs md:text-sm">
+                <Button size="sm" className="bg-primary hover:bg-primary/90 text-white ml-2 whitespace-nowrap text-xs md:text-sm px-2 py-1">
               Join the Community
             </Button>
               </Link>

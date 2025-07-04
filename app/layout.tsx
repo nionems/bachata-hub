@@ -5,6 +5,7 @@ import { Toaster } from "sonner"
 import Navbar from "@/components/navbar"
 import Footer from "@/components/footer"
 import { AIAssistant } from "@/components/AIAssistant"
+import { AddToHomeScreenModal } from "@/components/AddToHomeScreenModal"
 import { Analytics } from '@vercel/analytics/react'
 
 const fredoka = Fredoka({
@@ -90,6 +91,7 @@ export default function RootLayout({
         </main>
         <Footer />
         {/* <AIAssistant /> */}
+        <AddToHomeScreenModal />
         <Toaster />
         <Analytics />
       </body>
