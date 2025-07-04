@@ -18,8 +18,46 @@ const fredoka = Fredoka({
 })
 
 export const metadata: Metadata = {
-  title: 'Bachata Hub',
-  description: 'Your Bachata Guide in Australia',
+  title: {
+    default: 'Bachata Hub Australia - Events, Schools, Instructors & DJs',
+    template: '%s | Bachata Hub Australia'
+  },
+  description: 'Discover the best Bachata events, schools, instructors, and DJs across Australia. Find local classes, socials, festivals, and competitions. Your complete guide to Bachata dancing in Australia.',
+  keywords: ['bachata', 'dance', 'australia', 'events', 'classes', 'instructors', 'djs', 'schools', 'social dancing', 'latin dance', 'bachata australia'],
+  authors: [{ name: 'Bachata Hub Australia' }],
+  creator: 'Bachata Hub Australia',
+  publisher: 'Bachata Hub Australia',
+  formatDetection: {
+    email: false,
+    address: false,
+    telephone: false,
+  },
+  metadataBase: new URL('https://bachata.au'),
+  alternates: {
+    canonical: '/',
+  },
+  openGraph: {
+    type: 'website',
+    locale: 'en_AU',
+    url: 'https://bachata.au',
+    title: 'Bachata Hub Australia - Events, Schools, Instructors & DJs',
+    description: 'Discover the best Bachata events, schools, instructors, and DJs across Australia. Find local classes, socials, festivals, and competitions.',
+    siteName: 'Bachata Hub Australia',
+    images: [
+      {
+        url: '/images/BACHATA.AU (13).png',
+        width: 1200,
+        height: 630,
+        alt: 'Bachata Hub Australia - Your complete guide to Bachata dancing',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Bachata Hub Australia - Events, Schools, Instructors & DJs',
+    description: 'Discover the best Bachata events, schools, instructors, and DJs across Australia.',
+    images: ['/images/BACHATA.AU (13).png'],
+  },
   manifest: '/manifest.json',
   appleWebApp: {
     capable: true,
@@ -79,10 +117,7 @@ export default function RootLayout({
         <link rel="icon" type="image/png" sizes="32x32" href="/favicon.ico?v=2" />
         <link rel="icon" type="image/png" sizes="16x16" href="/favicon.ico?v=2" />
         <link rel="shortcut icon" href="/favicon.ico?v=2" />
-        <meta property="og:image" content="/favicon.ico?v=2" />
-        <meta property="og:image:type" content="image/x-icon" />
-        <meta property="og:image:width" content="32" />
-        <meta property="og:image:height" content="32" />
+
       </head>
       <body className={`${fredoka.className} antialiased min-h-screen flex flex-col`}>
         <Navbar />
