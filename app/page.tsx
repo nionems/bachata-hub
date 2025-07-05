@@ -445,7 +445,7 @@ export default function Home() {
                                   alt={event.name}
                                   fill
                                   loading="lazy"
-                                  className="object-contain object-top"
+                                  className="object-contain object-top rounded-lg"
                                   sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                                   onError={(e) => {
                                     console.error('Error loading image:', event.imageUrl)

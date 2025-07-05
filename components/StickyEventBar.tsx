@@ -169,7 +169,7 @@ export function StickyEventBar() {
   }
 
   return (
-    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-r from-primary/90 to-secondary/90 text-white shadow-lg backdrop-blur-sm">
+    <div className={`absolute bottom-0 left-0 right-0 md:bottom-6 md:left-auto md:right-6 md:transform-none bg-gradient-to-r from-primary/90 to-secondary/90 text-white shadow-lg backdrop-blur-sm md:rounded-full ${isExpanded ? 'md:max-w-xl' : 'md:max-w-md'}`}>
       {/* Collapsed State */}
       {!isExpanded && (
         <div 
@@ -179,11 +179,11 @@ export function StickyEventBar() {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2 sm:animate-none animate-pulse">
               {/* Image - Show on mobile in collapsed state, always on desktop */}
-              <div className="block sm:hidden w-8 h-6 rounded overflow-hidden flex-shrink-0">
+              <div className="block sm:hidden w-8 h-6 rounded-lg overflow-hidden flex-shrink-0">
                 <img
                   src={featuredItems.length > 0 && 'imageUrl' in featuredItems[currentItemIndex] && featuredItems[currentItemIndex].imageUrl ? featuredItems[currentItemIndex].imageUrl : '/images/placeholder.svg'}
                   alt={featuredItems.length > 0 ? featuredItems[currentItemIndex].name : 'Event'}
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-cover rounded-lg"
                   onError={(e) => {
                     const target = e.target as HTMLImageElement
                     target.src = '/images/placeholder.svg'
@@ -191,11 +191,11 @@ export function StickyEventBar() {
                 />
               </div>
               {/* Image - Only show on desktop */}
-              <div className="hidden sm:block sm:w-16 sm:h-12 rounded overflow-hidden flex-shrink-0">
+              <div className="hidden sm:block sm:w-16 sm:h-12 rounded-lg overflow-hidden flex-shrink-0">
                 <img
                   src={featuredItems.length > 0 && 'imageUrl' in featuredItems[currentItemIndex] && featuredItems[currentItemIndex].imageUrl ? featuredItems[currentItemIndex].imageUrl : '/images/placeholder.svg'}
                   alt={featuredItems.length > 0 ? featuredItems[currentItemIndex].name : 'Event'}
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-cover rounded-lg"
                   onError={(e) => {
                     const target = e.target as HTMLImageElement
                     target.src = '/images/placeholder.svg'
@@ -310,13 +310,13 @@ export function StickyEventBar() {
             </div>
           </div>
           
-          <div className="flex flex-col sm:flex-row gap-2 sm:gap-4">
+          <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
             {/* Image - Show on mobile when expanded, always on desktop */}
             <div className="block sm:hidden w-16 h-12 rounded-lg overflow-hidden flex-shrink-0">
               <img
                 src={featuredItems.length > 0 && 'imageUrl' in featuredItems[currentItemIndex] && featuredItems[currentItemIndex].imageUrl ? featuredItems[currentItemIndex].imageUrl : '/images/placeholder.svg'}
                 alt={featuredItems.length > 0 ? featuredItems[currentItemIndex].name : 'Event'}
-                className="w-full h-full object-cover"
+                className="w-full h-full object-cover rounded-lg"
                 onError={(e) => {
                   const target = e.target as HTMLImageElement
                   target.src = '/images/placeholder.svg'
@@ -324,11 +324,11 @@ export function StickyEventBar() {
               />
             </div>
             {/* Image - Only show on desktop */}
-            <div className="hidden sm:block sm:w-32 sm:h-20 rounded-lg overflow-hidden flex-shrink-0">
+            <div className="hidden sm:block sm:w-24 sm:h-16 rounded-lg overflow-hidden flex-shrink-0">
               <img
                 src={featuredItems.length > 0 && 'imageUrl' in featuredItems[currentItemIndex] && featuredItems[currentItemIndex].imageUrl ? featuredItems[currentItemIndex].imageUrl : '/images/placeholder.svg'}
                 alt={featuredItems.length > 0 ? featuredItems[currentItemIndex].name : 'Event'}
-                className="w-full h-full object-cover"
+                className="w-full h-full object-cover rounded-lg"
                 onError={(e) => {
                   const target = e.target as HTMLImageElement
                   target.src = '/images/placeholder.svg'
