@@ -84,6 +84,7 @@ export async function POST(request: Request) {
       const { data, error } = await resend.emails.send({
         from: 'Bachata Hub <onboarding@resend.dev>',
         to: 'bachata.au@gmail.com',
+        replyTo: 'bachata.au@gmail.com',
         subject: 'New Shop/Item Submission from Bachata Hub',
         html: `
           <h2>New Shop/Item Submission</h2>

@@ -160,7 +160,7 @@ export default function ShopsPage() {
           <Card key={shop.id}>
             <CardHeader>
               <div className="flex justify-between items-start">
-                <CardTitle className="text-lg">{shop.name}</CardTitle>
+              <CardTitle className="text-lg">{shop.name}</CardTitle>
                 {getStatusBadge(shop.status)}
               </div>
             </CardHeader>

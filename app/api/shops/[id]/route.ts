@@ -41,7 +41,7 @@ export async function DELETE(
     
     const docRef = doc(db, 'shops', id)
     await deleteDoc(docRef)
-    
+
     console.log('Shop deleted successfully:', id)
     return NextResponse.json({ message: 'Shop deleted successfully' })
   } catch (error) {

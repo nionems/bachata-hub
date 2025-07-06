@@ -328,6 +328,7 @@ export async function POST(request: Request) {
     const emailResponse = await resend.emails.send({
       from: "Bachata Hub <onboarding@resend.dev>",
       to: "bachata.au@gmail.com",
+      replyTo: "bachata.au@gmail.com",
       subject: subject,
       html: html
     });

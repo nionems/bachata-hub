@@ -75,7 +75,7 @@ export async function PUT(
     if (action === 'approve') {
       if (collectionName === 'pending_items') {
         // Move from pending_items to shops collection
-        const shopData = {
+      const shopData = {
           name: itemData.name,
           location: itemData.location,
           state: itemData.state,
@@ -94,25 +94,25 @@ export async function PUT(
           googleMapLink: itemData.googleMapLink,
           info: itemData.info,
           status: 'approved',
-          createdAt: now,
-          updatedAt: now
-        }
+        createdAt: now,
+        updatedAt: now
+      }
 
-        // Add to shops collection
-        await addDoc(collection(db, 'shops'), shopData)
+      // Add to shops collection
+      await addDoc(collection(db, 'shops'), shopData)
 
-        // Update pending item status
-        await updateDoc(docRef, {
-          status: 'approved',
-          reviewedAt: now,
-          reviewedBy: reviewedBy || 'admin',
-          reviewNotes: reviewNotes || ''
-        })
+      // Update pending item status
+      await updateDoc(docRef, {
+        status: 'approved',
+        reviewedAt: now,
+        reviewedBy: reviewedBy || 'admin',
+        reviewNotes: reviewNotes || ''
+      })
 
-        return NextResponse.json({ 
-          message: 'Shop item approved and moved to shops collection',
-          shopData 
-        })
+      return NextResponse.json({ 
+        message: 'Shop item approved and moved to shops collection',
+        shopData 
+      })
       } else {
         // Item is already in shops collection, just update status
         await updateDoc(docRef, {

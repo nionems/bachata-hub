@@ -29,10 +29,10 @@ export default function ShopsPage() {
   const [selectedState, setSelectedState] = useState("all")
   const [lastUpdated, setLastUpdated] = useState<Date>(new Date())
 
-  const fetchShops = async () => {
-    setIsLoading(true)
-    setError(null)
-    try {
+    const fetchShops = async () => {
+      setIsLoading(true)
+      setError(null)
+      try {
       // Add timestamp to force cache busting
       const timestamp = Date.now()
       const response = await fetch(`/api/shops?t=${timestamp}`, {
@@ -44,19 +44,19 @@ export default function ShopsPage() {
           'Surrogate-Control': 'no-store'
         }
       })
-      if (!response.ok) {
-        throw new Error('Failed to fetch shops')
-      }
-      const shopsList = await response.json()
-      setShops(shopsList)
+        if (!response.ok) {
+          throw new Error('Failed to fetch shops')
+        }
+        const shopsList = await response.json()
+        setShops(shopsList)
       setLastUpdated(new Date())
-    } catch (err) {
-      console.error('Error fetching shops:', err)
-      setError('Failed to load shops')
-    } finally {
-      setIsLoading(false)
+      } catch (err) {
+        console.error('Error fetching shops:', err)
+        setError('Failed to load shops')
+      } finally {
+        setIsLoading(false)
+      }
     }
-  }
 
   useEffect(() => {
     fetchShops()
@@ -100,12 +100,12 @@ export default function ShopsPage() {
           </p>
           <div className="text-center mt-4 space-y-2">
             <div className="flex justify-center space-x-2">
-              <Button
-                onClick={() => setIsSubmissionFormOpen(true)}
-                className="bg-gradient-to-r from-primary to-secondary text-white px-6 py-2 rounded-full font-semibold hover:opacity-90 transition-all duration-200 shadow-lg"
-              >
-                Add Listing
-              </Button>
+            <Button
+              onClick={() => setIsSubmissionFormOpen(true)}
+              className="bg-gradient-to-r from-primary to-secondary text-white px-6 py-2 rounded-full font-semibold hover:opacity-90 transition-all duration-200 shadow-lg"
+            >
+              Add Listing
+            </Button>
               <Button
                 onClick={fetchShops}
                 variant="outline"

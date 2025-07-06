@@ -194,6 +194,7 @@ export async function POST(request: Request) {
       adminEmailResponse = await resend.emails.send({
         from: "Bachata Hub <onboarding@resend.dev>",
         to: "bachata.au@gmail.com", // Send to verified email for testing
+        replyTo: "bachata.au@gmail.com",
         subject: `New Event Submission: ${formData.get('eventName')}`,
         html: adminEmailHtml
       });

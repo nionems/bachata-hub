@@ -92,41 +92,41 @@ export function DJCard({ dj }: DJCardProps) {
           )}
           <div className="flex items-center justify-between gap-4 mt-3 sm:mt-2">
             <div className="flex gap-2">
-              {dj.instagramLink && (
-                <a
-                  href={dj.instagramLink}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  onClick={(e) => e.stopPropagation()}
-                  className="p-1.5 bg-primary/20 hover:bg-primary/30 text-primary rounded-full transition-colors duration-200"
-                  title="Instagram"
-                >
-                  <Instagram className="h-4 w-4" />
-                </a>
-              )}
-              {dj.facebookLink && (
-                <a
-                  href={dj.facebookLink}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  onClick={(e) => e.stopPropagation()}
-                  className="p-1.5 bg-primary/20 hover:bg-primary/30 text-primary rounded-full transition-colors duration-200"
-                  title="Facebook"
-                >
-                  <Facebook className="h-4 w-4" />
-                </a>
-              )}
-              {dj.musicLink && (
-                <a
-                  href={dj.musicLink}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  onClick={(e) => e.stopPropagation()}
-                  className="p-1.5 bg-primary/20 hover:bg-primary/30 text-primary rounded-full transition-colors duration-200"
-                  title="Music"
-                >
-                  <Music className="h-4 w-4" />
-                </a>
+            {dj.instagramLink && (
+              <a
+                href={dj.instagramLink}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={(e) => e.stopPropagation()}
+                className="p-1.5 bg-primary/20 hover:bg-primary/30 text-primary rounded-full transition-colors duration-200"
+                title="Instagram"
+              >
+                <Instagram className="h-4 w-4" />
+              </a>
+            )}
+            {dj.facebookLink && (
+              <a
+                href={dj.facebookLink}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={(e) => e.stopPropagation()}
+                className="p-1.5 bg-primary/20 hover:bg-primary/30 text-primary rounded-full transition-colors duration-200"
+                title="Facebook"
+              >
+                <Facebook className="h-4 w-4" />
+              </a>
+            )}
+            {dj.musicLink && (
+              <a
+                href={dj.musicLink}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={(e) => e.stopPropagation()}
+                className="p-1.5 bg-primary/20 hover:bg-primary/30 text-primary rounded-full transition-colors duration-200"
+                title="Music"
+              >
+                <Music className="h-4 w-4" />
+              </a>
               )}
             </div>
             {musicStyles.length > 0 && (

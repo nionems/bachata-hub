@@ -22,18 +22,18 @@ const AUSTRALIAN_STATES = [
 
 export function StateSelect({ value, onChange, required = false, className }: StateSelectProps) {
   return (
-    <select
-      value={value}
-      onChange={(e) => onChange(e.target.value)}
+      <select
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
       className={`block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 ${className || ''}`}
-      required={required}
-    >
-      <option value="">Select a state</option>
-      {AUSTRALIAN_STATES.map((state) => (
-        <option key={state.value} value={state.value}>
-          {state.label}
-        </option>
-      ))}
-    </select>
+        required={required}
+      >
+        <option value="">Select a state</option>
+        {AUSTRALIAN_STATES.map((state) => (
+          <option key={state.value} value={state.value}>
+            {state.label}
+          </option>
+        ))}
+      </select>
   )
 } 

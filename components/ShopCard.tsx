@@ -20,10 +20,10 @@ export function ShopCard({ shop }: ShopCardProps) {
   console.log('Shop data:', { name: shop.name, info: shop.info, infoLength: shop.info?.length })
 
   const handleImageClick = (e: React.MouseEvent) => {
-    e.stopPropagation();
+                e.stopPropagation();
     if (shop.imageUrl) {
       setIsImageModalOpen(true);
-    }
+              }
   }
 
   return (
@@ -141,7 +141,7 @@ export function ShopCard({ shop }: ShopCardProps) {
                 >
                   <Share className="h-4 w-4" />
                 </div>
-                {shop.googleMapLink && (
+            {shop.googleMapLink && (
                   <a
                     href={shop.googleMapLink}
                     target="_blank"
@@ -186,7 +186,7 @@ export function ShopCard({ shop }: ShopCardProps) {
             className="max-h-[90vh] max-w-[90vw] object-contain"
             onClick={(e) => e.stopPropagation()}
           />
-        </div>
+      </div>
       )}
     </>
   )
