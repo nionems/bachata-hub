@@ -1,6 +1,6 @@
 import { initializeApp, getApps, cert } from 'firebase-admin/app'
 import { getFirestore, Firestore } from 'firebase-admin/firestore'
-import { getStorage, Storage } from 'firebase-admin/storage'
+import { getStorage as getFirebaseStorage, Storage } from 'firebase-admin/storage'
 
 // Initialize Firebase Admin only once
 let firestoreDb: Firestore | null = null;
@@ -46,7 +46,7 @@ export function getDb(): Firestore {
 export function getStorage(): Storage {
   if (!firestoreStorage) {
     const app = initializeFirebaseAdmin();
-    firestoreStorage = getStorage(app);
+    firestoreStorage = getFirebaseStorage(app);
   }
   return firestoreStorage;
 } 
