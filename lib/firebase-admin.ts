@@ -35,7 +35,7 @@ function initializeFirebaseAdmin() {
 }
 
 // Export functions that get the instances when needed
-export function getDb(): Firestore {
+export const getDb = (): Firestore => {
   if (!firestoreDb) {
     const app = initializeFirebaseAdmin();
     firestoreDb = getFirestore(app);
@@ -43,7 +43,7 @@ export function getDb(): Firestore {
   return firestoreDb;
 }
 
-export function getStorage(): Storage {
+export const getStorage = (): Storage => {
   if (!firestoreStorage) {
     const app = initializeFirebaseAdmin();
     firestoreStorage = getFirebaseStorage(app);
