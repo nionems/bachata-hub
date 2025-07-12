@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { MapPin, Calendar, Clock, Users, Info, Ticket, ExternalLink, ChevronDown, ChevronUp, X } from "lucide-react"
+import { MapPin, Calendar, Clock, Users, Info, Ticket, ExternalLink, ChevronDown, ChevronUp, X, Search } from "lucide-react"
 import { Calendar as UiCalendar } from '@/components/ui/calendar'
 import Link from 'next/link'
 import { StateFilter } from '@/components/StateFilter'
@@ -17,6 +17,7 @@ import { EventSubmissionForm } from "@/components/EventSubmissionForm"
 import CalendarMenu from "@/components/calendar-menu"
 import { EventCard } from '@/components/EventCard'
 import { LoadingSpinner } from '@/components/loading-spinner'
+import { Input } from "@/components/ui/input"
 
 interface Event {
   id: string
@@ -50,8 +51,16 @@ export default function EventsPage() {
   const [isContactFormOpen, setIsContactFormOpen] = useState(false)
   const [isFormOpen, setIsFormOpen] = useState(false)
   const [expandedComments, setExpandedComments] = useState<Record<string, boolean>>({})
+  const [searchTerm, setSearchTerm] = useState("")
   
   const { selectedState, setSelectedState, filteredItems: filteredEvents, isGeoLoading, error: geoError } = useStateFilter(events)
+
+  // Filter events based on search term
+  const searchFilteredEvents = filteredEvents.filter(event =>
+    event.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    event.location.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (event.danceStyles && event.danceStyles.toLowerCase().includes(searchTerm.toLowerCase()))
+  )
 
   useEffect(() => {
     const fetchEvents = async () => {
@@ -106,21 +115,40 @@ export default function EventsPage() {
         </div>
 
         <div className="mb-4 sm:mb-8">
-        <StateFilter
-          selectedState={selectedState}
-          onChange={setSelectedState}
-            isLoading={isGeoLoading}
-            error={geoError}
-        />
+          <div className="flex flex-col sm:flex-row gap-0 sm:gap-4">
+            <StateFilter
+              selectedState={selectedState}
+              onChange={setSelectedState}
+              isLoading={isGeoLoading}
+              error={geoError}
+            />
+            <div className="flex gap-2 w-full sm:w-auto -mt-1 sm:mt-0">
+              <Input
+                type="text"
+                placeholder="Search events..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full sm:w-[200px] bg-white border-gray-200 focus:border-primary focus:ring-primary rounded-md"
+              />
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={() => setSearchTerm("")}
+                className="shrink-0 border-gray-200 hover:bg-gray-50 hover:text-primary rounded-md"
+              >
+                <Search className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
         </div>
 
         <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-4 md:gap-6">
-          {filteredEvents.length === 0 ? (
+          {searchFilteredEvents.length === 0 ? (
             <div className="col-span-full text-center py-8 text-gray-500">
               No events found {selectedState !== 'all' && `in ${selectedState}`}
             </div>
           ) : (
-            filteredEvents.map((event) => (
+            searchFilteredEvents.map((event) => (
               <Card
                 key={event.id}
                 className="relative overflow-hidden h-80 sm:h-96 text-white cursor-pointer"
