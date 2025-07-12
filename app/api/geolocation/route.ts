@@ -2,8 +2,8 @@ import { NextResponse } from 'next/server'
 
 export async function GET() {
   try {
-    // Use a different geolocation service that's more reliable
-    const response = await fetch('https://api.ipapi.com/api/check?access_key=free')
+    // Use ipapi.co for geolocation
+    const response = await fetch('https://ipapi.co/json/')
     
     if (!response.ok) {
       throw new Error('Failed to fetch location data')
@@ -13,10 +13,9 @@ export async function GET() {
     
     return NextResponse.json({
       city: data.city || 'Sydney',
-      region: data.region_name || 'New South Wales',
-      country: data.country_name || 'Australia',
-      state: data.region_code || 'NSW',
-      stateFull: data.region_name || 'New South Wales'
+      region: data.region || 'New South Wales',
+      country_name: data.country_name || 'Australia',
+      state: data.region_code || 'NSW'
     })
   } catch (error) {
     console.error('Error fetching geolocation:', error)
@@ -25,9 +24,8 @@ export async function GET() {
     return NextResponse.json({
       city: 'Sydney',
       region: 'New South Wales',
-      country: 'Australia',
-      state: 'NSW',
-      stateFull: 'New South Wales'
+      country_name: 'Australia',
+      state: 'NSW'
     })
   }
 } 
