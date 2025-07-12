@@ -3,10 +3,10 @@ import { db } from '@/lib/firebase-admin'
 
 export const dynamic = 'force-dynamic'
 
-// Simple in-memory cache for festivals
+// Enhanced in-memory cache for festivals
 let festivalsCache: any[] | null = null
 let cacheTimestamp: number = 0
-const CACHE_DURATION = 5 * 60 * 1000 // 5 minutes
+const CACHE_DURATION = 10 * 60 * 1000 // 10 minutes (increased from 5 minutes)
 
 interface FestivalData {
   id: string
@@ -39,8 +39,11 @@ export async function GET() {
       return NextResponse.json(festivalsCache)
     }
 
-    // Query only published festivals
-    const festivalsRef = db.collection('festivals').where('published', '==', true)
+    // Query only published festivals with optimized query
+    const festivalsRef = db.collection('festivals')
+      .where('published', '==', true)
+      .orderBy('name') // Pre-sort by name to reduce client-side processing
+    
     const snapshot = await festivalsRef.get()
     console.log(`API Route (GET /api/festivals): Fetched ${snapshot.docs.length} published festivals from Firestore in ${Date.now() - startTime}ms`)
 

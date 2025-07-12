@@ -16,6 +16,7 @@ import { Badge } from "@/components/ui/badge"
 import { FestivalCard } from '@/components/FestivalCard'
 import Image from "next/image"
 import { GridSkeleton } from "@/components/loading-skeleton"
+import { LoadingSpinner } from "@/components/loading-spinner"
 
 interface Festival {
   id: string
@@ -80,12 +81,8 @@ export default function FestivalsPage() {
         }
         const festivalsList = await response.json()
         
-        // Sort festivals alphabetically by name
-        const sortedFestivals = festivalsList.sort((a: Festival, b: Festival) => 
-          a.name.localeCompare(b.name)
-        )
-        
-        setFestivals(sortedFestivals)
+        // Festivals are already sorted by name from the API
+        setFestivals(festivalsList)
       } catch (err) {
         console.error('Error fetching festivals:', err)
         setError('Failed to load festivals')
@@ -97,91 +94,66 @@ export default function FestivalsPage() {
     fetchFestivals()
   }, [])
 
-  // Helper function to check if a date is in the future
-  const isFutureDate = (dateString: string) => {
-    // Handle "To Be Announced" dates
-    if (dateString.includes("To Be Announced")) {
-      return true // Always show TBA dates
-    }
-
-    // Extract the year from the date string
-    const yearMatch = dateString.match(/\d{4}/)
-    if (!yearMatch) return true // If no year found, treat as future date
-    const year = Number.parseInt(yearMatch[0])
+  // Memoized helper functions to avoid recalculation
+  const dateHelpers = useMemo(() => {
     const currentYear = new Date().getFullYear()
-
-    // If the year is in the future, the event is upcoming
-    return year >= currentYear
-  }
-
-  // Helper function to convert date string to a comparable value for sorting
-  const getDateSortValue = (dateString: string) => {
-    // Handle "To Be Announced" dates - put them at the end
-    if (dateString.includes("To Be Announced")) {
-      return Number.POSITIVE_INFINITY // This will place TBA dates at the end
+    
+    const isFutureDate = (dateString: string) => {
+      if (dateString.includes("To Be Announced")) {
+        return true
+      }
+      const yearMatch = dateString.match(/\d{4}/)
+      if (!yearMatch) return true
+      const year = Number.parseInt(yearMatch[0])
+      return year >= currentYear
     }
 
-    try {
-      const date = new Date(dateString)
-      return date.getTime() // Use timestamp for accurate sorting
-    } catch (error) {
-      return Number.POSITIVE_INFINITY // Fallback for unparseable dates
-    }
-  }
-
-  // Helper function to format date in Australian format
-  const formatDate = (dateString: string) => {
-    if (dateString.includes("To Be Announced")) {
-      return "To Be Announced"
+    const getDateSortValue = (dateString: string) => {
+      if (dateString.includes("To Be Announced")) {
+        return Number.POSITIVE_INFINITY
+      }
+      try {
+        const date = new Date(dateString)
+        return date.getTime()
+      } catch (error) {
+        return Number.POSITIVE_INFINITY
+      }
     }
 
-    try {
-      const date = new Date(dateString)
-      return date.toLocaleDateString('en-AU', {
-        day: 'numeric',
-        month: 'numeric',
-        year: 'numeric'
-      })
-    } catch (error) {
-      return dateString // Return original string if date parsing fails
+    const formatDate = (dateString: string) => {
+      if (dateString.includes("To Be Announced")) {
+        return "To Be Announced"
+      }
+      try {
+        const date = new Date(dateString)
+        return date.toLocaleDateString('en-AU', {
+          day: 'numeric',
+          month: 'numeric',
+          year: 'numeric'
+        })
+      } catch (error) {
+        return dateString
+      }
     }
-  }
+
+    return { isFutureDate, getDateSortValue, formatDate }
+  }, []) // Empty dependency array since these functions don't depend on any state
 
   // Memoize filtering and sorting operations for better performance
   const { upcomingFestivals, featuredFestivals, regularFestivals } = useMemo(() => {
     const filtered = festivals
-      .filter((festival) => isFutureDate(festival.startDate))
+      .filter((festival) => dateHelpers.isFutureDate(festival.startDate))
       .filter((festival) => selectedState === "all" || festival.state === selectedState)
-      .sort((a, b) => getDateSortValue(a.startDate) - getDateSortValue(b.startDate));
+      .sort((a, b) => dateHelpers.getDateSortValue(a.startDate) - dateHelpers.getDateSortValue(b.startDate));
 
     const featured = filtered.filter(festival => festival.featured === 'yes');
     const regular = filtered.filter(festival => festival.featured !== 'yes');
 
     return { upcomingFestivals: filtered, featuredFestivals: featured, regularFestivals: regular };
-  }, [festivals, selectedState]);
+  }, [festivals, selectedState, dateHelpers]);
 
   if (isLoading) {
-    return (
-      <div className="min-h-screen bg-gray-50">
-        <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-8">
-          <div className="text-center mb-4 sm:mb-12">
-            <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent mb-2 sm:mb-4">
-              Bachata Festivals
-            </h1>
-            <p className="text-base sm:text-xl text-gray-600">
-              Australia's top Bachata festivals — all in one place.
-            </p>
-          </div>
-          <div className="mb-4 sm:mb-8">
-            <StateFilter
-              selectedState={selectedState}
-              onChange={setSelectedState}
-            />
-          </div>
-          <GridSkeleton count={6} />
-        </div>
-      </div>
-    )
+    return <LoadingSpinner message="Loading festivals..." />
   }
 
   if (error) {
@@ -247,12 +219,12 @@ export default function FestivalsPage() {
                     <h3 className="text-lg font-semibold mb-2">{festival.name}</h3>
                     <div className="flex items-center text-gray-600 text-sm mb-2">
                       <Calendar className="w-4 h-4 mr-1" />
-                      <span>{formatDate(festival.startDate)}</span>
+                      <span>{dateHelpers.formatDate(festival.startDate)}</span>
                       {festival.endDate && festival.endDate !== festival.startDate && (
                         <span className="mx-1">-</span>
                       )}
                       {festival.endDate && festival.endDate !== festival.startDate && (
-                        <span>{formatDate(festival.endDate)}</span>
+                        <span>{dateHelpers.formatDate(festival.endDate)}</span>
                       )}
                     </div>
                     {festival.comment && (
@@ -327,12 +299,12 @@ export default function FestivalsPage() {
                   <h3 className="text-lg font-semibold mb-2">{festival.name}</h3>
                   <div className="flex items-center text-gray-600 text-sm mb-2">
                     <Calendar className="w-4 h-4 mr-1" />
-                    <span>{formatDate(festival.startDate)}</span>
+                    <span>{dateHelpers.formatDate(festival.startDate)}</span>
                     {festival.endDate && festival.endDate !== festival.startDate && (
                       <span className="mx-1">-</span>
                     )}
                     {festival.endDate && festival.endDate !== festival.startDate && (
-                      <span>{formatDate(festival.endDate)}</span>
+                      <span>{dateHelpers.formatDate(festival.endDate)}</span>
                     )}
                   </div>
                   {festival.comment && (
