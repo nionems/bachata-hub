@@ -24,8 +24,8 @@ interface SchoolFormData {
   googleReviewsUrl?: string;
   image: File | null;
   imageUrl?: string;
-  socialUrl1: string;
-  socialUrl2: string;
+  instagramUrl: string;
+  facebookUrl: string;
   googleMapLink: string;
   comment: string;
 }
@@ -63,8 +63,8 @@ export default function EditSchoolPage() {
     googleReviewsUrl: '',
     image: null,
     imageUrl: '',
-    socialUrl1: '',
-    socialUrl2: '',
+    instagramUrl: '',
+    facebookUrl: '',
     googleMapLink: '',
     comment: ''
   })
@@ -78,8 +78,8 @@ export default function EditSchoolPage() {
       setSchool(data)
       setFormData({
         ...data,
-        socialUrl1: data.socialUrl || '',
-        socialUrl2: data.socialUrl2 || ''
+        instagramUrl: data.socialUrl || '',
+        facebookUrl: data.socialUrl2 || ''
       })
     } catch (error) {
       console.error('Error fetching school:', error)
@@ -145,8 +145,8 @@ export default function EditSchoolPage() {
         googleReviewsCount: formData.googleReviewsCount,
         googleReviewsUrl: formData.googleReviewsUrl,
         imageUrl: finalImageUrl,
-        socialUrl: formData.socialUrl1,
-        socialUrl2: formData.socialUrl2,
+        socialUrl: formData.instagramUrl,
+        socialUrl2: formData.facebookUrl,
         googleMapLink: formData.googleMapLink,
         comment: formData.comment
       }
@@ -296,23 +296,23 @@ export default function EditSchoolPage() {
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="socialUrl1">Instagram URL</Label>
+          <Label htmlFor="instagramUrl">Instagram URL</Label>
           <Input
-            id="socialUrl1"
+            id="instagramUrl"
             type="url"
-            value={formData.socialUrl1 || ''}
-            onChange={(e) => setFormData({ ...formData, socialUrl1: e.target.value })}
+            value={formData.instagramUrl || ''}
+            onChange={(e) => setFormData({ ...formData, instagramUrl: e.target.value })}
             placeholder="https://instagram.com/..."
           />
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="socialUrl2">Facebook URL</Label>
+          <Label htmlFor="facebookUrl">Facebook URL</Label>
           <Input
-            id="socialUrl2"
+            id="facebookUrl"
             type="url"
-            value={formData.socialUrl2 || ''}
-            onChange={(e) => setFormData({ ...formData, socialUrl2: e.target.value })}
+            value={formData.facebookUrl || ''}
+            onChange={(e) => setFormData({ ...formData, facebookUrl: e.target.value })}
             placeholder="https://facebook.com/..."
           />
         </div>

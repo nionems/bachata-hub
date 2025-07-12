@@ -18,7 +18,7 @@ export interface School {
   updatedAt: string
   imageFile?: File
   googleReviewLink?: string
-  instagramLink?: string  // Add Instagram link field
-  facebookLink?: string   // Add Facebook link field
+  instagramUrl?: string  // Updated to match form and API field names
+  facebookUrl?: string   // Updated to match form and API field names
   googleMapLink?: string  // Add Google Maps link field
 } 

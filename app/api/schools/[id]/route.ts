@@ -66,8 +66,8 @@ export async function PUT(
       googleReviewsUrl,
       googleRating,
       googleReviewsCount,
-      socialUrl,
-      socialUrl2,
+      instagramUrl,
+      facebookUrl,
       googleMapLink,
       googleReviewLink,
       comment
@@ -93,8 +93,8 @@ export async function PUT(
       googleReviewLink: googleReviewLink || '',
       googleRating: Number(googleRating) || 0,
       googleReviewsCount: Number(googleReviewsCount) || 0,
-      socialUrl: socialUrl || '',
-      socialUrl2: socialUrl2 || '',
+      instagramUrl: instagramUrl || '',
+      facebookUrl: facebookUrl || '',
       googleMapLink: googleMapLink || '',
       comment: comment || '',
       updatedAt: new Date().toISOString()
