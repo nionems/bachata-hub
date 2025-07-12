@@ -84,16 +84,22 @@ export async function GET() {
 
     const db = getDb()
     
-    // Query only published events with optimized query
+    // Query only published events - removed date ordering to avoid composite index requirement
     const eventsSnapshot = await db.collection('events')
       .where('published', '==', true)
-      .orderBy('eventDate', 'desc') // Pre-sort by date
       .get()
     
     const events = eventsSnapshot.docs.map(doc => ({
       id: doc.id,
       ...doc.data()
     }))
+
+    // Sort events by name on the client side instead of in the query
+    events.sort((a, b) => {
+      const nameA = (a as any).name || ''
+      const nameB = (b as any).name || ''
+      return nameA.localeCompare(nameB)
+    })
 
     // Update cache
     eventsCache = events
