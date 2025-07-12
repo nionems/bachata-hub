@@ -80,11 +80,37 @@ export async function PUT(
       facebookUrl,
       condition,
       info,
-      status
+      status,
+      reviewNotes,
+      reviewedBy
     } = body
 
     console.log('Status being updated:', status)
 
+    // If this is just a status update (approval/rejection), don't require all fields
+    if (status && ['approved', 'rejected', 'pending'].includes(status)) {
+      const updateData: any = {
+        status,
+        updatedAt: new Date().toISOString(),
+      }
+
+      // Add review information if provided
+      if (reviewNotes) updateData.reviewNotes = reviewNotes
+      if (reviewedBy) updateData.reviewedBy = reviewedBy
+      if (status === 'approved' || status === 'rejected') {
+        updateData.reviewedAt = new Date().toISOString()
+      }
+
+      console.log('Updating shop status with data:', updateData)
+
+      const docRef = doc(db, 'shops', id)
+      await updateDoc(docRef, updateData)
+
+      console.log('Shop status updated successfully')
+      return NextResponse.json({ message: 'Shop status updated successfully' })
+    }
+
+    // Full update requires all fields
     if (!name || !location || !state) {
       return NextResponse.json(
         { error: 'Missing required fields' },

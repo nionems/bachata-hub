@@ -74,13 +74,13 @@ export default function ShopsPage() {
 
   const handleApprove = async (id: string) => {
     try {
-      const response = await fetch(`/api/pending-items/${id}`, {
+      const response = await fetch(`/api/shops/${id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          action: 'approve',
+          status: 'approved',
           reviewNotes: 'Approved from admin shops page',
           reviewedBy: 'admin'
         }),
@@ -103,13 +103,13 @@ export default function ShopsPage() {
 
   const handleReject = async (id: string) => {
     try {
-      const response = await fetch(`/api/pending-items/${id}`, {
+      const response = await fetch(`/api/shops/${id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          action: 'reject',
+          status: 'rejected',
           reviewNotes: 'Rejected from admin shops page',
           reviewedBy: 'admin'
         }),

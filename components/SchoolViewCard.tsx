@@ -75,9 +75,9 @@ export function SchoolViewCard({ school }: SchoolViewCardProps) {
             </div>
           )}
           <div className="flex gap-2 mt-2">
-            {school.instagramLink && (
+            {school.instagramUrl && (
               <a
-                href={school.instagramLink}
+                href={school.instagramUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 onClick={(e) => e.stopPropagation()}
@@ -87,9 +87,9 @@ export function SchoolViewCard({ school }: SchoolViewCardProps) {
                 <Instagram className="h-4 w-4" />
               </a>
             )}
-            {school.facebookLink && (
+            {school.facebookUrl && (
               <a
-                href={school.facebookLink}
+                href={school.facebookUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 onClick={(e) => e.stopPropagation()}

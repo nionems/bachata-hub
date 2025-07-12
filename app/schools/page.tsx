@@ -73,8 +73,8 @@ export default function SchoolsPage() {
             createdAt: data.createdAt || new Date().toISOString(),
             updatedAt: data.updatedAt || new Date().toISOString(),
             googleReviewLink: data.googleReviewLink || '',
-            instagramLink: data.socialUrl || '', // Map socialUrl to instagramLink
-            facebookLink: data.socialUrl2 || '', // Map socialUrl2 to facebookLink
+            instagramUrl: data.socialUrl || '', // Map socialUrl to instagramUrl
+            facebookUrl: data.socialUrl2 || '', // Map socialUrl2 to facebookUrl
             googleMapLink: data.googleMapLink || ''
           } as School
         })
