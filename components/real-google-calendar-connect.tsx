@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Calendar, RefreshCw } from "lucide-react"
@@ -24,14 +24,14 @@ export default function RealGoogleCalendarConnect() {
     getAuthUrl()
   }, [])
 
-  const handleConnect = () => {
+  const handleConnect = useCallback(() => {
     setIsLoading(true)
 
     // Open the Google authorization page in a new window
     const authWindow = window.open(authUrl, "googleAuth", "width=600,height=600")
 
-    // Listen for the redirect back to our site
-    window.addEventListener("message", async (event) => {
+    // Create a message handler function
+    const handleMessage = async (event: MessageEvent) => {
       if (event.data.type === "GOOGLE_AUTH_CALLBACK") {
         const { code } = event.data
 
@@ -56,13 +56,34 @@ export default function RealGoogleCalendarConnect() {
           }
 
           setIsLoading(false)
+          
+          // Remove the event listener after successful handling
+          window.removeEventListener("message", handleMessage)
         } catch (error) {
           console.error("Error exchanging code for tokens:", error)
           setIsLoading(false)
+          
+          // Remove the event listener on error too
+          window.removeEventListener("message", handleMessage)
         }
       }
-    })
-  }
+    }
+
+    // Add the event listener
+    window.addEventListener("message", handleMessage)
+    
+    // Set a timeout to remove the listener if no response is received
+    const timeout = setTimeout(() => {
+      window.removeEventListener("message", handleMessage)
+      setIsLoading(false)
+    }, 300000) // 5 minutes timeout
+
+    // Clean up timeout if component unmounts
+    return () => {
+      clearTimeout(timeout)
+      window.removeEventListener("message", handleMessage)
+    }
+  }, [authUrl])
 
   return (
     <Card className="p-6">
