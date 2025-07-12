@@ -59,7 +59,7 @@ export async function GET(request: Request) {
     const snapshot = await festivalsRef.get()
     console.log(`API Route (GET /api/festivals): Fetched ${snapshot.docs.length} published festivals from Firestore in ${Date.now() - startTime}ms`)
 
-    const publishedFestivals = snapshot.docs.map(doc => ({
+    const publishedFestivals: FestivalData[] = snapshot.docs.map(doc => ({
       id: doc.id,
       ...doc.data()
     }))
