@@ -38,7 +38,7 @@ export default function CalendarMenu() {
       [calendarIds.darwinBachata]: "Darwin",
       [calendarIds.hobartBachata]: "Hobart",
       [calendarIds.festivals]: "Festivals",
-      [calendarIds.eventsCalendar2]: "Events Calendar 2"
+      [calendarIds.eventsCalendar2]: "All Dance Style Sydney"
     }
     return cityMap[selectedCalendar] || "Bachata"
   }
@@ -86,7 +86,9 @@ export default function CalendarMenu() {
                 <div className="flex items-center gap-2">
                   <Calendar className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
                   <h3 className="text-white font-bold text-sm sm:text-lg">
-                    {getSelectedCityName() === "Festivals" ? "Festivals Calendar" : `${getSelectedCityName()} Bachata Events Calendar`}
+                    {getSelectedCityName() === "Festivals" ? "Festivals Calendar" : 
+                     getSelectedCityName() === "All Dance Style Sydney" ? "All Dance Style Sydney Calendar" :
+                     `${getSelectedCityName()} Bachata Events Calendar`}
                   </h3>
                 </div>
 
@@ -169,7 +171,9 @@ export default function CalendarMenu() {
                 <div className="flex items-center gap-2">
                   <Calendar className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
                   <h3 className="text-white font-bold text-sm sm:text-lg">
-                    {getSelectedCityName() === "Festivals" ? "Festivals Calendar" : `${getSelectedCityName()} Bachata Events Calendar`}
+                    {getSelectedCityName() === "Festivals" ? "Festivals Calendar" : 
+                     getSelectedCityName() === "All Dance Style Sydney" ? "All Dance Style Sydney Calendar" :
+                     `${getSelectedCityName()} Bachata Events Calendar`}
                   </h3>
                 </div>
 
