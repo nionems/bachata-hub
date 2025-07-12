@@ -124,9 +124,20 @@ export async function getLocalCalendarId(): Promise<string> {
   return cityCalendarMap[city as keyof typeof cityCalendarMap]?.id || cityCalendarMap.sydney.id
 }
 
+// Add caching for calendar events
+let weekEventsCache: any[] | null = null
+let weekEventsCacheTimestamp: number = 0
+const WEEK_EVENTS_CACHE_DURATION = 10 * 60 * 1000 // 10 minutes
+
 // Get events for the current week
 export async function getWeekEvents(calendarId?: string, state?: string) {
   try {
+    // Check cache first (unless specific calendar or state is requested)
+    if (!calendarId && !state && weekEventsCache && Date.now() - weekEventsCacheTimestamp < WEEK_EVENTS_CACHE_DURATION) {
+      console.log('Returning cached week events')
+      return weekEventsCache
+    }
+
     const apiKey = process.env.GOOGLE_API_KEY
     if (!apiKey) {
       console.error("GOOGLE_API_KEY environment variable is not set")
@@ -160,13 +171,16 @@ export async function getWeekEvents(calendarId?: string, state?: string) {
       return allEvents
     }
 
-    // Otherwise, fetch from all calendars
-    const allEvents = []
-    for (const [city, calendar] of Object.entries(cityCalendarMap)) {
+    // Otherwise, fetch from all calendars in parallel
+    const calendarEntries = Object.entries(cityCalendarMap)
+    const calendarPromises = calendarEntries.map(async ([city, calendar]) => {
       console.log(`Fetching events for ${city} calendar...`)
       const events = await fetchEventsFromCalendar(calendar.id, now, endOfWeek, apiKey)
-      allEvents.push(...events)
-    }
+      return { city, events }
+    })
+
+    const results = await Promise.all(calendarPromises)
+    const allEvents = results.flatMap(result => result.events)
 
     // Sort all events by start time
     allEvents.sort((a, b) => {
@@ -176,6 +190,14 @@ export async function getWeekEvents(calendarId?: string, state?: string) {
     })
 
     console.log(`Found total of ${allEvents.length} events across all calendars`)
+    
+    // Update cache for general requests
+    if (!calendarId && !state) {
+      weekEventsCache = allEvents
+      weekEventsCacheTimestamp = Date.now()
+      console.log('Updated week events cache')
+    }
+    
     return allEvents
   } catch (error) {
     console.error("Error in getWeekEvents:", error)

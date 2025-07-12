@@ -425,7 +425,14 @@ export default function Home() {
               Featured Events This Week
               {selectedState !== 'all' && ` in ${selectedState}`}
             </h2>
-            {filteredEvents.length > 0 ? (
+            {loading ? (
+              <div className="flex justify-center items-center py-8">
+                <div className="text-center">
+                  <LoadingSpinner size="lg" />
+                  <p className="mt-4 text-gray-600">Loading events from across Australia...</p>
+                </div>
+              </div>
+            ) : filteredEvents.length > 0 ? (
               <div className="relative">
                 <Slider {...settings}>
                   {filteredEvents.map((event) => (
