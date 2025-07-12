@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { db } from '@/lib/firebase-admin'
+import { getDb } from '@/lib/firebase-admin'
 import { google } from 'googleapis'
 
 export async function POST(request: Request) {
@@ -18,6 +18,7 @@ export async function POST(request: Request) {
     console.log('Preparing to save event data:', eventData) // Log the data being saved
 
     // Add to Firestore events collection
+    const db = getDb()
     const docRef = await db.collection('events').add(eventData)
     console.log('Event saved to Firestore with ID:', docRef.id)
 
@@ -69,6 +70,7 @@ export async function POST(request: Request) {
 
 export async function GET() {
   try {
+    const db = getDb()
     const eventsSnapshot = await db.collection('events').get()
     const events = eventsSnapshot.docs.map(doc => ({
       id: doc.id,

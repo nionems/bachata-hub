@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
-import { db } from '@/lib/firebase-admin'
+import { initializeApp, getApps, cert } from 'firebase-admin/app'
+import { getFirestore } from 'firebase-admin/firestore'
 
 export const dynamic = 'force-dynamic'
 
@@ -39,6 +40,22 @@ export async function GET() {
       return NextResponse.json(festivalsCache)
     }
 
+    // Initialize Firebase Admin if not already initialized
+    let app;
+    if (getApps().length === 0) {
+      app = initializeApp({
+        credential: cert({
+          projectId: process.env.FIREBASE_PROJECT_ID,
+          clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
+          privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
+        }),
+      });
+    } else {
+      app = getApps()[0];
+    }
+
+    const db = getFirestore(app);
+
     // Query only published festivals with optimized query
     const festivalsRef = db.collection('festivals')
       .where('published', '==', true)
@@ -61,8 +78,21 @@ export async function GET() {
     return NextResponse.json(publishedFestivals)
   } catch (error) {
     console.error('Failed to fetch festivals:', error)
+    
+    // Log more detailed error information
+    if (error instanceof Error) {
+      console.error('Error details:', {
+        message: error.message,
+        stack: error.stack,
+        name: error.name
+      })
+    }
+    
     return NextResponse.json(
-      { error: 'Failed to fetch festivals' },
+      { 
+        error: 'Failed to fetch festivals',
+        details: error instanceof Error ? error.message : 'Unknown error'
+      },
       { status: 500 }
     )
   }
@@ -81,6 +111,22 @@ export async function POST(request: Request) {
     }
 
     console.log('Creating festival with data:', festivalData) // Debug log
+
+    // Initialize Firebase Admin if not already initialized
+    let app;
+    if (getApps().length === 0) {
+      app = initializeApp({
+        credential: cert({
+          projectId: process.env.FIREBASE_PROJECT_ID,
+          clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
+          privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
+        }),
+      });
+    } else {
+      app = getApps()[0];
+    }
+
+    const db = getFirestore(app);
 
     // Add to Firestore festivals collection
     const festivalsRef = db.collection('festivals')

@@ -97,10 +97,12 @@ const cityCalendarMap = {
 // Function to get the user's city and state
 export async function getUserLocation(): Promise<{ city: string; state: string }> {
   try {
-    const response = await fetch('https://ipapi.co/json/')
+    // For server-side actions, we'll use a different approach
+    // Since this is called server-side, we can make direct external requests
+    const response = await fetch('https://api.ipapi.com/api/check?access_key=free')
     const data = await response.json()
-    const city = data.city.toLowerCase()
-    const state = data.state
+    const city = (data.city || 'Sydney').toLowerCase()
+    const state = data.region_code || 'NSW'
     return { city, state }
   } catch (error) {
     console.error('Error getting user location:', error)

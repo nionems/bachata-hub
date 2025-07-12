@@ -108,16 +108,38 @@ export function useGeolocation(): GeolocationData {
     const fetchLocation = async () => {
       try {
         console.log('Starting IP geolocation fetch...');
-        const response = await fetch('https://ipapi.co/json/');
+        
+        // Check if we're in development (localhost)
+        const isLocalhost = typeof window !== 'undefined' && 
+          (window.location.hostname === 'localhost' || 
+           window.location.hostname === '127.0.0.1' ||
+           window.location.hostname.includes('localhost'));
+        
+        if (isLocalhost) {
+          console.log('Running on localhost, using fallback location');
+          // Use a fallback for localhost development
+          setData({
+            city: 'Sydney',
+            region: 'New South Wales',
+            country: 'Australia',
+            state: 'NSW',
+            stateFull: 'New South Wales',
+            isLoading: false,
+            error: null,
+          });
+          return;
+        }
+        
+        // Use our own API route to avoid CORS issues
+        const response = await fetch('/api/geolocation');
         console.log('Response status:', response.status);
-        console.log('Response headers:', Object.fromEntries(response.headers.entries()));
         
         if (!response.ok) {
           throw new Error('Failed to fetch location data');
         }
 
         const locationData: IpApiResponse = await response.json();
-        console.log('IP API Response:', locationData);
+        console.log('Geolocation API Response:', locationData);
         
         // Check if user is in Australia
         if (locationData.country_name !== 'Australia') {
