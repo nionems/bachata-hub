@@ -30,13 +30,23 @@ interface FestivalData {
   [key: string]: any // Allow for additional properties
 }
 
-export async function GET() {
+export async function GET(request: Request) {
   const startTime = Date.now()
+  const url = new URL(request.url)
+  const clearCache = url.searchParams.get('clearCache') === 'true'
+  
   try {
-    // Check cache
-    if (festivalsCache && Date.now() - cacheTimestamp < CACHE_DURATION) {
+    // Check cache (unless clearing cache)
+    if (!clearCache && festivalsCache && Date.now() - cacheTimestamp < CACHE_DURATION) {
       console.log('API Route (GET /api/festivals): Returning cached festivals. Time:', Date.now() - startTime, 'ms')
       return NextResponse.json(festivalsCache)
+    }
+
+    // Clear cache if requested
+    if (clearCache) {
+      festivalsCache = null
+      cacheTimestamp = 0
+      console.log('API Route (GET /api/festivals): Cache cleared')
     }
 
     const db = getDb();
@@ -53,6 +63,10 @@ export async function GET() {
       id: doc.id,
       ...doc.data()
     }))
+
+    // Log featured festivals for debugging
+    const featuredFestivals = publishedFestivals.filter(f => f.featured === 'yes')
+    console.log('Featured festivals from API:', featuredFestivals.map(f => ({ id: f.id, name: f.name, featured: f.featured })))
 
     // Update cache
     festivalsCache = publishedFestivals

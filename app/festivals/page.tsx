@@ -141,13 +141,23 @@ export default function FestivalsPage() {
 
   // Memoize filtering and sorting operations for better performance
   const { upcomingFestivals, featuredFestivals, regularFestivals } = useMemo(() => {
+    console.log('Raw festivals data:', festivals);
+    
     const filtered = festivals
       .filter((festival) => dateHelpers.isFutureDate(festival.startDate))
       .filter((festival) => selectedState === "all" || festival.state === selectedState)
       .sort((a, b) => dateHelpers.getDateSortValue(a.startDate) - dateHelpers.getDateSortValue(b.startDate));
 
-    const featured = filtered.filter(festival => festival.featured === 'yes');
+    console.log('Filtered festivals:', filtered);
+    
+    const featured = filtered.filter(festival => {
+      console.log(`Festival ${festival.name} featured value:`, festival.featured, typeof festival.featured);
+      return festival.featured === 'yes';
+    });
     const regular = filtered.filter(festival => festival.featured !== 'yes');
+
+    console.log('Featured festivals:', featured);
+    console.log('Regular festivals:', regular);
 
     return { upcomingFestivals: filtered, featuredFestivals: featured, regularFestivals: regular };
   }, [festivals, selectedState, dateHelpers]);
