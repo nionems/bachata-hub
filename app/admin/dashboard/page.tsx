@@ -49,6 +49,7 @@ interface Festival {
   danceStyles: string
   imageUrl: string
   published: boolean
+  featured?: 'yes' | 'no'
 }
 
 // Add Instructor interface
