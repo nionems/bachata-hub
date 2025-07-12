@@ -18,7 +18,8 @@ export default function CalendarMenu() {
     canberraBachata: "3a82a9f1ed5a4e865ed9f13b24a96004fe7c4b2deb07a422f068c70753f421eb@group.calendar.google.com",
     darwinBachata: "27319882e504521ffd07dca62fdf7a55f835bfb4233f4c096e787fa8e8fb881b@group.calendar.google.com",
     hobartBachata: "2f92a58bc97f58a3285a05a474f222d22aaed327af7431f21c2ad1a681c9607b@group.calendar.google.com",
-    festivals: "9b41c4eac569d26ccfeff3a9222cd9fb144d4d201bd04cbb2962944e7a9f5153@group.calendar.google.com"
+    festivals: "9b41c4eac569d26ccfeff3a9222cd9fb144d4d201bd04cbb2962944e7a9f5153@group.calendar.google.com",
+    eventsCalendar2: "6fd4c3996e34fed5839ec7fb4eb6d792c4c9fb788fca5aba169e05d8d385a205@group.calendar.google.com"
   }
 
   const [selectedCalendar, setSelectedCalendar] = useState(calendarIds.sydneyBachata)
@@ -36,7 +37,8 @@ export default function CalendarMenu() {
       [calendarIds.canberraBachata]: "Canberra",
       [calendarIds.darwinBachata]: "Darwin",
       [calendarIds.hobartBachata]: "Hobart",
-      [calendarIds.festivals]: "Festivals"
+      [calendarIds.festivals]: "Festivals",
+      [calendarIds.eventsCalendar2]: "Events Calendar 2"
     }
     return cityMap[selectedCalendar] || "Bachata"
   }
