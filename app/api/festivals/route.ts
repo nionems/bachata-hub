@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server'
-import { initializeApp, getApps, cert } from 'firebase-admin/app'
-import { getFirestore } from 'firebase-admin/firestore'
+import { getDb } from '@/lib/firebase-admin'
 
 export const dynamic = 'force-dynamic'
 
@@ -40,21 +39,7 @@ export async function GET() {
       return NextResponse.json(festivalsCache)
     }
 
-    // Initialize Firebase Admin if not already initialized
-    let app;
-    if (getApps().length === 0) {
-      app = initializeApp({
-        credential: cert({
-          projectId: process.env.FIREBASE_PROJECT_ID,
-          clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-          privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
-        }),
-      });
-    } else {
-      app = getApps()[0];
-    }
-
-    const db = getFirestore(app);
+    const db = getDb();
 
     // Query only published festivals with optimized query
     const festivalsRef = db.collection('festivals')
@@ -112,21 +97,7 @@ export async function POST(request: Request) {
 
     console.log('Creating festival with data:', festivalData) // Debug log
 
-    // Initialize Firebase Admin if not already initialized
-    let app;
-    if (getApps().length === 0) {
-      app = initializeApp({
-        credential: cert({
-          projectId: process.env.FIREBASE_PROJECT_ID,
-          clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-          privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
-        }),
-      });
-    } else {
-      app = getApps()[0];
-    }
-
-    const db = getFirestore(app);
+    const db = getDb();
 
     // Add to Firestore festivals collection
     const festivalsRef = db.collection('festivals')

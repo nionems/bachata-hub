@@ -68,19 +68,40 @@ export async function POST(request: Request) {
   }
 }
 
+// Enhanced in-memory cache for events
+let eventsCache: any[] | null = null
+let eventsCacheTimestamp: number = 0
+const EVENTS_CACHE_DURATION = 5 * 60 * 1000 // 5 minutes
+
 export async function GET() {
+  const startTime = Date.now()
   try {
+    // Check cache
+    if (eventsCache && Date.now() - eventsCacheTimestamp < EVENTS_CACHE_DURATION) {
+      console.log('API Route (GET /api/events): Returning cached events. Time:', Date.now() - startTime, 'ms')
+      return NextResponse.json(eventsCache)
+    }
+
     const db = getDb()
-    const eventsSnapshot = await db.collection('events').get()
+    
+    // Query only published events with optimized query
+    const eventsSnapshot = await db.collection('events')
+      .where('published', '==', true)
+      .orderBy('eventDate', 'desc') // Pre-sort by date
+      .get()
+    
     const events = eventsSnapshot.docs.map(doc => ({
       id: doc.id,
       ...doc.data()
     }))
 
-    // Filter to only return published events
-    const publishedEvents = events.filter((event: any) => event.published === true)
+    // Update cache
+    eventsCache = events
+    eventsCacheTimestamp = Date.now()
 
-    return NextResponse.json(publishedEvents)
+    console.log(`API Route (GET /api/events): Returning ${events.length} published events. Total time: ${Date.now() - startTime}ms`)
+
+    return NextResponse.json(events)
   } catch (error) {
     console.error('Error fetching events:', error)
     return NextResponse.json(
