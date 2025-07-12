@@ -48,9 +48,9 @@ export default function CalendarMenu() {
     const viewParam = selectedView === "agenda" ? "&mode=AGENDA" : "&mode=MONTH"
 
     if (selectedCalendar === calendarIds.allCities) {
-      // Create a combined URL with all calendar IDs
+      // Create a combined URL with all calendar IDs (excluding eventsCalendar2)
       const allCalendarIds = Object.entries(calendarIds)
-        .filter(([key]) => key !== 'allCities')
+        .filter(([key]) => key !== 'allCities' && key !== 'eventsCalendar2')
         .map(([_, value]) => encodeURIComponent(value))
         .join('&src=');
       
