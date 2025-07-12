@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { db } from '@/lib/firebase-admin'
+import { getDb } from '@/lib/firebase-admin'
 
 // Add CORS headers helper
 const corsHeaders = {
@@ -18,6 +18,7 @@ export async function GET(
   { params }: { params: { id: string } }
 ) {
   try {
+    const db = getDb()
     const accommodationRef = db.collection('accommodations').doc(params.id)
     const accommodationDoc = await accommodationRef.get()
 
@@ -48,6 +49,7 @@ export async function PUT(
   { params }: { params: { id: string } }
 ) {
   try {
+    const db = getDb()
     const data = await request.json()
     const accommodationRef = db.collection('accommodations').doc(params.id)
 
@@ -74,6 +76,7 @@ export async function DELETE(
   { params }: { params: { id: string } }
 ) {
   try {
+    const db = getDb()
     const accommodationRef = db.collection('accommodations').doc(params.id)
     const doc = await accommodationRef.get()
 

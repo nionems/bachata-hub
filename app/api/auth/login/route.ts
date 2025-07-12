@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { db } from '@/lib/firebase-admin'
+import { getDb } from '@/lib/firebase-admin'
 import bcrypt from 'bcryptjs'
 import { cookies } from 'next/headers'
 
@@ -7,6 +7,7 @@ export async function POST(request: Request) {
   try {
     const { email, password } = await request.json()
 
+    const db = getDb()
     // Get admin credentials from Firestore
     const adminDoc = await db.collection('admin').doc('credentials').get()
     

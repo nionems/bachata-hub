@@ -1,9 +1,10 @@
 import { NextResponse } from "next/server"
-import { db } from "@/lib/firebase-admin"
+import { getDb } from "@/lib/firebase-admin"
 
 export async function GET() {
   try {
     console.log('Fetching DJs from Firestore')
+    const db = getDb()
     const djsRef = db.collection("djs")
     const snapshot = await djsRef.get()
     
@@ -36,6 +37,7 @@ export async function POST(request: Request) {
     }
 
     // Add to Firestore djs collection
+    const db = getDb()
     const djsRef = db.collection('djs')
     const docRef = await djsRef.add(djData)
 

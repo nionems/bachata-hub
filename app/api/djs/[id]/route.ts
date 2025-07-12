@@ -1,11 +1,12 @@
 import { NextResponse } from "next/server"
-import { db } from "@/lib/firebase-admin"
+import { getDb } from "@/lib/firebase-admin"
 
 export async function GET(
   request: Request,
   { params }: { params: { id: string } }
 ) {
   try {
+    const db = getDb()
     const djRef = db.collection("djs").doc(params.id)
     const djDoc = await djRef.get()
 
@@ -34,6 +35,7 @@ export async function PUT(
   { params }: { params: { id: string } }
 ) {
   try {
+    const db = getDb()
     const data = await request.json()
     const djRef = db.collection("djs").doc(params.id)
     
@@ -63,6 +65,7 @@ export async function DELETE(
   { params }: { params: { id: string } }
 ) {
   try {
+    const db = getDb()
     const djRef = db.collection("djs").doc(params.id)
     await djRef.delete()
 

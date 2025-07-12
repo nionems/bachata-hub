@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { db } from '@/lib/firebase-admin'
+import { getDb } from '@/lib/firebase-admin'
 import { doc, deleteDoc, getDoc, updateDoc } from 'firebase/firestore'
 import { getWeekEvents } from '@/app/actions/calendar-events'
 import { Timestamp } from 'firebase-admin/firestore'
@@ -11,6 +11,7 @@ export async function DELETE(
   const eventId = params.id
   console.log(`API Route (DELETE /api/events/${eventId}): Attempting to delete event from Firestore.`)
   try {
+    const db = getDb()
     if (!db || typeof db.collection !== 'function') {
       throw new Error("Firestore Admin instance is not available or invalid.")
     }
@@ -49,6 +50,7 @@ export async function GET(
   console.log(`API Route (GET /api/events/${eventId}): Attempting to fetch event from Firestore.`)
 
   try {
+    const db = getDb()
     // Check if db object is valid (Admin SDK check)
     if (!db || typeof db.collection !== 'function') {
       console.error("API Route (GET): FATAL - Firestore Admin instance is not available or invalid!")
@@ -109,6 +111,7 @@ export async function PUT(
   console.log(`API Route (PUT /api/events/${eventId}): Attempting to update event in Firestore.`)
 
   try {
+    const db = getDb()
     if (!db || typeof db.collection !== 'function') {
       throw new Error("Firestore Admin instance is not available or invalid.")
     }
@@ -147,6 +150,7 @@ export async function PATCH(
   console.log(`API Route (PATCH /api/events/${eventId}): Attempting to update event in Firestore.`)
 
   try {
+    const db = getDb()
     if (!db || typeof db.collection !== 'function') {
       throw new Error("Firestore Admin instance is not available or invalid.")
     }
@@ -178,6 +182,7 @@ export async function PATCH(
 export async function POST(request: Request) {
   console.log("API Route (POST /api/events): Attempting to create event in Firestore.")
   try {
+    const db = getDb()
     if (!db || typeof db.collection !== 'function') {
       throw new Error("Firestore Admin instance is not available or invalid.")
     }

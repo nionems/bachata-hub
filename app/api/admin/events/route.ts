@@ -1,8 +1,9 @@
 import { NextResponse } from 'next/server'
-import { db } from '@/lib/firebase-admin'
+import { getDb } from '@/lib/firebase-admin'
 
 export async function GET() {
   try {
+    const db = getDb()
     const eventsSnapshot = await db.collection('events').get()
     const events = eventsSnapshot.docs.map(doc => ({
       id: doc.id,
