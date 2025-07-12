@@ -359,10 +359,13 @@ export default function AdminDashboard() {
 
   const fetchFestivals = async () => {
     try {
+      console.log('Fetching festivals...')
       setIsLoading(true)
       const response = await fetch('/api/admin/festivals')
+      console.log('Festivals response status:', response.status)
       if (!response.ok) throw new Error('Failed to fetch festivals')
       const data = await response.json()
+      console.log('Fetched festivals data:', data)
       
       // Sort festivals by start date (earliest first)
       const sortedFestivals = data.sort((a: Festival, b: Festival) => {
@@ -371,10 +374,11 @@ export default function AdminDashboard() {
         return dateA - dateB
       })
       
+      console.log('Sorted festivals:', sortedFestivals)
       setFestivals(sortedFestivals)
     } catch (err) {
+      console.error('Error fetching festivals:', err)
       setError('Failed to load festivals')
-      console.error(err)
     } finally {
       setIsLoading(false)
     }
@@ -1273,6 +1277,14 @@ export default function AdminDashboard() {
               >
                 Add New Festival
               </button>
+            </div>
+
+            {/* Debug info */}
+            <div className="mb-4 p-2 bg-gray-100 rounded text-sm">
+              <p>Active Tab: {activeTab}</p>
+              <p>Loading: {isLoading.toString()}</p>
+              <p>Error: {error || 'None'}</p>
+              <p>Festivals Count: {festivals.length}</p>
             </div>
 
             {isLoading ? (

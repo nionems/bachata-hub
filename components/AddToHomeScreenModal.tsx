@@ -88,7 +88,7 @@ export function AddToHomeScreenModal() {
   if (!isOpen) {
     console.log('Rendering button, isOpen:', isOpen)
     return (
-      <div className="fixed left-1/2 top-6 transform -translate-x-1/2 md:left-auto md:right-4 md:transform-none z-50">
+      <div className="fixed left-1/2 top-6 transform -translate-x-1/2 md:left-auto md:right-40 md:transform-none z-50">
         <Button onClick={showModalForTesting} size="sm" className="bg-red-500 hover:bg-red-600 text-white">
           Install App
         </Button>

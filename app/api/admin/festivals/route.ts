@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server'
-import { db } from '@/lib/firebase'
-import { collection, getDocs } from 'firebase/firestore'
+import { getDb } from '@/lib/firebase-admin'
 
 interface FestivalData {
   id: string
@@ -26,14 +25,17 @@ interface FestivalData {
 
 export async function GET() {
   try {
-    const festivalsRef = collection(db, 'festivals')
-    const snapshot = await getDocs(festivalsRef)
+    const db = getDb()
+    const festivalsRef = db.collection('festivals')
+    const snapshot = await festivalsRef.get()
     
     const festivals = snapshot.docs.map(doc => ({
       id: doc.id,
       ...doc.data()
     })) as FestivalData[]
 
+    console.log(`Admin festivals API: Fetched ${festivals.length} festivals (all festivals including unpublished)`)
+    
     // Return all festivals for admin (including unpublished ones)
     return NextResponse.json(festivals)
   } catch (error) {
