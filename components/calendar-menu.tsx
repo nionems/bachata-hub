@@ -142,13 +142,17 @@ export default function CalendarMenu() {
                     className="bg-white text-[#14b8a6] hover:bg-gray-100 text-xs sm:text-sm h-7 sm:h-9 rounded-md border-0 focus:ring-0"
                   >
                     <option value={calendarIds.allCities}>All Cities</option>
-                    {Object.entries(calendarIds)
-                      .filter(([key]) => key !== 'allCities')
-                      .map(([key, value]) => (
-                        <option key={key} value={value}>
-                          {key === 'festivals' ? 'Festivals' : key.replace("Bachata", "").replace(/([A-Z])/g, ' $1').trim().split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')} Bachata
-                        </option>
-                      ))}
+                    <option value={calendarIds.sydneyBachata}>Sydney Bachata</option>
+                    <option value={calendarIds.melbourneBachata}>Melbourne Bachata</option>
+                    <option value={calendarIds.brisbaneBachata}>Brisbane Bachata</option>
+                    <option value={calendarIds.adelaideBachata}>Adelaide Bachata</option>
+                    <option value={calendarIds.goldCoastBachata}>Gold Coast Bachata</option>
+                    <option value={calendarIds.perthBachata}>Perth Bachata</option>
+                    <option value={calendarIds.canberraBachata}>Canberra Bachata</option>
+                    <option value={calendarIds.darwinBachata}>Darwin Bachata</option>
+                    <option value={calendarIds.hobartBachata}>Hobart Bachata</option>
+                    <option value={calendarIds.festivals}>Festivals</option>
+                    <option value={calendarIds.allDanceStyleSydney}>All Dance Style Sydney</option>
                   </select>
                 </div>
               </div>
@@ -227,13 +231,17 @@ export default function CalendarMenu() {
                     className="bg-white text-[#14b8a6] hover:bg-gray-100 text-xs sm:text-sm h-7 sm:h-9 rounded-md border-0 focus:ring-0"
                   >
                     <option value={calendarIds.allCities}>All Cities</option>
-                    {Object.entries(calendarIds)
-                      .filter(([key]) => key !== 'allCities')
-                      .map(([key, value]) => (
-                        <option key={key} value={value}>
-                          {key === 'festivals' ? 'Festivals' : key.replace("Bachata", "").replace(/([A-Z])/g, ' $1').trim().split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')} Bachata
-                        </option>
-                      ))}
+                    <option value={calendarIds.sydneyBachata}>Sydney Bachata</option>
+                    <option value={calendarIds.melbourneBachata}>Melbourne Bachata</option>
+                    <option value={calendarIds.brisbaneBachata}>Brisbane Bachata</option>
+                    <option value={calendarIds.adelaideBachata}>Adelaide Bachata</option>
+                    <option value={calendarIds.goldCoastBachata}>Gold Coast Bachata</option>
+                    <option value={calendarIds.perthBachata}>Perth Bachata</option>
+                    <option value={calendarIds.canberraBachata}>Canberra Bachata</option>
+                    <option value={calendarIds.darwinBachata}>Darwin Bachata</option>
+                    <option value={calendarIds.hobartBachata}>Hobart Bachata</option>
+                    <option value={calendarIds.festivals}>Festivals</option>
+                    <option value={calendarIds.allDanceStyleSydney}>All Dance Style Sydney</option>
                   </select>
                 </div>
               </div>
