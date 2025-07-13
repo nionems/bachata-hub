@@ -28,19 +28,37 @@ export default function CalendarMenu() {
   const getSelectedCityName = () => {
     const cityMap = {
       [calendarIds.allCities]: "All Cities",
-      [calendarIds.sydneyBachata]: "Sydney",
-      [calendarIds.melbourneBachata]: "Melbourne",
-      [calendarIds.brisbaneBachata]: "Brisbane",
-      [calendarIds.adelaideBachata]: "Adelaide",
-      [calendarIds.goldCoastBachata]: "Gold Coast",
-      [calendarIds.perthBachata]: "Perth",
-      [calendarIds.canberraBachata]: "Canberra",
-      [calendarIds.darwinBachata]: "Darwin",
-      [calendarIds.hobartBachata]: "Hobart",
+      [calendarIds.sydneyBachata]: "Sydney Bachata",
+      [calendarIds.melbourneBachata]: "Melbourne Bachata",
+      [calendarIds.brisbaneBachata]: "Brisbane Bachata",
+      [calendarIds.adelaideBachata]: "Adelaide Bachata",
+      [calendarIds.goldCoastBachata]: "Gold Coast Bachata",
+      [calendarIds.perthBachata]: "Perth Bachata",
+      [calendarIds.canberraBachata]: "Canberra Bachata",
+      [calendarIds.darwinBachata]: "Darwin Bachata",
+      [calendarIds.hobartBachata]: "Hobart Bachata",
       [calendarIds.festivals]: "Festivals",
       [calendarIds.allDanceStyleSydney]: "All Dance Style Sydney"
     }
     return cityMap[selectedCalendar] || "Bachata"
+  }
+
+  const getCalendarDisplayName = (calendarId: string) => {
+    const cityMap = {
+      [calendarIds.allCities]: "All Cities",
+      [calendarIds.sydneyBachata]: "Sydney Bachata",
+      [calendarIds.melbourneBachata]: "Melbourne Bachata",
+      [calendarIds.brisbaneBachata]: "Brisbane Bachata",
+      [calendarIds.adelaideBachata]: "Adelaide Bachata",
+      [calendarIds.goldCoastBachata]: "Gold Coast Bachata",
+      [calendarIds.perthBachata]: "Perth Bachata",
+      [calendarIds.canberraBachata]: "Canberra Bachata",
+      [calendarIds.darwinBachata]: "Darwin Bachata",
+      [calendarIds.hobartBachata]: "Hobart Bachata",
+      [calendarIds.festivals]: "Festivals",
+      [calendarIds.allDanceStyleSydney]: "All Dance Style Sydney"
+    }
+    return cityMap[calendarId] || "Bachata"
   }
 
   const getCalendarUrl = () => {
