@@ -19,7 +19,7 @@ export default function CalendarMenu() {
     darwinBachata: "27319882e504521ffd07dca62fdf7a55f835bfb4233f4c096e787fa8e8fb881b@group.calendar.google.com",
     hobartBachata: "2f92a58bc97f58a3285a05a474f222d22aaed327af7431f21c2ad1a681c9607b@group.calendar.google.com",
     festivals: "9b41c4eac569d26ccfeff3a9222cd9fb144d4d201bd04cbb2962944e7a9f5153@group.calendar.google.com",
-    eventsCalendar2: "6fd4c3996e34fed5839ec7fb4eb6d792c4c9fb788fca5aba169e05d8d385a205@group.calendar.google.com"
+    allDanceStyleSydney: "6fd4c3996e34fed5839ec7fb4eb6d792c4c9fb788fca5aba169e05d8d385a205@group.calendar.google.com"
   }
 
   const [selectedCalendar, setSelectedCalendar] = useState(calendarIds.sydneyBachata)
@@ -38,7 +38,7 @@ export default function CalendarMenu() {
       [calendarIds.darwinBachata]: "Darwin",
       [calendarIds.hobartBachata]: "Hobart",
       [calendarIds.festivals]: "Festivals",
-      [calendarIds.eventsCalendar2]: "All Dance Style Sydney"
+      [calendarIds.allDanceStyleSydney]: "All Dance Style Sydney"
     }
     return cityMap[selectedCalendar] || "Bachata"
   }
@@ -48,9 +48,9 @@ export default function CalendarMenu() {
     const viewParam = selectedView === "agenda" ? "&mode=AGENDA" : "&mode=MONTH"
 
     if (selectedCalendar === calendarIds.allCities) {
-      // Create a combined URL with all calendar IDs (excluding eventsCalendar2)
+      // Create a combined URL with all calendar IDs (excluding allDanceStyleSydney)
       const allCalendarIds = Object.entries(calendarIds)
-        .filter(([key]) => key !== 'allCities' && key !== 'eventsCalendar2')
+        .filter(([key]) => key !== 'allCities' && key !== 'allDanceStyleSydney')
         .map(([_, value]) => encodeURIComponent(value))
         .join('&src=');
       
