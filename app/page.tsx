@@ -460,6 +460,17 @@ export default function Home() {
                                     target.src = '/images/placeholder.svg'
                                   }}
                                 />
+                                {/* Day overlay on top of image */}
+                                <div className="absolute top-3 left-3 bg-black/70 text-white px-3 py-1 rounded-md text-sm font-semibold">
+                                  {(() => {
+                                    try {
+                                      const eventDate = new Date(event.date);
+                                      return eventDate.toLocaleDateString('en-US', { weekday: 'long' });
+                                    } catch {
+                                      return 'TBD';
+                                    }
+                                  })()}
+                                </div>
                               </div>
                               <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-3">
                                 <h3 className="text-base font-semibold text-white mb-0.5 line-clamp-1">{event.name}</h3>
@@ -481,7 +492,18 @@ export default function Home() {
                               )}
                             </div>
                           ) : (
-                            <div className="w-full h-full bg-white flex flex-col justify-between">
+                            <div className="w-full h-full bg-white flex flex-col justify-between relative">
+                              {/* Day overlay on top of no-image cards */}
+                              <div className="absolute top-3 left-3 bg-black/70 text-white px-3 py-1 rounded-md text-sm font-semibold z-10">
+                                {(() => {
+                                  try {
+                                    const eventDate = new Date(event.date);
+                                    return eventDate.toLocaleDateString('en-US', { weekday: 'long' });
+                                  } catch {
+                                    return 'TBD';
+                                  }
+                                })()}
+                              </div>
                               <div>
                                 <h3 className="text-base font-semibold text-gray-900 mb-2 line-clamp-2">{event.name}</h3>
                                 <p className="text-gray-600 text-sm mb-1">{event.date}</p>
