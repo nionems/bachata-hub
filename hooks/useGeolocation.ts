@@ -131,11 +131,17 @@ export function useGeolocation(): GeolocationData {
         }
         
         // Use our own API route to avoid CORS issues
-        const response = await fetch('/api/geolocation');
+        console.log('Fetching from /api/geolocation...');
+        const response = await fetch('/api/geolocation', {
+          method: 'GET',
+          headers: {
+            'Accept': 'application/json',
+          },
+        });
         console.log('Response status:', response.status);
         
         if (!response.ok) {
-          throw new Error('Failed to fetch location data');
+          throw new Error(`Failed to fetch location data: ${response.status} ${response.statusText}`);
         }
 
         const locationData: IpApiResponse = await response.json();

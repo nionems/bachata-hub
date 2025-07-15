@@ -27,6 +27,7 @@ import { StickyEventBar } from '@/components/StickyEventBar'
 import { CommunityJoinPopup } from '@/components/CommunityJoinPopup'
 import { doc, getDoc } from 'firebase/firestore'
 import { db } from '@/lib/firebase'
+import { LocationStatus } from '@/components/LocationStatus'
 
 // Add this interface at the top of your file
 interface Event {
@@ -430,6 +431,10 @@ export default function Home() {
               </div>
             </div>
             <div className="max-w-3xl mx-auto text-center mt-2 sm:mt-4">
+              {/* Location Status */}
+              <div className="mt-2 sm:mt-4 flex justify-center">
+                <LocationStatus />
+              </div>
               {/* Social media and support links - Hidden on mobile */}
               <div className="mt-2 sm:mt-4 hidden sm:flex flex-col items-center gap-1">
               </div>
