@@ -18,6 +18,7 @@ import CalendarMenu from "@/components/calendar-menu"
 import { EventCard } from '@/components/EventCard'
 import { LoadingSpinner } from '@/components/loading-spinner'
 import { Input } from "@/components/ui/input"
+import { normalizeDanceStyles } from '@/lib/utils'
 
 interface Event {
   id: string
@@ -56,11 +57,18 @@ export default function EventsPage() {
   const { selectedState, setSelectedState, filteredItems: filteredEvents, isGeoLoading, error: geoError } = useStateFilter(events)
 
   // Filter events based on search term
-  const searchFilteredEvents = filteredEvents.filter(event =>
-    event.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    event.location.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    (event.danceStyles && event.danceStyles.toLowerCase().includes(searchTerm.toLowerCase()))
-  )
+  const searchFilteredEvents = filteredEvents.filter(event => {
+    const nameMatch = event.name.toLowerCase().includes(searchTerm.toLowerCase())
+    const locationMatch = event.location.toLowerCase().includes(searchTerm.toLowerCase())
+    
+    // Handle dance styles - check if any dance style matches
+    const normalizedDanceStyles = normalizeDanceStyles(event.danceStyles)
+    const danceStylesMatch = normalizedDanceStyles.some(style => 
+      style.toLowerCase().includes(searchTerm.toLowerCase())
+    )
+    
+    return nameMatch || locationMatch || danceStylesMatch
+  })
 
   useEffect(() => {
     const fetchEvents = async () => {
@@ -164,12 +172,12 @@ export default function EventsPage() {
                 {/* Dance Style Stickers */}
                 {event.danceStyles && (
                   <div className="absolute top-10 right-2 z-20 flex flex-col gap-1.5">
-                    {event.danceStyles.split(',').map((style, index) => (
+                    {normalizeDanceStyles(event.danceStyles).map((style, index) => (
                       <div 
                         key={index}
                         className="bg-black/40 backdrop-blur-md border border-white/20 text-white text-xs font-medium px-2.5 py-1 rounded-full shadow-lg"
                       >
-                        {style.trim()}
+                        {style}
                       </div>
                     ))}
                   </div>

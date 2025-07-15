@@ -62,3 +62,25 @@ function getMockEvents() {
     },
   ];
 }
+
+/**
+ * Normalize dance styles from old string format to new array format
+ * Handles migration from comma-separated strings to arrays
+ */
+export function normalizeDanceStyles(danceStyles: string | string[] | undefined): string[] {
+  if (!danceStyles) return []
+  
+  if (Array.isArray(danceStyles)) {
+    return danceStyles.filter(Boolean)
+  }
+  
+  // Handle old string format
+  if (typeof danceStyles === 'string') {
+    return danceStyles
+      .split(',')
+      .map(style => style.trim())
+      .filter(Boolean)
+  }
+  
+  return []
+}

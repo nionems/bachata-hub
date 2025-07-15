@@ -2,6 +2,8 @@
 
 import { useState, useEffect, ChangeEvent, FormEvent, useCallback } from 'react'
 import { useRouter, useParams } from 'next/navigation'
+import { DANCE_STYLES } from '@/lib/constants'
+import { normalizeDanceStyles } from '@/lib/utils'
 
 interface Event {
   id: string
@@ -15,7 +17,7 @@ interface Event {
   eventLink: string
   price: string
   ticketLink: string
-  danceStyles: string
+  danceStyles: string[]
   imageUrl: string
   image?: File | null
   comment: string
@@ -60,7 +62,7 @@ export default function EditEventPage() {
     eventLink: '',
     price: '',
     ticketLink: '',
-    danceStyles: '',
+    danceStyles: [],
     imageUrl: '',
     comment: '',
     googleMapLink: '',
@@ -75,7 +77,14 @@ export default function EditEventPage() {
       const response = await fetch(`/api/events/${eventId}`)
       if (!response.ok) throw new Error('Failed to fetch event')
       const data = await response.json()
-      setFormData(data)
+      
+      // Handle dance styles - convert string to array if needed
+      const processedData = {
+        ...data,
+        danceStyles: normalizeDanceStyles(data.danceStyles)
+      }
+      
+      setFormData(processedData)
     } catch (error) {
       console.error('Error fetching event:', error)
       setError('Failed to load event data')
@@ -254,10 +263,40 @@ export default function EditEventPage() {
         </div>
 
         {/* Dance Styles */}
-        <div>
-          <label htmlFor="danceStyles" className="block text-sm font-medium text-gray-700 mb-1">Dance Styles</label>
-          <input type="text" id="danceStyles" name="danceStyles" value={formData.danceStyles} onChange={handleChange} className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" placeholder="e.g., Bachata, Salsa"/>
-        </div>
+                  <div>
+            <label htmlFor="danceStyles" className="block text-sm font-medium text-gray-700 mb-1">Dance Styles</label>
+            <div className="space-y-2">
+              {DANCE_STYLES.map(style => (
+                <label key={style} className="flex items-center space-x-2">
+                  <input
+                    type="checkbox"
+                    value={style}
+                    checked={formData.danceStyles.includes(style)}
+                    onChange={(e) => {
+                      if (e.target.checked) {
+                        setFormData(prev => ({ 
+                          ...prev, 
+                          danceStyles: [...prev.danceStyles, style] 
+                        }))
+                      } else {
+                        setFormData(prev => ({ 
+                          ...prev, 
+                          danceStyles: prev.danceStyles.filter(s => s !== style) 
+                        }))
+                      }
+                    }}
+                    className="h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded"
+                  />
+                  <span className="text-sm text-gray-700">{style}</span>
+                </label>
+              ))}
+            </div>
+            {formData.danceStyles.length > 0 && (
+              <p className="text-xs text-gray-500 mt-1">
+                Selected: {formData.danceStyles.join(', ')}
+              </p>
+            )}
+          </div>
 
         {/* Image Upload */}
         <div>

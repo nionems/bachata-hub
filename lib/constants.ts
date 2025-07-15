@@ -8,3 +8,17 @@ export const AUSTRALIAN_STATES = [
   { value: 'ACT', label: 'Australian Capital Territory' },
   { value: 'NT', label: 'Northern Territory' }
 ] as const 
+
+// Dance Styles Constants
+export const DANCE_STYLES = [
+  'Bachata',
+  'Salsa', 
+  'Kizomba',
+  'Zouk',
+  'Reaggeaton',
+  'Heels',
+  'Pole Dance',
+  'Latin Beat'
+] as const
+
+export type DanceStyle = typeof DANCE_STYLES[number] 

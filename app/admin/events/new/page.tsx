@@ -2,6 +2,7 @@
 
 import { useState, ChangeEvent, FormEvent, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import { DANCE_STYLES } from '@/lib/constants'
 
 // Interface for event form data
 interface EventFormData {
@@ -14,7 +15,7 @@ interface EventFormData {
   state: string;
   description: string;
   price: string;
-  danceStyles: string;
+  danceStyles: string[];
   eventLink: string;
   ticketLink: string;
   image: File | null;
@@ -37,7 +38,7 @@ export default function NewEventPage() {
     state: '',
     description: '',
     price: '',
-    danceStyles: 'Bachata', // Default
+    danceStyles: ['Bachata'], // Default
     eventLink: '',
     ticketLink: '',
     image: null,
@@ -260,7 +261,37 @@ export default function NewEventPage() {
           </div>
           <div>
             <label htmlFor="danceStyles" className="block text-sm font-medium text-gray-700 mb-1">Main Dance Style(s)</label>
-            <input type="text" id="danceStyles" name="danceStyles" value={formData.danceStyles} onChange={handleChange} className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" placeholder="e.g., Bachata, Salsa"/>
+            <div className="space-y-2">
+              {DANCE_STYLES.map(style => (
+                <label key={style} className="flex items-center space-x-2">
+                  <input
+                    type="checkbox"
+                    value={style}
+                    checked={formData.danceStyles.includes(style)}
+                    onChange={(e) => {
+                      if (e.target.checked) {
+                        setFormData(prev => ({ 
+                          ...prev, 
+                          danceStyles: [...prev.danceStyles, style] 
+                        }))
+                      } else {
+                        setFormData(prev => ({ 
+                          ...prev, 
+                          danceStyles: prev.danceStyles.filter(s => s !== style) 
+                        }))
+                      }
+                    }}
+                    className="h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded"
+                  />
+                  <span className="text-sm text-gray-700">{style}</span>
+                </label>
+              ))}
+            </div>
+            {formData.danceStyles.length > 0 && (
+              <p className="text-xs text-gray-500 mt-1">
+                Selected: {formData.danceStyles.join(', ')}
+              </p>
+            )}
           </div>
         </div>
 
