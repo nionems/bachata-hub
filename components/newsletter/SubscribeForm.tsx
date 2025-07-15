@@ -99,10 +99,10 @@ export function SubscribeForm() {
           />
         </div>
 
-        <Button type="submit" className="w-full" disabled={loading}>
+        <Button type="submit" className="w-full bg-gradient-to-r from-emerald-500 to-violet-500 hover:from-emerald-600 hover:to-violet-600 text-white shadow-lg hover:shadow-xl transition-all duration-200" disabled={loading}>
           {loading ? (
             <div className="flex items-center justify-center gap-2">
-              <div className="h-4 w-4 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+              <div className="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
               <span>Joining...</span>
             </div>
           ) : (

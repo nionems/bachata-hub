@@ -77,7 +77,7 @@ export default function Navbar() {
               </Link>
             ))}
               <Link href="/community">
-                <Button size="sm" className="bg-primary hover:bg-primary/90 text-white ml-2 whitespace-nowrap text-xs md:text-sm px-2 py-1">
+                <Button size="sm" className="bg-gradient-to-r from-emerald-500 to-violet-500 hover:from-emerald-600 hover:to-violet-600 text-white ml-2 whitespace-nowrap text-xs md:text-sm px-2 py-1 shadow-lg hover:shadow-xl transition-all duration-200">
               Join the Community
             </Button>
               </Link>
@@ -116,7 +116,7 @@ export default function Navbar() {
                 {item.name}
               </Link>
             ))}
-            <Button className="w-full mt-4 bg-primary hover:bg-primary/90 text-white" onClick={handleLoginClick}>
+            <Button className="w-full mt-4 bg-gradient-to-r from-emerald-500 to-violet-500 hover:from-emerald-600 hover:to-violet-600 text-white shadow-lg hover:shadow-xl transition-all duration-200" onClick={handleLoginClick}>
               Join the Community
             </Button>
           </div>

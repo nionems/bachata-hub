@@ -30,7 +30,8 @@ export default function CommunityPage() {
             Join Our Community
           </h1>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto mb-4">
-            Be part of our Bachata community and stay updated with the latest events, news, and updates.
+          Get the best of Bachata.au minus the spam.
+Be first to know about upcoming events, enjoy exclusive perks, and score chances to win dance tickets, stylish shoes, or even a limited-edition Bachata T-shirt! 🎁
           </p>
           {userCount !== null && (
             <p className="text-lg text-gray-500">

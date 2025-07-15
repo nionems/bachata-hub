@@ -160,7 +160,7 @@ export function CommunityJoinPopup({ isOpen, onClose }: CommunityJoinPopupProps)
             <Button
               type="submit"
               disabled={isLoading}
-              className="bg-gradient-to-r from-emerald-500 to-violet-500 hover:from-emerald-600 hover:to-violet-600 text-white rounded-lg flex-1 font-semibold"
+              className="bg-gradient-to-r from-emerald-500 to-violet-500 hover:from-emerald-600 hover:to-violet-600 text-white rounded-lg flex-1 font-semibold shadow-lg hover:shadow-xl transition-all duration-200"
             >
               {isLoading ? 'Joining...' : 'Join & Enter to Win! 🎁'}
             </Button>

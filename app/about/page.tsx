@@ -156,7 +156,7 @@ export default function AboutPage() {
             </p>
             <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center items-center">
               <Link href="/community">
-                <Button size="lg" className="w-full sm:w-auto bg-primary hover:bg-primary/90 text-white">
+                <Button size="lg" className="w-full sm:w-auto bg-gradient-to-r from-emerald-500 to-violet-500 hover:from-emerald-600 hover:to-violet-600 text-white shadow-lg hover:shadow-xl transition-all duration-200">
                   Join the Community
                 </Button>
               </Link>

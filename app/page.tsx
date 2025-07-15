@@ -423,7 +423,7 @@ export default function Home() {
                   }}
                 />
                 <Link href="/community" className="w-24 sm:w-28 md:w-36 mr-4 sm:mr-12 md:mr-24">
-                  <Button size="sm" className="w-full bg-white/20 text-white hover:bg-white/30 text-xs sm:text-sm whitespace-nowrap">
+                  <Button size="sm" className="w-full bg-gradient-to-r from-emerald-500 to-violet-500 hover:from-emerald-600 hover:to-violet-600 text-white text-xs sm:text-sm whitespace-nowrap shadow-lg hover:shadow-xl transition-all duration-200">
                     Join Community
                   </Button>
                 </Link>
