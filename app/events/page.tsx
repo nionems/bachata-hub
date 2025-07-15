@@ -32,7 +32,7 @@ interface Event {
   state: string
   description: string
   price?: string
-  danceStyles?: string
+  danceStyles?: string[] | string
   imageUrl?: string
   eventLink?: string
   ticketLink?: string
@@ -195,7 +195,7 @@ export default function EventsPage() {
                 {/* Weekly Event Sticker */}
                 {event.isWeekly && (
                   <div className="absolute top-2 right-2 z-20 bg-white/20 backdrop-blur-md border border-white/30 text-white text-xs font-medium px-3 py-1.5 rounded-full shadow-lg">
-                    {event.recurrence && event.recurrence.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
+                    {event.recurrence && event.recurrence.split(' ').map((word: string) => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
                   </div>
                 )}
 
