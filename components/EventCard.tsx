@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import { Calendar, Clock, MapPin, ExternalLink, X } from 'lucide-react'
+import { Calendar, Clock, MapPin, ExternalLink, X, ChevronUp, ChevronDown } from 'lucide-react'
 import { Event } from '@/types/event'
 import { normalizeDanceStyles } from '@/lib/utils'
 
