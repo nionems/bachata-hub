@@ -3,7 +3,7 @@
 import { useState, useEffect, ChangeEvent, FormEvent, useCallback } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import { DANCE_STYLES } from '@/lib/constants'
-import { normalizeDanceStyles } from '@/lib/utils'
+
 
 interface Event {
   id: string
@@ -78,10 +78,10 @@ export default function EditEventPage() {
       if (!response.ok) throw new Error('Failed to fetch event')
       const data = await response.json()
       
-      // Handle dance styles - convert string to array if needed
+      // Handle dance styles - ensure it's an array
       const processedData = {
         ...data,
-        danceStyles: normalizeDanceStyles(data.danceStyles)
+        danceStyles: Array.isArray(data.danceStyles) ? data.danceStyles : []
       }
       
       setFormData(processedData)

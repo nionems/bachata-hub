@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Calendar, Clock, MapPin, ExternalLink, X, ChevronUp, ChevronDown } from 'lucide-react'
 import { Event } from '@/types/event'
-import { normalizeDanceStyles } from '@/lib/utils'
+
 
 interface EventCardProps {
   event: Event
@@ -86,7 +86,7 @@ export function EventCard({ event }: EventCardProps) {
               <span>Register Now</span>
             </Button>
             <div className="flex flex-wrap gap-2">
-              {normalizeDanceStyles(event.danceStyles).map((style, index) => (
+              {Array.isArray(event.danceStyles) && event.danceStyles.map((style, index) => (
                 <span
                   key={index}
                   className="px-2 py-1 bg-primary/20 text-primary rounded-full text-xs"

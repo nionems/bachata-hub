@@ -18,7 +18,7 @@ import CalendarMenu from "@/components/calendar-menu"
 import { EventCard } from '@/components/EventCard'
 import { LoadingSpinner } from '@/components/loading-spinner'
 import { Input } from "@/components/ui/input"
-import { normalizeDanceStyles } from '@/lib/utils'
+
 
 interface Event {
   id: string
@@ -62,8 +62,7 @@ export default function EventsPage() {
     const locationMatch = event.location.toLowerCase().includes(searchTerm.toLowerCase())
     
     // Handle dance styles - check if any dance style matches
-    const normalizedDanceStyles = normalizeDanceStyles(event.danceStyles)
-    const danceStylesMatch = normalizedDanceStyles.some(style => 
+    const danceStylesMatch = Array.isArray(event.danceStyles) && event.danceStyles.some(style => 
       style.toLowerCase().includes(searchTerm.toLowerCase())
     )
     
@@ -170,9 +169,9 @@ export default function EventsPage() {
                 )}
 
                 {/* Dance Style Stickers */}
-                {event.danceStyles && (
+                {event.danceStyles && Array.isArray(event.danceStyles) && (
                   <div className="absolute top-10 right-2 z-20 flex flex-col gap-1.5">
-                    {normalizeDanceStyles(event.danceStyles).map((style, index) => (
+                    {event.danceStyles.map((style, index) => (
                       <div 
                         key={index}
                         className="bg-black/40 backdrop-blur-md border border-white/20 text-white text-xs font-medium px-2.5 py-1 rounded-full shadow-lg"
