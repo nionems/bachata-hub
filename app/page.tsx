@@ -24,6 +24,9 @@ import { useStateFilter } from '@/hooks/useStateFilter'
 import { LoadingSpinner } from "@/components/loading-spinner"
 import { IdeaBoxForm } from '@/components/IdeaBoxForm'
 import { StickyEventBar } from '@/components/StickyEventBar'
+import { CommunityJoinPopup } from '@/components/CommunityJoinPopup'
+import { doc, getDoc } from 'firebase/firestore'
+import { db } from '@/lib/firebase'
 
 // Add this interface at the top of your file
 interface Event {
@@ -119,6 +122,24 @@ export default function Home() {
   const [isImageModalOpen, setIsImageModalOpen] = useState(false)
   const [selectedImage, setSelectedImage] = useState<{ url: string; title: string } | null>(null)
   const [isIdeaBoxOpen, setIsIdeaBoxOpen] = useState(false)
+  const [isCommunityPopupOpen, setIsCommunityPopupOpen] = useState(false)
+
+  // Show community popup only on first visit (per browser/device)
+  useEffect(() => {
+    const hasDismissed = localStorage.getItem('communityPopupDismissed');
+    if (!hasDismissed) {
+      const timer = setTimeout(() => {
+        setIsCommunityPopupOpen(true);
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, []);
+
+  // Handler to close the popup and set the dismissed flag
+  const handleCommunityPopupClose = () => {
+    localStorage.setItem('communityPopupDismissed', 'true');
+    setIsCommunityPopupOpen(false);
+  };
 
   const { selectedState, setSelectedState, filteredItems: filteredEvents, isGeoLoading, error: geoError } = useStateFilter(events, { useGeolocation: true })
 
@@ -640,6 +661,12 @@ export default function Home() {
           onClose={() => setIsImageModalOpen(false)}
           imageUrl={selectedImage?.url || ''}
           title={selectedImage?.title || ''}
+        />
+
+        {/* Add the CommunityJoinPopup component */}
+        <CommunityJoinPopup
+          isOpen={isCommunityPopupOpen}
+          onClose={handleCommunityPopupClose}
         />
       </main>
     )
