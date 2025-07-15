@@ -267,17 +267,17 @@ export default function NewEventPage() {
                   <input
                     type="checkbox"
                     value={style}
-                    checked={formData.danceStyles.includes(style)}
+                    checked={formData.danceStyles?.includes(style) || false}
                     onChange={(e) => {
                       if (e.target.checked) {
                         setFormData(prev => ({ 
                           ...prev, 
-                          danceStyles: [...prev.danceStyles, style] 
+                          danceStyles: [...(prev.danceStyles || []), style] 
                         }))
                       } else {
                         setFormData(prev => ({ 
                           ...prev, 
-                          danceStyles: prev.danceStyles.filter(s => s !== style) 
+                          danceStyles: (prev.danceStyles || []).filter(s => s !== style) 
                         }))
                       }
                     }}
@@ -287,7 +287,7 @@ export default function NewEventPage() {
                 </label>
               ))}
             </div>
-            {formData.danceStyles.length > 0 && (
+            {formData.danceStyles && formData.danceStyles.length > 0 && (
               <p className="text-xs text-gray-500 mt-1">
                 Selected: {formData.danceStyles.join(', ')}
               </p>
