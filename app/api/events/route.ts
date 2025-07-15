@@ -2,6 +2,39 @@ import { NextResponse } from 'next/server'
 import { getDb } from '@/lib/firebase-admin'
 import { google } from 'googleapis'
 
+// Valid dance styles from constants
+const VALID_DANCE_STYLES = [
+  'Bachata',
+  'Salsa', 
+  'Kizomba',
+  'Zouk',
+  'Reaggeaton',
+  'Heels',
+  'Pole Dance',
+  'Latin Beat'
+]
+
+/**
+ * Clean dance styles - remove old string values and keep only valid ones
+ */
+function cleanDanceStyles(danceStyles: any): string[] {
+  if (!danceStyles) return []
+  
+  if (Array.isArray(danceStyles)) {
+    // Filter to only keep valid dance styles
+    return danceStyles.filter((style: string) => 
+      VALID_DANCE_STYLES.includes(style)
+    )
+  }
+  
+  // If it's a string, return empty array (remove old string format)
+  if (typeof danceStyles === 'string') {
+    return []
+  }
+  
+  return []
+}
+
 export async function POST(request: Request) {
   try {
     const data = await request.json()
@@ -89,10 +122,15 @@ export async function GET() {
       .where('published', '==', true)
       .get()
     
-    const events = eventsSnapshot.docs.map(doc => ({
-      id: doc.id,
-      ...doc.data()
-    }))
+    const events = eventsSnapshot.docs.map(doc => {
+      const data = doc.data()
+      return {
+        id: doc.id,
+        ...data,
+        // Clean dance styles to remove old string values
+        danceStyles: cleanDanceStyles(data.danceStyles)
+      }
+    })
 
     // Sort events by name on the client side instead of in the query
     events.sort((a, b) => {

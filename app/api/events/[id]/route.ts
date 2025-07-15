@@ -4,6 +4,39 @@ import { doc, deleteDoc, getDoc, updateDoc } from 'firebase/firestore'
 import { getWeekEvents } from '@/app/actions/calendar-events'
 import { Timestamp } from 'firebase-admin/firestore'
 
+// Valid dance styles from constants
+const VALID_DANCE_STYLES = [
+  'Bachata',
+  'Salsa', 
+  'Kizomba',
+  'Zouk',
+  'Reaggeaton',
+  'Heels',
+  'Pole Dance',
+  'Latin Beat'
+]
+
+/**
+ * Clean dance styles - remove old string values and keep only valid ones
+ */
+function cleanDanceStyles(danceStyles: any): string[] {
+  if (!danceStyles) return []
+  
+  if (Array.isArray(danceStyles)) {
+    // Filter to only keep valid dance styles
+    return danceStyles.filter((style: string) => 
+      VALID_DANCE_STYLES.includes(style)
+    )
+  }
+  
+  // If it's a string, return empty array (remove old string format)
+  if (typeof danceStyles === 'string') {
+    return []
+  }
+  
+  return []
+}
+
 export async function DELETE(
   request: Request,
   { params }: { params: { id: string } }
@@ -86,6 +119,8 @@ export async function GET(
     const responseData = {
       id: docSnap.id,
       ...eventData,
+      // Clean dance styles to remove old string values
+      danceStyles: cleanDanceStyles(eventData.danceStyles),
       // Example: Convert Firestore Timestamp to ISO string if needed
       // createdAt: eventData.createdAt instanceof Timestamp ? eventData.createdAt.toDate().toISOString() : eventData.createdAt,
       // eventDate: eventData.eventDate instanceof Timestamp ? eventData.eventDate.toDate().toISOString() : eventData.eventDate,
