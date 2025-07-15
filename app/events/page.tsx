@@ -8,6 +8,7 @@ import { MapPin, Calendar, Clock, Users, Info, Ticket, ExternalLink, ChevronDown
 import { Calendar as UiCalendar } from '@/components/ui/calendar'
 import Link from 'next/link'
 import { StateFilter } from '@/components/StateFilter'
+import { DanceStyleFilter } from '@/components/DanceStyleFilter'
 import { useStateFilter } from '@/hooks/useStateFilter'
 import { collection, getDocs } from 'firebase/firestore'
 import { db } from '../../firebase/config'
@@ -53,20 +54,25 @@ export default function EventsPage() {
   const [isFormOpen, setIsFormOpen] = useState(false)
   const [expandedComments, setExpandedComments] = useState<Record<string, boolean>>({})
   const [searchTerm, setSearchTerm] = useState("")
+  const [selectedDanceStyle, setSelectedDanceStyle] = useState("All Dance Styles")
   
   const { selectedState, setSelectedState, filteredItems: filteredEvents, isGeoLoading, error: geoError } = useStateFilter(events)
 
-  // Filter events based on search term
+  // Filter events based on search term and dance style
   const searchFilteredEvents = filteredEvents.filter(event => {
     const nameMatch = event.name.toLowerCase().includes(searchTerm.toLowerCase())
     const locationMatch = event.location.toLowerCase().includes(searchTerm.toLowerCase())
     
-    // Handle dance styles - check if any dance style matches
+    // Handle dance styles - check if any dance style matches search term
     const danceStylesMatch = Array.isArray(event.danceStyles) && event.danceStyles.some(style => 
       style.toLowerCase().includes(searchTerm.toLowerCase())
     )
     
-    return nameMatch || locationMatch || danceStylesMatch
+    // Filter by selected dance style
+    const danceStyleMatch = selectedDanceStyle === "All Dance Styles" || 
+      (Array.isArray(event.danceStyles) && event.danceStyles.includes(selectedDanceStyle))
+    
+    return (nameMatch || locationMatch || danceStylesMatch) && danceStyleMatch
   })
 
   useEffect(() => {
@@ -122,14 +128,18 @@ export default function EventsPage() {
         </div>
 
         <div className="mb-4 sm:mb-8">
-          <div className="flex flex-col sm:flex-row gap-0 sm:gap-4">
+          <div className="flex flex-col sm:flex-row gap-2 sm:gap-4">
             <StateFilter
               selectedState={selectedState}
               onChange={setSelectedState}
               isLoading={isGeoLoading}
               error={geoError}
             />
-            <div className="flex gap-2 w-full sm:w-auto -mt-1 sm:mt-0">
+            <DanceStyleFilter
+              selectedDanceStyle={selectedDanceStyle}
+              onDanceStyleChange={setSelectedDanceStyle}
+            />
+            <div className="flex gap-2 w-full sm:w-auto">
               <Input
                 type="text"
                 placeholder="Search events..."
@@ -152,7 +162,9 @@ export default function EventsPage() {
         <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-4 md:gap-6">
           {searchFilteredEvents.length === 0 ? (
             <div className="col-span-full text-center py-8 text-gray-500">
-              No events found {selectedState !== 'all' && `in ${selectedState}`}
+              No events found 
+              {selectedState !== 'all' && ` in ${selectedState}`}
+              {selectedDanceStyle !== 'All Dance Styles' && ` for ${selectedDanceStyle}`}
             </div>
           ) : (
             searchFilteredEvents.map((event) => (
@@ -161,6 +173,25 @@ export default function EventsPage() {
                 className="relative overflow-hidden h-80 sm:h-96 text-white cursor-pointer"
                 onClick={() => event.imageUrl && setSelectedImage({ url: event.imageUrl, title: event.name })}
               >
+                {/* Dance Style Stickers */}
+                {event.danceStyles && Array.isArray(event.danceStyles) && event.danceStyles.length > 0 && (
+                  <div className="absolute top-2 left-2 z-20 flex flex-wrap gap-1 max-w-[calc(100%-8rem)]">
+                    {event.danceStyles.slice(0, 3).map((style, index) => (
+                      <div 
+                        key={index}
+                        className="bg-black/60 backdrop-blur-md border border-white/30 text-white text-xs font-medium px-2 py-1 rounded-full shadow-lg"
+                      >
+                        {style}
+                      </div>
+                    ))}
+                    {event.danceStyles.length > 3 && (
+                      <div className="bg-black/60 backdrop-blur-md border border-white/30 text-white text-xs font-medium px-2 py-1 rounded-full shadow-lg">
+                        +{event.danceStyles.length - 3}
+                      </div>
+                    )}
+                  </div>
+                )}
+
                 {/* Weekly Event Sticker */}
                 {event.isWeekly && (
                   <div className="absolute top-2 right-2 z-20 bg-white/20 backdrop-blur-md border border-white/30 text-white text-xs font-medium px-3 py-1.5 rounded-full shadow-lg">
@@ -168,23 +199,9 @@ export default function EventsPage() {
                   </div>
                 )}
 
-                {/* Dance Style Stickers */}
-                {event.danceStyles && Array.isArray(event.danceStyles) && (
-                  <div className="absolute top-10 right-2 z-20 flex flex-col gap-1.5">
-                    {event.danceStyles.map((style, index) => (
-                      <div 
-                        key={index}
-                        className="bg-black/40 backdrop-blur-md border border-white/20 text-white text-xs font-medium px-2.5 py-1 rounded-full shadow-lg"
-                      >
-                        {style}
-                      </div>
-                    ))}
-                  </div>
-                )}
-
                 {/* Workshop Sticker */}
                 {event.isWorkshop && (
-                  <div className="absolute top-16 right-2 z-20 bg-primary/80 backdrop-blur-md border border-primary/50 text-white text-xs font-medium px-3 py-1.5 rounded-full shadow-lg">
+                  <div className="absolute top-12 right-2 z-20 bg-primary/80 backdrop-blur-md border border-primary/50 text-white text-xs font-medium px-3 py-1.5 rounded-full shadow-lg">
                     + Workshop
                   </div>
                 )}
