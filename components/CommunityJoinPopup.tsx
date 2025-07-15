@@ -7,8 +7,6 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { toast } from 'sonner'
 import { Gift, Users, Mail, User } from 'lucide-react'
-import { doc, setDoc } from 'firebase/firestore'
-import { db } from '@/lib/firebase'
 
 interface CommunityJoinPopupProps {
   isOpen: boolean
@@ -38,17 +36,22 @@ export function CommunityJoinPopup({ isOpen, onClose }: CommunityJoinPopupProps)
     try {
       console.log('Sending join form data:', formData)
       
-      // Save directly to Firestore using client-side SDK (same as newsletter subscription)
-      const userRef = doc(db, 'users', formData.email)
-      await setDoc(userRef, {
-        email: formData.email,
-        name: formData.name,
-        subscribedAt: new Date().toISOString(),
-        role: 'community_member',
-        contestEntry: true,
-        isActive: true,
-        lastActivity: new Date().toISOString()
+      // Call the API endpoint to save community member
+      const response = await fetch('/api/community-join', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
       })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to join community')
+      }
+
+      console.log('Community join response:', data)
       
       setSuccess(true)
       toast.success('Welcome to the community! 🎉')

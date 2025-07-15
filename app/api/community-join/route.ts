@@ -8,6 +8,13 @@ export async function POST(request: Request) {
     console.log('Received body:', body)
     const { name, email } = body
 
+    // Get client IP address
+    const forwarded = request.headers.get('x-forwarded-for')
+    const realIp = request.headers.get('x-real-ip')
+    const clientIp = forwarded ? forwarded.split(',')[0] : realIp || 'unknown'
+    
+    console.log('Client IP address:', clientIp)
+
     // Validate required fields
     if (!name || !email) {
       console.log('Missing required fields:', { name, email })
@@ -31,21 +38,23 @@ export async function POST(request: Request) {
       )
     }
 
-    // Create community member data
+    // Create community member data with IP address
     const memberData = {
       name: name.trim(),
       email: email.toLowerCase().trim(),
       joinedAt: new Date().toISOString(),
       isActive: true,
       contestEntry: true,
-      lastActivity: new Date().toISOString()
+      lastActivity: new Date().toISOString(),
+      ipAddress: clientIp,
+      userAgent: request.headers.get('user-agent') || 'unknown'
     }
 
     // Save to Firestore
     console.log('Attempting to save to Firestore:', memberData)
     const docRef = await db.collection('community_members').add(memberData)
     
-    console.log('Community member added successfully:', { id: docRef.id, email })
+    console.log('Community member added successfully:', { id: docRef.id, email, ipAddress: clientIp })
 
     // Verify the document was actually saved
     const savedDoc = await db.collection('community_members').doc(docRef.id).get()
@@ -58,7 +67,8 @@ export async function POST(request: Request) {
       success: true,
       id: docRef.id, 
       message: 'Successfully joined the community!',
-      verified: savedDoc.exists
+      verified: savedDoc.exists,
+      ipAddress: clientIp
     })
   } catch (error) {
     console.error('Error adding community member:', error)
