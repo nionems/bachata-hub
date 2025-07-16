@@ -34,24 +34,7 @@ export function SchoolViewCard({ school }: SchoolViewCardProps) {
           />
           <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
           
-          {/* Dance Style Stickers */}
-          {school.danceStyles && school.danceStyles.length > 0 && (
-            <div className="absolute top-2 left-2 z-20 flex flex-wrap gap-1 max-w-[calc(100%-4rem)]">
-              {school.danceStyles.slice(0, 3).map((style, index) => (
-                <div 
-                  key={index}
-                  className="bg-black/60 backdrop-blur-md border border-white/30 text-white text-xs font-medium px-2 py-1 rounded-full shadow-lg"
-                >
-                  {style}
-                </div>
-              ))}
-              {school.danceStyles.length > 3 && (
-                <div className="bg-black/60 backdrop-blur-md border border-white/30 text-white text-xs font-medium px-2 py-1 rounded-full shadow-lg">
-                  +{school.danceStyles.length - 3}
-                </div>
-              )}
-            </div>
-          )}
+
           
           {/* School Name Sticker - Top Center */}
           <div className="absolute top-3 left-1/2 transform -translate-x-1/2 z-20 bg-gradient-to-r from-primary/60 via-primary/50 to-primary/60 backdrop-blur-md border border-white/30 text-white text-xs font-bold px-4 py-1.5 shadow-2xl max-w-[calc(100%-0.5rem)] hover:shadow-primary/25 transition-all duration-300 rounded-full">
