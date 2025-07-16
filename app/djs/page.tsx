@@ -81,25 +81,31 @@ export default function DJsPage() {
     fetchDJs()
   }, [])
 
-  // Extract available dance styles from DJs
+  // Extract available dance styles from DJs in the selected state
   useEffect(() => {
     const styles = new Set<string>()
-    djs.forEach(dj => {
+    
+    // Filter DJs by selected state first
+    const stateFilteredDJs = selectedState === 'all' 
+      ? djs 
+      : djs.filter(dj => dj.state === selectedState)
+    
+    stateFilteredDJs.forEach(dj => {
       if (dj.danceStyles && Array.isArray(dj.danceStyles)) {
         dj.danceStyles.forEach(style => styles.add(style))
       }
     })
     setAvailableDanceStyles(Array.from(styles).sort())
-  }, [djs])
+  }, [djs, selectedState])
 
-  // Auto-select Bachata if available
+  // Auto-select Bachata if available, reset when state changes
   useEffect(() => {
     if (availableDanceStyles.includes('Bachata')) {
       setSelectedDanceStyle('Bachata')
     } else {
       setSelectedDanceStyle('all')
     }
-  }, [availableDanceStyles])
+  }, [availableDanceStyles, selectedState])
 
   const toggleComment = (djId: string) => {
     setExpandedComments(prev => ({

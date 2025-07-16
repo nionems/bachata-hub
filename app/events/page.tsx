@@ -107,25 +107,31 @@ export default function EventsPage() {
     fetchEvents()
   }, [])
 
-  // Extract available dance styles from events
+  // Extract available dance styles from events in the selected state
   useEffect(() => {
     const styles = new Set<string>()
-    events.forEach(event => {
+    
+    // Filter events by selected state first
+    const stateFilteredEvents = selectedState === 'all' 
+      ? events 
+      : events.filter(event => event.state === selectedState)
+    
+    stateFilteredEvents.forEach(event => {
       if (event.danceStyles && Array.isArray(event.danceStyles)) {
         event.danceStyles.forEach(style => styles.add(style))
       }
     })
     setAvailableDanceStyles(Array.from(styles).sort())
-  }, [events])
+  }, [events, selectedState])
 
-  // Auto-select Bachata if available
+  // Auto-select Bachata if available, reset when state changes
   useEffect(() => {
     if (availableDanceStyles.includes('Bachata')) {
       setSelectedDanceStyle('Bachata')
     } else {
       setSelectedDanceStyle('all')
     }
-  }, [availableDanceStyles])
+  }, [availableDanceStyles, selectedState])
 
   const toggleComment = (eventId: string) => {
     setExpandedComments(prev => ({

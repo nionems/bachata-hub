@@ -99,25 +99,31 @@ export default function FestivalsPage() {
     fetchFestivals()
   }, [])
 
-  // Extract available dance styles from festivals
+  // Extract available dance styles from festivals in the selected state
   useEffect(() => {
     const styles = new Set<string>()
-    festivals.forEach(festival => {
+    
+    // Filter festivals by selected state first
+    const stateFilteredFestivals = selectedState === 'all' 
+      ? festivals 
+      : festivals.filter(festival => festival.state === selectedState)
+    
+    stateFilteredFestivals.forEach(festival => {
       if (festival.danceStyles && Array.isArray(festival.danceStyles)) {
         festival.danceStyles.forEach(style => styles.add(style))
       }
     })
     setAvailableDanceStyles(Array.from(styles).sort())
-  }, [festivals])
+  }, [festivals, selectedState])
 
-  // Auto-select Bachata if available
+  // Auto-select Bachata if available, reset when state changes
   useEffect(() => {
     if (availableDanceStyles.includes('Bachata')) {
       setSelectedDanceStyle('Bachata')
     } else {
       setSelectedDanceStyle('all')
     }
-  }, [availableDanceStyles])
+  }, [availableDanceStyles, selectedState])
 
   // Memoized helper functions to avoid recalculation
   const dateHelpers = useMemo(() => {

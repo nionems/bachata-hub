@@ -106,25 +106,31 @@ export default function SchoolsPage() {
     fetchSchools()
   }, [])
 
-  // Extract available dance styles from schools
+  // Extract available dance styles from schools in the selected state
   useEffect(() => {
     const styles = new Set<string>()
-    schools.forEach(school => {
+    
+    // Filter schools by selected state first
+    const stateFilteredSchools = selectedState === 'all' 
+      ? schools 
+      : schools.filter(school => school.state === selectedState)
+    
+    stateFilteredSchools.forEach(school => {
       if (school.danceStyles && Array.isArray(school.danceStyles)) {
         school.danceStyles.forEach(style => styles.add(style))
       }
     })
     setAvailableDanceStyles(Array.from(styles).sort())
-  }, [schools])
+  }, [schools, selectedState])
 
-  // Auto-select Bachata if available
+  // Auto-select Bachata if available, reset when state changes
   useEffect(() => {
     if (availableDanceStyles.includes('Bachata')) {
       setSelectedDanceStyle('Bachata')
     } else {
       setSelectedDanceStyle('all')
     }
-  }, [availableDanceStyles])
+  }, [availableDanceStyles, selectedState])
 
   if (isLoading) {
     return <LoadingSpinner message="Loading schools..." />

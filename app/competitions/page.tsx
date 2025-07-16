@@ -78,25 +78,31 @@ export default function CompetitionsPage() {
     fetchCompetitions()
   }, [])
 
-  // Extract available dance styles from competitions
+  // Extract available dance styles from competitions in the selected state
   useEffect(() => {
     const styles = new Set<string>()
-    competitions.forEach(competition => {
+    
+    // Filter competitions by selected state first
+    const stateFilteredCompetitions = selectedState === 'all' 
+      ? competitions 
+      : competitions.filter(competition => competition.state === selectedState)
+    
+    stateFilteredCompetitions.forEach(competition => {
       if (competition.danceStyles && Array.isArray(competition.danceStyles)) {
         competition.danceStyles.forEach(style => styles.add(style))
       }
     })
     setAvailableDanceStyles(Array.from(styles).sort())
-  }, [competitions])
+  }, [competitions, selectedState])
 
-  // Auto-select Bachata if available
+  // Auto-select Bachata if available, reset when state changes
   useEffect(() => {
     if (availableDanceStyles.includes('Bachata')) {
       setSelectedDanceStyle('Bachata')
     } else {
       setSelectedDanceStyle('all')
     }
-  }, [availableDanceStyles])
+  }, [availableDanceStyles, selectedState])
 
   if (isLoading) {
     return <LoadingSpinner message="Loading competitions..." />

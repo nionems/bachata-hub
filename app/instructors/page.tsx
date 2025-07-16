@@ -92,25 +92,31 @@ export default function InstructorsPage() {
     fetchInstructors()
   }, [])
 
-  // Extract available dance styles from instructors
+  // Extract available dance styles from instructors in the selected state
   useEffect(() => {
     const styles = new Set<string>()
-    instructors.forEach(instructor => {
+    
+    // Filter instructors by selected state first
+    const stateFilteredInstructors = selectedState === 'all' 
+      ? instructors 
+      : instructors.filter(instructor => instructor.state === selectedState)
+    
+    stateFilteredInstructors.forEach(instructor => {
       if (instructor.danceStyles && Array.isArray(instructor.danceStyles)) {
         instructor.danceStyles.forEach(style => styles.add(style))
       }
     })
     setAvailableDanceStyles(Array.from(styles).sort())
-  }, [instructors])
+  }, [instructors, selectedState])
 
-  // Auto-select Bachata if available
+  // Auto-select Bachata if available, reset when state changes
   useEffect(() => {
     if (availableDanceStyles.includes('Bachata')) {
       setSelectedDanceStyle('Bachata')
     } else {
       setSelectedDanceStyle('all')
     }
-  }, [availableDanceStyles])
+  }, [availableDanceStyles, selectedState])
 
   if (isLoading) {
     return <LoadingSpinner message="Loading instructors..." />
