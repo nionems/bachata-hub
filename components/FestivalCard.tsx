@@ -1,10 +1,11 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { MapPin, Calendar, Clock, Users, Info, ExternalLink, Ticket, Star } from "lucide-react"
+import { MapPin, Calendar, Clock, Users, Info, ExternalLink, Ticket, Star, Music } from "lucide-react"
 import { Festival } from "@/types/festival"
 import Image from "next/image"
 import { useMemo } from "react"
+import { DANCE_STYLES } from "@/lib/constants"
 
 interface FestivalCardProps {
   festival: Festival;
@@ -28,6 +29,15 @@ export function FestivalCard({ festival }: FestivalCardProps) {
     return { startDate, endDate };
   }, [festival.startDate, festival.endDate, festival.date]);
 
+  // Helper function to get dance styles as array
+  const getDanceStylesArray = (danceStyles: string[] | string | undefined): string[] => {
+    if (!danceStyles) return [];
+    if (Array.isArray(danceStyles)) return danceStyles;
+    return danceStyles.split(',').map(s => s.trim()).filter(Boolean);
+  };
+
+  const danceStylesArray = getDanceStylesArray(festival.danceStyles);
+
   return (
     <Card className="overflow-hidden hover:shadow-lg transition-shadow">
       <div className="h-48 overflow-hidden relative">
@@ -45,6 +55,24 @@ export function FestivalCard({ festival }: FestivalCardProps) {
               <Star className="h-3 w-3 mr-1" />
               Featured
             </Badge>
+          </div>
+        )}
+        {/* Dance Style Stickers */}
+        {danceStylesArray.length > 0 && (
+          <div className="absolute top-2 left-2 z-20 flex flex-wrap gap-1 max-w-[calc(100%-8rem)]">
+            {danceStylesArray.slice(0, 3).map((style, index) => (
+              <div 
+                key={index}
+                className="bg-black/60 backdrop-blur-md border border-white/30 text-white text-xs font-medium px-2 py-1 rounded-full shadow-lg"
+              >
+                {style}
+              </div>
+            ))}
+            {danceStylesArray.length > 3 && (
+              <div className="bg-black/60 backdrop-blur-md border border-white/30 text-white text-xs font-medium px-2 py-1 rounded-full shadow-lg">
+                +{danceStylesArray.length - 3}
+              </div>
+            )}
           </div>
         )}
       </div>

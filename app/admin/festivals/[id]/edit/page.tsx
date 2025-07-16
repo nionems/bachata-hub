@@ -57,7 +57,7 @@ export default function EditFestivalPage({ params }: { params: { id: string } })
       if (Array.isArray(data.danceStyles)) {
         danceStylesArr = data.danceStyles
       } else if (typeof data.danceStyles === 'string') {
-        danceStylesArr = data.danceStyles.split(',').map(s => s.trim()).filter(Boolean)
+        danceStylesArr = data.danceStyles.split(',').map((s: string) => s.trim()).filter(Boolean)
       }
       setFormData({ ...data, danceStyles: danceStylesArr })
     } catch (error) {

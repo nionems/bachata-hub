@@ -18,6 +18,7 @@ import { FestivalCard } from '@/components/FestivalCard'
 import Image from "next/image"
 import { GridSkeleton } from "@/components/loading-skeleton"
 import { LoadingSpinner } from "@/components/loading-spinner"
+import { DANCE_STYLES } from "@/lib/constants"
 
 interface Festival {
   id: string
@@ -244,6 +245,24 @@ export default function FestivalsPage() {
                         ⭐ Featured
                       </Badge>
                     </div>
+                    {/* Dance Style Stickers */}
+                    {festival.danceStyles && (
+                      <div className="absolute top-2 left-2 z-20 flex flex-wrap gap-1 max-w-[calc(100%-8rem)]">
+                        {(Array.isArray(festival.danceStyles) ? festival.danceStyles : festival.danceStyles.split(',').map(s => s.trim()).filter(Boolean)).slice(0, 3).map((style, index) => (
+                          <div 
+                            key={index}
+                            className="bg-black/60 backdrop-blur-md border border-white/30 text-white text-xs font-medium px-2 py-1 rounded-full shadow-lg"
+                          >
+                            {style}
+                          </div>
+                        ))}
+                        {(Array.isArray(festival.danceStyles) ? festival.danceStyles : festival.danceStyles.split(',').map(s => s.trim()).filter(Boolean)).length > 3 && (
+                          <div className="bg-black/60 backdrop-blur-md border border-white/30 text-white text-xs font-medium px-2 py-1 rounded-full shadow-lg">
+                            +{(Array.isArray(festival.danceStyles) ? festival.danceStyles : festival.danceStyles.split(',').map(s => s.trim()).filter(Boolean)).length - 3}
+                          </div>
+                        )}
+                      </div>
+                    )}
                   </div>
                   <div className="p-4">
                     <h3 className="text-lg font-semibold mb-2">{festival.name}</h3>
@@ -269,12 +288,6 @@ export default function FestivalsPage() {
                         <MapPin className="w-4 h-4 mr-1" />
                         <span className="truncate">{festival.location}, {festival.state}</span>
                       </div>
-                      {festival.danceStyles && (
-                        <div className="flex items-center">
-                          <Music className="w-4 h-4 mr-1" />
-                          <span className="truncate">{Array.isArray(festival.danceStyles) ? festival.danceStyles.join(', ') : festival.danceStyles}</span>
-                        </div>
-                      )}
                       {festival.price && (
                         <div className="flex items-center">
                           <DollarSign className="w-4 h-4 mr-1" />
@@ -326,6 +339,24 @@ export default function FestivalsPage() {
                     className="object-cover transition-transform duration-300 hover:scale-105 cursor-pointer"
                     onClick={(e) => handleImageClick(e, festival)}
                   />
+                  {/* Dance Style Stickers */}
+                  {festival.danceStyles && (
+                    <div className="absolute top-2 left-2 z-20 flex flex-wrap gap-1 max-w-[calc(100%-8rem)]">
+                      {(Array.isArray(festival.danceStyles) ? festival.danceStyles : festival.danceStyles.split(',').map(s => s.trim()).filter(Boolean)).slice(0, 3).map((style, index) => (
+                        <div 
+                          key={index}
+                          className="bg-black/60 backdrop-blur-md border border-white/30 text-white text-xs font-medium px-2 py-1 rounded-full shadow-lg"
+                        >
+                          {style}
+                        </div>
+                      ))}
+                      {(Array.isArray(festival.danceStyles) ? festival.danceStyles : festival.danceStyles.split(',').map(s => s.trim()).filter(Boolean)).length > 3 && (
+                        <div className="bg-black/60 backdrop-blur-md border border-white/30 text-white text-xs font-medium px-2 py-1 rounded-full shadow-lg">
+                          +{(Array.isArray(festival.danceStyles) ? festival.danceStyles : festival.danceStyles.split(',').map(s => s.trim()).filter(Boolean)).length - 3}
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
                 <div className="p-4">
                   <h3 className="text-lg font-semibold mb-2">{festival.name}</h3>
@@ -351,12 +382,6 @@ export default function FestivalsPage() {
                       <MapPin className="w-4 h-4 mr-1" />
                       <span className="truncate">{festival.location}, {festival.state}</span>
                     </div>
-                    {festival.danceStyles && (
-                      <div className="flex items-center">
-                        <Music className="w-4 h-4 mr-1" />
-                        <span className="truncate">{Array.isArray(festival.danceStyles) ? festival.danceStyles.join(', ') : festival.danceStyles}</span>
-                      </div>
-                    )}
                     {festival.price && (
                       <div className="flex items-center">
                         <DollarSign className="w-4 h-4 mr-1" />
