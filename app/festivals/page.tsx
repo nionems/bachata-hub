@@ -7,6 +7,7 @@ import { Calendar, MapPin, DollarSign, Users, Ticket, Hotel, CheckCircle, Info, 
 import { useState, useEffect, useMemo } from "react"
 import CollapsibleFilter from "@/components/collapsible-filter"
 import { StateFilter } from '@/components/StateFilter'
+import { DanceStyleFilter } from '@/components/DanceStyleFilter'
 import { useStateFilter } from '@/hooks/useStateFilter'
 import { FestivalSubmissionForm } from "@/components/FestivalSubmissionForm"
 import { ContactForm } from "@/components/ContactForm"
@@ -29,7 +30,7 @@ interface Festival {
   eventLink: string
   price: string
   ticketLink: string
-  danceStyles: string
+  danceStyles: string[] | string
   imageUrl: string
   comment: string
   googleMapLink: string
@@ -50,6 +51,7 @@ export default function FestivalsPage() {
   const [isContactFormOpen, setIsContactFormOpen] = useState(false)
   const [isImageModalOpen, setIsImageModalOpen] = useState(false)
   const [selectedImage, setSelectedImage] = useState<{ url: string; title: string } | null>(null)
+  const [selectedDanceStyle, setSelectedDanceStyle] = useState("All Dance Styles")
   
   const { selectedState, setSelectedState, filteredItems: filteredFestivals } = useStateFilter(festivals, { useGeolocation: false })
 
@@ -146,6 +148,18 @@ export default function FestivalsPage() {
     const filtered = festivals
       .filter((festival) => dateHelpers.isFutureDate(festival.startDate))
       .filter((festival) => selectedState === "all" || festival.state === selectedState)
+      .filter((festival) => {
+        // Filter by selected dance style
+        if (selectedDanceStyle === "All Dance Styles") return true;
+        
+        // Handle both string and array dance styles
+        if (Array.isArray(festival.danceStyles)) {
+          return festival.danceStyles.includes(selectedDanceStyle);
+        } else if (typeof festival.danceStyles === 'string') {
+          return festival.danceStyles.includes(selectedDanceStyle);
+        }
+        return false;
+      })
       .sort((a, b) => dateHelpers.getDateSortValue(a.startDate) - dateHelpers.getDateSortValue(b.startDate));
 
     console.log('Filtered festivals:', filtered);
@@ -160,7 +174,7 @@ export default function FestivalsPage() {
     console.log('Regular festivals:', regular);
 
     return { upcomingFestivals: filtered, featuredFestivals: featured, regularFestivals: regular };
-  }, [festivals, selectedState, dateHelpers]);
+  }, [festivals, selectedState, selectedDanceStyle, dateHelpers]);
 
   if (isLoading) {
     return <LoadingSpinner message="Loading festivals..." />
@@ -196,10 +210,16 @@ export default function FestivalsPage() {
         </div>
 
         <div className="mb-4 sm:mb-8">
-          <StateFilter
-            selectedState={selectedState}
-            onChange={setSelectedState}
-          />
+          <div className="flex flex-col sm:flex-row gap-2 sm:gap-4">
+            <StateFilter
+              selectedState={selectedState}
+              onChange={setSelectedState}
+            />
+            <DanceStyleFilter
+              selectedDanceStyle={selectedDanceStyle}
+              onDanceStyleChange={setSelectedDanceStyle}
+            />
+          </div>
         </div>
 
         {/* Featured Festivals Section */}
@@ -252,7 +272,7 @@ export default function FestivalsPage() {
                       {festival.danceStyles && (
                         <div className="flex items-center">
                           <Music className="w-4 h-4 mr-1" />
-                          <span className="truncate">{festival.danceStyles}</span>
+                          <span className="truncate">{Array.isArray(festival.danceStyles) ? festival.danceStyles.join(', ') : festival.danceStyles}</span>
                         </div>
                       )}
                       {festival.price && (
@@ -291,7 +311,9 @@ export default function FestivalsPage() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 md:gap-8">
           {regularFestivals.length === 0 && featuredFestivals.length === 0 ? (
             <div className="col-span-full text-center py-6 sm:py-8 text-gray-500">
-              No festivals found {selectedState !== 'all' && `in ${selectedState}`}
+              No festivals found 
+              {selectedState !== 'all' && ` in ${selectedState}`}
+              {selectedDanceStyle !== 'All Dance Styles' && ` for ${selectedDanceStyle}`}
             </div>
           ) : (
             regularFestivals.map((festival) => (
@@ -332,7 +354,7 @@ export default function FestivalsPage() {
                     {festival.danceStyles && (
                       <div className="flex items-center">
                         <Music className="w-4 h-4 mr-1" />
-                        <span className="truncate">{festival.danceStyles}</span>
+                        <span className="truncate">{Array.isArray(festival.danceStyles) ? festival.danceStyles.join(', ') : festival.danceStyles}</span>
                       </div>
                     )}
                     {festival.price && (

@@ -15,10 +15,11 @@ export const DANCE_STYLES = [
   'Salsa', 
   'Kizomba',
   'Zouk',
-  'Reaggeaton',
+  'Reggaeton',
   'Heels',
   'Pole Dance',
-  'Latin Beat'
+  'Latin Beat',
+  'Other'
 ] as const
 
 export type DanceStyle = typeof DANCE_STYLES[number] 

@@ -46,7 +46,7 @@ interface Festival {
   location: string
   state: string
   price: string
-  danceStyles: string
+  danceStyles: string[] | string
   imageUrl: string
   published: boolean
   featured?: 'yes' | 'no'
@@ -869,7 +869,8 @@ export default function AdminDashboard() {
     (festival.name?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
     (festival.location?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
     (festival.state?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
-    (festival.danceStyles?.toLowerCase() || '').includes(searchTerm.toLowerCase())
+    (festival.danceStyles && typeof festival.danceStyles === 'string' && festival.danceStyles.toLowerCase().includes(searchTerm.toLowerCase())) ||
+    (festival.danceStyles && Array.isArray(festival.danceStyles) && festival.danceStyles.some(style => (style?.toLowerCase() || '').includes(searchTerm.toLowerCase())))
   )
 
   const filteredInstructors = instructors.filter(instructor =>
@@ -892,7 +893,8 @@ export default function AdminDashboard() {
     (competition.organizer?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
     (competition.location?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
     (competition.state?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
-    (competition.danceStyles?.toLowerCase() || '').includes(searchTerm.toLowerCase())
+    (competition.danceStyles && typeof competition.danceStyles === 'string' && competition.danceStyles.toLowerCase().includes(searchTerm.toLowerCase())) ||
+    (competition.danceStyles && Array.isArray(competition.danceStyles) && competition.danceStyles.some(style => (style?.toLowerCase() || '').includes(searchTerm.toLowerCase())))
   )
 
   const filteredShops = shops.filter(shop =>
@@ -1054,7 +1056,7 @@ export default function AdminDashboard() {
             <span className="font-medium">Price:</span> ${festival.price}
           </p>
           <p className="text-gray-600">
-            <span className="font-medium">Styles:</span> {festival.danceStyles}
+            <span className="font-medium">Styles:</span> {Array.isArray(festival.danceStyles) ? festival.danceStyles.join(', ') : festival.danceStyles}
           </p>
           <p className="text-gray-600">
             <span className="font-medium">Status:</span>{' '}

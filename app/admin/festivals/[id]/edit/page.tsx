@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
+import { DANCE_STYLES, AUSTRALIAN_STATES } from '@/lib/constants'
 
 interface Festival {
   id: string
@@ -14,24 +15,13 @@ interface Festival {
   eventLink: string
   price: string
   ticketLink: string
-  danceStyles: string
+  danceStyles: string[] | string
   imageUrl: string
   comment: string
   googleMapLink: string
   featured?: 'yes' | 'no'
   published?: boolean
 }
-
-const AUSTRALIAN_STATES = [
-  { value: 'NSW', label: 'New South Wales' },
-  { value: 'VIC', label: 'Victoria' },
-  { value: 'QLD', label: 'Queensland' },
-  { value: 'WA', label: 'Western Australia' },
-  { value: 'SA', label: 'South Australia' },
-  { value: 'TAS', label: 'Tasmania' },
-  { value: 'ACT', label: 'Australian Capital Territory' },
-  { value: 'NT', label: 'Northern Territory' }
-]
 
 export default function EditFestivalPage({ params }: { params: { id: string } }) {
   const router = useRouter()
@@ -48,7 +38,7 @@ export default function EditFestivalPage({ params }: { params: { id: string } })
     eventLink: '',
     price: '',
     ticketLink: '',
-    danceStyles: '',
+    danceStyles: [],
     imageUrl: '',
     comment: '',
     googleMapLink: '',
@@ -62,7 +52,14 @@ export default function EditFestivalPage({ params }: { params: { id: string } })
       const response = await fetch(`/api/festivals/${params.id}`)
       if (!response.ok) throw new Error('Failed to fetch festival')
       const data = await response.json()
-      setFormData(data)
+      // Normalize danceStyles to array
+      let danceStylesArr: string[] = []
+      if (Array.isArray(data.danceStyles)) {
+        danceStylesArr = data.danceStyles
+      } else if (typeof data.danceStyles === 'string') {
+        danceStylesArr = data.danceStyles.split(',').map(s => s.trim()).filter(Boolean)
+      }
+      setFormData({ ...data, danceStyles: danceStylesArr })
     } catch (error) {
       console.error('Error fetching festival:', error)
       setError('Failed to load festival data')
@@ -121,6 +118,18 @@ export default function EditFestivalPage({ params }: { params: { id: string } })
       }
       reader.readAsDataURL(file)
     }
+  }
+
+  // Add handler for dance style checkboxes
+  const handleDanceStyleChange = (style: string) => {
+    setFormData(prev => {
+      const current = Array.isArray(prev.danceStyles) ? prev.danceStyles : []
+      if (current.includes(style)) {
+        return { ...prev, danceStyles: current.filter(s => s !== style) }
+      } else {
+        return { ...prev, danceStyles: [...current, style] }
+      }
+    })
   }
 
   return (
@@ -249,14 +258,22 @@ export default function EditFestivalPage({ params }: { params: { id: string } })
         {/* Dance Styles */}
         <div>
           <label className="block text-sm font-medium mb-1">Dance Styles*</label>
-          <input
-            type="text"
-            value={formData.danceStyles}
-            onChange={(e) => setFormData({ ...formData, danceStyles: e.target.value })}
-            className="w-full p-2 border rounded"
-            placeholder="e.g., Bachata, Salsa, Kizomba"
-            required
-          />
+          <div className="flex flex-wrap gap-2">
+            {DANCE_STYLES.map(style => (
+              <label key={style} className="flex items-center gap-1 text-sm">
+                <input
+                  type="checkbox"
+                  checked={Array.isArray(formData.danceStyles) && formData.danceStyles.includes(style)}
+                  onChange={() => handleDanceStyleChange(style)}
+                  className="accent-primary"
+                />
+                {style}
+              </label>
+            ))}
+          </div>
+          {Array.isArray(formData.danceStyles) && formData.danceStyles.length === 0 && (
+            <div className="text-xs text-red-500 mt-1">Please select at least one dance style.</div>
+          )}
         </div>
 
         {/* Featured Festival */}

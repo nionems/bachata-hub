@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { DANCE_STYLES, AUSTRALIAN_STATES } from '@/lib/constants'
 
 interface FestivalFormData {
   name: string
@@ -13,25 +14,13 @@ interface FestivalFormData {
   eventLink: string
   price: string
   ticketLink: string
-  danceStyles: string
+  danceStyles: string[]
   imageUrl: string
   comment: string
   googleMapLink: string
   featured: 'yes' | 'no'
   published: boolean
 }
-
-// List of Australian states and territories
-const AUSTRALIAN_STATES = [
-  { value: 'NSW', label: 'New South Wales' },
-  { value: 'VIC', label: 'Victoria' },
-  { value: 'QLD', label: 'Queensland' },
-  { value: 'WA', label: 'Western Australia' },
-  { value: 'SA', label: 'South Australia' },
-  { value: 'TAS', label: 'Tasmania' },
-  { value: 'ACT', label: 'Australian Capital Territory' },
-  { value: 'NT', label: 'Northern Territory' }
-];
 
 export default function NewFestivalPage() {
   const router = useRouter()
@@ -49,7 +38,7 @@ export default function NewFestivalPage() {
     eventLink: '',
     price: '',
     ticketLink: '',
-    danceStyles: '',
+    danceStyles: [],
     imageUrl: '',
     comment: '',
     googleMapLink: '',
@@ -93,6 +82,16 @@ export default function NewFestivalPage() {
     } else {
       setFormData(prev => ({ ...prev, [name]: value }))
     }
+  }
+
+  const handleDanceStyleChange = (style: string) => {
+    setFormData(prev => {
+      if (prev.danceStyles.includes(style)) {
+        return { ...prev, danceStyles: prev.danceStyles.filter(s => s !== style) }
+      } else {
+        return { ...prev, danceStyles: [...prev.danceStyles, style] }
+      }
+    })
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -270,15 +269,22 @@ export default function NewFestivalPage() {
         {/* Dance Styles */}
         <div>
           <label className="block text-sm font-medium mb-1">Dance Styles*</label>
-          <input
-            type="text"
-            value={formData.danceStyles}
-            onChange={handleChange}
-            name="danceStyles"
-            className="w-full p-2 border rounded"
-            placeholder="e.g., Bachata, Salsa, Kizomba"
-            required
-          />
+          <div className="flex flex-wrap gap-2">
+            {DANCE_STYLES.map(style => (
+              <label key={style} className="flex items-center gap-1 text-sm">
+                <input
+                  type="checkbox"
+                  checked={formData.danceStyles.includes(style)}
+                  onChange={() => handleDanceStyleChange(style)}
+                  className="accent-primary"
+                />
+                {style}
+              </label>
+            ))}
+          </div>
+          {formData.danceStyles.length === 0 && (
+            <div className="text-xs text-red-500 mt-1">Please select at least one dance style.</div>
+          )}
         </div>
 
         {/* Featured Festival */}
