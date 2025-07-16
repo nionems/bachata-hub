@@ -7,6 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Calendar, MapPin, Users, Trophy, Clock, Search } from "lucide-react"
 import Link from "next/link"
 import { StateFilter } from '@/components/StateFilter'
+import { DanceStyleFilter } from '@/components/DanceStyleFilter'
 import { useStateFilter } from '@/hooks/useStateFilter'
 import { CompetitionCard } from '@/components/CompetitionCard'
 import { Competition } from '@/types/competition'
@@ -23,13 +24,19 @@ export default function CompetitionsPage() {
   const [expandedComments, setExpandedComments] = useState<Record<string, boolean>>({})
   const [isSubmissionFormOpen, setIsSubmissionFormOpen] = useState(false)
   const [searchTerm, setSearchTerm] = useState("")
+  const [selectedDanceStyle, setSelectedDanceStyle] = useState("All Dance Styles")
   
   const { selectedState, setSelectedState, filteredItems: filteredCompetitions } = useStateFilter(competitions, { useGeolocation: false })
 
-  // Filter competitions based on search term
-  const searchFilteredCompetitions = filteredCompetitions.filter(competition =>
-    competition.name.toLowerCase().includes(searchTerm.toLowerCase())
-  )
+  // Filter competitions based on search term and dance style
+  const searchFilteredCompetitions = filteredCompetitions.filter(competition => {
+    const matchesSearch = competition.name.toLowerCase().includes(searchTerm.toLowerCase())
+    const matchesDanceStyle = selectedDanceStyle === "All Dance Styles" || 
+      (competition.danceStyles && competition.danceStyles.some(style => 
+        style.toLowerCase() === selectedDanceStyle.toLowerCase()
+      ))
+    return matchesSearch && matchesDanceStyle
+  })
 
   const toggleComment = (id: string) => {
     setExpandedComments(prev => ({
@@ -101,6 +108,10 @@ export default function CompetitionsPage() {
             <StateFilter
               selectedState={selectedState}
               onChange={setSelectedState}
+            />
+            <DanceStyleFilter
+              selectedDanceStyle={selectedDanceStyle}
+              onDanceStyleChange={setSelectedDanceStyle}
             />
             <div className="flex gap-2 w-full sm:w-auto -mt-1 sm:mt-0">
               <Input

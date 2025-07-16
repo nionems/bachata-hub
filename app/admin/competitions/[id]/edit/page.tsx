@@ -2,6 +2,7 @@
 
 import { useState, ChangeEvent, FormEvent, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import { DANCE_STYLES, AUSTRALIAN_STATES } from '@/lib/constants'
 
 interface CompetitionFormData {
   name: string
@@ -16,7 +17,7 @@ interface CompetitionFormData {
   eventLink: string
   price: string
   ticketLink: string
-  danceStyles: string
+  danceStyles: string[]
   imageUrl: string
   image?: File | null
   comment: string
@@ -26,17 +27,6 @@ interface CompetitionFormData {
   status: string
   socialLink: string
 }
-
-const AUSTRALIAN_STATES = [
-  { value: 'NSW', label: 'New South Wales' },
-  { value: 'VIC', label: 'Victoria' },
-  { value: 'QLD', label: 'Queensland' },
-  { value: 'WA', label: 'Western Australia' },
-  { value: 'SA', label: 'South Australia' },
-  { value: 'TAS', label: 'Tasmania' },
-  { value: 'ACT', label: 'Australian Capital Territory' },
-  { value: 'NT', label: 'Northern Territory' }
-]
 
 const COMPETITION_CATEGORIES = [
   'Jack&Jill',
@@ -84,7 +74,7 @@ export default function EditCompetitionPage({ params }: { params: { id: string }
     eventLink: '',
     price: '',
     ticketLink: '',
-    danceStyles: '',
+    danceStyles: [],
     imageUrl: '',
     comment: '',
     googleMapLink: '',
@@ -102,8 +92,18 @@ export default function EditCompetitionPage({ params }: { params: { id: string }
           throw new Error('Failed to fetch competition')
         }
         const data = await response.json()
+        
+        // Normalize danceStyles to array
+        let danceStylesArr: string[] = []
+        if (Array.isArray(data.danceStyles)) {
+          danceStylesArr = data.danceStyles
+        } else if (typeof data.danceStyles === 'string') {
+          danceStylesArr = data.danceStyles.split(',').map((s: string) => s.trim()).filter(Boolean)
+        }
+        
         setFormData({
           ...data,
+          danceStyles: danceStylesArr,
           categories: data.categories || [],
           level: data.level || []
         })
@@ -134,6 +134,16 @@ export default function EditCompetitionPage({ params }: { params: { id: string }
     } else {
       setFormData(prev => ({ ...prev, [name]: value }))
     }
+  }
+
+  // Handle dance style checkbox changes
+  const handleDanceStyleChange = (danceStyle: string) => {
+    setFormData(prev => ({
+      ...prev,
+      danceStyles: prev.danceStyles.includes(danceStyle)
+        ? prev.danceStyles.filter(style => style !== danceStyle)
+        : [...prev.danceStyles, danceStyle]
+    }))
   }
 
   const handleImageUpload = async (file: File): Promise<string> => {
@@ -295,8 +305,20 @@ export default function EditCompetitionPage({ params }: { params: { id: string }
 
         {/* Dance Styles */}
         <div>
-          <label htmlFor="danceStyles" className="block text-sm font-medium text-gray-700 mb-1">Dance Styles</label>
-          <input type="text" id="danceStyles" name="danceStyles" value={formData.danceStyles} onChange={handleChange} className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" placeholder="e.g., Bachata, Salsa"/>
+          <label className="block text-sm font-medium text-gray-700 mb-2">Dance Styles</label>
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+            {DANCE_STYLES.map((style) => (
+              <label key={style} className="flex items-center space-x-2 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={formData.danceStyles.includes(style)}
+                  onChange={() => handleDanceStyleChange(style)}
+                  className="rounded border-gray-300 text-primary focus:ring-primary"
+                />
+                <span className="text-sm text-gray-700">{style}</span>
+              </label>
+            ))}
+          </div>
         </div>
 
         {/* Categories */}

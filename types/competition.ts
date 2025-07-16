@@ -12,7 +12,7 @@ export interface Competition {
   eventLink: string
   price: string
   ticketLink: string
-  danceStyles: string
+  danceStyles: string[]
   imageUrl: string
   comment: string
   googleMapLink: string
