@@ -853,7 +853,8 @@ export default function AdminDashboard() {
   const filteredSchools = schools.filter(school =>
     school.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     school.location.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    school.state.toLowerCase().includes(searchTerm.toLowerCase())
+    school.state.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (school.danceStyles && Array.isArray(school.danceStyles) && school.danceStyles.some(style => (style?.toLowerCase() || '').includes(searchTerm.toLowerCase())))
   )
 
   const filteredEvents = events.filter(event =>

@@ -3,6 +3,7 @@
 import { useState, ChangeEvent, FormEvent, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { School } from '@/types/school'
+import { DANCE_STYLES, AUSTRALIAN_STATES } from '@/lib/constants'
 
 interface SchoolFormData {
   name: string;
@@ -23,18 +24,6 @@ interface SchoolFormData {
   googleMapLink: string;
   comment: string;
 }
-
-// List of Australian states and territories
-const AUSTRALIAN_STATES = [
-  { value: 'NSW', label: 'New South Wales' },
-  { value: 'VIC', label: 'Victoria' },
-  { value: 'QLD', label: 'Queensland' },
-  { value: 'WA', label: 'Western Australia' },
-  { value: 'SA', label: 'South Australia' },
-  { value: 'TAS', label: 'Tasmania' },
-  { value: 'ACT', label: 'Australian Capital Territory' },
-  { value: 'NT', label: 'Northern Territory' }
-];
 
 export default function NewSchoolPage() {
   const router = useRouter()
@@ -72,6 +61,16 @@ export default function NewSchoolPage() {
     } else {
       setFormData({ ...formData, [name]: value })
     }
+  }
+
+  // Handle dance style checkbox changes
+  const handleDanceStyleChange = (danceStyle: string) => {
+    setFormData(prev => ({
+      ...prev,
+      danceStyles: prev.danceStyles.includes(danceStyle)
+        ? prev.danceStyles.filter(style => style !== danceStyle)
+        : [...prev.danceStyles, danceStyle]
+    }))
   }
 
   useEffect(() => {
@@ -302,15 +301,23 @@ export default function NewSchoolPage() {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700">Dance Styles</label>
-          <input
-            type="text"
-            value={formData.danceStyles.join(', ')}
-            onChange={(e) => setFormData({ ...formData, danceStyles: e.target.value.split(',').map(s => s.trim()) })}
-            name="danceStyles"
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-            required
-          />
+          <label className="block text-sm font-medium text-gray-700 mb-2">Dance Styles *</label>
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+            {DANCE_STYLES.map((style) => (
+              <label key={style} className="flex items-center space-x-2 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={formData.danceStyles.includes(style)}
+                  onChange={() => handleDanceStyleChange(style)}
+                  className="rounded border-gray-300 text-primary focus:ring-primary"
+                />
+                <span className="text-sm text-gray-700">{style}</span>
+              </label>
+            ))}
+          </div>
+          {formData.danceStyles.length === 0 && (
+            <p className="text-red-500 text-sm mt-1">Please select at least one dance style</p>
+          )}
         </div>
 
         <div>

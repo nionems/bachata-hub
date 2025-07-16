@@ -6,6 +6,7 @@ import { Calendar, MapPin, DollarSign, Users, Ticket, Hotel, CheckCircle, Info, 
 import { useState, useEffect } from "react"
 import CollapsibleFilter from "@/components/collapsible-filter"
 import { StateFilter } from '@/components/StateFilter'
+import { DanceStyleFilter } from '@/components/DanceStyleFilter'
 import { useStateFilter } from '@/hooks/useStateFilter'
 import { collection, getDocs } from 'firebase/firestore'
 import { db } from '../../firebase/config'
@@ -37,13 +38,19 @@ export default function SchoolsPage() {
   const [isSubmissionFormOpen, setIsSubmissionFormOpen] = useState(false)
   const [isContactFormOpen, setIsContactFormOpen] = useState(false)
   const [searchTerm, setSearchTerm] = useState("")
+  const [selectedDanceStyle, setSelectedDanceStyle] = useState("All Dance Styles")
   
   const { selectedState, setSelectedState, filteredItems: filteredSchools, isGeoLoading } = useStateFilter(schools, { useGeolocation: true })
 
-  // Filter schools based on search term
-  const searchFilteredSchools = filteredSchools.filter(school =>
-    school.name.toLowerCase().includes(searchTerm.toLowerCase())
-  )
+  // Filter schools based on search term and dance style
+  const searchFilteredSchools = filteredSchools.filter(school => {
+    const matchesSearch = school.name.toLowerCase().includes(searchTerm.toLowerCase())
+    const matchesDanceStyle = selectedDanceStyle === "All Dance Styles" || 
+      (school.danceStyles && school.danceStyles.some(style => 
+        style.toLowerCase() === selectedDanceStyle.toLowerCase()
+      ))
+    return matchesSearch && matchesDanceStyle
+  })
 
   useEffect(() => {
     const fetchSchools = async () => {
@@ -123,6 +130,10 @@ export default function SchoolsPage() {
               onChange={setSelectedState}
               isLoading={isGeoLoading}
             />
+            <DanceStyleFilter
+              selectedDanceStyle={selectedDanceStyle}
+              onDanceStyleChange={setSelectedDanceStyle}
+            />
             <div className="flex gap-2 w-full sm:w-auto -mt-1 sm:mt-0">
               <Input
                 type="text"
@@ -144,9 +155,18 @@ export default function SchoolsPage() {
         </div>
 
         <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-4 md:gap-6">
-          {searchFilteredSchools.map((school) => (
-            <SchoolViewCard key={school.id} school={school} />
-          ))}
+          {searchFilteredSchools.length === 0 ? (
+            <div className="col-span-full text-center py-6 sm:py-8 text-gray-500">
+              No schools found 
+              {selectedState !== 'all' && ` in ${selectedState}`}
+              {selectedDanceStyle !== 'All Dance Styles' && ` for ${selectedDanceStyle}`}
+              {searchTerm && ` matching "${searchTerm}"`}
+            </div>
+          ) : (
+            searchFilteredSchools.map((school) => (
+              <SchoolViewCard key={school.id} school={school} />
+            ))
+          )}
         </div>
 
         {/* Add Your School Card */}

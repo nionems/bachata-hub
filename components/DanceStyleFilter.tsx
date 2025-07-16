@@ -9,18 +9,12 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
+import { DANCE_STYLES } from '@/lib/constants'
 
 // Dance styles from constants
-const DANCE_STYLES = [
+const DANCE_STYLE_OPTIONS = [
   'All Dance Styles',
-  'Bachata',
-  'Salsa', 
-  'Kizomba',
-  'Zouk',
-  'Reaggeaton',
-  'Heels',
-  'Pole Dance',
-  'Latin Beat'
+  ...DANCE_STYLES
 ]
 
 interface DanceStyleFilterProps {
@@ -45,7 +39,7 @@ export function DanceStyleFilter({ selectedDanceStyle, onDanceStyleChange }: Dan
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-full sm:w-[200px]" align="start">
-        {DANCE_STYLES.map((style) => (
+        {DANCE_STYLE_OPTIONS.map((style) => (
           <DropdownMenuItem
             key={style}
             onClick={() => {

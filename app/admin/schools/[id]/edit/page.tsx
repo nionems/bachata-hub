@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
+import { DANCE_STYLES } from '@/lib/constants'
 
 interface SchoolFormData {
   name: string;
@@ -76,8 +77,18 @@ export default function EditSchoolPage() {
       if (!response.ok) throw new Error('Failed to fetch school')
       const data = await response.json()
       setSchool(data)
+      
+      // Normalize danceStyles to array
+      let danceStylesArr: string[] = []
+      if (Array.isArray(data.danceStyles)) {
+        danceStylesArr = data.danceStyles
+      } else if (typeof data.danceStyles === 'string') {
+        danceStylesArr = data.danceStyles.split(',').map((s: string) => s.trim()).filter(Boolean)
+      }
+      
       setFormData({
         ...data,
+        danceStyles: danceStylesArr,
         instagramUrl: data.socialUrl || '',
         facebookUrl: data.socialUrl2 || ''
       })
@@ -109,6 +120,16 @@ export default function EditSchoolPage() {
       }
     }
   }, [imagePreviewUrl, formData.imageUrl])
+
+  // Handle dance style checkbox changes
+  const handleDanceStyleChange = (danceStyle: string) => {
+    setFormData(prev => ({
+      ...prev,
+      danceStyles: prev.danceStyles.includes(danceStyle)
+        ? prev.danceStyles.filter(style => style !== danceStyle)
+        : [...prev.danceStyles, danceStyle]
+    }))
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -240,13 +261,22 @@ export default function EditSchoolPage() {
 
         <div className="space-y-2">
           <Label htmlFor="danceStyles">Dance Styles *</Label>
-          <Input
-            id="danceStyles"
-            value={formData.danceStyles.join(', ')}
-            onChange={(e) => setFormData({ ...formData, danceStyles: e.target.value.split(',').map(s => s.trim()) })}
-            placeholder="e.g., Bachata, Salsa, Kizomba"
-            required
-          />
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+            {DANCE_STYLES.map((style) => (
+              <label key={style} className="flex items-center space-x-2 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={formData.danceStyles.includes(style)}
+                  onChange={() => handleDanceStyleChange(style)}
+                  className="rounded border-gray-300 text-primary focus:ring-primary"
+                />
+                <span className="text-sm text-gray-700">{style}</span>
+              </label>
+            ))}
+          </div>
+          {formData.danceStyles.length === 0 && (
+            <p className="text-red-500 text-sm mt-1">Please select at least one dance style</p>
+          )}
         </div>
 
         <div className="space-y-2">
