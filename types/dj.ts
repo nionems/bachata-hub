@@ -9,7 +9,7 @@ export interface Dj {
   instagramLink: string;
   imageUrl: string;
   comment: string;
-  musicStyles: string | string[];
+  danceStyles: string[];
   createdAt: string;
   updatedAt: string;
   musicLink: string;

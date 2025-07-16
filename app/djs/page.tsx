@@ -7,6 +7,7 @@ import { Calendar, MapPin, DollarSign, Users, Ticket, Hotel, CheckCircle, Info, 
 import { useState, useEffect } from "react"
 import CollapsibleFilter from "@/components/collapsible-filter"
 import { StateFilter } from '@/components/StateFilter'
+import { DanceStyleFilter } from '@/components/DanceStyleFilter'
 import { useStateFilter } from '@/hooks/useStateFilter'
 import { collection, getDocs } from 'firebase/firestore'
 import { db } from '../../firebase/config'
@@ -30,13 +31,19 @@ export default function DJsPage() {
   const [selectedImage, setSelectedImage] = useState<{ url: string; title: string } | null>(null)
   const [expandedComments, setExpandedComments] = useState<Record<string, boolean>>({})
   const [searchTerm, setSearchTerm] = useState("")
+  const [selectedDanceStyle, setSelectedDanceStyle] = useState("All Dance Styles")
   
   const { selectedState, setSelectedState, filteredItems: filteredDJs, isGeoLoading } = useStateFilter(djs, { useGeolocation: true })
 
-  // Filter DJs based on search term
-  const searchFilteredDJs = filteredDJs.filter(dj =>
-    dj.name.toLowerCase().includes(searchTerm.toLowerCase())
-  )
+  // Filter DJs based on search term and dance style
+  const searchFilteredDJs = filteredDJs.filter(dj => {
+    const matchesSearch = dj.name.toLowerCase().includes(searchTerm.toLowerCase())
+    const matchesDanceStyle = selectedDanceStyle === "All Dance Styles" || 
+      (dj.danceStyles && dj.danceStyles.some(style => 
+        style.toLowerCase() === selectedDanceStyle.toLowerCase()
+      ))
+    return matchesSearch && matchesDanceStyle
+  })
 
   useEffect(() => {
     const fetchDJs = async () => {
@@ -159,6 +166,10 @@ export default function DJsPage() {
               onChange={setSelectedState}
               isLoading={isGeoLoading}
             />
+            <DanceStyleFilter
+              selectedDanceStyle={selectedDanceStyle}
+              onDanceStyleChange={setSelectedDanceStyle}
+            />
             <div className="flex gap-2 w-full sm:w-auto -mt-1 sm:mt-0">
               <Input
                 type="text"
@@ -182,7 +193,10 @@ export default function DJsPage() {
         <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-4 md:gap-6">
           {searchFilteredDJs.length === 0 ? (
             <div className="col-span-full text-center py-6 sm:py-8 text-gray-500">
-              No DJs found {selectedState !== 'all' && `in ${selectedState}`}
+              No DJs found 
+              {selectedState !== 'all' && ` in ${selectedState}`}
+              {selectedDanceStyle !== 'All Dance Styles' && ` for ${selectedDanceStyle}`}
+              {searchTerm && ` matching "${searchTerm}"`}
             </div>
           ) : (
             searchFilteredDJs.map((dj) => (

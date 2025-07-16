@@ -20,11 +20,11 @@ export function DJCard({ dj }: DJCardProps) {
     }
   }
 
-  // Convert musicStyles to array if it's a string
-  const musicStyles = typeof dj.musicStyles === 'string' 
-    ? [dj.musicStyles] 
-    : Array.isArray(dj.musicStyles) 
-      ? dj.musicStyles 
+  // Convert danceStyles to array if it's a string
+  const danceStyles = typeof dj.danceStyles === 'string' 
+    ? [dj.danceStyles] 
+    : Array.isArray(dj.danceStyles) 
+      ? dj.danceStyles 
       : []
 
   return (
@@ -40,6 +40,25 @@ export function DJCard({ dj }: DJCardProps) {
             className="object-cover object-top w-full h-full transition-transform duration-300 hover:scale-110"
           />
           <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
+          
+          {/* Dance Style Stickers */}
+          {danceStyles && danceStyles.length > 0 && (
+            <div className="absolute top-2 left-2 z-20 flex flex-wrap gap-1 max-w-[calc(100%-4rem)]">
+              {danceStyles.slice(0, 3).map((style, index) => (
+                <div 
+                  key={index}
+                  className="bg-black/60 backdrop-blur-md border border-white/30 text-white text-xs font-medium px-2 py-1 rounded-full shadow-lg"
+                >
+                  {style}
+                </div>
+              ))}
+              {danceStyles.length > 3 && (
+                <div className="bg-black/60 backdrop-blur-md border border-white/30 text-white text-xs font-medium px-2 py-1 rounded-full shadow-lg">
+                  +{danceStyles.length - 3}
+                </div>
+              )}
+            </div>
+          )}
           
           {/* DJ Name Sticker - Top on mobile, Bottom on desktop */}
           <div className="absolute top-1 sm:top-auto sm:bottom-3 left-1/2 transform -translate-x-1/2 z-20 bg-gradient-to-r from-primary/60 via-primary/50 to-primary/60 backdrop-blur-md border border-white/30 text-white text-xs sm:text-base font-bold px-3 py-1 shadow-2xl max-w-[calc(100%-0.5rem)] hover:shadow-primary/25 transition-all duration-300 rounded-full">
@@ -129,9 +148,9 @@ export function DJCard({ dj }: DJCardProps) {
               </a>
               )}
             </div>
-            {musicStyles.length > 0 && (
+            {danceStyles.length > 0 && (
               <div className="flex flex-wrap gap-1">
-                {musicStyles.map((style) => (
+                {danceStyles.map((style) => (
                   <span
                     key={style}
                     className="px-1.5 py-0.5 bg-primary/20 text-primary rounded-full text-[8px] sm:text-xs sm:px-2 sm:py-1"

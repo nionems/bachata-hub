@@ -2,14 +2,14 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { AUSTRALIAN_STATES } from '@/lib/constants'
+import { DANCE_STYLES, AUSTRALIAN_STATES } from '@/lib/constants'
 
 interface DJFormData {
   name: string
   location: string
   state: string
   contact: string
-  musicStyles: string
+  danceStyles: string[]
   imageUrl: string
   comment: string
   instagramLink: string
@@ -25,7 +25,7 @@ export default function NewDJPage() {
     location: '',
     state: '',
     contact: '',
-    musicStyles: '',
+    danceStyles: [],
     imageUrl: '',
     comment: '',
     instagramLink: '',
@@ -62,6 +62,16 @@ export default function NewDJPage() {
       console.error('Upload error:', error)
       throw new Error('Failed to upload image')
     }
+  }
+
+  // Handle dance style checkbox changes
+  const handleDanceStyleChange = (danceStyle: string) => {
+    setFormData(prev => ({
+      ...prev,
+      danceStyles: prev.danceStyles.includes(danceStyle)
+        ? prev.danceStyles.filter(style => style !== danceStyle)
+        : [...prev.danceStyles, danceStyle]
+    }))
   }
 
   const handleInputChange = (
@@ -185,18 +195,25 @@ export default function NewDJPage() {
           />
         </div>
 
-        {/* Music Styles */}
+        {/* Dance Styles */}
         <div>
-          <label className="block text-sm font-medium mb-1">Music Styles*</label>
-          <input
-            type="text"
-            name="musicStyles"
-            value={formData.musicStyles}
-            onChange={handleInputChange}
-            className="w-full p-2 border rounded"
-            placeholder="e.g., Bachata, Salsa, Kizomba"
-            required
-          />
+          <label className="block text-sm font-medium mb-2">Dance Styles *</label>
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+            {DANCE_STYLES.map((style) => (
+              <label key={style} className="flex items-center space-x-2 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={formData.danceStyles.includes(style)}
+                  onChange={() => handleDanceStyleChange(style)}
+                  className="rounded border-gray-300 text-primary focus:ring-primary"
+                />
+                <span className="text-sm text-gray-700">{style}</span>
+              </label>
+            ))}
+          </div>
+          {formData.danceStyles.length === 0 && (
+            <p className="text-red-500 text-sm mt-1">Please select at least one dance style</p>
+          )}
         </div>
 
         {/* Image Upload */}

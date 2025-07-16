@@ -2,14 +2,14 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { AUSTRALIAN_STATES } from '@/lib/constants'
+import { DANCE_STYLES, AUSTRALIAN_STATES } from '@/lib/constants'
 
 interface DJFormData {
   name: string
   location: string
   state: string
   contact: string
-  musicStyles: string
+  danceStyles: string[]
   imageUrl: string
   comment: string
   instagramLink: string
@@ -25,7 +25,7 @@ export default function EditDJPage({ params }: { params: { id: string } }) {
     location: '',
     state: '',
     contact: '',
-    musicStyles: '',
+    danceStyles: [],
     imageUrl: '',
     comment: '',
     instagramLink: '',
@@ -43,7 +43,23 @@ export default function EditDJPage({ params }: { params: { id: string } }) {
         const response = await fetch(`/api/djs/${params.id}`)
         if (!response.ok) throw new Error('Failed to fetch DJ')
         const data = await response.json()
-        setFormData(data)
+        
+        // Normalize danceStyles to array
+        let danceStylesArr: string[] = []
+        if (Array.isArray(data.danceStyles)) {
+          danceStylesArr = data.danceStyles
+        } else if (typeof data.danceStyles === 'string') {
+          danceStylesArr = data.danceStyles.split(',').map((s: string) => s.trim()).filter(Boolean)
+        } else if (Array.isArray(data.musicStyles)) {
+          danceStylesArr = data.musicStyles
+        } else if (typeof data.musicStyles === 'string') {
+          danceStylesArr = data.musicStyles.split(',').map((s: string) => s.trim()).filter(Boolean)
+        }
+        
+        setFormData({
+          ...data,
+          danceStyles: danceStylesArr
+        })
       } catch (err) {
         setError('Failed to load DJ')
         console.error(err)
@@ -75,6 +91,16 @@ export default function EditDJPage({ params }: { params: { id: string } }) {
       console.error('Upload error:', error)
       throw new Error('Failed to upload image')
     }
+  }
+
+  // Handle dance style checkbox changes
+  const handleDanceStyleChange = (danceStyle: string) => {
+    setFormData(prev => ({
+      ...prev,
+      danceStyles: prev.danceStyles.includes(danceStyle)
+        ? prev.danceStyles.filter(style => style !== danceStyle)
+        : [...prev.danceStyles, danceStyle]
+    }))
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -198,15 +224,23 @@ export default function EditDJPage({ params }: { params: { id: string } }) {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700">Music Styles (comma-separated)</label>
-            <input
-              type="text"
-              name="musicStyles"
-              value={formData.musicStyles}
-              onChange={handleInputChange}
-              required
-              className="mt-0.5 sm:mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-            />
+            <label className="block text-sm font-medium text-gray-700 mb-2">Dance Styles *</label>
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+              {DANCE_STYLES.map((style) => (
+                <label key={style} className="flex items-center space-x-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={formData.danceStyles.includes(style)}
+                    onChange={() => handleDanceStyleChange(style)}
+                    className="rounded border-gray-300 text-primary focus:ring-primary"
+                  />
+                  <span className="text-sm text-gray-700">{style}</span>
+                </label>
+              ))}
+            </div>
+            {formData.danceStyles.length === 0 && (
+              <p className="text-red-500 text-sm mt-1">Please select at least one dance style</p>
+            )}
           </div>
 
           <div>

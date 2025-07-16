@@ -59,7 +59,7 @@ export default function InstructorsPage() {
             state: data.state || '',
             imageUrl: data.imageUrl || '',
                         comment: data.comment || '',
-            danceStyles: typeof data.danceStyles === 'string' && data.danceStyles
+            danceStyles: typeof data.danceStyles === 'string' && data.danceStylesn
               ? data.danceStyles.split(',').map(style => style.trim())
               : Array.isArray(data.danceStyles) 
                 ? data.danceStyles 
