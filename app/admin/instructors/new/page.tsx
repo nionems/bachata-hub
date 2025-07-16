@@ -2,13 +2,14 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { DANCE_STYLES, AUSTRALIAN_STATES } from '@/lib/constants'
 
 interface InstructorFormData {
   name: string
   location: string
   state: string
   contact: string
-  danceStyles: string
+  danceStyles: string[]
   imageUrl: string
   comment: string
   instagramLink: string
@@ -16,18 +17,6 @@ interface InstructorFormData {
   emailLink: string
   privatePricePerHour: string
 }
-
-// List of Australian states and territories
-const AUSTRALIAN_STATES = [
-  { value: 'NSW', label: 'New South Wales' },
-  { value: 'VIC', label: 'Victoria' },
-  { value: 'QLD', label: 'Queensland' },
-  { value: 'WA', label: 'Western Australia' },
-  { value: 'SA', label: 'South Australia' },
-  { value: 'TAS', label: 'Tasmania' },
-  { value: 'ACT', label: 'Australian Capital Territory' },
-  { value: 'NT', label: 'Northern Territory' }
-];
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024 // 5MB
 
@@ -42,7 +31,7 @@ export default function NewInstructorPage() {
     location: '',
     state: '',
     contact: '',
-    danceStyles: '',
+    danceStyles: [],
     imageUrl: '',
     comment: '',
     instagramLink: '',
@@ -87,6 +76,16 @@ export default function NewInstructorPage() {
       console.error('Upload error:', error)
       throw error
     }
+  }
+
+  // Handle dance style checkbox changes
+  const handleDanceStyleChange = (danceStyle: string) => {
+    setFormData(prev => ({
+      ...prev,
+      danceStyles: prev.danceStyles.includes(danceStyle)
+        ? prev.danceStyles.filter(style => style !== danceStyle)
+        : [...prev.danceStyles, danceStyle]
+    }))
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -202,15 +201,23 @@ export default function NewInstructorPage() {
 
         {/* Dance Styles */}
         <div>
-          <label className="block text-sm font-medium mb-1">Dance Styles*</label>
-          <input
-            type="text"
-            value={formData.danceStyles}
-            onChange={(e) => setFormData({...formData, danceStyles: e.target.value})}
-            className="w-full p-2 border rounded"
-            placeholder="e.g., Bachata, Salsa, Kizomba"
-            required
-          />
+          <label className="block text-sm font-medium mb-2">Dance Styles *</label>
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+            {DANCE_STYLES.map((style) => (
+              <label key={style} className="flex items-center space-x-2 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={formData.danceStyles.includes(style)}
+                  onChange={() => handleDanceStyleChange(style)}
+                  className="rounded border-gray-300 text-primary focus:ring-primary"
+                />
+                <span className="text-sm text-gray-700">{style}</span>
+              </label>
+            ))}
+          </div>
+          {formData.danceStyles.length === 0 && (
+            <p className="text-red-500 text-sm mt-1">Please select at least one dance style</p>
+          )}
         </div>
 
         {/* Private Price per Hour */}

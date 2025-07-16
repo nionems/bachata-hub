@@ -7,6 +7,7 @@ import { Calendar, MapPin, DollarSign, Users, Ticket, Hotel, CheckCircle, Info, 
 import { useState, useEffect } from "react"
 import CollapsibleFilter from "@/components/collapsible-filter"
 import { StateFilter } from '@/components/StateFilter'
+import { DanceStyleFilter } from '@/components/DanceStyleFilter'
 import { useStateFilter } from '@/hooks/useStateFilter'
 import { collection, getDocs } from 'firebase/firestore'
 import { db } from '../../firebase/config'
@@ -28,13 +29,19 @@ export default function InstructorsPage() {
   const [isSubmissionFormOpen, setIsSubmissionFormOpen] = useState(false)
   const [isContactFormOpen, setIsContactFormOpen] = useState(false)
   const [searchTerm, setSearchTerm] = useState("")
+  const [selectedDanceStyle, setSelectedDanceStyle] = useState("All Dance Styles")
   
   const { selectedState, setSelectedState, filteredItems: filteredInstructors, isGeoLoading } = useStateFilter(instructors, { useGeolocation: true })
 
-  // Filter instructors based on search term
-  const searchFilteredInstructors = filteredInstructors.filter(instructor =>
-    instructor.name.toLowerCase().includes(searchTerm.toLowerCase())
-  )
+  // Filter instructors based on search term and dance style
+  const searchFilteredInstructors = filteredInstructors.filter(instructor => {
+    const matchesSearch = instructor.name.toLowerCase().includes(searchTerm.toLowerCase())
+    const matchesDanceStyle = selectedDanceStyle === "All Dance Styles" || 
+      (instructor.danceStyles && instructor.danceStyles.some(style => 
+        style.toLowerCase() === selectedDanceStyle.toLowerCase()
+      ))
+    return matchesSearch && matchesDanceStyle
+  })
 
   useEffect(() => {
     const fetchInstructors = async () => {
@@ -110,6 +117,10 @@ export default function InstructorsPage() {
               onChange={setSelectedState}
               isLoading={isGeoLoading}
             />
+            <DanceStyleFilter
+              selectedDanceStyle={selectedDanceStyle}
+              onDanceStyleChange={setSelectedDanceStyle}
+            />
             <div className="flex gap-2 w-full sm:w-auto -mt-1 sm:mt-0">
               <Input
                 type="text"
@@ -133,7 +144,10 @@ export default function InstructorsPage() {
         <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-4 md:gap-6">
           {searchFilteredInstructors.length === 0 ? (
             <div className="col-span-full text-center py-6 sm:py-8 text-gray-500">
-              No instructors found {selectedState !== 'all' && `in ${selectedState}`}
+              No instructors found 
+              {selectedState !== 'all' && ` in ${selectedState}`}
+              {selectedDanceStyle !== 'All Dance Styles' && ` for ${selectedDanceStyle}`}
+              {searchTerm && ` matching "${searchTerm}"`}
             </div>
           ) : (
             searchFilteredInstructors.map((instructor) => (

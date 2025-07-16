@@ -32,6 +32,13 @@ export const DANCE_STYLES = [
   'Afrobeats',
   'Taraxo',
   'Choreography',
+  'Ballroom',
+  'Twerk',
+  'Jazz',
+  'Contemporary',
+  'Bachazouk',
+  'Bachata Influence',
+  'All',
   'Other'
 ] as const
 
