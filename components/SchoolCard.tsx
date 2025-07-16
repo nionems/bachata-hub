@@ -39,13 +39,13 @@ export function SchoolCard({ school }: SchoolCardProps) {
             {school.danceStyles.slice(0, 2).map((style) => (
               <div
                 key={style}
-                className="bg-gradient-to-r from-primary/80 to-secondary/80 text-white text-[8px] sm:text-xs px-1.5 py-0.5 rounded-full font-medium border border-white/20 backdrop-blur-sm"
+                className="px-1.5 py-0.5 bg-primary/20 text-primary rounded-full text-[8px] sm:text-xs font-medium"
               >
                 {style}
               </div>
             ))}
             {school.danceStyles.length > 2 && (
-              <div className="bg-white/20 text-white text-[8px] sm:text-xs px-1.5 py-0.5 rounded-full font-medium">
+              <div className="px-1.5 py-0.5 bg-primary/20 text-primary rounded-full text-[8px] sm:text-xs font-medium">
                 +{school.danceStyles.length - 2}
               </div>
             )}

@@ -41,25 +41,6 @@ export function DJCard({ dj }: DJCardProps) {
           />
           <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
           
-          {/* Dance Style Stickers */}
-          {danceStyles && danceStyles.length > 0 && (
-            <div className="absolute top-2 left-2 z-20 flex flex-wrap gap-1 max-w-[calc(100%-4rem)]">
-              {danceStyles.slice(0, 3).map((style, index) => (
-                <div 
-                  key={index}
-                  className="bg-black/60 backdrop-blur-md border border-white/30 text-white text-xs font-medium px-2 py-1 rounded-full shadow-lg"
-                >
-                  {style}
-                </div>
-              ))}
-              {danceStyles.length > 3 && (
-                <div className="bg-black/60 backdrop-blur-md border border-white/30 text-white text-xs font-medium px-2 py-1 rounded-full shadow-lg">
-                  +{danceStyles.length - 3}
-                </div>
-              )}
-            </div>
-          )}
-          
           {/* DJ Name Sticker - Top on mobile, Bottom on desktop */}
           <div className="absolute top-1 sm:top-auto sm:bottom-3 left-1/2 transform -translate-x-1/2 z-20 bg-gradient-to-r from-primary/60 via-primary/50 to-primary/60 backdrop-blur-md border border-white/30 text-white text-xs sm:text-base font-bold px-3 py-1 shadow-2xl max-w-[calc(100%-0.5rem)] hover:shadow-primary/25 transition-all duration-300 rounded-full">
             <span className="truncate block drop-shadow-sm">{dj.name}</span>
