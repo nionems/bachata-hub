@@ -17,6 +17,8 @@ import { ShopCard } from '@/components/ShopCard'
 import { Shop } from '@/types/shop'
 import { LoadingSpinner } from '@/components/loading-spinner'
 import { StateFilter } from "@/components/StateFilter"
+import { DANCE_STYLES } from '@/lib/constants'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
 export default function ShopsPage() {
   const [shops, setShops] = useState<Shop[]>([])
@@ -65,6 +67,7 @@ export default function ShopsPage() {
   // Filter shops by condition and state
   const filterByState = (shops: Shop[]) =>
     selectedState && selectedState !== 'all' ? shops.filter(shop => shop.state === selectedState) : shops
+  
   const newShops = filterByState(shops.filter(shop => shop.condition === 'New'))
   const secondHandShops = filterByState(shops.filter(shop => shop.condition === 'Second Hand'))
 

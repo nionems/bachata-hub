@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { doc, getDoc, updateDoc } from 'firebase/firestore'
 import { db } from '@/lib/firebase'
-import { AUSTRALIAN_STATES } from '@/lib/constants'
+import { DANCE_STYLES, AUSTRALIAN_STATES } from '@/lib/constants'
 
 interface Shop {
   id: string
@@ -23,6 +23,7 @@ interface Shop {
   info: string
   instagramUrl: string
   facebookUrl: string
+  danceStyles: string[]
   status?: 'pending' | 'approved' | 'rejected'
   createdAt: string
   updatedAt: string
@@ -47,7 +48,21 @@ export default function EditShopPage({ params }: { params: { id: string } }) {
         if (shopDoc.exists()) {
           const shopData = shopDoc.data() as Shop
           console.log('Shop data:', shopData)
-          setShop(shopData)
+          
+          // Normalize danceStyles to array
+          let danceStylesArr: string[] = []
+          if (shopData.danceStyles) {
+            if (Array.isArray(shopData.danceStyles)) {
+              danceStylesArr = shopData.danceStyles
+            } else if (typeof shopData.danceStyles === 'string') {
+              danceStylesArr = (shopData.danceStyles as string).split(',').map((s: string) => s.trim()).filter(Boolean)
+            }
+          }
+          
+          setShop({
+            ...shopData,
+            danceStyles: danceStylesArr
+          })
           if (shopData.imageUrl) {
             setImagePreview(shopData.imageUrl)
           }
@@ -106,6 +121,32 @@ export default function EditShopPage({ params }: { params: { id: string } }) {
     }
   }
 
+  // Handle dance style checkbox changes
+  const handleDanceStyleChange = (danceStyle: string) => {
+    if (!shop) return
+    if (danceStyle === 'All') {
+      setShop(prev => prev ? ({
+        ...prev,
+        danceStyles: prev.danceStyles.includes('All') ? [] : [...DANCE_STYLES]
+      }) : null)
+    } else {
+      setShop(prev => {
+        if (!prev) return null
+        let newStyles = prev.danceStyles.includes(danceStyle)
+          ? prev.danceStyles.filter(style => style !== danceStyle && style !== 'All')
+          : [...prev.danceStyles.filter(style => style !== 'All'), danceStyle]
+        // If all styles except 'All' are selected, add 'All' too
+        if (newStyles.length === DANCE_STYLES.length - 1) {
+          newStyles = [...DANCE_STYLES]
+        }
+        return {
+          ...prev,
+          danceStyles: newStyles
+        }
+      })
+    }
+  }
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     setError(null)
@@ -121,6 +162,10 @@ export default function EditShopPage({ params }: { params: { id: string } }) {
       if (selectedImage) {
         imageUrl = await handleImageUpload(selectedImage)
       }
+
+      let danceStylesToSave = shop.danceStyles.includes('All')
+        ? DANCE_STYLES.filter(style => style !== 'All')
+        : shop.danceStyles
 
       const shopData = {
         name: shop.name,
@@ -140,6 +185,7 @@ export default function EditShopPage({ params }: { params: { id: string } }) {
         condition: shop.condition || '',
         info: shop.info || '',
         discountCode: shop.discountCode || '',
+        danceStyles: danceStylesToSave,
         status: shop.status || 'pending',
         updatedAt: new Date().toISOString()
       }
@@ -383,6 +429,23 @@ export default function EditShopPage({ params }: { params: { id: string } }) {
               className="w-full p-2 border rounded"
               placeholder="Enter discount code"
             />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium mb-2">Dance Styles</label>
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+              {DANCE_STYLES.map((style) => (
+                <label key={style} className="flex items-center space-x-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={shop.danceStyles.includes(style)}
+                    onChange={() => handleDanceStyleChange(style)}
+                    className="rounded border-gray-300 text-primary focus:ring-primary"
+                  />
+                  <span className="text-sm text-gray-700">{style}</span>
+                </label>
+              ))}
+            </div>
           </div>
 
           <div>

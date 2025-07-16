@@ -91,6 +91,7 @@ interface Shop {
   status: 'pending' | 'approved' | 'rejected';
   createdAt: string;
   updatedAt: string;
+  danceStyles?: string[];
 }
 
 // Add DJ interface
@@ -904,7 +905,8 @@ export default function AdminDashboard() {
     (shop.state?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
     (shop.contactName?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
     (shop.contactEmail?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
-    (shop.status?.toLowerCase() || '').includes(searchTerm.toLowerCase())
+    (shop.status?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
+    (shop.danceStyles && Array.isArray(shop.danceStyles) && shop.danceStyles.some(style => (style?.toLowerCase() || '').includes(searchTerm.toLowerCase())))
   )
 
   const filteredAccommodations = accommodations.filter(accommodation =>

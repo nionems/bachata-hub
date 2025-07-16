@@ -8,7 +8,7 @@ import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { toast } from 'sonner'
-import { AUSTRALIAN_STATES } from '@/lib/constants'
+import { DANCE_STYLES, AUSTRALIAN_STATES } from '@/lib/constants'
 
 interface ShopFormData {
   name: string
@@ -28,6 +28,7 @@ interface ShopFormData {
   imageUrl: string
   googleMapLink: string
   info: string
+  danceStyles: string[]
   status: 'pending' | 'approved' | 'rejected'
   image: File | null
 }
@@ -56,6 +57,7 @@ export default function NewShopPage() {
     imageUrl: '',
     googleMapLink: '',
     info: '',
+    danceStyles: [],
     status: 'pending',
     image: null
   })
@@ -97,6 +99,30 @@ export default function NewShopPage() {
     }
   }
 
+  // Handle dance style checkbox changes
+  const handleDanceStyleChange = (danceStyle: string) => {
+    if (danceStyle === 'All') {
+      setFormData(prev => ({
+        ...prev,
+        danceStyles: prev.danceStyles.includes('All') ? [] : [...DANCE_STYLES]
+      }))
+    } else {
+      setFormData(prev => {
+        let newStyles = prev.danceStyles.includes(danceStyle)
+          ? prev.danceStyles.filter(style => style !== danceStyle && style !== 'All')
+          : [...prev.danceStyles.filter(style => style !== 'All'), danceStyle]
+        // If all styles except 'All' are selected, add 'All' too
+        if (newStyles.length === DANCE_STYLES.length - 1) {
+          newStyles = [...DANCE_STYLES]
+        }
+        return {
+          ...prev,
+          danceStyles: newStyles
+        }
+      })
+    }
+  }
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     setLoading(true)
@@ -122,6 +148,10 @@ export default function NewShopPage() {
         imageUrl = uploadData.imageUrl
       }
 
+      let danceStylesToSave = formData.danceStyles.includes('All')
+        ? DANCE_STYLES.filter(style => style !== 'All')
+        : formData.danceStyles
+
       const shopData = {
         name: formData.name,
         location: formData.location,
@@ -140,6 +170,7 @@ export default function NewShopPage() {
         imageUrl: imageUrl,
         googleMapLink: formData.googleMapLink,
         info: formData.info,
+        danceStyles: danceStylesToSave,
         status: formData.status,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString()
@@ -356,14 +387,33 @@ export default function NewShopPage() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="info">Info</Label>
+              <Label htmlFor="info">Additional Info</Label>
               <Textarea
                 id="info"
                 name="info"
                 value={formData.info}
                 onChange={handleChange}
-                placeholder="Enter additional info"
+                placeholder="Any additional information about the shop"
+                rows={3}
               />
+            </div>
+
+            {/* Dance Styles */}
+            <div className="space-y-2">
+              <Label>Dance Styles</Label>
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                {DANCE_STYLES.map((style) => (
+                  <label key={style} className="flex items-center space-x-2 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={formData.danceStyles.includes(style)}
+                      onChange={() => handleDanceStyleChange(style)}
+                      className="rounded border-gray-300 text-primary focus:ring-primary"
+                    />
+                    <span className="text-sm text-gray-700">{style}</span>
+                  </label>
+                ))}
+              </div>
             </div>
 
             <div className="space-y-2">
