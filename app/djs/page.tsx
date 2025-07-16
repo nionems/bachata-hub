@@ -21,6 +21,7 @@ import { GridSkeleton } from '@/components/loading-skeleton'
 import { toast } from '@/components/ui/use-toast'
 import { Dj } from '@/types/dj'
 import { Input } from "@/components/ui/input"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
 export default function DJsPage() {
   const [djs, setDJs] = useState<Dj[]>([])
@@ -31,14 +32,15 @@ export default function DJsPage() {
   const [selectedImage, setSelectedImage] = useState<{ url: string; title: string } | null>(null)
   const [expandedComments, setExpandedComments] = useState<Record<string, boolean>>({})
   const [searchTerm, setSearchTerm] = useState("")
-  const [selectedDanceStyle, setSelectedDanceStyle] = useState("All Dance Styles")
+  const [selectedDanceStyle, setSelectedDanceStyle] = useState("all")
+  const [availableDanceStyles, setAvailableDanceStyles] = useState<string[]>([])
   
   const { selectedState, setSelectedState, filteredItems: filteredDJs, isGeoLoading } = useStateFilter(djs, { useGeolocation: true })
 
   // Filter DJs based on search term and dance style
   const searchFilteredDJs = filteredDJs.filter(dj => {
     const matchesSearch = dj.name.toLowerCase().includes(searchTerm.toLowerCase())
-    const matchesDanceStyle = selectedDanceStyle === "All Dance Styles" || 
+    const matchesDanceStyle = selectedDanceStyle === 'all' || 
       (dj.danceStyles && dj.danceStyles.some(style => 
         style.toLowerCase() === selectedDanceStyle.toLowerCase()
       ))
@@ -78,6 +80,26 @@ export default function DJsPage() {
 
     fetchDJs()
   }, [])
+
+  // Extract available dance styles from DJs
+  useEffect(() => {
+    const styles = new Set<string>()
+    djs.forEach(dj => {
+      if (dj.danceStyles && Array.isArray(dj.danceStyles)) {
+        dj.danceStyles.forEach(style => styles.add(style))
+      }
+    })
+    setAvailableDanceStyles(Array.from(styles).sort())
+  }, [djs])
+
+  // Auto-select Bachata if available
+  useEffect(() => {
+    if (availableDanceStyles.includes('Bachata')) {
+      setSelectedDanceStyle('Bachata')
+    } else {
+      setSelectedDanceStyle('all')
+    }
+  }, [availableDanceStyles])
 
   const toggleComment = (djId: string) => {
     setExpandedComments(prev => ({
@@ -160,16 +182,27 @@ export default function DJsPage() {
         </div>
 
         <div className="mb-4 sm:mb-8">
-          <div className="flex flex-col sm:flex-row gap-0 sm:gap-4">
+          <div className="flex flex-col gap-3 sm:flex-row sm:gap-4">
             <StateFilter
               selectedState={selectedState}
               onChange={setSelectedState}
               isLoading={isGeoLoading}
             />
-            <DanceStyleFilter
-              selectedDanceStyle={selectedDanceStyle}
-              onDanceStyleChange={setSelectedDanceStyle}
-            />
+            <div className="w-full sm:w-48">
+              <Select value={selectedDanceStyle} onValueChange={setSelectedDanceStyle}>
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Dance Style" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Dance Styles</SelectItem>
+                  {availableDanceStyles.map((style) => (
+                    <SelectItem key={style} value={style}>
+                      {style}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
             <div className="flex gap-2 w-full sm:w-auto -mt-1 sm:mt-0">
               <Input
                 type="text"

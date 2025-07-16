@@ -19,6 +19,7 @@ import CalendarMenu from "@/components/calendar-menu"
 import { EventCard } from '@/components/EventCard'
 import { LoadingSpinner } from '@/components/loading-spinner'
 import { Input } from "@/components/ui/input"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
 
 interface Event {
@@ -54,7 +55,8 @@ export default function EventsPage() {
   const [isFormOpen, setIsFormOpen] = useState(false)
   const [expandedComments, setExpandedComments] = useState<Record<string, boolean>>({})
   const [searchTerm, setSearchTerm] = useState("")
-  const [selectedDanceStyle, setSelectedDanceStyle] = useState("All Dance Styles")
+  const [selectedDanceStyle, setSelectedDanceStyle] = useState("all")
+  const [availableDanceStyles, setAvailableDanceStyles] = useState<string[]>([])
   
   const { selectedState, setSelectedState, filteredItems: filteredEvents, isGeoLoading, error: geoError } = useStateFilter(events)
 
@@ -69,7 +71,7 @@ export default function EventsPage() {
     )
     
     // Filter by selected dance style
-    const danceStyleMatch = selectedDanceStyle === "All Dance Styles" || 
+    const danceStyleMatch = selectedDanceStyle === "all" || 
       (Array.isArray(event.danceStyles) && event.danceStyles.includes(selectedDanceStyle))
     
     return (nameMatch || locationMatch || danceStylesMatch) && danceStyleMatch
@@ -105,6 +107,26 @@ export default function EventsPage() {
     fetchEvents()
   }, [])
 
+  // Extract available dance styles from events
+  useEffect(() => {
+    const styles = new Set<string>()
+    events.forEach(event => {
+      if (event.danceStyles && Array.isArray(event.danceStyles)) {
+        event.danceStyles.forEach(style => styles.add(style))
+      }
+    })
+    setAvailableDanceStyles(Array.from(styles).sort())
+  }, [events])
+
+  // Auto-select Bachata if available
+  useEffect(() => {
+    if (availableDanceStyles.includes('Bachata')) {
+      setSelectedDanceStyle('Bachata')
+    } else {
+      setSelectedDanceStyle('all')
+    }
+  }, [availableDanceStyles])
+
   const toggleComment = (eventId: string) => {
     setExpandedComments(prev => ({
       ...prev,
@@ -128,17 +150,28 @@ export default function EventsPage() {
         </div>
 
         <div className="mb-4 sm:mb-8">
-          <div className="flex flex-col sm:flex-row gap-2 sm:gap-4">
+          <div className="flex flex-col gap-3 sm:flex-row sm:gap-4">
             <StateFilter
               selectedState={selectedState}
               onChange={setSelectedState}
               isLoading={isGeoLoading}
               error={geoError}
             />
-            <DanceStyleFilter
-              selectedDanceStyle={selectedDanceStyle}
-              onDanceStyleChange={setSelectedDanceStyle}
-            />
+            <div className="w-full sm:w-48">
+              <Select value={selectedDanceStyle} onValueChange={setSelectedDanceStyle}>
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Dance Style" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Dance Styles</SelectItem>
+                  {availableDanceStyles.map((style) => (
+                    <SelectItem key={style} value={style}>
+                      {style}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
             <div className="flex gap-2 w-full sm:w-auto">
               <Input
                 type="text"
@@ -164,7 +197,7 @@ export default function EventsPage() {
             <div className="col-span-full text-center py-8 text-gray-500">
               No events found 
               {selectedState !== 'all' && ` in ${selectedState}`}
-              {selectedDanceStyle !== 'All Dance Styles' && ` for ${selectedDanceStyle}`}
+              {selectedDanceStyle !== 'all' && ` for ${selectedDanceStyle}`}
             </div>
           ) : (
             searchFilteredEvents.map((event) => (

@@ -19,6 +19,7 @@ import Image from "next/image"
 import { GridSkeleton } from "@/components/loading-skeleton"
 import { LoadingSpinner } from "@/components/loading-spinner"
 import { DANCE_STYLES } from "@/lib/constants"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
 interface Festival {
   id: string
@@ -52,7 +53,8 @@ export default function FestivalsPage() {
   const [isContactFormOpen, setIsContactFormOpen] = useState(false)
   const [isImageModalOpen, setIsImageModalOpen] = useState(false)
   const [selectedImage, setSelectedImage] = useState<{ url: string; title: string } | null>(null)
-  const [selectedDanceStyle, setSelectedDanceStyle] = useState("All Dance Styles")
+  const [selectedDanceStyle, setSelectedDanceStyle] = useState("all")
+  const [availableDanceStyles, setAvailableDanceStyles] = useState<string[]>([])
   
   const { selectedState, setSelectedState, filteredItems: filteredFestivals } = useStateFilter(festivals, { useGeolocation: false })
 
@@ -96,6 +98,26 @@ export default function FestivalsPage() {
 
     fetchFestivals()
   }, [])
+
+  // Extract available dance styles from festivals
+  useEffect(() => {
+    const styles = new Set<string>()
+    festivals.forEach(festival => {
+      if (festival.danceStyles && Array.isArray(festival.danceStyles)) {
+        festival.danceStyles.forEach(style => styles.add(style))
+      }
+    })
+    setAvailableDanceStyles(Array.from(styles).sort())
+  }, [festivals])
+
+  // Auto-select Bachata if available
+  useEffect(() => {
+    if (availableDanceStyles.includes('Bachata')) {
+      setSelectedDanceStyle('Bachata')
+    } else {
+      setSelectedDanceStyle('all')
+    }
+  }, [availableDanceStyles])
 
   // Memoized helper functions to avoid recalculation
   const dateHelpers = useMemo(() => {
@@ -151,13 +173,13 @@ export default function FestivalsPage() {
       .filter((festival) => selectedState === "all" || festival.state === selectedState)
       .filter((festival) => {
         // Filter by selected dance style
-        if (selectedDanceStyle === "All Dance Styles") return true;
+        if (selectedDanceStyle === 'all') return true;
         
         // Handle both string and array dance styles
         if (Array.isArray(festival.danceStyles)) {
           return festival.danceStyles.includes(selectedDanceStyle);
         } else if (typeof festival.danceStyles === 'string') {
-          return festival.danceStyles.includes(selectedDanceStyle);
+          return festival.danceStyles === selectedDanceStyle;
         }
         return false;
       })
@@ -211,15 +233,26 @@ export default function FestivalsPage() {
         </div>
 
         <div className="mb-4 sm:mb-8">
-          <div className="flex flex-col sm:flex-row gap-2 sm:gap-4">
+          <div className="flex flex-col gap-3 sm:flex-row sm:gap-4">
             <StateFilter
               selectedState={selectedState}
               onChange={setSelectedState}
             />
-            <DanceStyleFilter
-              selectedDanceStyle={selectedDanceStyle}
-              onDanceStyleChange={setSelectedDanceStyle}
-            />
+            <div className="w-full sm:w-48">
+              <Select value={selectedDanceStyle} onValueChange={setSelectedDanceStyle}>
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Dance Style" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Dance Styles</SelectItem>
+                  {availableDanceStyles.map((style) => (
+                    <SelectItem key={style} value={style}>
+                      {style}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
           </div>
         </div>
 

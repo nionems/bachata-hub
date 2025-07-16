@@ -34,6 +34,23 @@ export function SchoolCard({ school }: SchoolCardProps) {
           />
           <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
           
+          {/* Dance Style Stickers - Bottom Right for all screen sizes */}
+          <div className="absolute bottom-2 right-2 z-30 flex flex-wrap gap-1 max-w-[calc(100%-1rem)]">
+            {school.danceStyles.slice(0, 2).map((style) => (
+              <div
+                key={style}
+                className="bg-gradient-to-r from-primary/80 to-secondary/80 text-white text-[8px] sm:text-xs px-1.5 py-0.5 rounded-full font-medium border border-white/20 backdrop-blur-sm"
+              >
+                {style}
+              </div>
+            ))}
+            {school.danceStyles.length > 2 && (
+              <div className="bg-white/20 text-white text-[8px] sm:text-xs px-1.5 py-0.5 rounded-full font-medium">
+                +{school.danceStyles.length - 2}
+              </div>
+            )}
+          </div>
+
           {/* School Name Sticker - Top on mobile, Bottom on desktop */}
           <div className="absolute top-0.5 sm:top-auto sm:bottom-4 left-1/2 transform -translate-x-1/2 z-30 bg-gradient-to-r from-primary/60 via-primary/50 to-primary/60 backdrop-blur-md border border-white/30 text-white text-xs sm:text-base font-bold px-3 py-1 shadow-2xl max-w-[calc(100%-0.5rem)] hover:shadow-primary/25 transition-all duration-300 rounded-full">
             <span className="truncate block drop-shadow-sm">{school.name}</span>
@@ -106,16 +123,6 @@ export function SchoolCard({ school }: SchoolCardProps) {
                   <ExternalLink className="h-6 w-6 sm:h-5 sm:w-5" />
                 </a>
               )}
-            </div>
-            <div className="flex flex-wrap gap-2">
-              {school.danceStyles.map((style) => (
-                <span
-                  key={style}
-                  className="px-2 py-1 bg-primary/20 text-primary rounded-full text-xs"
-                >
-                  {style}
-                </span>
-              ))}
             </div>
           </div>
         </div>

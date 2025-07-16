@@ -21,6 +21,7 @@ import { Instructor } from '@/types/instructor'
 import { LoadingSpinner } from '@/components/loading-spinner'
 import { Input } from "@/components/ui/input"
 import { Search } from "lucide-react"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
 export default function InstructorsPage() {
   const [instructors, setInstructors] = useState<Instructor[]>([])
@@ -29,14 +30,15 @@ export default function InstructorsPage() {
   const [isSubmissionFormOpen, setIsSubmissionFormOpen] = useState(false)
   const [isContactFormOpen, setIsContactFormOpen] = useState(false)
   const [searchTerm, setSearchTerm] = useState("")
-  const [selectedDanceStyle, setSelectedDanceStyle] = useState("All Dance Styles")
+  const [selectedDanceStyle, setSelectedDanceStyle] = useState("all")
+  const [availableDanceStyles, setAvailableDanceStyles] = useState<string[]>([])
   
   const { selectedState, setSelectedState, filteredItems: filteredInstructors, isGeoLoading } = useStateFilter(instructors, { useGeolocation: true })
 
   // Filter instructors based on search term and dance style
   const searchFilteredInstructors = filteredInstructors.filter(instructor => {
     const matchesSearch = instructor.name.toLowerCase().includes(searchTerm.toLowerCase())
-    const matchesDanceStyle = selectedDanceStyle === "All Dance Styles" || 
+    const matchesDanceStyle = selectedDanceStyle === 'all' || 
       (instructor.danceStyles && instructor.danceStyles.some(style => 
         style.toLowerCase() === selectedDanceStyle.toLowerCase()
       ))
@@ -90,6 +92,26 @@ export default function InstructorsPage() {
     fetchInstructors()
   }, [])
 
+  // Extract available dance styles from instructors
+  useEffect(() => {
+    const styles = new Set<string>()
+    instructors.forEach(instructor => {
+      if (instructor.danceStyles && Array.isArray(instructor.danceStyles)) {
+        instructor.danceStyles.forEach(style => styles.add(style))
+      }
+    })
+    setAvailableDanceStyles(Array.from(styles).sort())
+  }, [instructors])
+
+  // Auto-select Bachata if available
+  useEffect(() => {
+    if (availableDanceStyles.includes('Bachata')) {
+      setSelectedDanceStyle('Bachata')
+    } else {
+      setSelectedDanceStyle('all')
+    }
+  }, [availableDanceStyles])
+
   if (isLoading) {
     return <LoadingSpinner message="Loading instructors..." />
   }
@@ -111,16 +133,27 @@ export default function InstructorsPage() {
         </div>
 
         <div className="mb-4 sm:mb-8">
-          <div className="flex flex-col sm:flex-row gap-0 sm:gap-4">
+          <div className="flex flex-col gap-3 sm:flex-row sm:gap-4">
             <StateFilter
               selectedState={selectedState}
               onChange={setSelectedState}
               isLoading={isGeoLoading}
             />
-            <DanceStyleFilter
-              selectedDanceStyle={selectedDanceStyle}
-              onDanceStyleChange={setSelectedDanceStyle}
-            />
+            <div className="w-full sm:w-48">
+              <Select value={selectedDanceStyle} onValueChange={setSelectedDanceStyle}>
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Dance Style" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Dance Styles</SelectItem>
+                  {availableDanceStyles.map((style) => (
+                    <SelectItem key={style} value={style}>
+                      {style}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
             <div className="flex gap-2 w-full sm:w-auto -mt-1 sm:mt-0">
               <Input
                 type="text"
