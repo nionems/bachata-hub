@@ -58,12 +58,15 @@ interface Instructor {
   name: string
   location: string
   state: string
-  contact: string
-  danceStyles: string
   imageUrl: string
-  instagramLink?: string
-  facebookLink?: string
+  comment?: string
+  danceStyles: string[] | string
   emailLink?: string
+  facebookLink?: string
+  instagramLink?: string
+  privatePricePerHour?: string
+  createdAt: string
+  updatedAt: string
 }
 
 interface Shop {
@@ -1364,11 +1367,18 @@ export default function AdminDashboard() {
                           <span className="font-medium">Location:</span> {instructor.location}, {instructor.state}
                         </p>
                         <p className="text-gray-600">
-                          <span className="font-medium">Dance Styles:</span> {instructor.danceStyles}
+                          <span className="font-medium">Dance Styles:</span> {Array.isArray(instructor.danceStyles) ? instructor.danceStyles.join(', ') : instructor.danceStyles}
                         </p>
-                        <p className="text-gray-600">
-                          <span className="font-medium">Contact:</span> {instructor.contact}
-                        </p>
+                        {instructor.comment && (
+                          <p className="text-gray-600">
+                            <span className="font-medium">Comment:</span> {instructor.comment}
+                          </p>
+                        )}
+                        {instructor.privatePricePerHour && (
+                          <p className="text-gray-600">
+                            <span className="font-medium">Price per Hour:</span> {instructor.privatePricePerHour}
+                          </p>
+                        )}
 
                         {/* Social Links */}
                         <div className="flex gap-4 mt-2">
