@@ -19,6 +19,19 @@ export const DANCE_STYLES = [
   'Heels',
   'Pole Dance',
   'Latin Beat',
+  'HipHop',
+  'Mambo',
+  'Dominican Bachata',
+  'Sensual Bachata',
+  'Bachata Moderna',
+  'Cuban Salsa',
+  'Chacha',
+  'Rumba',
+  'Merengue',
+  'Tango',
+  'Afrobeats',
+  'Taraxo',
+  'Choreography',
   'Other'
 ] as const
 
