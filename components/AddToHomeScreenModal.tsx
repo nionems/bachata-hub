@@ -90,7 +90,7 @@ export function AddToHomeScreenModal() {
     return (
       <div className="fixed left-1/2 top-6 transform -translate-x-1/2 md:left-auto md:right-40 md:transform-none z-50">
         <Button onClick={showModalForTesting} size="sm" className="bg-red-500 hover:bg-red-600 text-white">
-          Install App
+          Add to homescreen
         </Button>
       </div>
     )
@@ -109,7 +109,7 @@ export function AddToHomeScreenModal() {
         </Button>
         <div className="flex items-center gap-2 text-lg font-bold text-primary pr-8">
           <Smartphone className="h-5 w-5" />
-          Install App
+          Add to HomeScreen
         </div>
       </div>
       

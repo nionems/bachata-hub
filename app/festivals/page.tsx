@@ -240,7 +240,7 @@ export default function FestivalsPage() {
             />
             <div className="w-full sm:w-48">
               <Select value={selectedDanceStyle} onValueChange={setSelectedDanceStyle}>
-                <SelectTrigger className="w-full">
+                <SelectTrigger className="w-full bg-white/80 border-primary/30 shadow-lg rounded-xl text-base font-semibold transition-all focus:ring-2 focus:ring-primary focus:border-primary">
                   <SelectValue placeholder="Dance Style" />
                 </SelectTrigger>
                 <SelectContent>
