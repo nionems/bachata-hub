@@ -15,6 +15,7 @@ export interface Festival {
   endDate?: string;
   eventLink?: string;
   comment?: string;
+  danceStyles?: string[] | string;
   featured?: 'yes' | 'no';
   published?: boolean;
 } 
