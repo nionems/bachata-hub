@@ -849,9 +849,81 @@ export default function AdminDashboard() {
     toast.success('Email addresses copied to clipboard')
   }
 
+  // Filter functions for each tab
   const filteredSchools = schools.filter(school =>
     school.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    school.location.toLowerCase().includes(searchTerm.toLowerCase())
+    school.location.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    school.state.toLowerCase().includes(searchTerm.toLowerCase())
+  )
+
+  const filteredEvents = events.filter(event =>
+    (event.name?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
+    (event.location?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
+    (event.city?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
+    (event.state?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
+    (event.danceStyles && typeof event.danceStyles === 'string' && event.danceStyles.toLowerCase().includes(searchTerm.toLowerCase())) ||
+    (event.danceStyles && Array.isArray(event.danceStyles) && event.danceStyles.some(style => (style?.toLowerCase() || '').includes(searchTerm.toLowerCase())))
+  )
+
+  const filteredFestivals = festivals.filter(festival =>
+    (festival.name?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
+    (festival.location?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
+    (festival.state?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
+    (festival.danceStyles?.toLowerCase() || '').includes(searchTerm.toLowerCase())
+  )
+
+  const filteredInstructors = instructors.filter(instructor =>
+    (instructor.name?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
+    (instructor.location?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
+    (instructor.state?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
+    (instructor.danceStyles && typeof instructor.danceStyles === 'string' && instructor.danceStyles.toLowerCase().includes(searchTerm.toLowerCase())) ||
+    (instructor.danceStyles && Array.isArray(instructor.danceStyles) && instructor.danceStyles.some(style => (style?.toLowerCase() || '').includes(searchTerm.toLowerCase())))
+  )
+
+  const filteredDJs = djs.filter(dj =>
+    (dj.name?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
+    (dj.location?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
+    (dj.state?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
+    (dj.musicStyles?.toLowerCase() || '').includes(searchTerm.toLowerCase())
+  )
+
+  const filteredCompetitions = competitions.filter(competition =>
+    (competition.name?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
+    (competition.organizer?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
+    (competition.location?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
+    (competition.state?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
+    (competition.danceStyles?.toLowerCase() || '').includes(searchTerm.toLowerCase())
+  )
+
+  const filteredShops = shops.filter(shop =>
+    (shop.name?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
+    (shop.location?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
+    (shop.state?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
+    (shop.contactName?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
+    (shop.contactEmail?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
+    (shop.status?.toLowerCase() || '').includes(searchTerm.toLowerCase())
+  )
+
+  const filteredAccommodations = accommodations.filter(accommodation =>
+    (accommodation.name?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
+    (accommodation.location?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
+    (accommodation.state?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
+    (accommodation.contactInfo?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
+    (accommodation.email?.toLowerCase() || '').includes(searchTerm.toLowerCase())
+  )
+
+  const filteredMedia = mediaList.filter(media =>
+    (media.name?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
+    (media.location?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
+    (media.state?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
+    (media.contact?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
+    (media.emailLink?.toLowerCase() || '').includes(searchTerm.toLowerCase())
+  )
+
+  const filteredUsers = users.filter(user =>
+    (user.email?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
+    (user.displayName?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
+    (user.name?.toLowerCase() || '').includes(searchTerm.toLowerCase())
   )
 
   const tabs = [
@@ -1096,17 +1168,16 @@ export default function AdminDashboard() {
 
       {/* Mobile-friendly search and layout controls */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
-        {activeTab === 'schools' && (
-          <div className="w-full sm:flex-1 sm:mr-4">
-             <input
-               type="text"
-               placeholder="Search schools..."
-               value={searchTerm}
-               onChange={(e) => setSearchTerm(e.target.value)}
-               className="w-full p-2 border rounded"
-             />
-           </div>
-        )}
+        {/* Search input for all tabs */}
+        <div className="w-full sm:flex-1 sm:mr-4">
+          <input
+            type="text"
+            placeholder={`Search ${activeTab}...`}
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full p-2 border rounded"
+          />
+        </div>
 
         <div className="flex items-center gap-2 bg-gray-100 p-2 rounded-lg w-full sm:w-auto justify-center sm:justify-end">
           <button
@@ -1140,13 +1211,29 @@ export default function AdminDashboard() {
 
       <div className="mt-4">
         {activeTab === 'schools' && (
-          <div className={`
-            ${layout === 'grid' 
-              ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4' 
-              : 'flex flex-col gap-4'
-            }
-          `}>
-            {filteredSchools.map((school) => (
+          <div>
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl font-semibold">Schools Management</h2>
+              <div className="text-sm text-gray-600">
+                {searchTerm ? `${filteredSchools.length} of ${schools.length} schools` : `${schools.length} total schools`}
+              </div>
+            </div>
+            {isLoading ? (
+              <div className="text-center py-8">Loading schools...</div>
+            ) : error ? (
+              <div className="text-red-500 text-center py-8">{error}</div>
+            ) : filteredSchools.length === 0 ? (
+              <div className="text-center py-8 text-gray-500">
+                {searchTerm ? `No schools found matching "${searchTerm}".` : 'No schools found. Click "Add New School" to create one.'}
+              </div>
+            ) : (
+              <div className={`
+                ${layout === 'grid' 
+                  ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4' 
+                  : 'flex flex-col gap-4'
+                }
+              `}>
+                {filteredSchools.map((school) => (
               <div 
                 key={school.id} 
                 className={`border rounded-lg ${
@@ -1233,13 +1320,20 @@ export default function AdminDashboard() {
                 </div>
               </div>
             ))}
+              </div>
+            )}
           </div>
         )}
 
         {activeTab === 'events' && (
           <div>
             <div className="flex justify-between items-center mb-6">
-              <h2 className="text-xl font-semibold">Events Management</h2>
+              <div className="flex items-center gap-4">
+                <h2 className="text-xl font-semibold">Events Management</h2>
+                <div className="text-sm text-gray-600">
+                  {searchTerm ? `${filteredEvents.length} of ${events.length} events` : `${events.length} total events`}
+                </div>
+              </div>
               <button
                 onClick={() => router.push('/admin/events/new')}
                 className="bg-blue-500 text-white px-3 py-1.5 rounded hover:bg-blue-600 text-sm"
@@ -1252,9 +1346,9 @@ export default function AdminDashboard() {
               <div className="text-center py-8">Loading events...</div>
             ) : error ? (
               <div className="text-red-500 text-center py-8">{error}</div>
-            ) : events.length === 0 ? (
+            ) : filteredEvents.length === 0 ? (
               <div className="text-center py-8 text-gray-500">
-                No events found. Click "Add New Event" to create one.
+                {searchTerm ? `No events found matching "${searchTerm}".` : 'No events found. Click "Add New Event" to create one.'}
               </div>
             ) : (
               <div className={`
@@ -1263,7 +1357,7 @@ export default function AdminDashboard() {
                   : 'flex flex-col gap-4'
                 }
               `}>
-                {events.map((event) => (
+                {filteredEvents.map((event) => (
                   <EventCard key={event.id} event={event} />
                 ))}
               </div>
@@ -1274,7 +1368,12 @@ export default function AdminDashboard() {
         {activeTab === 'festivals' && (
           <div>
             <div className="flex justify-between items-center mb-6">
-              <h2 className="text-xl font-semibold">Festivals Management</h2>
+              <div className="flex items-center gap-4">
+                <h2 className="text-xl font-semibold">Festivals Management</h2>
+                <div className="text-sm text-gray-600">
+                  {searchTerm ? `${filteredFestivals.length} of ${festivals.length} festivals` : `${festivals.length} total festivals`}
+                </div>
+              </div>
               <button
                 onClick={() => router.push('/admin/festivals/new')}
                 className="bg-blue-500 text-white px-3 py-1.5 rounded hover:bg-blue-600 text-sm"
@@ -1283,21 +1382,13 @@ export default function AdminDashboard() {
               </button>
             </div>
 
-            {/* Debug info */}
-            <div className="mb-4 p-2 bg-gray-100 rounded text-sm">
-              <p>Active Tab: {activeTab}</p>
-              <p>Loading: {isLoading.toString()}</p>
-              <p>Error: {error || 'None'}</p>
-              <p>Festivals Count: {festivals.length}</p>
-            </div>
-
             {isLoading ? (
               <div className="text-center py-8">Loading festivals...</div>
             ) : error ? (
               <div className="text-red-500 text-center py-8">{error}</div>
-            ) : festivals.length === 0 ? (
+            ) : filteredFestivals.length === 0 ? (
               <div className="text-center py-8 text-gray-500">
-                No festivals found. Click "Add New Festival" to create one.
+                {searchTerm ? `No festivals found matching "${searchTerm}".` : 'No festivals found. Click "Add New Festival" to create one.'}
               </div>
             ) : (
               <div className={`
@@ -1306,7 +1397,7 @@ export default function AdminDashboard() {
                   : 'flex flex-col gap-4'
                 }
               `} style={layout === 'grid' ? { gridAutoFlow: 'dense' } : {}}>
-                {festivals.map((festival) => (
+                {filteredFestivals.map((festival) => (
                   <FestivalCard key={festival.id} festival={festival} />
                 ))}
               </div>
@@ -1317,7 +1408,12 @@ export default function AdminDashboard() {
         {activeTab === 'instructors' && (
           <div>
             <div className="flex justify-between items-center mb-6">
-              <h2 className="text-xl font-semibold">Instructors Management</h2>
+              <div className="flex items-center gap-4">
+                <h2 className="text-xl font-semibold">Instructors Management</h2>
+                <div className="text-sm text-gray-600">
+                  {searchTerm ? `${filteredInstructors.length} of ${instructors.length} instructors` : `${instructors.length} total instructors`}
+                </div>
+              </div>
               <button
                 onClick={() => router.push('/admin/instructors/new')}
                 className="bg-blue-500 text-white px-3 py-1.5 rounded hover:bg-blue-600 text-sm"
@@ -1330,9 +1426,9 @@ export default function AdminDashboard() {
               <div className="text-center py-8">Loading instructors...</div>
             ) : error ? (
               <div className="text-red-500 text-center py-8">{error}</div>
-            ) : instructors.length === 0 ? (
+            ) : filteredInstructors.length === 0 ? (
               <div className="text-center py-8 text-gray-500">
-                No instructors found. Click "Add New Instructor" to create one.
+                {searchTerm ? `No instructors found matching "${searchTerm}".` : 'No instructors found. Click "Add New Instructor" to create one.'}
               </div>
             ) : (
               <div className={`
@@ -1341,7 +1437,7 @@ export default function AdminDashboard() {
                   : 'flex flex-col gap-4'
                 }
               `} style={layout === 'grid' ? { gridAutoFlow: 'dense' } : {}}>
-                {instructors.map((instructor) => (
+                {filteredInstructors.map((instructor) => (
                   <div
                     key={instructor.id}
                     className={`bg-white rounded-lg shadow overflow-hidden ${
@@ -1439,7 +1535,12 @@ export default function AdminDashboard() {
         {activeTab === 'djs' && (
           <div>
             <div className="flex justify-between items-center mb-6">
-              <h2 className="text-xl font-semibold">DJs Management</h2>
+              <div className="flex items-center gap-4">
+                <h2 className="text-xl font-semibold">DJs Management</h2>
+                <div className="text-sm text-gray-600">
+                  {searchTerm ? `${filteredDJs.length} of ${djs.length} DJs` : `${djs.length} total DJs`}
+                </div>
+              </div>
               <button
                 onClick={() => router.push('/admin/djs/new')}
                 className="bg-blue-500 text-white px-3 py-1.5 rounded hover:bg-blue-600 text-sm"
@@ -1452,9 +1553,9 @@ export default function AdminDashboard() {
               <div className="text-center py-8">Loading DJs...</div>
             ) : error ? (
               <div className="text-red-500 text-center py-8">{error}</div>
-            ) : djs.length === 0 ? (
+            ) : filteredDJs.length === 0 ? (
               <div className="text-center py-8 text-gray-500">
-                No DJs found. Click "Add New DJ" to create one.
+                {searchTerm ? `No DJs found matching "${searchTerm}".` : 'No DJs found. Click "Add New DJ" to create one.'}
               </div>
             ) : (
               <div className={`
@@ -1463,7 +1564,7 @@ export default function AdminDashboard() {
                   : 'flex flex-col gap-4'
                 }
               `} style={layout === 'grid' ? { gridAutoFlow: 'dense' } : {}}>
-                {djs.map((dj) => (
+                {filteredDJs.map((dj) => (
                   <div
                     key={dj.id}
                     className={`bg-white rounded-lg shadow overflow-hidden ${
@@ -1554,7 +1655,12 @@ export default function AdminDashboard() {
         {activeTab === 'competitions' && (
           <div>
             <div className="flex justify-between items-center mb-6">
-              <h2 className="text-xl font-semibold">Competitions Management</h2>
+              <div className="flex items-center gap-4">
+                <h2 className="text-xl font-semibold">Competitions Management</h2>
+                <div className="text-sm text-gray-600">
+                  {searchTerm ? `${filteredCompetitions.length} of ${competitions.length} competitions` : `${competitions.length} total competitions`}
+                </div>
+              </div>
               <button
                 onClick={() => router.push('/admin/competitions/new')}
                 className="bg-green-600 text-white px-3 py-1.5 rounded hover:bg-green-700 text-sm"
@@ -1567,13 +1673,13 @@ export default function AdminDashboard() {
               <div className="text-center py-8">Loading competitions...</div>
             ) : error ? (
               <div className="text-red-500 text-center py-8">{error}</div>
-            ) : competitions.length === 0 ? (
+            ) : filteredCompetitions.length === 0 ? (
               <div className="text-center py-8 text-gray-500">
-                No competitions found. Click "Add New Competition" to create one.
+                {searchTerm ? `No competitions found matching "${searchTerm}".` : 'No competitions found. Click "Add New Competition" to create one.'}
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {competitions.map((competition) => (
+                {filteredCompetitions.map((competition) => (
                   <div
                     key={competition.id}
                     className="bg-white rounded-lg shadow-md overflow-hidden"
@@ -1658,7 +1764,12 @@ export default function AdminDashboard() {
         {activeTab === 'shops' && (
           <div>
             <div className="flex justify-between items-center mb-6">
-              <h2 className="text-xl font-semibold">Shops Management</h2>
+              <div className="flex items-center gap-4">
+                <h2 className="text-xl font-semibold">Shops Management</h2>
+                <div className="text-sm text-gray-600">
+                  {searchTerm ? `${filteredShops.length} of ${shops.length} shops` : `${shops.length} total shops`}
+                </div>
+              </div>
               <div className="flex gap-2">
                 <select
                   value={shopStatusFilter}
@@ -1683,11 +1794,11 @@ export default function AdminDashboard() {
               <div className="text-center py-8">Loading shops...</div>
             ) : error ? (
               <div className="text-red-500 text-center py-8">{error}</div>
-            ) : shops.length === 0 ? (
+            ) : filteredShops.length === 0 ? (
               <div className="text-center py-8 text-gray-500">
-                No shops found. Click "Add New Shop" to create one.
+                {searchTerm ? `No shops found matching "${searchTerm}".` : 'No shops found. Click "Add New Shop" to create one.'}
               </div>
-            ) : shops.filter(shop => {
+            ) : filteredShops.filter(shop => {
                 if (shopStatusFilter === 'all') return true
                 return shop.status === shopStatusFilter
               }).length === 0 ? (
@@ -1704,7 +1815,7 @@ export default function AdminDashboard() {
                   : 'flex flex-col gap-4'
                 }
               `}>
-                {shops
+                {filteredShops
                   .filter(shop => {
                     if (shopStatusFilter === 'all') return true
                     return shop.status === shopStatusFilter
@@ -1856,15 +1967,28 @@ export default function AdminDashboard() {
 
         {activeTab === 'accommodations' && (
           <div>
-            <h2 className="text-xl font-semibold mb-4">Accommodations Management</h2>
+            <div className="flex justify-between items-center mb-6">
+              <div className="flex items-center gap-4">
+                <h2 className="text-xl font-semibold">Accommodations Management</h2>
+                <div className="text-sm text-gray-600">
+                  {searchTerm ? `${filteredAccommodations.length} of ${accommodations.length} accommodations` : `${accommodations.length} total accommodations`}
+                </div>
+              </div>
+              <button
+                onClick={() => router.push('/admin/accommodations/new')}
+                className="bg-blue-500 text-white px-3 py-1.5 rounded hover:bg-blue-600 text-sm"
+              >
+                Add New Accommodation
+              </button>
+            </div>
             {isLoading ? (
               <div className="text-center py-8">Loading accommodations...</div>
             ) : error ? (
               <div className="text-red-500 text-center py-8">{error}</div>
-            ) : accommodations.length === 0 ? (
+            ) : filteredAccommodations.length === 0 ? (
               <div className="text-center py-8 text-gray-500">
-                No accommodations found. Click "Add New Accommodation" to create one.
-          </div>
+                {searchTerm ? `No accommodations found matching "${searchTerm}".` : 'No accommodations found. Click "Add New Accommodation" to create one.'}
+              </div>
             ) : (
               <div className={`
                 ${layout === 'grid' 
@@ -1872,7 +1996,7 @@ export default function AdminDashboard() {
                   : 'flex flex-col gap-4'
                 }
               `}>
-                {accommodations.map((accommodation) => (
+                {filteredAccommodations.map((accommodation) => (
                   <div
                     key={accommodation.id}
                     className={`bg-white rounded-lg shadow overflow-hidden ${
@@ -1962,7 +2086,12 @@ export default function AdminDashboard() {
         {activeTab === 'media' && (
           <div className="space-y-4">
             <div className="flex justify-between items-center">
-              <h2 className="text-2xl font-bold">Media</h2>
+              <div className="flex items-center gap-4">
+                <h2 className="text-2xl font-bold">Media</h2>
+                <div className="text-sm text-gray-600">
+                  {searchTerm ? `${filteredMedia.length} of ${mediaList.length} media items` : `${mediaList.length} total media items`}
+                </div>
+              </div>
               <div className="flex gap-2">
                 <button
                   onClick={addTestMedia}
@@ -1985,9 +2114,9 @@ export default function AdminDashboard() {
               </div>
             ) : error ? (
               <div className="text-red-500 text-center">{error}</div>
-            ) : mediaList.length === 0 ? (
+            ) : filteredMedia.length === 0 ? (
               <div className="text-center text-gray-500 py-8">
-                No media found. Add your first media entry!
+                {searchTerm ? `No media found matching "${searchTerm}".` : 'No media found. Add your first media entry!'}
               </div>
             ) : (
               <div className={`grid ${
@@ -1995,7 +2124,7 @@ export default function AdminDashboard() {
                   ? 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6' 
                   : 'grid-cols-1 gap-4'
               }`}>
-                {mediaList.map((media) => (
+                {filteredMedia.map((media) => (
                   <MediaCard
                     key={media.id}
                     media={media}
@@ -2046,9 +2175,13 @@ export default function AdminDashboard() {
         {activeTab === 'users' && (
           <div>
             <div className="flex justify-between items-center mb-6">
-              <div>
-                <h2 className="text-xl font-semibold">Community Users</h2>
-                <p className="text-gray-600 mt-1">Total Users: {users.length}</p>
+              <div className="flex items-center gap-4">
+                <div>
+                  <h2 className="text-xl font-semibold">Community Users</h2>
+                  <div className="text-sm text-gray-600">
+                    {searchTerm ? `${filteredUsers.length} of ${users.length} users` : `${users.length} total users`}
+                  </div>
+                </div>
               </div>
               {selectedUsers.length > 0 && (
                 <button
@@ -2064,9 +2197,9 @@ export default function AdminDashboard() {
               <div className="text-center py-8">Loading users...</div>
             ) : error ? (
               <div className="text-red-500 text-center py-8">{error}</div>
-            ) : users.length === 0 ? (
+            ) : filteredUsers.length === 0 ? (
               <div className="text-center py-8 text-gray-500">
-                No users found in the community.
+                {searchTerm ? `No users found matching "${searchTerm}".` : 'No users found in the community.'}
               </div>
             ) : (
               <div className="overflow-x-auto">
@@ -2076,7 +2209,7 @@ export default function AdminDashboard() {
                       <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                         <input
                           type="checkbox"
-                          checked={selectedUsers.length === users.length}
+                          checked={selectedUsers.length === filteredUsers.length}
                           onChange={handleSelectAll}
                           className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
                         />
@@ -2096,7 +2229,7 @@ export default function AdminDashboard() {
                     </tr>
                   </thead>
                   <tbody className="bg-white divide-y divide-gray-200">
-                    {users.map((user) => (
+                    {filteredUsers.map((user) => (
                       <tr key={user.id}>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <input
