@@ -51,8 +51,8 @@ export default function InstructorsPage() {
             location: data.location || '',
             state: data.state || '',
             imageUrl: data.imageUrl || '',
-            comment: data.comment || '',
-            danceStyles: typeof data.danceStyles === 'string' 
+                        comment: data.comment || '',
+            danceStyles: typeof data.danceStyles === 'string' && data.danceStyles
               ? data.danceStyles.split(',').map(style => style.trim())
               : Array.isArray(data.danceStyles) 
                 ? data.danceStyles 
