@@ -15,9 +15,9 @@ export default function AboutPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Community Header */}
-      <section className="bg-gradient-to-r from-primary to-secondary text-white py-4">
+      <section className="bg-gradient-to-r from-primary to-secondary text-white py-2 sm:py-4">
         <div className="container mx-auto px-4">
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4">
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-4">
             <Button
               variant="ghost"
               className="w-full sm:w-auto text-white hover:text-white hover:bg-white/10 flex items-center justify-center gap-2"
@@ -61,14 +61,14 @@ export default function AboutPage() {
       </section>
 
       {/* Hero Section */}
-      <section className="relative py-8 sm:py-12 md:py-16 lg:py-20">
+      <section className="relative py-4 sm:py-8 md:py-10 lg:py-12">
         <div className="absolute inset-0 bg-gradient-to-r from-primary to-secondary opacity-10"></div>
         <div className="container mx-auto px-4 sm:px-6 md:px-8 relative z-10">
           <div className="max-w-3xl mx-auto text-center">
-            <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent mb-3 sm:mb-4">
+            <h1 className="text-xl sm:text-3xl md:text-4xl lg:text-5xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent mb-1 sm:mb-3">
               About Bachata Australia
             </h1>
-            <p className="text-base sm:text-lg md:text-xl text-gray-600 mb-6 sm:mb-8">
+            <p className="text-sm sm:text-lg md:text-xl text-gray-600 mb-3 sm:mb-6">
               Your trusted guide to the vibrant Bachata dance community in Australia
             </p>
           </div>
@@ -76,20 +76,20 @@ export default function AboutPage() {
       </section>
 
       {/* Mission Section */}
-      <section className="py-8 sm:py-12 md:py-16 bg-white">
+      <section className="py-4 sm:py-8 md:py-10 bg-white">
         <div className="container mx-auto px-4 sm:px-6 md:px-8">
           <div className="max-w-4xl mx-auto">
             <div className="text-center">
-              <h2 className="text-xl sm:text-2xl md:text-3xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent mb-3 sm:mb-4">
+              <h2 className="text-lg sm:text-2xl md:text-3xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent mb-1 sm:mb-3">
                 Our Mission
               </h2>
-              <p className="text-sm sm:text-base md:text-lg text-gray-600 mb-4 sm:mb-6">
+              <p className="text-xs sm:text-base md:text-lg text-gray-600 mb-2 sm:mb-4">
                 We're here to bring the whole Bachata community together — no more jumping between platforms to find events, schools, or dance gear. At Bachata Australia, you'll find everything in one place.
               </p>
-              <p className="text-sm sm:text-base md:text-lg text-gray-600 mb-4 sm:mb-6">
+              <p className="text-xs sm:text-base md:text-lg text-gray-600 mb-2 sm:mb-4">
                 Whether you're new to Bachata or have been dancing for years, our goal is to make it easier to connect, dance, and grow. From socials and festivals to classes and competitions, we're building a space where everyone feels welcome and inspired to keep dancing.
               </p>
-              <p className="text-sm sm:text-base md:text-lg text-gray-600">
+              <p className="text-xs sm:text-base md:text-lg text-gray-600">
                 We believe in fostering a welcoming and inclusive community where dancers of all levels can find their rhythm and grow their passion for Bachata.
               </p>
             </div>
@@ -98,45 +98,45 @@ export default function AboutPage() {
       </section>
 
       {/* Values Section */}
-      <section className="py-8 sm:py-12 md:py-16 bg-gray-50">
+      <section className="py-4 sm:py-8 md:py-10 bg-gray-50">
         <div className="container mx-auto px-4 sm:px-6 md:px-8">
-          <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-center bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent mb-8 sm:mb-12">
+          <h2 className="text-lg sm:text-2xl md:text-3xl font-bold text-center bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent mb-4 sm:mb-8">
             Our Core Values
           </h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 md:gap-8">
-            <div className="bg-white p-4 sm:p-6 rounded-lg shadow-sm">
-              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-primary/10 rounded-full flex items-center justify-center mb-3 sm:mb-4">
-                <Heart className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6 md:gap-8">
+            <div className="bg-white p-2 sm:p-4 rounded-lg shadow-sm">
+              <div className="w-6 h-6 sm:w-10 sm:h-10 bg-primary/10 rounded-full flex items-center justify-center mb-1 sm:mb-3">
+                <Heart className="w-3 h-3 sm:w-5 sm:h-5 text-primary" />
               </div>
-              <h3 className="text-lg sm:text-xl font-semibold mb-2 bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">Passion</h3>
-              <p className="text-sm sm:text-base text-gray-600">
+              <h3 className="text-sm sm:text-lg font-semibold mb-1 sm:mb-2 bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">Passion</h3>
+              <p className="text-xs sm:text-sm text-gray-600">
                 We're passionate about Bachata and the amazing energy it brings. It's more than just a dance, it's a way to connect, express, and have fun.
               </p>
             </div>
-            <div className="bg-white p-4 sm:p-6 rounded-lg shadow-sm">
-              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-primary/10 rounded-full flex items-center justify-center mb-3 sm:mb-4">
-                <Users className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
+            <div className="bg-white p-2 sm:p-4 rounded-lg shadow-sm">
+              <div className="w-6 h-6 sm:w-10 sm:h-10 bg-primary/10 rounded-full flex items-center justify-center mb-1 sm:mb-3">
+                <Users className="w-3 h-3 sm:w-5 sm:h-5 text-primary" />
               </div>
-              <h3 className="text-lg sm:text-xl font-semibold mb-2 bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">Community</h3>
-              <p className="text-sm sm:text-base text-gray-600">
+              <h3 className="text-sm sm:text-lg font-semibold mb-1 sm:mb-2 bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">Community</h3>
+              <p className="text-xs sm:text-sm text-gray-600">
                 We're all about building a welcoming space where dancers can connect, vibe, and grow together.
               </p>
             </div>
-            <div className="bg-white p-4 sm:p-6 rounded-lg shadow-sm">
-              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-primary/10 rounded-full flex items-center justify-center mb-3 sm:mb-4">
-                <Globe className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
+            <div className="bg-white p-2 sm:p-4 rounded-lg shadow-sm">
+              <div className="w-6 h-6 sm:w-10 sm:h-10 bg-primary/10 rounded-full flex items-center justify-center mb-1 sm:mb-3">
+                <Globe className="w-3 h-3 sm:w-5 sm:h-5 text-primary" />
               </div>
-              <h3 className="text-lg sm:text-xl font-semibold mb-2 bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">Inclusivity</h3>
-              <p className="text-sm sm:text-base text-gray-600">
+              <h3 className="text-sm sm:text-lg font-semibold mb-1 sm:mb-2 bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">Inclusivity</h3>
+              <p className="text-xs sm:text-sm text-gray-600">
                 We welcome dancers of all levels, backgrounds, and styles to join our community.
               </p>
             </div>
-            <div className="bg-white p-4 sm:p-6 rounded-lg shadow-sm">
-              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-primary/10 rounded-full flex items-center justify-center mb-3 sm:mb-4">
-                <Award className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
+            <div className="bg-white p-2 sm:p-4 rounded-lg shadow-sm">
+              <div className="w-6 h-6 sm:w-10 sm:h-10 bg-primary/10 rounded-full flex items-center justify-center mb-1 sm:mb-3">
+                <Award className="w-3 h-3 sm:w-5 sm:h-5 text-primary" />
               </div>
-              <h3 className="text-lg sm:text-xl font-semibold mb-2 bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">Excellence</h3>
-              <p className="text-sm sm:text-base text-gray-600">
+              <h3 className="text-sm sm:text-lg font-semibold mb-1 sm:mb-2 bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">Excellence</h3>
+              <p className="text-xs sm:text-sm text-gray-600">
                 We strive for excellence in everything we do, from event listings to community support.
               </p>
             </div>
@@ -145,16 +145,16 @@ export default function AboutPage() {
       </section>
 
       {/* Join Community Section */}
-      <section className="py-8 sm:py-12 md:py-16 bg-white">
+      <section className="py-4 sm:py-8 md:py-10 bg-white">
         <div className="container mx-auto px-4 sm:px-6 md:px-8">
           <div className="max-w-3xl mx-auto text-center">
-            <h2 className="text-xl sm:text-2xl md:text-3xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent mb-3 sm:mb-4">
+            <h2 className="text-lg sm:text-2xl md:text-3xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent mb-1 sm:mb-3">
               Join Our Community
             </h2>
-            <p className="text-sm sm:text-base md:text-lg text-gray-600 mb-6 sm:mb-8">
+            <p className="text-xs sm:text-base md:text-lg text-gray-600 mb-3 sm:mb-6">
               Be part of Australia's growing Bachata community. Connect with dancers, find events, and share your passion for dance.
             </p>
-            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center items-center">
+            <div className="flex flex-col sm:flex-row gap-2 sm:gap-4 justify-center items-center">
               <Link href="/community">
                 <Button size="lg" className="w-full sm:w-auto bg-gradient-to-r from-emerald-500 to-violet-500 hover:from-emerald-600 hover:to-violet-600 text-white shadow-lg hover:shadow-xl transition-all duration-200">
                   Join the Community

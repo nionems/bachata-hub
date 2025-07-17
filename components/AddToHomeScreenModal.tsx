@@ -88,7 +88,7 @@ export function AddToHomeScreenModal() {
   if (!isOpen) {
     console.log('Rendering button, isOpen:', isOpen)
     return (
-      <div className="fixed left-1/2 top-6 transform -translate-x-1/2 md:left-auto md:right-40 md:transform-none z-50">
+      <div className="fixed left-1/2 top-6 transform -translate-x-1/2 md:left-auto md:right-4 md:top-6 md:transform-none z-50">
         <Button onClick={showModalForTesting} size="sm" className="bg-gradient-to-r from-primary to-secondary hover:from-primary/90 hover:to-secondary/90 text-white shadow-lg">
           Add to homescreen
         </Button>
