@@ -1,6 +1,40 @@
 import { NextResponse } from 'next/server'
 import { getDb } from '@/lib/firebase-admin'
 
+export async function GET(
+  request: Request,
+  { params }: { params: { id: string } }
+) {
+  try {
+    const { id } = params
+    
+    console.log('Fetching DJ:', id)
+    
+    const db = getDb()
+    const djRef = db.collection('djs').doc(id)
+    const djDoc = await djRef.get()
+    
+    if (!djDoc.exists) {
+      return NextResponse.json(
+        { error: 'DJ not found' },
+        { status: 404 }
+      )
+    }
+    
+    const djData = djDoc.data()
+    return NextResponse.json({
+      id: djDoc.id,
+      ...djData
+    })
+  } catch (error) {
+    console.error('Error fetching DJ:', error)
+    return NextResponse.json(
+      { error: 'Failed to fetch DJ' },
+      { status: 500 }
+    )
+  }
+}
+
 export async function PUT(
   request: Request,
   { params }: { params: { id: string } }
