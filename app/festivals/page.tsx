@@ -3,7 +3,7 @@
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
-import { Calendar, MapPin, DollarSign, Users, Ticket, Hotel, CheckCircle, Info, Clock, ExternalLink, X, Music, Instagram, Facebook, Navigation } from "lucide-react"
+import { Calendar, MapPin, DollarSign, Users, Ticket, Hotel, CheckCircle, Info, Clock, ExternalLink, X, Music, Instagram, Facebook, Navigation, ChevronDown, ChevronUp } from "lucide-react"
 import { useState, useEffect, useMemo } from "react"
 import CollapsibleFilter from "@/components/collapsible-filter"
 import { StateFilter } from '@/components/StateFilter'
@@ -62,6 +62,7 @@ export default function FestivalsPage() {
   const [activeTab, setActiveTab] = useState<'australia' | 'international'>('australia')
   const [selectedCountry, setSelectedCountry] = useState("all")
   const [availableCountries, setAvailableCountries] = useState<string[]>([])
+  const [expandedDescriptions, setExpandedDescriptions] = useState<{ [key: string]: boolean }>({})
   
   const { selectedState, setSelectedState, filteredItems: filteredFestivals } = useStateFilter(festivals, { useGeolocation: false })
 
@@ -79,6 +80,13 @@ export default function FestivalsPage() {
   const handleCloseModal = () => {
     setIsImageModalOpen(false);
     setSelectedImage(null);
+  }
+
+  const toggleDescription = (festivalId: string) => {
+    setExpandedDescriptions(prev => ({
+      ...prev,
+      [festivalId]: !prev[festivalId]
+    }));
   }
 
   useEffect(() => {
@@ -459,9 +467,28 @@ export default function FestivalsPage() {
                     </div>
                     {festival.description && (
                       <div className="mb-2">
-                        <p className="text-sm text-gray-600 line-clamp-2">
+                        <div className={`text-sm text-gray-600 ${!expandedDescriptions[festival.id] ? 'line-clamp-2' : ''}`}>
                           {festival.description}
-                        </p>
+                        </div>
+                        {festival.description.length > 100 && (
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              toggleDescription(festival.id);
+                            }}
+                            className="text-primary hover:text-primary/80 text-xs mt-1 flex items-center gap-1"
+                          >
+                            {expandedDescriptions[festival.id] ? (
+                              <>
+                                Show Less <ChevronUp className="h-3 w-3" />
+                              </>
+                            ) : (
+                              <>
+                                Read More <ChevronDown className="h-3 w-3" />
+                              </>
+                            )}
+                          </button>
+                        )}
                       </div>
                     )}
                     {festival.ambassadorCode && (
@@ -612,9 +639,28 @@ export default function FestivalsPage() {
                   </div>
                   {festival.description && (
                     <div className="mb-2">
-                      <p className="text-sm text-gray-600 line-clamp-2">
+                      <div className={`text-sm text-gray-600 ${!expandedDescriptions[festival.id] ? 'line-clamp-2' : ''}`}>
                         {festival.description}
-                      </p>
+                      </div>
+                      {festival.description.length > 100 && (
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            toggleDescription(festival.id);
+                          }}
+                          className="text-primary hover:text-primary/80 text-xs mt-1 flex items-center gap-1"
+                        >
+                          {expandedDescriptions[festival.id] ? (
+                            <>
+                              Show Less <ChevronUp className="h-3 w-3" />
+                            </>
+                          ) : (
+                            <>
+                              Read More <ChevronDown className="h-3 w-3" />
+                            </>
+                          )}
+                        </button>
+                      )}
                     </div>
                   )}
                   {festival.ambassadorCode && (

@@ -1,10 +1,10 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { MapPin, Calendar, Clock, Users, Info, ExternalLink, Ticket, Star, Music, Instagram, Facebook, Navigation } from "lucide-react"
+import { MapPin, Calendar, Clock, Users, Info, ExternalLink, Ticket, Star, Music, Instagram, Facebook, Navigation, ChevronDown, ChevronUp } from "lucide-react"
 import { Festival } from "@/types/festival"
 import Image from "next/image"
-import { useMemo } from "react"
+import { useMemo, useState } from "react"
 import { DANCE_STYLES } from "@/lib/constants"
 
 interface FestivalCardProps {
@@ -12,6 +12,8 @@ interface FestivalCardProps {
 }
 
 export function FestivalCard({ festival }: FestivalCardProps) {
+  const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false)
+  
   // Memoize date formatting to avoid repeated calculations
   const formattedDates = useMemo(() => {
     const startDate = festival.startDate ? new Date(festival.startDate).toLocaleDateString("en-AU", {
@@ -153,7 +155,30 @@ export function FestivalCard({ festival }: FestivalCardProps) {
             </div>
           )}
           {festival.description && (
-            <p className="text-gray-600 text-xs line-clamp-2">{festival.description}</p>
+            <div className="mt-1">
+              <div className={`text-gray-600 text-xs ${!isDescriptionExpanded ? 'line-clamp-2' : ''}`}>
+                {festival.description}
+              </div>
+              {festival.description.length > 100 && (
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setIsDescriptionExpanded(!isDescriptionExpanded);
+                  }}
+                  className="text-primary hover:text-primary/80 text-xs mt-1 flex items-center gap-1"
+                >
+                  {isDescriptionExpanded ? (
+                    <>
+                      Show Less <ChevronUp className="h-3 w-3" />
+                    </>
+                  ) : (
+                    <>
+                      Read More <ChevronDown className="h-3 w-3" />
+                    </>
+                  )}
+                </button>
+              )}
+            </div>
           )}
           <div className="flex gap-2 items-center">
             {festival.price && (
