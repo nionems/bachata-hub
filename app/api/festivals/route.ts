@@ -52,7 +52,7 @@ export async function GET(request: Request) {
 
     const db = getDb();
 
-    let festivalsRef = db.collection('festivals')
+    let festivalsRef: any = db.collection('festivals')
     
     // If not admin, only get published festivals
     if (!admin) {
@@ -64,7 +64,7 @@ export async function GET(request: Request) {
     const snapshot = await festivalsRef.get()
     console.log(`API Route (GET /api/festivals): Fetched ${snapshot.docs.length} festivals from Firestore in ${Date.now() - startTime}ms`)
 
-    let festivals = snapshot.docs.map(doc => ({
+    let festivals = snapshot.docs.map((doc: any) => ({
       id: doc.id,
       ...doc.data()
     })) as FestivalData[]
