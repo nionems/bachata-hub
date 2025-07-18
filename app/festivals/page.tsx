@@ -57,6 +57,8 @@ export default function FestivalsPage() {
   const [selectedDanceStyle, setSelectedDanceStyle] = useState("all")
   const [availableDanceStyles, setAvailableDanceStyles] = useState<string[]>([])
   const [activeTab, setActiveTab] = useState<'australia' | 'international'>('australia')
+  const [selectedCountry, setSelectedCountry] = useState("all")
+  const [availableCountries, setAvailableCountries] = useState<string[]>([])
   
   const { selectedState, setSelectedState, filteredItems: filteredFestivals } = useStateFilter(festivals, { useGeolocation: false })
 
@@ -117,6 +119,24 @@ export default function FestivalsPage() {
     })
     setAvailableDanceStyles(Array.from(styles).sort())
   }, [festivals, selectedState])
+
+  // Extract available countries from international festivals
+  useEffect(() => {
+    const countries = new Set<string>()
+    
+    // Get all international festivals (non-Australian)
+    const internationalFestivals = festivals.filter(festival => 
+      festival.country && festival.country !== 'Australia'
+    )
+    
+    internationalFestivals.forEach(festival => {
+      if (festival.country) {
+        countries.add(festival.country)
+      }
+    })
+    
+    setAvailableCountries(Array.from(countries).sort())
+  }, [festivals])
 
   // Auto-select Bachata if available, reset when state changes
   useEffect(() => {
@@ -183,7 +203,12 @@ export default function FestivalsPage() {
         if (activeTab === 'australia') {
           return festival.country === 'Australia' || !festival.country; // Default to Australia if no country specified
         } else {
-          return festival.country && festival.country !== 'Australia';
+          // For international tab, filter by selected country
+          if (selectedCountry === 'all') {
+            return festival.country && festival.country !== 'Australia';
+          } else {
+            return festival.country === selectedCountry;
+          }
         }
       })
       .filter((festival) => selectedState === "all" || festival.state === selectedState)
@@ -213,7 +238,7 @@ export default function FestivalsPage() {
     console.log('Regular festivals:', regular);
 
     return { upcomingFestivals: filtered, featuredFestivals: featured, regularFestivals: regular };
-  }, [festivals, selectedState, selectedDanceStyle, activeTab, dateHelpers]);
+  }, [festivals, selectedState, selectedDanceStyle, activeTab, selectedCountry, dateHelpers]);
 
   if (isLoading) {
     return <LoadingSpinner message="Loading festivals..." />
@@ -254,6 +279,7 @@ export default function FestivalsPage() {
                 onClick={() => {
                   setActiveTab('australia')
                   setSelectedState('all') // Reset state filter when switching to Australia
+                  setSelectedCountry('all') // Reset country filter
                 }}
                 className={`px-6 py-2 rounded-full font-semibold transition-all duration-200 ${
                   activeTab === 'australia'
@@ -267,6 +293,7 @@ export default function FestivalsPage() {
                 onClick={() => {
                   setActiveTab('international')
                   setSelectedState('all') // Reset state filter when switching to International
+                  setSelectedCountry('all') // Reset country filter to show all countries
                 }}
                 className={`px-6 py-2 rounded-full font-semibold transition-all duration-200 ${
                   activeTab === 'international'
@@ -288,7 +315,24 @@ export default function FestivalsPage() {
                 onChange={setSelectedState}
               />
             )}
-            <div className={`w-full ${activeTab === 'australia' ? 'sm:w-48' : 'sm:w-64'}`}>
+            {activeTab === 'international' && availableCountries.length > 0 && (
+              <div className="w-full sm:w-48">
+                <Select value={selectedCountry} onValueChange={setSelectedCountry}>
+                  <SelectTrigger className="w-full bg-white/80 border-primary/30 shadow-lg rounded-xl text-base font-semibold transition-all focus:ring-2 focus:ring-primary focus:border-primary">
+                    <SelectValue placeholder="Country" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Countries</SelectItem>
+                    {availableCountries.map((country) => (
+                      <SelectItem key={country} value={country}>
+                        {country}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+            <div className={`w-full ${activeTab === 'australia' ? 'sm:w-48' : availableCountries.length > 0 ? 'sm:w-48' : 'sm:w-64'}`}>
               <Select value={selectedDanceStyle} onValueChange={setSelectedDanceStyle}>
                 <SelectTrigger className="w-full bg-white/80 border-primary/30 shadow-lg rounded-xl text-base font-semibold transition-all focus:ring-2 focus:ring-primary focus:border-primary">
                   <SelectValue placeholder="Dance Style" />
@@ -423,6 +467,7 @@ export default function FestivalsPage() {
             <div className="col-span-full text-center py-6 sm:py-8 text-gray-500">
               No {activeTab === 'australia' ? 'Australian' : 'international'} festivals found 
               {selectedState !== 'all' && activeTab === 'australia' && ` in ${selectedState}`}
+              {selectedCountry !== 'all' && activeTab === 'international' && ` in ${selectedCountry}`}
               {selectedDanceStyle !== 'all' && ` for ${selectedDanceStyle}`}
             </div>
           ) : (
