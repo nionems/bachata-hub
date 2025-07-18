@@ -1029,7 +1029,7 @@ export default function AdminDashboard() {
     (dj.name?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
     (dj.location?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
     (dj.state?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
-    (dj.musicStyles?.toLowerCase() || '').includes(searchTerm.toLowerCase())
+    (dj.danceStyles && Array.isArray(dj.danceStyles) && dj.danceStyles.some(style => (style?.toLowerCase() || '').includes(searchTerm.toLowerCase())))
   )
 
   const filteredCompetitions = competitions.filter(competition =>
