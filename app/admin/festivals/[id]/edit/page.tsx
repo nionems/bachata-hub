@@ -200,20 +200,32 @@ export default function EditFestivalPage({ params }: { params: { id: string } })
             />
           </div>
           <div>
-            <label className="block text-sm font-medium mb-1">State*</label>
-            <select
-              value={formData.state}
-              onChange={(e) => setFormData({ ...formData, state: e.target.value })}
-              className="w-full p-2 border rounded"
-              required
-            >
-              <option value="">Select a state</option>
-              {AUSTRALIAN_STATES.map((state) => (
-                <option key={state.value} value={state.value}>
-                  {state.label}
-                </option>
-              ))}
-            </select>
+            <label className="block text-sm font-medium mb-1">
+              {formData.country === 'Australia' ? 'State*' : 'State/Province'}
+            </label>
+            {formData.country === 'Australia' ? (
+              <select
+                value={formData.state}
+                onChange={(e) => setFormData({ ...formData, state: e.target.value })}
+                className="w-full p-2 border rounded"
+                required
+              >
+                <option value="">Select a state</option>
+                {AUSTRALIAN_STATES.map((state) => (
+                  <option key={state.value} value={state.value}>
+                    {state.label}
+                  </option>
+                ))}
+              </select>
+            ) : (
+              <input
+                type="text"
+                value={formData.state}
+                onChange={(e) => setFormData({ ...formData, state: e.target.value })}
+                className="w-full p-2 border rounded"
+                placeholder="e.g., Catalonia, California, Ontario"
+              />
+            )}
           </div>
         </div>
 
@@ -289,7 +301,15 @@ export default function EditFestivalPage({ params }: { params: { id: string } })
           <label className="block text-sm font-medium mb-1">Country</label>
           <select
             value={formData.country || 'Australia'}
-            onChange={(e) => setFormData({ ...formData, country: e.target.value })}
+            onChange={(e) => {
+              const country = e.target.value
+              setFormData({ 
+                ...formData, 
+                country,
+                // Auto-set state to N/A for non-Australian countries
+                state: country !== 'Australia' ? 'N/A' : (formData.state || 'NSW')
+              })
+            }}
             className="w-full p-2 border rounded"
           >
             <option value="Australia">Australia</option>

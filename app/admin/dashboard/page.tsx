@@ -46,11 +46,15 @@ interface Festival {
   location: string
   state: string
   country?: string
+  address?: string
+  eventLink?: string
   price: string
+  ticketLink?: string
   danceStyles: string[] | string
   imageUrl: string
   description?: string
   ambassadorCode?: string
+  googleMapLink?: string
   published: boolean
   featured?: 'yes' | 'no'
   status?: 'pending' | 'approved' | 'rejected'
@@ -1284,14 +1288,31 @@ export default function AdminDashboard() {
             {new Date(festival.startDate).toLocaleDateString()} - {new Date(festival.endDate).toLocaleDateString()}
           </p>
           <p className="text-gray-600">
-            <span className="font-medium">Location:</span> {festival.location}, {festival.state}{festival.country && `, ${festival.country}`}
+            <span className="font-medium">Location:</span> {festival.location}
+            {festival.country === 'Australia' ? `, ${festival.state}` : festival.state && festival.state !== 'N/A' ? `, ${festival.state}` : ''}
+            {festival.country && festival.country !== 'Australia' && `, ${festival.country}`}
           </p>
+          {festival.address && (
+            <p className="text-gray-600">
+              <span className="font-medium">Address:</span> {festival.address}
+            </p>
+          )}
           <p className="text-gray-600">
             <span className="font-medium">Price:</span> ${festival.price}
           </p>
           <p className="text-gray-600">
             <span className="font-medium">Styles:</span> {Array.isArray(festival.danceStyles) ? festival.danceStyles.join(', ') : festival.danceStyles}
           </p>
+          {festival.description && (
+            <p className="text-gray-600">
+              <span className="font-medium">Description:</span> {festival.description.length > 100 ? `${festival.description.substring(0, 100)}...` : festival.description}
+            </p>
+          )}
+          {festival.ambassadorCode && (
+            <p className="text-gray-600">
+              <span className="font-medium">Discount Code:</span> {festival.ambassadorCode}
+            </p>
+          )}
           {(festival.instagramLink || festival.facebookLink) && (
             <div className="flex gap-2">
               {festival.instagramLink && (

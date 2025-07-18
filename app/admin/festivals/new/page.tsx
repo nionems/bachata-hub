@@ -10,16 +10,20 @@ interface FestivalFormData {
   endDate: string
   location: string
   state: string
+  country: string
   address: string
   eventLink: string
   price: string
   ticketLink: string
   danceStyles: string[]
   imageUrl: string
-  comment: string
+  description: string
+  ambassadorCode: string
   googleMapLink: string
   featured: 'yes' | 'no'
   published: boolean
+  instagramLink: string
+  facebookLink: string
 }
 
 export default function NewFestivalPage() {
@@ -34,16 +38,20 @@ export default function NewFestivalPage() {
     endDate: '',
     location: '',
     state: '',
+    country: 'Australia',
     address: '',
     eventLink: '',
     price: '',
     ticketLink: '',
     danceStyles: [],
     imageUrl: '',
-    comment: '',
+    description: '',
+    ambassadorCode: '',
     googleMapLink: '',
     featured: 'no',
-    published: true
+    published: true,
+    instagramLink: '',
+    facebookLink: ''
   })
 
   const handleImageUpload = async (file: File): Promise<string> => {
@@ -80,7 +88,17 @@ export default function NewFestivalPage() {
       if (imagePreviewUrl?.startsWith('blob:')) URL.revokeObjectURL(imagePreviewUrl)
       setImagePreviewUrl(file ? URL.createObjectURL(file) : null)
     } else {
-      setFormData(prev => ({ ...prev, [name]: value }))
+      // Handle country change logic
+      if (name === 'country') {
+        setFormData(prev => ({
+          ...prev,
+          [name]: value,
+          // Auto-set state to N/A for non-Australian countries
+          state: value !== 'Australia' ? 'N/A' : 'NSW'
+        }))
+      } else {
+        setFormData(prev => ({ ...prev, [name]: value }))
+      }
     }
   }
 
@@ -199,21 +217,198 @@ export default function NewFestivalPage() {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium mb-1">State*</label>
+            <label className="block text-sm font-medium mb-1">Country</label>
             <select
-              value={formData.state}
+              value={formData.country}
               onChange={handleChange}
-              name="state"
+              name="country"
               className="w-full p-2 border rounded"
-              required
             >
-              <option value="">Select a state</option>
-              {AUSTRALIAN_STATES.map(state => (
-                <option key={state.value} value={state.value}>
-                  {state.label}
-                </option>
-              ))}
+              <option value="Australia">Australia</option>
+              <option value="New Zealand">New Zealand</option>
+              <option value="United States">United States</option>
+              <option value="Canada">Canada</option>
+              <option value="United Kingdom">United Kingdom</option>
+              <option value="Spain">Spain</option>
+              <option value="France">France</option>
+              <option value="Germany">Germany</option>
+              <option value="Italy">Italy</option>
+              <option value="Netherlands">Netherlands</option>
+              <option value="Belgium">Belgium</option>
+              <option value="Switzerland">Switzerland</option>
+              <option value="Austria">Austria</option>
+              <option value="Sweden">Sweden</option>
+              <option value="Norway">Norway</option>
+              <option value="Denmark">Denmark</option>
+              <option value="Finland">Finland</option>
+              <option value="Poland">Poland</option>
+              <option value="Czech Republic">Czech Republic</option>
+              <option value="Hungary">Hungary</option>
+              <option value="Romania">Romania</option>
+              <option value="Bulgaria">Bulgaria</option>
+              <option value="Greece">Greece</option>
+              <option value="Portugal">Portugal</option>
+              <option value="Ireland">Ireland</option>
+              <option value="Iceland">Iceland</option>
+              <option value="Luxembourg">Luxembourg</option>
+              <option value="Malta">Malta</option>
+              <option value="Cyprus">Cyprus</option>
+              <option value="Estonia">Estonia</option>
+              <option value="Latvia">Latvia</option>
+              <option value="Lithuania">Lithuania</option>
+              <option value="Slovenia">Slovenia</option>
+              <option value="Slovakia">Slovakia</option>
+              <option value="Croatia">Croatia</option>
+              <option value="Serbia">Serbia</option>
+              <option value="Bosnia and Herzegovina">Bosnia and Herzegovina</option>
+              <option value="Montenegro">Montenegro</option>
+              <option value="North Macedonia">North Macedonia</option>
+              <option value="Albania">Albania</option>
+              <option value="Kosovo">Kosovo</option>
+              <option value="Moldova">Moldova</option>
+              <option value="Ukraine">Ukraine</option>
+              <option value="Belarus">Belarus</option>
+              <option value="Russia">Russia</option>
+              <option value="Georgia">Georgia</option>
+              <option value="Armenia">Armenia</option>
+              <option value="Azerbaijan">Azerbaijan</option>
+              <option value="Turkey">Turkey</option>
+              <option value="Israel">Israel</option>
+              <option value="Lebanon">Lebanon</option>
+              <option value="Syria">Syria</option>
+              <option value="Jordan">Jordan</option>
+              <option value="Iraq">Iraq</option>
+              <option value="Iran">Iran</option>
+              <option value="Kuwait">Kuwait</option>
+              <option value="Saudi Arabia">Saudi Arabia</option>
+              <option value="Bahrain">Bahrain</option>
+              <option value="Qatar">Qatar</option>
+              <option value="United Arab Emirates">United Arab Emirates</option>
+              <option value="Oman">Oman</option>
+              <option value="Yemen">Yemen</option>
+              <option value="Egypt">Egypt</option>
+              <option value="Libya">Libya</option>
+              <option value="Tunisia">Tunisia</option>
+              <option value="Algeria">Algeria</option>
+              <option value="Morocco">Morocco</option>
+              <option value="Western Sahara">Western Sahara</option>
+              <option value="Mauritania">Mauritania</option>
+              <option value="Mali">Mali</option>
+              <option value="Niger">Niger</option>
+              <option value="Chad">Chad</option>
+              <option value="Sudan">Sudan</option>
+              <option value="South Sudan">South Sudan</option>
+              <option value="Ethiopia">Ethiopia</option>
+              <option value="Eritrea">Eritrea</option>
+              <option value="Djibouti">Djibouti</option>
+              <option value="Somalia">Somalia</option>
+              <option value="Kenya">Kenya</option>
+              <option value="Uganda">Uganda</option>
+              <option value="Tanzania">Tanzania</option>
+              <option value="Rwanda">Rwanda</option>
+              <option value="Burundi">Burundi</option>
+              <option value="Democratic Republic of the Congo">Democratic Republic of the Congo</option>
+              <option value="Republic of the Congo">Republic of the Congo</option>
+              <option value="Central African Republic">Central African Republic</option>
+              <option value="Cameroon">Cameroon</option>
+              <option value="Nigeria">Nigeria</option>
+              <option value="Niger">Niger</option>
+              <option value="Chad">Chad</option>
+              <option value="Libya">Libya</option>
+              <option value="Algeria">Algeria</option>
+              <option value="Mali">Mali</option>
+              <option value="Burkina Faso">Burkina Faso</option>
+              <option value="Ghana">Ghana</option>
+              <option value="Côte d'Ivoire">Côte d'Ivoire</option>
+              <option value="Liberia">Liberia</option>
+              <option value="Sierra Leone">Sierra Leone</option>
+              <option value="Guinea">Guinea</option>
+              <option value="Guinea-Bissau">Guinea-Bissau</option>
+              <option value="Senegal">Senegal</option>
+              <option value="The Gambia">The Gambia</option>
+              <option value="Cape Verde">Cape Verde</option>
+              <option value="Mauritania">Mauritania</option>
+              <option value="Morocco">Morocco</option>
+              <option value="Western Sahara">Western Sahara</option>
+              <option value="Algeria">Algeria</option>
+              <option value="Tunisia">Tunisia</option>
+              <option value="Libya">Libya</option>
+              <option value="Egypt">Egypt</option>
+              <option value="Sudan">Sudan</option>
+              <option value="South Sudan">South Sudan</option>
+              <option value="Ethiopia">Ethiopia</option>
+              <option value="Eritrea">Eritrea</option>
+              <option value="Djibouti">Djibouti</option>
+              <option value="Somalia">Somalia</option>
+              <option value="Kenya">Kenya</option>
+              <option value="Uganda">Uganda</option>
+              <option value="Tanzania">Tanzania</option>
+              <option value="Rwanda">Rwanda</option>
+              <option value="Burundi">Burundi</option>
+              <option value="Democratic Republic of the Congo">Democratic Republic of the Congo</option>
+              <option value="Republic of the Congo">Republic of the Congo</option>
+              <option value="Central African Republic">Central African Republic</option>
+              <option value="Cameroon">Cameroon</option>
+              <option value="Gabon">Gabon</option>
+              <option value="Equatorial Guinea">Equatorial Guinea</option>
+              <option value="São Tomé and Príncipe">São Tomé and Príncipe</option>
+              <option value="Angola">Angola</option>
+              <option value="Zambia">Zambia</option>
+              <option value="Malawi">Malawi</option>
+              <option value="Mozambique">Mozambique</option>
+              <option value="Zimbabwe">Zimbabwe</option>
+              <option value="Botswana">Botswana</option>
+              <option value="Namibia">Namibia</option>
+              <option value="South Africa">South Africa</option>
+              <option value="Lesotho">Lesotho</option>
+              <option value="Eswatini">Eswatini</option>
+              <option value="Madagascar">Madagascar</option>
+              <option value="Mauritius">Mauritius</option>
+              <option value="Seychelles">Seychelles</option>
+              <option value="Comoros">Comoros</option>
+              <option value="Mayotte">Mayotte</option>
+              <option value="Réunion">Réunion</option>
+              <option value="Saint Helena">Saint Helena</option>
+              <option value="Ascension Island">Ascension Island</option>
+              <option value="Tristan da Cunha">Tristan da Cunha</option>
+              <option value="Falkland Islands">Falkland Islands</option>
+              <option value="South Georgia and the South Sandwich Islands">South Georgia and the South Sandwich Islands</option>
+              <option value="Antarctica">Antarctica</option>
+              <option value="Other">Other</option>
             </select>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-medium mb-1">
+              {formData.country === 'Australia' ? 'State*' : 'State/Province'}
+            </label>
+            {formData.country === 'Australia' ? (
+              <select
+                value={formData.state}
+                onChange={handleChange}
+                name="state"
+                className="w-full p-2 border rounded"
+                required
+              >
+                <option value="">Select a state</option>
+                {AUSTRALIAN_STATES.map(state => (
+                  <option key={state.value} value={state.value}>
+                    {state.label}
+                  </option>
+                ))}
+              </select>
+            ) : (
+              <input
+                type="text"
+                value={formData.state}
+                onChange={handleChange}
+                name="state"
+                className="w-full p-2 border rounded"
+                placeholder="e.g., Catalonia, California, Ontario"
+              />
+            )}
           </div>
         </div>
 
@@ -287,6 +482,32 @@ export default function NewFestivalPage() {
           )}
         </div>
 
+        {/* Social Media Links */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-medium mb-1">Instagram Link</label>
+            <input
+              type="url"
+              value={formData.instagramLink}
+              onChange={handleChange}
+              name="instagramLink"
+              className="w-full p-2 border rounded"
+              placeholder="https://instagram.com/username"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium mb-1">Facebook Link</label>
+            <input
+              type="url"
+              value={formData.facebookLink}
+              onChange={handleChange}
+              name="facebookLink"
+              className="w-full p-2 border rounded"
+              placeholder="https://facebook.com/username"
+            />
+          </div>
+        </div>
+
         {/* Featured Festival */}
         <div>
           <label className="block text-sm font-medium mb-1">Featured Festival</label>
@@ -350,16 +571,35 @@ export default function NewFestivalPage() {
           </div>
         </div>
 
-        {/* Additional Information */}
+        {/* Description & Ambassador Code */}
         <div>
-          <label className="block text-sm font-medium mb-1">Comment</label>
+          <label className="block text-sm font-medium mb-1">Festival Description</label>
           <textarea
-            value={formData.comment}
+            value={formData.description}
             onChange={handleChange}
-            name="comment"
+            name="description"
             className="w-full p-2 border rounded"
             rows={4}
+            placeholder="Describe your festival, what makes it special, what dancers can expect, workshops, performances, etc..."
           />
+          <p className="text-xs text-gray-500 mt-1">
+            This description will be displayed on the festival card to help dancers understand what your festival offers.
+          </p>
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium mb-1">Ambassador/Discount Code</label>
+          <input
+            type="text"
+            value={formData.ambassadorCode}
+            onChange={handleChange}
+            name="ambassadorCode"
+            className="w-full p-2 border rounded"
+            placeholder="e.g., BACHATAHUB20, DANCE10, etc."
+          />
+          <p className="text-xs text-gray-500 mt-1">
+            Optional: Add a discount code for our community members to use when purchasing tickets.
+          </p>
         </div>
 
         <div>
