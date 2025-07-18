@@ -58,11 +58,31 @@ export async function PUT(
       )
     }
     
-    // Update the status and published fields
+    // Update all festival fields
     const updateData: any = {
+      name: data.name,
+      startDate: data.startDate,
+      endDate: data.endDate,
+      location: data.location,
+      state: data.state,
+      country: data.country || 'Australia',
+      address: data.address,
+      eventLink: data.eventLink || '',
+      price: data.price,
+      ticketLink: data.ticketLink || '',
+      danceStyles: data.danceStyles || [],
+      imageUrl: data.imageUrl || '',
+      description: data.description || '',
+      ambassadorCode: data.ambassadorCode || '',
+      googleMapLink: data.googleMapLink || '',
+      featured: data.featured || 'no',
+      published: data.published !== undefined ? data.published : true,
+      instagramLink: data.instagramLink || '',
+      facebookLink: data.facebookLink || '',
       updatedAt: new Date().toISOString()
     }
     
+    // Handle status updates
     if (data.status) {
       updateData.status = data.status
       // If approved, also set published to true
