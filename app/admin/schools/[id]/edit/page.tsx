@@ -29,6 +29,7 @@ interface SchoolFormData {
   facebookUrl: string;
   googleMapLink: string;
   comment: string;
+  published: boolean;
 }
 
 // List of Australian states and territories
@@ -67,7 +68,8 @@ export default function EditSchoolPage() {
     instagramUrl: '',
     facebookUrl: '',
     googleMapLink: '',
-    comment: ''
+    comment: '',
+    published: false
   })
   const [school, setSchool] = useState<School | null>(null)
 
@@ -97,7 +99,8 @@ export default function EditSchoolPage() {
         ...data,
         danceStyles: danceStylesArr,
         instagramUrl: data.instagramUrl || '',
-        facebookUrl: data.facebookUrl || ''
+        facebookUrl: data.facebookUrl || '',
+        published: data.status === 'approved'
       }
       
       console.log('Setting form data:', formDataToSet)
@@ -179,7 +182,8 @@ export default function EditSchoolPage() {
         instagramUrl: formData.instagramUrl,
         facebookUrl: formData.facebookUrl,
         googleMapLink: formData.googleMapLink,
-        comment: formData.comment
+        comment: formData.comment,
+        status: formData.published ? 'approved' : 'pending'
       }
 
       const response = await fetch(`/api/schools/${id}`, {
@@ -418,6 +422,28 @@ export default function EditSchoolPage() {
             <img src={imagePreviewUrl} alt="Preview" className="max-w-xs max-h-48 object-contain border rounded shadow-sm" />
           </div>
         )}
+
+        <div className="space-y-2">
+          <Label htmlFor="published">Publication Status</Label>
+          <div className="flex items-center space-x-2">
+            <input
+              type="checkbox"
+              id="published"
+              checked={formData.published}
+              onChange={(e) => setFormData({ ...formData, published: e.target.checked })}
+              className="rounded border-gray-300 text-primary focus:ring-primary"
+            />
+            <span className="text-sm text-gray-700">
+              {formData.published ? 'Published (Approved)' : 'Draft (Pending)'}
+            </span>
+          </div>
+          <p className="text-xs text-gray-500">
+            {formData.published 
+              ? 'This school will be visible on the public schools page.' 
+              : 'This school will not be visible on the public schools page until approved.'
+            }
+          </p>
+        </div>
 
         <div className="flex gap-4">
           <Button type="submit">Save Changes</Button>

@@ -70,7 +70,8 @@ export async function PUT(
       facebookUrl,
       googleMapLink,
       googleReviewLink,
-      comment
+      comment,
+      status
     } = data;
 
     // Process danceStyles
@@ -97,6 +98,7 @@ export async function PUT(
       facebookUrl: facebookUrl || '',
       googleMapLink: googleMapLink || '',
       comment: comment || '',
+      status: status || undefined,
       updatedAt: new Date().toISOString()
     };
 

@@ -157,6 +157,31 @@ interface Accommodation {
   updatedAt: string
 }
 
+interface School {
+  id: string
+  name: string
+  location: string
+  state: string
+  address: string
+  contactInfo: string
+  instructors: string[]
+  website: string
+  danceStyles: string[]
+  imageUrl: string
+  imageRef: string
+  comment: string
+  googleReviewsUrl?: string
+  googleRating?: number
+  googleReviewsCount?: number
+  createdAt: string
+  updatedAt: string
+  googleReviewLink?: string
+  instagramUrl?: string
+  facebookUrl?: string
+  googleMapLink?: string
+  status?: 'pending' | 'approved' | 'rejected'
+}
+
 // Add User interface at the top with other interfaces
 interface User {
   id: string
@@ -321,7 +346,7 @@ export default function AdminDashboard() {
   const fetchSchools = async () => {
     try {
       console.log('Fetching schools...')
-      const response = await fetch('/api/schools')
+      const response = await fetch('/api/schools?admin=true')
       if (!response.ok) throw new Error('Failed to fetch schools')
       const data = await response.json()
       console.log('Fetched schools data:', data)
@@ -718,6 +743,48 @@ export default function AdminDashboard() {
     }
   }
 
+  const handleApproveSchool = async (schoolId: string) => {
+    try {
+      const response = await fetch(`/api/schools/${schoolId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ status: 'approved' }),
+      })
+
+      if (!response.ok) throw new Error('Failed to approve school')
+      
+      // Refresh schools list
+      fetchSchools()
+      toast.success('School approved successfully')
+    } catch (err) {
+      console.error('Failed to approve school:', err)
+      toast.error('Failed to approve school')
+    }
+  }
+
+  const handleRejectSchool = async (schoolId: string) => {
+    try {
+      const response = await fetch(`/api/schools/${schoolId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ status: 'rejected' }),
+      })
+
+      if (!response.ok) throw new Error('Failed to reject school')
+      
+      // Refresh schools list
+      fetchSchools()
+      toast.success('School rejected successfully')
+    } catch (err) {
+      console.error('Failed to reject school:', err)
+      toast.error('Failed to reject school')
+    }
+  }
+
   const fetchMedia = async () => {
     try {
       setIsLoading(true)
@@ -1103,6 +1170,93 @@ export default function AdminDashboard() {
     </div>
   )
 
+  const SchoolCard = ({ school }: { school: School }) => (
+    <div className={`bg-white rounded-lg shadow overflow-hidden ${
+      layout === 'grid' ? 'flex flex-col' : 'flex flex-row'
+    }`}>
+      {/* Image */}
+      <div className={`relative ${
+        layout === 'grid' ? 'w-full h-48' : 'w-32 h-32 flex-shrink-0'
+      }`}>
+        <img
+          src={school.imageUrl || '/placeholder-school.jpg'}
+          alt={school.name}
+          className="w-full h-full object-cover"
+        />
+      </div>
+
+      {/* Content */}
+      <div className="p-4 flex-1">
+        <h3 className="text-xl font-semibold mb-2">{school.name}</h3>
+        <div className="space-y-2">
+          <p className="text-gray-600">
+            <span className="font-medium">Location:</span> {school.location}, {school.state}
+          </p>
+          <p className="text-gray-600">
+            <span className="font-medium">Address:</span> {school.address}
+          </p>
+          <p className="text-gray-600">
+            <span className="font-medium">Contact:</span> {school.contactInfo}
+          </p>
+          {school.website && (
+            <p className="text-gray-600">
+              <span className="font-medium">Website:</span> <a href={school.website} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">{school.website}</a>
+            </p>
+          )}
+          {school.danceStyles && school.danceStyles.length > 0 && (
+            <p className="text-gray-600">
+              <span className="font-medium">Styles:</span> {Array.isArray(school.danceStyles) ? school.danceStyles.join(', ') : school.danceStyles}
+            </p>
+          )}
+          <p className="text-gray-600">
+            <span className="font-medium">Status:</span>{' '}
+            <span className={`px-2 py-1 rounded text-xs font-medium ${
+              school.status === 'approved'
+                ? 'bg-green-100 text-green-800'
+                : school.status === 'rejected'
+                ? 'bg-red-100 text-red-800'
+                : 'bg-yellow-100 text-yellow-800'
+            }`}>
+              {school.status === 'approved' ? 'Approved' : school.status === 'rejected' ? 'Rejected' : 'Pending'}
+            </span>
+          </p>
+        </div>
+
+        {/* Action Buttons */}
+        <div className="mt-4 flex gap-2 flex-wrap">
+          {school.status === 'pending' && (
+            <>
+              <button
+                onClick={() => handleApproveSchool(school.id)}
+                className="bg-green-500 text-white px-2.5 py-1 rounded hover:bg-green-600 text-sm"
+              >
+                Approve
+              </button>
+              <button
+                onClick={() => handleRejectSchool(school.id)}
+                className="bg-red-500 text-white px-2.5 py-1 rounded hover:bg-red-600 text-sm"
+              >
+                Reject
+              </button>
+            </>
+          )}
+          <button
+            onClick={() => router.push(`/admin/schools/${school.id}/edit`)}
+            className="bg-yellow-500 text-white px-2.5 py-1 rounded hover:bg-yellow-600 text-sm"
+          >
+            Edit
+          </button>
+          <button
+            onClick={() => handleDeleteSchool(school.id)}
+            className="bg-red-500 text-white px-2.5 py-1 rounded hover:bg-red-600 text-sm"
+          >
+            Delete
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+
   const handlePasswordChange = async (e: React.FormEvent) => {
     e.preventDefault()
     
@@ -1240,92 +1394,8 @@ export default function AdminDashboard() {
                 }
               `}>
                 {filteredSchools.map((school) => (
-              <div 
-                key={school.id} 
-                className={`border rounded-lg ${
-                  layout === 'grid' 
-                    ? 'p-4' 
-                    : 'p-4 flex gap-4'
-                }`}
-              >
-                {/* Image Container */}
-                {school.imageUrl && (
-                  <div className={`
-                    relative rounded overflow-hidden
-                    ${layout === 'grid'
-                      ? 'w-full h-48 mb-4'
-                      : 'w-32 h-32 flex-shrink-0'  // Smaller fixed size for list view
-                    }
-                  `}>
-                    <img
-                      src={school.imageUrl}
-                      alt={school.name}
-                      className="w-full h-full object-cover rounded"
-                      onError={(e) => {
-                        console.error('Error loading image:', school.imageUrl);
-                        (e.target as HTMLImageElement).style.display = 'none';
-                      }}
-                    />
-                  </div>
-                )}
-
-                {/* Content Container */}
-                <div className="flex-1">
-                  <h2 className="text-xl font-semibold mb-2">{school.name}</h2>
-                  <p className="text-gray-600 mb-2">{school.location}, {school.state}</p>
-                  <p className="text-gray-600 mb-2">{school.address}</p>
-                  <p className="text-gray-600 mb-2">{school.contactInfo}</p>
-                  
-                  {typeof school.googleRating === 'number' && (
-                    <div className="flex items-center mb-2">
-                      <div className="flex">
-                        {[1, 2, 3, 4, 5].map((value) => {
-                          const rating = school.googleRating as number
-                          return (
-                            <span
-                              key={value}
-                              className={`text-xl ${
-                                value <= rating ? 'text-yellow-400' : 'text-gray-300'
-                              }`}
-                            >
-                              ★
-                            </span>
-                          )
-                        })}
-                      </div>
-                      <span className="ml-2 text-sm text-gray-500">
-                        ({school.googleRating} from {school.googleReviewsCount || 0} reviews)
-                      </span>
-                      {school.googleReviewsUrl && (
-                        <a
-                          href={school.googleReviewsUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="ml-2 text-sm text-blue-500 hover:text-blue-700"
-                        >
-                          View on Google
-                        </a>
-                      )}
-                    </div>
-                  )}
-
-                  <div className="flex gap-2 mt-4">
-                    <button
-                      onClick={() => router.push(`/admin/schools/${school.id}/edit`)}
-                      className="bg-yellow-500 text-white px-2.5 py-1 rounded hover:bg-yellow-600 text-sm"
-                    >
-                      Edit
-                    </button>
-                    <button
-                      onClick={() => handleDeleteSchool(school.id)}
-                      className="bg-red-500 text-white px-2.5 py-1 rounded hover:bg-red-600 text-sm"
-                    >
-                      Delete
-                    </button>
-                  </div>
-                </div>
-              </div>
-            ))}
+                  <SchoolCard key={school.id} school={school} />
+                ))}
               </div>
             )}
           </div>

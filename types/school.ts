@@ -21,4 +21,5 @@ export interface School {
   instagramUrl?: string  // Updated to match form and API field names
   facebookUrl?: string   // Updated to match form and API field names
   googleMapLink?: string  // Add Google Maps link field
+  status?: 'pending' | 'approved' | 'rejected'  // Add status field for approval workflow
 } 

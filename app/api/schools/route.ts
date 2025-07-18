@@ -3,14 +3,23 @@ import { db } from '@/lib/firebase'
 import { collection, getDocs, doc, getDoc, addDoc, updateDoc, deleteDoc } from 'firebase/firestore'
 import { School } from '@/types/school'
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
+    const { searchParams } = new URL(request.url)
+    const admin = searchParams.get('admin')
+    
     const schoolsRef = collection(db, 'schools')
     const snapshot = await getDocs(schoolsRef)
-    const schools = snapshot.docs.map(doc => ({
+    let schools = snapshot.docs.map(doc => ({
       id: doc.id,
       ...doc.data()
     }))
+    
+    // If not admin, only return approved schools
+    if (!admin) {
+      schools = schools.filter(school => school.status === 'approved' || !school.status)
+    }
+    
     return NextResponse.json(schools)
   } catch (error) {
     console.error('Error fetching schools:', error)
@@ -44,7 +53,8 @@ export async function POST(request: Request) {
       googleReviewLink,
       instagramUrl,
       facebookUrl,
-      comment
+      comment,
+      status
     } = data;
 
     // Validate required fields
@@ -74,6 +84,7 @@ export async function POST(request: Request) {
       instagramUrl: instagramUrl || '',
       facebookUrl: facebookUrl || '',
       comment: comment || '',
+      status: status || 'pending',
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString()
     };
