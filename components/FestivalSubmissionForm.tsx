@@ -70,7 +70,17 @@ export function FestivalSubmissionForm({ isOpen, onClose }: FestivalSubmissionFo
 
   const handleInputChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target
-    setFormData(prev => ({ ...prev, [name]: value }))
+    
+    // If country is changed to non-Australia, set state to N/A
+    if (name === 'country') {
+      setFormData(prev => ({ 
+        ...prev, 
+        [name]: value,
+        state: value !== 'Australia' ? 'N/A' : 'NSW' // Default to NSW for Australia
+      }))
+    } else {
+      setFormData(prev => ({ ...prev, [name]: value }))
+    }
   }
 
   const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -283,12 +293,25 @@ export function FestivalSubmissionForm({ isOpen, onClose }: FestivalSubmissionFo
             </div>
 
             <div className="space-y-1">
-              <Label htmlFor="state" className="text-primary text-sm">State *</Label>
-              <StateSelect
-                value={formData.state}
-                onChange={(value) => setFormData(prev => ({ ...prev, state: value }))}
-                className="bg-white/80 backdrop-blur-sm h-9"
-              />
+              <Label htmlFor="state" className="text-primary text-sm">
+                {formData.country === 'Australia' ? 'State *' : 'State/Province'}
+              </Label>
+              {formData.country === 'Australia' ? (
+                <StateSelect
+                  value={formData.state}
+                  onChange={(value) => setFormData(prev => ({ ...prev, state: value }))}
+                  className="bg-white/80 backdrop-blur-sm h-9"
+                />
+              ) : (
+                <Input
+                  id="state"
+                  name="state"
+                  value={formData.state}
+                  onChange={handleInputChange}
+                  placeholder="e.g., Catalonia, California, Ontario"
+                  className="bg-white/80 backdrop-blur-sm h-9"
+                />
+              )}
             </div>
 
             <div className="space-y-1">

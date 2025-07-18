@@ -63,7 +63,8 @@ export function FestivalCard({ festival }: FestivalCardProps) {
         <CardTitle className="text-base text-primary">{festival.name}</CardTitle>
         <CardDescription className="flex items-center gap-2 text-xs">
           <MapPin className="h-3 w-3" />
-          {festival.location}, {festival.state}
+          {festival.location}
+          {festival.country === 'Australia' ? `, ${festival.state}` : festival.state && festival.state !== 'N/A' ? `, ${festival.state}` : ''}
           {festival.country && festival.country !== 'Australia' && `, ${festival.country}`}
         </CardDescription>
         {/* Dance Style Stickers */}

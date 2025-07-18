@@ -103,22 +103,33 @@ export default function FestivalsPage() {
     fetchFestivals()
   }, [])
 
-  // Extract available dance styles from festivals in the selected state
+  // Extract available dance styles from festivals based on active tab and filters
   useEffect(() => {
     const styles = new Set<string>()
     
-    // Filter festivals by selected state first
-    const stateFilteredFestivals = selectedState === 'all' 
-      ? festivals 
-      : festivals.filter(festival => festival.state === selectedState)
+    let filteredFestivals = festivals
     
-    stateFilteredFestivals.forEach(festival => {
+    if (activeTab === 'australia') {
+      // For Australia tab, filter by selected state
+      filteredFestivals = selectedState === 'all' 
+        ? festivals.filter(festival => festival.country === 'Australia' || !festival.country)
+        : festivals.filter(festival => festival.state === selectedState && (festival.country === 'Australia' || !festival.country))
+    } else {
+      // For international tab, filter by selected country
+      if (selectedCountry === 'all') {
+        filteredFestivals = festivals.filter(festival => festival.country && festival.country !== 'Australia')
+      } else {
+        filteredFestivals = festivals.filter(festival => festival.country === selectedCountry)
+      }
+    }
+    
+    filteredFestivals.forEach(festival => {
       if (festival.danceStyles && Array.isArray(festival.danceStyles)) {
         festival.danceStyles.forEach(style => styles.add(style))
       }
     })
     setAvailableDanceStyles(Array.from(styles).sort())
-  }, [festivals, selectedState])
+  }, [festivals, selectedState, activeTab, selectedCountry])
 
   // Extract available countries from international festivals
   useEffect(() => {
@@ -138,14 +149,14 @@ export default function FestivalsPage() {
     setAvailableCountries(Array.from(countries).sort())
   }, [festivals])
 
-  // Auto-select Bachata if available, reset when state changes
+  // Auto-select Bachata if available, reset when filters change
   useEffect(() => {
     if (availableDanceStyles.includes('Bachata')) {
       setSelectedDanceStyle('Bachata')
     } else {
       setSelectedDanceStyle('all')
     }
-  }, [availableDanceStyles, selectedState])
+  }, [availableDanceStyles, selectedState, activeTab, selectedCountry])
 
   // Memoized helper functions to avoid recalculation
   const dateHelpers = useMemo(() => {
@@ -280,6 +291,7 @@ export default function FestivalsPage() {
                   setActiveTab('australia')
                   setSelectedState('all') // Reset state filter when switching to Australia
                   setSelectedCountry('all') // Reset country filter
+                  setSelectedDanceStyle('all') // Reset dance style filter
                 }}
                 className={`px-6 py-2 rounded-full font-semibold transition-all duration-200 ${
                   activeTab === 'australia'
@@ -294,6 +306,7 @@ export default function FestivalsPage() {
                   setActiveTab('international')
                   setSelectedState('all') // Reset state filter when switching to International
                   setSelectedCountry('all') // Reset country filter to show all countries
+                  setSelectedDanceStyle('all') // Reset dance style filter
                 }}
                 className={`px-6 py-2 rounded-full font-semibold transition-all duration-200 ${
                   activeTab === 'international'
@@ -406,10 +419,11 @@ export default function FestivalsPage() {
                     <div className="flex items-center justify-between text-gray-600 text-sm space-x-2">
                       <div className="flex items-center">
                         <MapPin className="w-4 h-4 mr-1" />
-                        <span className="truncate">
-                          {festival.location}, {festival.state}
-                          {festival.country && festival.country !== 'Australia' && `, ${festival.country}`}
-                        </span>
+                                              <span className="truncate">
+                        {festival.location}
+                        {festival.country === 'Australia' ? `, ${festival.state}` : festival.state && festival.state !== 'N/A' ? `, ${festival.state}` : ''}
+                        {festival.country && festival.country !== 'Australia' && `, ${festival.country}`}
+                      </span>
                       </div>
                       {festival.price && (
                         <div className="flex items-center">
@@ -506,7 +520,8 @@ export default function FestivalsPage() {
                     <div className="flex items-center">
                       <MapPin className="w-4 h-4 mr-1" />
                       <span className="truncate">
-                        {festival.location}, {festival.state}
+                        {festival.location}
+                        {festival.country === 'Australia' ? `, ${festival.state}` : festival.state && festival.state !== 'N/A' ? `, ${festival.state}` : ''}
                         {festival.country && festival.country !== 'Australia' && `, ${festival.country}`}
                       </span>
                     </div>
