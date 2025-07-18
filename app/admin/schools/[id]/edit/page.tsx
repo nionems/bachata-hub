@@ -89,8 +89,8 @@ export default function EditSchoolPage() {
       setFormData({
         ...data,
         danceStyles: danceStylesArr,
-        instagramUrl: data.socialUrl || '',
-        facebookUrl: data.socialUrl2 || ''
+        instagramUrl: data.instagramUrl || '',
+        facebookUrl: data.facebookUrl || ''
       })
     } catch (error) {
       console.error('Error fetching school:', error)
@@ -166,8 +166,8 @@ export default function EditSchoolPage() {
         googleReviewsCount: formData.googleReviewsCount,
         googleReviewsUrl: formData.googleReviewsUrl,
         imageUrl: finalImageUrl,
-        socialUrl: formData.instagramUrl,
-        socialUrl2: formData.facebookUrl,
+        instagramUrl: formData.instagramUrl,
+        facebookUrl: formData.facebookUrl,
         googleMapLink: formData.googleMapLink,
         comment: formData.comment
       }
