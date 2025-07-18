@@ -1,7 +1,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { MapPin, Calendar, Clock, Users, Info, ExternalLink, Ticket, Star, Music } from "lucide-react"
+import { MapPin, Calendar, Clock, Users, Info, ExternalLink, Ticket, Star, Music, Instagram, Facebook } from "lucide-react"
 import { Festival } from "@/types/festival"
 import Image from "next/image"
 import { useMemo } from "react"
@@ -114,10 +114,38 @@ export function FestivalCard({ festival }: FestivalCardProps) {
             {festival.price && (
               <Badge variant="price" className="text-xs">Price: {festival.price}</Badge>
             )}
-            {festival.comment && (
-              <span className="text-gray-600 text-xs">{festival.comment}</span>
+            {festival.ambassadorCode && (
+              <Badge variant="secondary" className="bg-green-500/20 text-green-700 text-xs">
+                🎫 {festival.ambassadorCode}
+              </Badge>
             )}
           </div>
+          
+          {/* Social Media Links */}
+          {(festival.instagramLink || festival.facebookLink) && (
+            <div className="flex gap-2 mt-2">
+              {festival.instagramLink && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-8 w-8 p-0 bg-gradient-to-r from-purple-500 to-pink-500 text-white hover:from-purple-600 hover:to-pink-600"
+                  onClick={() => window.open(festival.instagramLink, "_blank")}
+                >
+                  <Instagram className="h-4 w-4" />
+                </Button>
+              )}
+              {festival.facebookLink && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-8 w-8 p-0 bg-blue-600 text-white hover:bg-blue-700"
+                  onClick={() => window.open(festival.facebookLink, "_blank")}
+                >
+                  <Facebook className="h-4 w-4" />
+                </Button>
+              )}
+            </div>
+          )}
           <div className="flex flex-col gap-2 mt-3">
             {festival.ticketLink && (
               <Button

@@ -34,7 +34,8 @@ interface FestivalFormData {
   danceStyles: string[]
   imageUrl: string
   image: File | null
-  comment: string
+  description: string
+  ambassadorCode: string
   googleMapLink: string
   email: string
   instagramLink: string
@@ -56,7 +57,8 @@ export function FestivalSubmissionForm({ isOpen, onClose }: FestivalSubmissionFo
     danceStyles: [],
     imageUrl: '',
     image: null,
-    comment: '',
+    description: '',
+    ambassadorCode: '',
     googleMapLink: '',
     email: '',
     instagramLink: '',
@@ -146,7 +148,8 @@ export function FestivalSubmissionForm({ isOpen, onClose }: FestivalSubmissionFo
         ticketLink: formData.ticketLink,
         danceStyles: formData.danceStyles,
         imageUrl: imageUrl,
-        comment: formData.comment,
+        description: formData.description,
+        ambassadorCode: formData.ambassadorCode,
         googleMapLink: formData.googleMapLink,
         email: formData.email,
         instagramLink: formData.instagramLink ? `https://instagram.com/${formData.instagramLink.replace('@', '')}` : '',
@@ -205,7 +208,8 @@ export function FestivalSubmissionForm({ isOpen, onClose }: FestivalSubmissionFo
         danceStyles: [],
         imageUrl: '',
         image: null,
-        comment: '',
+        description: '',
+        ambassadorCode: '',
         googleMapLink: '',
         email: '',
         instagramLink: '',
@@ -546,15 +550,33 @@ export function FestivalSubmissionForm({ isOpen, onClose }: FestivalSubmissionFo
           </div>
 
           <div className="space-y-1">
-            <Label htmlFor="comment" className="text-primary text-sm">Comment</Label>
+            <Label htmlFor="description" className="text-primary text-sm">Festival Description</Label>
             <Textarea
-              id="comment"
-              name="comment"
-              value={formData.comment}
+              id="description"
+              name="description"
+              value={formData.description}
               onChange={handleInputChange}
-              className="min-h-[80px] bg-white/80 backdrop-blur-sm"
-              placeholder="Any additional information about the festival..."
+              className="min-h-[100px] bg-white/80 backdrop-blur-sm"
+              placeholder="Describe your festival, what makes it special, what dancers can expect, workshops, performances, etc..."
             />
+            <p className="text-xs text-gray-500 mt-1">
+              💡 This description will be displayed on the festival card to help dancers understand what your festival offers.
+            </p>
+          </div>
+
+          <div className="space-y-1">
+            <Label htmlFor="ambassadorCode" className="text-primary text-sm">Ambassador/Discount Code</Label>
+            <Input
+              id="ambassadorCode"
+              name="ambassadorCode"
+              value={formData.ambassadorCode}
+              onChange={handleInputChange}
+              placeholder="e.g., BACHATAHUB20, DANCE10, etc."
+              className="bg-white/80 backdrop-blur-sm h-9"
+            />
+            <p className="text-xs text-gray-500 mt-1">
+              🎫 Optional: Add a discount code for our community members to use when purchasing tickets.
+            </p>
           </div>
 
           {error && (

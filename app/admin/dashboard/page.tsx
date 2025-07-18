@@ -49,6 +49,8 @@ interface Festival {
   price: string
   danceStyles: string[] | string
   imageUrl: string
+  description?: string
+  ambassadorCode?: string
   published: boolean
   featured?: 'yes' | 'no'
   status?: 'pending' | 'approved' | 'rejected'

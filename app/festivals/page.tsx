@@ -3,7 +3,7 @@
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
-import { Calendar, MapPin, DollarSign, Users, Ticket, Hotel, CheckCircle, Info, Clock, ExternalLink, X, Music } from "lucide-react"
+import { Calendar, MapPin, DollarSign, Users, Ticket, Hotel, CheckCircle, Info, Clock, ExternalLink, X, Music, Instagram, Facebook } from "lucide-react"
 import { useState, useEffect, useMemo } from "react"
 import CollapsibleFilter from "@/components/collapsible-filter"
 import { StateFilter } from '@/components/StateFilter'
@@ -35,7 +35,8 @@ interface Festival {
   ticketLink: string
   danceStyles: string[] | string
   imageUrl: string
-  comment: string
+  description?: string
+  ambassadorCode?: string
   googleMapLink: string
   festivalLink: string
   date: string
@@ -44,6 +45,8 @@ interface Festival {
   time: string
   featured?: 'yes' | 'no'
   published?: boolean
+  instagramLink?: string
+  facebookLink?: string
 }
 
 export default function FestivalsPage() {
@@ -409,10 +412,17 @@ export default function FestivalsPage() {
                         <span>{dateHelpers.formatDate(festival.endDate)}</span>
                       )}
                     </div>
-                    {festival.comment && (
+                    {festival.description && (
                       <div className="mb-2">
-                        <Badge variant="secondary" className="bg-secondary/20 text-secondary hover:bg-secondary/30">
-                          {festival.comment}
+                        <p className="text-sm text-gray-600 line-clamp-2">
+                          {festival.description}
+                        </p>
+                      </div>
+                    )}
+                    {festival.ambassadorCode && (
+                      <div className="mb-2">
+                        <Badge variant="secondary" className="bg-green-500/20 text-green-700 hover:bg-green-500/30">
+                          🎫 {festival.ambassadorCode}
                         </Badge>
                       </div>
                     )}
@@ -450,6 +460,33 @@ export default function FestivalsPage() {
                         )}
                       </div>
                     )}
+                    
+                    {/* Social Media Links */}
+                    {(festival.instagramLink || festival.facebookLink) && (
+                      <div className="flex gap-2 mt-2">
+                        {festival.instagramLink && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-8 w-8 p-0 bg-gradient-to-r from-purple-500 to-pink-500 text-white hover:from-purple-600 hover:to-pink-600"
+                            onClick={() => window.open(festival.instagramLink, "_blank")}
+                          >
+                            <Instagram className="h-4 w-4" />
+                          </Button>
+                        )}
+                        {festival.facebookLink && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-8 w-8 p-0 bg-blue-600 text-white hover:bg-blue-700"
+                            onClick={() => window.open(festival.facebookLink, "_blank")}
+                          >
+                            <Facebook className="h-4 w-4" />
+                          </Button>
+                        )}
+                      </div>
+                    )}
+                    
                     <div className="mt-4 grid grid-cols-2 gap-2">
                       {festival.eventLink && (
                         <Link href={festival.eventLink} target="_blank" rel="noopener noreferrer" className="w-full">
@@ -509,10 +546,17 @@ export default function FestivalsPage() {
                       <span>{dateHelpers.formatDate(festival.endDate)}</span>
                     )}
                   </div>
-                  {festival.comment && (
+                  {festival.description && (
                     <div className="mb-2">
-                      <Badge variant="secondary" className="bg-secondary/20 text-secondary hover:bg-secondary/30">
-                        {festival.comment}
+                      <p className="text-sm text-gray-600 line-clamp-2">
+                        {festival.description}
+                      </p>
+                    </div>
+                  )}
+                  {festival.ambassadorCode && (
+                    <div className="mb-2">
+                      <Badge variant="secondary" className="bg-green-500/20 text-green-700 hover:bg-green-500/30">
+                        🎫 {festival.ambassadorCode}
                       </Badge>
                     </div>
                   )}
@@ -550,6 +594,33 @@ export default function FestivalsPage() {
                       )}
                     </div>
                   )}
+                  
+                  {/* Social Media Links */}
+                  {(festival.instagramLink || festival.facebookLink) && (
+                    <div className="flex gap-2 mt-2">
+                      {festival.instagramLink && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-8 w-8 p-0 bg-gradient-to-r from-purple-500 to-pink-500 text-white hover:from-purple-600 hover:to-pink-600"
+                          onClick={() => window.open(festival.instagramLink, "_blank")}
+                        >
+                          <Instagram className="h-4 w-4" />
+                        </Button>
+                      )}
+                      {festival.facebookLink && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-8 w-8 p-0 bg-blue-600 text-white hover:bg-blue-700"
+                          onClick={() => window.open(festival.facebookLink, "_blank")}
+                        >
+                          <Facebook className="h-4 w-4" />
+                        </Button>
+                      )}
+                    </div>
+                  )}
+                  
                   <div className="mt-4 grid grid-cols-2 gap-2">
                     {festival.eventLink && (
                       <Link href={festival.eventLink} target="_blank" rel="noopener noreferrer" className="w-full">
@@ -643,7 +714,7 @@ export default function FestivalsPage() {
                 onClick={() => setIsSubmissionFormOpen(true)}
                 className="bg-secondary text-white px-6 sm:px-8 py-2 sm:py-3 rounded-full font-semibold hover:bg-secondary/90 transition-colors duration-200 text-center w-full sm:w-auto"
               >
-                Submit via Form
+                Add Your Festival
               </Button>
             </div>
           </div>
