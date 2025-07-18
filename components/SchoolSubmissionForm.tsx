@@ -59,6 +59,32 @@ export function SchoolSubmissionForm({ isOpen, onClose }: SchoolSubmissionFormPr
     setIsLoading(true)
 
     try {
+      // Create school in database
+      const schoolResponse = await fetch('/api/schools', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name: formData.name,
+          location: formData.location,
+          state: formData.state,
+          address: formData.address,
+          website: formData.website,
+          instagramUrl: formData.instagramUrl,
+          facebookUrl: formData.facebookUrl,
+          contactInfo: formData.contactInfo,
+          danceStyles: formData.danceStyles.split(',').map(style => style.trim()),
+          comment: formData.description,
+          imageUrl: formData.imageUrl
+        }),
+      })
+
+      if (!schoolResponse.ok) {
+        const errorData = await schoolResponse.json()
+        throw new Error(errorData.error || 'Failed to create school')
+      }
+
       // Send email notification
       const emailResponse = await fetch('/api/submit-form', {
         method: 'POST',
@@ -85,7 +111,7 @@ export function SchoolSubmissionForm({ isOpen, onClose }: SchoolSubmissionFormPr
       })
 
       if (!emailResponse.ok) {
-        throw new Error('Failed to send email notification')
+        console.warn('Failed to send email notification, but school was created')
       }
 
       setSuccess(true)
@@ -108,7 +134,8 @@ export function SchoolSubmissionForm({ isOpen, onClose }: SchoolSubmissionFormPr
         setSuccess(false)
       }, 2000)
     } catch (err) {
-      setError('Failed to submit form. Please try again.')
+      console.error('Error submitting school:', err)
+      setError(err instanceof Error ? err.message : 'Failed to submit form. Please try again.')
     } finally {
       setIsLoading(false)
     }
