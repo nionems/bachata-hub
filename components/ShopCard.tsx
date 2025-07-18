@@ -78,24 +78,7 @@ export function ShopCard({ shop }: ShopCardProps) {
               <span className="line-clamp-1">{shop.location}</span>
             </div>
             
-            {/* Dance Style Stickers */}
-            {shop.danceStyles && shop.danceStyles.length > 0 && (
-              <div className="flex flex-wrap gap-1 mb-2">
-                {shop.danceStyles.slice(0, 3).map((style) => (
-                  <div
-                    key={style}
-                    className="bg-gradient-to-r from-primary/80 to-secondary/80 text-white text-[8px] px-1.5 py-0.5 rounded-full font-medium border border-white/20 backdrop-blur-sm"
-                  >
-                    {style}
-                  </div>
-                ))}
-                {shop.danceStyles.length > 3 && (
-                  <div className="bg-white/20 text-white text-[8px] px-1.5 py-0.5 rounded-full font-medium">
-                    +{shop.danceStyles.length - 3}
-                  </div>
-                )}
-              </div>
-            )}
+
             
             {/* Compact action buttons */}
             <div className="flex items-center justify-between gap-1">
