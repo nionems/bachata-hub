@@ -13,6 +13,14 @@ export function SchoolViewCard({ school }: SchoolViewCardProps) {
   const [isCommentExpanded, setIsCommentExpanded] = useState(false)
   const [isImageModalOpen, setIsImageModalOpen] = useState(false)
 
+  // Debug logging
+  console.log('SchoolViewCard data:', {
+    name: school.name,
+    instagramUrl: school.instagramUrl,
+    facebookUrl: school.facebookUrl,
+    website: school.website
+  })
+
   const handleImageClick = (e: React.MouseEvent) => {
     e.stopPropagation();
     if (school.imageUrl) {
