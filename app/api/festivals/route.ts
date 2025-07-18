@@ -34,10 +34,11 @@ export async function GET(request: Request) {
   const startTime = Date.now()
   const url = new URL(request.url)
   const clearCache = url.searchParams.get('clearCache') === 'true'
+  const admin = url.searchParams.get('admin')
   
   try {
-    // Check cache (unless clearing cache)
-    if (!clearCache && festivalsCache && Date.now() - cacheTimestamp < CACHE_DURATION) {
+    // Check cache (unless clearing cache or admin request)
+    if (!clearCache && !admin && festivalsCache && Date.now() - cacheTimestamp < CACHE_DURATION) {
       console.log('API Route (GET /api/festivals): Returning cached festivals. Time:', Date.now() - startTime, 'ms')
       return NextResponse.json(festivalsCache)
     }
@@ -51,30 +52,41 @@ export async function GET(request: Request) {
 
     const db = getDb();
 
-    // Query only published festivals with optimized query
-    const festivalsRef = db.collection('festivals')
-      .where('published', '==', true)
-      .orderBy('name') // Pre-sort by name to reduce client-side processing
+    let festivalsRef = db.collection('festivals')
+    
+    // If not admin, only get published festivals
+    if (!admin) {
+      festivalsRef = festivalsRef.where('published', '==', true)
+    }
+    
+    festivalsRef = festivalsRef.orderBy('name') // Pre-sort by name to reduce client-side processing
     
     const snapshot = await festivalsRef.get()
-    console.log(`API Route (GET /api/festivals): Fetched ${snapshot.docs.length} published festivals from Firestore in ${Date.now() - startTime}ms`)
+    console.log(`API Route (GET /api/festivals): Fetched ${snapshot.docs.length} festivals from Firestore in ${Date.now() - startTime}ms`)
 
-    const publishedFestivals = snapshot.docs.map(doc => ({
+    let festivals = snapshot.docs.map(doc => ({
       id: doc.id,
       ...doc.data()
     })) as FestivalData[]
 
+    // If not admin, filter to only approved festivals
+    if (!admin) {
+      festivals = festivals.filter(festival => festival.status === 'approved' || !festival.status)
+    }
+
     // Log featured festivals for debugging
-    const featuredFestivals = publishedFestivals.filter(f => f.featured === 'yes')
+    const featuredFestivals = festivals.filter(f => f.featured === 'yes')
     console.log('Featured festivals from API:', featuredFestivals.map(f => ({ id: f.id, name: f.name, featured: f.featured })))
 
-    // Update cache
-    festivalsCache = publishedFestivals
-    cacheTimestamp = Date.now()
+    // Update cache only for non-admin requests
+    if (!admin) {
+      festivalsCache = festivals
+      cacheTimestamp = Date.now()
+    }
 
-    console.log(`API Route (GET /api/festivals): Returning ${publishedFestivals.length} published festivals. Total time: ${Date.now() - startTime}ms`)
+    console.log(`API Route (GET /api/festivals): Returning ${festivals.length} festivals. Total time: ${Date.now() - startTime}ms`)
 
-    return NextResponse.json(publishedFestivals)
+    return NextResponse.json(festivals)
   } catch (error) {
     console.error('Failed to fetch festivals:', error)
     
@@ -99,17 +111,59 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   try {
-    const data = await request.json() as Partial<FestivalData>
-    
-    // Add timestamp and published field to the festival data
-    const festivalData = {
-      ...data,
-      published: data.published !== undefined ? data.published : true, // Default to published
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString()
+    console.log('Received festival creation request');
+    const data = await request.json();
+    console.log('Received data:', data);
+
+    const {
+      name,
+      startDate,
+      endDate,
+      location,
+      state,
+      country,
+      price,
+      eventLink,
+      ticketLink,
+      danceStyles,
+      imageUrl,
+      comment,
+      email,
+      instagramLink,
+      facebookLink
+    } = data;
+
+    // Validate required fields
+    if (!name || !startDate || !location || !state || !email) {
+      console.error('Missing required fields');
+      return NextResponse.json(
+        { error: 'Missing required fields' },
+        { status: 400 }
+      );
     }
 
-    console.log('Creating festival with data:', festivalData) // Debug log
+    const festivalData = {
+      name,
+      startDate,
+      endDate: endDate || startDate,
+      location,
+      state,
+      country: country || 'Australia',
+      price: price || '',
+      eventLink: eventLink || '',
+      ticketLink: ticketLink || '',
+      danceStyles: danceStyles || [],
+      imageUrl: imageUrl || '',
+      comment: comment || '',
+      instagramLink: instagramLink || '',
+      facebookLink: facebookLink || '',
+      status: 'pending',
+      published: false, // Start as unpublished until approved
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    };
+
+    console.log('Processed festival data:', festivalData);
 
     const db = getDb();
 
@@ -117,7 +171,7 @@ export async function POST(request: Request) {
     const festivalsRef = db.collection('festivals')
     const docRef = await festivalsRef.add(festivalData)
 
-    console.log('Festival created with ID:', docRef.id) // Debug log
+    console.log('Festival created with ID:', docRef.id);
 
     return NextResponse.json({
       id: docRef.id,
@@ -126,8 +180,17 @@ export async function POST(request: Request) {
 
   } catch (error) {
     console.error('Failed to create festival:', error)
+    if (error instanceof Error) {
+      console.error('Error details:', {
+        message: error.message,
+        stack: error.stack
+      });
+    }
     return NextResponse.json(
-      { error: 'Failed to create festival' },
+      { 
+        error: 'Failed to create festival',
+        details: error instanceof Error ? error.message : 'Unknown error'
+      },
       { status: 500 }
     )
   }

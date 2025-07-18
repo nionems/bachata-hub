@@ -1,48 +1,35 @@
 import { NextResponse } from 'next/server'
-import { db } from '@/lib/firebase'
-import { doc, getDoc, updateDoc, deleteDoc } from 'firebase/firestore'
+import { getDb } from '@/lib/firebase-admin'
 
 export const dynamic = 'force-dynamic'
-
-export async function DELETE(
-  request: Request,
-  { params }: { params: { id: string } }
-) {
-  try {
-    const festivalRef = doc(db, 'festivals', params.id)
-    await deleteDoc(festivalRef)
-    
-    return NextResponse.json({ message: 'Festival deleted successfully' })
-  } catch (error) {
-    console.error('Failed to delete festival:', error)
-    return NextResponse.json(
-      { error: 'Failed to delete festival' },
-      { status: 500 }
-    )
-  }
-}
 
 export async function GET(
   request: Request,
   { params }: { params: { id: string } }
 ) {
   try {
-    const festivalRef = doc(db, 'festivals', params.id)
-    const festivalSnap = await getDoc(festivalRef)
+    const { id } = params
     
-    if (!festivalSnap.exists()) {
+    console.log('Fetching festival:', id)
+    
+    const db = getDb()
+    const festivalRef = db.collection('festivals').doc(id)
+    const festivalDoc = await festivalRef.get()
+    
+    if (!festivalDoc.exists) {
       return NextResponse.json(
         { error: 'Festival not found' },
         { status: 404 }
       )
     }
-
+    
+    const festivalData = festivalDoc.data()
     return NextResponse.json({
-      id: festivalSnap.id,
-      ...festivalSnap.data()
+      id: festivalDoc.id,
+      ...festivalData
     })
   } catch (error) {
-    console.error('Failed to fetch festival:', error)
+    console.error('Error fetching festival:', error)
     return NextResponse.json(
       { error: 'Failed to fetch festival' },
       { status: 500 }
@@ -55,64 +42,78 @@ export async function PUT(
   { params }: { params: { id: string } }
 ) {
   try {
-    console.log('PUT request received for festival:', params.id)
+    const { id } = params
     const data = await request.json()
-    console.log('Request data:', data)
     
-    const festivalRef = doc(db, 'festivals', params.id)
+    console.log('Updating festival:', id, 'with data:', data)
     
-    // Remove the id field from the update data since Firestore doesn't allow updating document IDs
-    const { id, ...updateDataWithoutId } = data
+    const db = getDb()
+    const festivalRef = db.collection('festivals').doc(id)
+    const festivalDoc = await festivalRef.get()
     
-    const updateData = {
-      ...updateDataWithoutId,
+    if (!festivalDoc.exists) {
+      return NextResponse.json(
+        { error: 'Festival not found' },
+        { status: 404 }
+      )
+    }
+    
+    // Update the status and published fields
+    const updateData: any = {
       updatedAt: new Date().toISOString()
     }
-
-    console.log('Update data:', updateData)
-    await updateDoc(festivalRef, updateData)
+    
+    if (data.status) {
+      updateData.status = data.status
+      // If approved, also set published to true
+      if (data.status === 'approved') {
+        updateData.published = true
+      }
+    }
+    
+    await festivalRef.update(updateData)
+    
     console.log('Festival updated successfully')
     
-    return NextResponse.json({
-      id: params.id,
-      ...updateData
-    })
+    return NextResponse.json({ success: true })
   } catch (error) {
-    console.error('Failed to update festival:', error)
-    console.error('Error stack:', error instanceof Error ? error.stack : 'No stack trace')
+    console.error('Error updating festival:', error)
     return NextResponse.json(
-      { error: 'Failed to update festival', details: error instanceof Error ? error.message : 'Unknown error' },
+      { error: 'Failed to update festival' },
       { status: 500 }
     )
   }
 }
 
-export async function PATCH(
+export async function DELETE(
   request: Request,
   { params }: { params: { id: string } }
 ) {
   try {
-    const data = await request.json()
-    const festivalRef = doc(db, 'festivals', params.id)
+    const { id } = params
     
-    // Remove the id field from the update data since Firestore doesn't allow updating document IDs
-    const { id, ...updateDataWithoutId } = data
+    console.log('Deleting festival:', id)
     
-    const updateData = {
-      ...updateDataWithoutId,
-      updatedAt: new Date().toISOString()
+    const db = getDb()
+    const festivalRef = db.collection('festivals').doc(id)
+    const festivalDoc = await festivalRef.get()
+    
+    if (!festivalDoc.exists) {
+      return NextResponse.json(
+        { error: 'Festival not found' },
+        { status: 404 }
+      )
     }
-
-    await updateDoc(festivalRef, updateData)
     
-    return NextResponse.json({
-      id: params.id,
-      ...updateData
-    })
+    await festivalRef.delete()
+    
+    console.log('Festival deleted successfully')
+    
+    return NextResponse.json({ success: true })
   } catch (error) {
-    console.error('Failed to update festival:', error)
+    console.error('Error deleting festival:', error)
     return NextResponse.json(
-      { error: 'Failed to update festival', details: error instanceof Error ? error.message : 'Unknown error' },
+      { error: 'Failed to delete festival' },
       { status: 500 }
     )
   }

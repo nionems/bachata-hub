@@ -260,6 +260,16 @@ export default function FestivalsPage() {
               </Select>
             </div>
           </div>
+          
+          {/* Add Your Festival Button */}
+          <div className="mt-4 flex justify-center">
+            <Button
+              onClick={() => setIsSubmissionFormOpen(true)}
+              className="bg-gradient-to-r from-primary to-secondary hover:from-primary/90 hover:to-secondary/90 text-white px-6 py-2 rounded-full font-semibold shadow-lg hover:shadow-xl transition-all duration-200"
+            >
+              Add Your Festival
+            </Button>
+          </div>
         </div>
 
         {/* Featured Festivals Section */}

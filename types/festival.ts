@@ -5,6 +5,7 @@ export interface Festival {
   time: string;
   location: string;
   state: string;
+  country?: string;
   price?: string;
   description?: string;
   imageUrl?: string;
@@ -18,4 +19,7 @@ export interface Festival {
   danceStyles?: string[] | string;
   featured?: 'yes' | 'no';
   published?: boolean;
+  status?: 'pending' | 'approved' | 'rejected';
+  instagramLink?: string;
+  facebookLink?: string;
 } 

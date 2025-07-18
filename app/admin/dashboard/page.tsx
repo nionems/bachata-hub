@@ -45,11 +45,15 @@ interface Festival {
   endDate: string
   location: string
   state: string
+  country?: string
   price: string
   danceStyles: string[] | string
   imageUrl: string
   published: boolean
   featured?: 'yes' | 'no'
+  status?: 'pending' | 'approved' | 'rejected'
+  instagramLink?: string
+  facebookLink?: string
 }
 
 // Add Instructor interface
@@ -370,7 +374,7 @@ export default function AdminDashboard() {
     try {
       console.log('Fetching festivals...')
       setIsLoading(true)
-      const response = await fetch('/api/admin/festivals')
+      const response = await fetch('/api/festivals?admin=true')
       console.log('Festivals response status:', response.status)
       if (!response.ok) throw new Error('Failed to fetch festivals')
       const data = await response.json()
@@ -605,6 +609,48 @@ export default function AdminDashboard() {
     } catch (err) {
       console.error('Failed to update festival:', err)
       toast.error('Failed to update festival')
+    }
+  }
+
+  const handleApproveFestival = async (festivalId: string) => {
+    try {
+      const response = await fetch(`/api/festivals/${festivalId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ status: 'approved' }),
+      })
+
+      if (!response.ok) throw new Error('Failed to approve festival')
+      
+      // Refresh festivals list
+      fetchFestivals()
+      toast.success('Festival approved successfully')
+    } catch (err) {
+      console.error('Failed to approve festival:', err)
+      toast.error('Failed to approve festival')
+    }
+  }
+
+  const handleRejectFestival = async (festivalId: string) => {
+    try {
+      const response = await fetch(`/api/festivals/${festivalId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ status: 'rejected' }),
+      })
+
+      if (!response.ok) throw new Error('Failed to reject festival')
+      
+      // Refresh festivals list
+      fetchFestivals()
+      toast.success('Festival rejected successfully')
+    } catch (err) {
+      console.error('Failed to reject festival:', err)
+      toast.error('Failed to reject festival')
     }
   }
 
@@ -1236,7 +1282,7 @@ export default function AdminDashboard() {
             {new Date(festival.startDate).toLocaleDateString()} - {new Date(festival.endDate).toLocaleDateString()}
           </p>
           <p className="text-gray-600">
-            <span className="font-medium">Location:</span> {festival.location}, {festival.state}
+            <span className="font-medium">Location:</span> {festival.location}, {festival.state}{festival.country && `, ${festival.country}`}
           </p>
           <p className="text-gray-600">
             <span className="font-medium">Price:</span> ${festival.price}
@@ -1244,20 +1290,52 @@ export default function AdminDashboard() {
           <p className="text-gray-600">
             <span className="font-medium">Styles:</span> {Array.isArray(festival.danceStyles) ? festival.danceStyles.join(', ') : festival.danceStyles}
           </p>
+          {(festival.instagramLink || festival.facebookLink) && (
+            <div className="flex gap-2">
+              {festival.instagramLink && (
+                <a href={festival.instagramLink} target="_blank" rel="noopener noreferrer" className="text-blue-600 text-sm hover:underline">
+                  Instagram
+                </a>
+              )}
+              {festival.facebookLink && (
+                <a href={festival.facebookLink} target="_blank" rel="noopener noreferrer" className="text-blue-600 text-sm hover:underline">
+                  Facebook
+                </a>
+              )}
+            </div>
+          )}
           <p className="text-gray-600">
             <span className="font-medium">Status:</span>{' '}
             <span className={`px-2 py-1 rounded text-xs font-medium ${
-              festival.published 
-                ? 'bg-green-100 text-green-800' 
-                : 'bg-gray-100 text-gray-800'
+              festival.status === 'approved'
+                ? 'bg-green-100 text-green-800'
+                : festival.status === 'rejected'
+                ? 'bg-red-100 text-red-800'
+                : 'bg-yellow-100 text-yellow-800'
             }`}>
-              {festival.published ? 'Published' : 'Draft'}
+              {festival.status === 'approved' ? 'Approved' : festival.status === 'rejected' ? 'Rejected' : 'Pending'}
             </span>
           </p>
         </div>
 
         {/* Action Buttons */}
         <div className="mt-4 flex gap-2 flex-wrap">
+          {festival.status === 'pending' && (
+            <>
+              <button
+                onClick={() => handleApproveFestival(festival.id)}
+                className="bg-green-500 text-white px-2.5 py-1 rounded hover:bg-green-600 text-sm"
+              >
+                Approve
+              </button>
+              <button
+                onClick={() => handleRejectFestival(festival.id)}
+                className="bg-red-500 text-white px-2.5 py-1 rounded hover:bg-red-600 text-sm"
+              >
+                Reject
+              </button>
+            </>
+          )}
           <button
             onClick={() => handleTogglePublished(festival.id, festival.published)}
             className={`px-2.5 py-1 rounded text-sm font-medium ${
