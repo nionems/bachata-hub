@@ -41,7 +41,6 @@ export default function MediaForm({ media, isEditing = false }: MediaFormProps) 
     name: media?.name || '',
     location: media?.location || '',
     state: media?.state || '',
-    contact: media?.contact || '',
     comment: media?.comment || '',
     instagramLink: media?.instagramLink || '',
     facebookLink: media?.facebookLink || '',
@@ -174,15 +173,7 @@ export default function MediaForm({ media, isEditing = false }: MediaFormProps) 
           </div>
         </div>
 
-        <div>
-          <Label htmlFor="contact">Contact</Label>
-          <Input
-            id="contact"
-            value={formData.contact}
-            onChange={(e) => setFormData({ ...formData, contact: e.target.value })}
-            required
-          />
-        </div>
+
 
         <div>
           <Label htmlFor="comment">Description</Label>
