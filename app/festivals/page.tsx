@@ -398,6 +398,38 @@ export default function FestivalsPage() {
                         ⭐ Featured
                       </Badge>
                     </div>
+                    
+                    {/* Social Media Icons on Image */}
+                    {(festival.instagramLink || festival.facebookLink) && (
+                      <div className="absolute bottom-2 right-2 flex gap-1">
+                        {festival.instagramLink && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-8 w-8 p-0 bg-black/50 hover:bg-black/70 text-white backdrop-blur-sm"
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              window.open(festival.instagramLink, "_blank")
+                            }}
+                          >
+                            <Instagram className="h-4 w-4" />
+                          </Button>
+                        )}
+                        {festival.facebookLink && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-8 w-8 p-0 bg-black/50 hover:bg-black/70 text-white backdrop-blur-sm"
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              window.open(festival.facebookLink, "_blank")
+                            }}
+                          >
+                            <Facebook className="h-4 w-4" />
+                          </Button>
+                        )}
+                      </div>
+                    )}
 
                   </div>
                   <div className="p-4">
@@ -461,32 +493,6 @@ export default function FestivalsPage() {
                       </div>
                     )}
                     
-                    {/* Social Media Links */}
-                    {(festival.instagramLink || festival.facebookLink) && (
-                      <div className="flex gap-2 mt-2">
-                        {festival.instagramLink && (
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="h-8 w-8 p-0 bg-gradient-to-r from-purple-500 to-pink-500 text-white hover:from-purple-600 hover:to-pink-600"
-                            onClick={() => window.open(festival.instagramLink, "_blank")}
-                          >
-                            <Instagram className="h-4 w-4" />
-                          </Button>
-                        )}
-                        {festival.facebookLink && (
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="h-8 w-8 p-0 bg-blue-600 text-white hover:bg-blue-700"
-                            onClick={() => window.open(festival.facebookLink, "_blank")}
-                          >
-                            <Facebook className="h-4 w-4" />
-                          </Button>
-                        )}
-                      </div>
-                    )}
-                    
                     <div className="mt-4 grid grid-cols-2 gap-2">
                       {festival.eventLink && (
                         <Link href={festival.eventLink} target="_blank" rel="noopener noreferrer" className="w-full">
@@ -532,6 +538,38 @@ export default function FestivalsPage() {
                     className="object-cover transition-transform duration-300 hover:scale-105 cursor-pointer"
                     onClick={(e) => handleImageClick(e, festival)}
                   />
+                  
+                  {/* Social Media Icons on Image */}
+                  {(festival.instagramLink || festival.facebookLink) && (
+                    <div className="absolute bottom-2 right-2 flex gap-1">
+                      {festival.instagramLink && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-8 w-8 p-0 bg-black/50 hover:bg-black/70 text-white backdrop-blur-sm"
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            window.open(festival.instagramLink, "_blank")
+                          }}
+                        >
+                          <Instagram className="h-4 w-4" />
+                        </Button>
+                      )}
+                      {festival.facebookLink && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-8 w-8 p-0 bg-black/50 hover:bg-black/70 text-white backdrop-blur-sm"
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            window.open(festival.facebookLink, "_blank")
+                          }}
+                        >
+                          <Facebook className="h-4 w-4" />
+                        </Button>
+                      )}
+                    </div>
+                  )}
 
                 </div>
                 <div className="p-4">
@@ -591,32 +629,6 @@ export default function FestivalsPage() {
                         <div className="bg-green-500 text-white text-xs font-medium px-2 py-1 rounded-full shadow-sm">
                           +{(Array.isArray(festival.danceStyles) ? festival.danceStyles : festival.danceStyles.split(',').map(s => s.trim()).filter(Boolean)).length - 3}
                         </div>
-                      )}
-                    </div>
-                  )}
-                  
-                  {/* Social Media Links */}
-                  {(festival.instagramLink || festival.facebookLink) && (
-                    <div className="flex gap-2 mt-2">
-                      {festival.instagramLink && (
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="h-8 w-8 p-0 bg-gradient-to-r from-purple-500 to-pink-500 text-white hover:from-purple-600 hover:to-pink-600"
-                          onClick={() => window.open(festival.instagramLink, "_blank")}
-                        >
-                          <Instagram className="h-4 w-4" />
-                        </Button>
-                      )}
-                      {festival.facebookLink && (
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="h-8 w-8 p-0 bg-blue-600 text-white hover:bg-blue-700"
-                          onClick={() => window.open(festival.facebookLink, "_blank")}
-                        >
-                          <Facebook className="h-4 w-4" />
-                        </Button>
                       )}
                     </div>
                   )}
