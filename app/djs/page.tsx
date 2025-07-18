@@ -52,12 +52,11 @@ export default function DJsPage() {
       setIsLoading(true)
       setError(null)
       try {
-        const djsCollection = collection(db, 'djs')
-        const djsSnapshot = await getDocs(djsCollection)
-        const djsList = djsSnapshot.docs.map(doc => ({
-          id: doc.id,
-          ...doc.data()
-        })) as Dj[]
+        const response = await fetch('/api/djs')
+        if (!response.ok) {
+          throw new Error('Failed to fetch DJs')
+        }
+        const djsList = await response.json() as Dj[]
         
         // Sort DJs alphabetically by name
         const sortedDJs = djsList.sort((a, b) => 
@@ -226,6 +225,16 @@ export default function DJsPage() {
                 <Search className="h-4 w-4" />
               </Button>
             </div>
+          </div>
+          
+          {/* Add Your DJ Button */}
+          <div className="mt-4 flex justify-center">
+            <Button
+              onClick={() => setIsSubmissionFormOpen(true)}
+              className="bg-gradient-to-r from-primary to-secondary text-white px-6 py-3 rounded-full font-semibold hover:from-primary/90 hover:to-secondary/90 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105"
+            >
+              Add Your DJ
+            </Button>
           </div>
         </div>
 

@@ -13,4 +13,5 @@ export interface Dj {
   createdAt: string;
   updatedAt: string;
   musicLink: string;
+  status?: 'pending' | 'approved' | 'rejected';
 } 

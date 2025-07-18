@@ -102,13 +102,16 @@ interface DJ {
   location: string
   state: string
   contact: string
-  musicStyles: string
+  danceStyles: string[]
   imageUrl: string
   comment: string
   instagramLink: string
   facebookLink: string
   emailLink: string
   musicLink: string
+  status?: 'pending' | 'approved' | 'rejected'
+  createdAt: string
+  updatedAt: string
 }
 
 // Add Competition interface
@@ -436,7 +439,7 @@ export default function AdminDashboard() {
   const fetchDJs = async () => {
     try {
       setIsLoading(true)
-      const response = await fetch('/api/djs')
+      const response = await fetch('/api/djs?admin=true')
       if (!response.ok) throw new Error('Failed to fetch DJs')
       const data = await response.json()
       setDJs(data)
@@ -732,6 +735,48 @@ export default function AdminDashboard() {
     } catch (err) {
       console.error('Failed to delete DJ:', err)
       setError('Failed to delete DJ')
+    }
+  }
+
+  const handleApproveDJ = async (djId: string) => {
+    try {
+      const response = await fetch(`/api/djs/${djId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ status: 'approved' }),
+      })
+
+      if (!response.ok) throw new Error('Failed to approve DJ')
+      
+      // Refresh DJs list
+      fetchDJs()
+      toast.success('DJ approved successfully')
+    } catch (err) {
+      console.error('Failed to approve DJ:', err)
+      toast.error('Failed to approve DJ')
+    }
+  }
+
+  const handleRejectDJ = async (djId: string) => {
+    try {
+      const response = await fetch(`/api/djs/${djId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ status: 'rejected' }),
+      })
+
+      if (!response.ok) throw new Error('Failed to reject DJ')
+      
+      // Refresh DJs list
+      fetchDJs()
+      toast.success('DJ rejected successfully')
+    } catch (err) {
+      console.error('Failed to reject DJ:', err)
+      toast.error('Failed to reject DJ')
     }
   }
 
@@ -1286,6 +1331,92 @@ export default function AdminDashboard() {
     </div>
   )
 
+  const DJCard = ({ dj }: { dj: DJ }) => (
+    <div className={`bg-white rounded-lg shadow overflow-hidden ${
+      layout === 'grid' ? 'flex flex-col' : 'flex flex-row'
+    }`}>
+      {/* Image */}
+      <div className={`relative ${
+        layout === 'grid' ? 'w-full h-48' : 'w-32 h-32 flex-shrink-0'
+      }`}>
+        <img
+          src={dj.imageUrl || '/placeholder-dj.jpg'}
+          alt={dj.name}
+          className="w-full h-full object-cover"
+        />
+      </div>
+
+      {/* Content */}
+      <div className="p-4 flex-1">
+        <h3 className="text-xl font-semibold mb-2">{dj.name}</h3>
+        <div className="space-y-2">
+          <p className="text-gray-600">
+            <span className="font-medium">Location:</span> {dj.location}, {dj.state}
+          </p>
+          {dj.emailLink && (
+            <p className="text-gray-600">
+              <span className="font-medium">Email:</span> <a href={`mailto:${dj.emailLink}`} className="text-blue-600 hover:underline">{dj.emailLink}</a>
+            </p>
+          )}
+          {dj.danceStyles && dj.danceStyles.length > 0 && (
+            <p className="text-gray-600">
+              <span className="font-medium">Styles:</span> {Array.isArray(dj.danceStyles) ? dj.danceStyles.join(', ') : dj.danceStyles}
+            </p>
+          )}
+          {dj.comment && (
+            <p className="text-gray-600">
+              <span className="font-medium">Comment:</span> {dj.comment}
+            </p>
+          )}
+          <p className="text-gray-600">
+            <span className="font-medium">Status:</span>{' '}
+            <span className={`px-2 py-1 rounded text-xs font-medium ${
+              dj.status === 'approved'
+                ? 'bg-green-100 text-green-800'
+                : dj.status === 'rejected'
+                ? 'bg-red-100 text-red-800'
+                : 'bg-yellow-100 text-yellow-800'
+            }`}>
+              {dj.status === 'approved' ? 'Approved' : dj.status === 'rejected' ? 'Rejected' : 'Pending'}
+            </span>
+          </p>
+        </div>
+
+        {/* Action Buttons */}
+        <div className="mt-4 flex gap-2 flex-wrap">
+          {dj.status === 'pending' && (
+            <>
+              <button
+                onClick={() => handleApproveDJ(dj.id)}
+                className="bg-green-500 text-white px-2.5 py-1 rounded hover:bg-green-600 text-sm"
+              >
+                Approve
+              </button>
+              <button
+                onClick={() => handleRejectDJ(dj.id)}
+                className="bg-red-500 text-white px-2.5 py-1 rounded hover:bg-red-600 text-sm"
+              >
+                Reject
+              </button>
+            </>
+          )}
+          <button
+            onClick={() => router.push(`/admin/djs/${dj.id}/edit`)}
+            className="bg-yellow-500 text-white px-2.5 py-1 rounded hover:bg-yellow-600 text-sm"
+          >
+            Edit
+          </button>
+          <button
+            onClick={() => handleDeleteDJ(dj.id)}
+            className="bg-red-500 text-white px-2.5 py-1 rounded hover:bg-red-600 text-sm"
+          >
+            Delete
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+
   const handlePasswordChange = async (e: React.FormEvent) => {
     e.preventDefault()
     
@@ -1701,87 +1832,7 @@ export default function AdminDashboard() {
                 }
               `} style={layout === 'grid' ? { gridAutoFlow: 'dense' } : {}}>
                 {filteredDJs.map((dj) => (
-                  <div
-                    key={dj.id}
-                    className={`bg-white rounded-lg shadow overflow-hidden ${
-                      layout === 'grid' ? 'flex flex-col' : 'flex flex-row'
-                    }`}
-                  >
-                    {/* Image */}
-                    <div className={`relative ${
-                      layout === 'grid' ? 'w-full h-48' : 'w-32 h-32 flex-shrink-0'
-                    }`}>
-                      <img
-                        src={dj.imageUrl || '/placeholder-dj.jpg'}
-                        alt={dj.name}
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
-
-                    {/* Content */}
-                    <div className="p-4 flex-1">
-                      <h3 className="text-xl font-semibold mb-2">{dj.name}</h3>
-                      <div className="space-y-2">
-                        <p className="text-gray-600">
-                          <span className="font-medium">Location:</span> {dj.location}, {dj.state}
-                        </p>
-                        <p className="text-gray-600">
-                          <span className="font-medium">Music Styles:</span> {dj.musicStyles}
-                        </p>
-                        <p className="text-gray-600">
-                          <span className="font-medium">Contact:</span> {dj.contact}
-                        </p>
-
-                        {/* Social Links */}
-                        <div className="flex gap-4 mt-2">
-                          {dj.instagramLink && (
-                            <a
-                              href={dj.instagramLink}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="text-pink-600 hover:text-pink-700"
-                            >
-                              Instagram
-                            </a>
-                          )}
-                          {dj.facebookLink && (
-                            <a
-                              href={dj.facebookLink}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="text-blue-600 hover:text-blue-700"
-                            >
-                              Facebook
-                            </a>
-                          )}
-                          {dj.emailLink && (
-                            <a
-                              href={`mailto:${dj.emailLink}`}
-                              className="text-gray-600 hover:text-gray-700"
-                            >
-                              Email
-                            </a>
-                          )}
-                        </div>
-                      </div>
-
-                      {/* Action Buttons */}
-                      <div className="mt-4 flex gap-2">
-                        <button
-                          onClick={() => router.push(`/admin/djs/${dj.id}/edit`)}
-                          className="bg-yellow-500 text-white px-2.5 py-1 rounded hover:bg-yellow-600 text-sm"
-                        >
-                          Edit
-                        </button>
-                        <button
-                          onClick={() => handleDeleteDJ(dj.id)}
-                          className="bg-red-500 text-white px-2.5 py-1 rounded hover:bg-red-600 text-sm"
-                        >
-                          Delete
-                        </button>
-                      </div>
-                    </div>
-                  </div>
+                  <DJCard key={dj.id} dj={dj} />
                 ))}
               </div>
             )}
