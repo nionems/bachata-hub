@@ -22,7 +22,8 @@ export async function POST(request: Request) {
       discountCode,
       imageUrl,
       googleMapLink,
-      info
+      info,
+      danceStyles
     } = body
 
     // Validate required fields
@@ -52,6 +53,7 @@ export async function POST(request: Request) {
       imageUrl,
       googleMapLink: googleMapLink || '',
       info,
+      danceStyles: Array.isArray(danceStyles) && danceStyles.length > 0 ? danceStyles : ['Bachata', 'Salsa', 'Kizomba', 'Zouk', 'Reggaeton', 'Heels', 'Pole Dance', 'Latin Beat', 'HipHop', 'Mambo', 'Dominican Bachata', 'Sensual Bachata', 'Bachata Moderna', 'Cuban Salsa', 'Chacha', 'Rumba', 'Merengue', 'Tango', 'Afrobeats', 'Taraxo', 'Choreography', 'Ballroom', 'Twerk', 'Jazz', 'Contemporary', 'Bachazouk', 'Bachata Influence', 'Other'],
       status: 'pending', // pending, approved, rejected
       submittedAt: new Date().toISOString(),
       reviewedAt: null,

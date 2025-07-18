@@ -119,6 +119,7 @@ async function getAdminEmailHtml(type: string, data: any) {
           imageUrl: data.imageUrl,
           googleMapLink: data.googleMapLink || '',
           info: data.info,
+          danceStyles: ['Bachata', 'Salsa', 'Kizomba', 'Zouk', 'Reggaeton', 'Heels', 'Pole Dance', 'Latin Beat', 'HipHop', 'Mambo', 'Dominican Bachata', 'Sensual Bachata', 'Bachata Moderna', 'Cuban Salsa', 'Chacha', 'Rumba', 'Merengue', 'Tango', 'Afrobeats', 'Taraxo', 'Choreography', 'Ballroom', 'Twerk', 'Jazz', 'Contemporary', 'Bachazouk', 'Bachata Influence', 'Other'],
           status: 'pending' as const,
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString()

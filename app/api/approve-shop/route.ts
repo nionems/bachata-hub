@@ -29,6 +29,7 @@ export async function GET(request: Request) {
       imageUrl: searchParams.get('imageUrl') || '',
       googleMapLink: searchParams.get('googleMapLink') || '',
       info: searchParams.get('info') || '',
+      danceStyles: ['Bachata', 'Salsa', 'Kizomba', 'Zouk', 'Reggaeton', 'Heels', 'Pole Dance', 'Latin Beat', 'HipHop', 'Mambo', 'Dominican Bachata', 'Sensual Bachata', 'Bachata Moderna', 'Cuban Salsa', 'Chacha', 'Rumba', 'Merengue', 'Tango', 'Afrobeats', 'Taraxo', 'Choreography', 'Ballroom', 'Twerk', 'Jazz', 'Contemporary', 'Bachazouk', 'Bachata Influence', 'Other'],
       status: 'approved' as const,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString()
