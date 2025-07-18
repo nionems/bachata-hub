@@ -73,9 +73,16 @@ export default function EditSchoolPage() {
 
   const fetchSchool = useCallback(async () => {
     try {
+      console.log('Fetching school with ID:', params.id)
       const response = await fetch(`/api/schools/${params.id}`)
       if (!response.ok) throw new Error('Failed to fetch school')
       const data = await response.json()
+      console.log('Fetched school data:', data)
+      console.log('Social media data:', {
+        instagramUrl: data.instagramUrl,
+        facebookUrl: data.facebookUrl,
+        website: data.website
+      })
       setSchool(data)
       
       // Normalize danceStyles to array
@@ -86,12 +93,15 @@ export default function EditSchoolPage() {
         danceStylesArr = data.danceStyles.split(',').map((s: string) => s.trim()).filter(Boolean)
       }
       
-      setFormData({
+      const formDataToSet = {
         ...data,
         danceStyles: danceStylesArr,
         instagramUrl: data.instagramUrl || '',
         facebookUrl: data.facebookUrl || ''
-      })
+      }
+      
+      console.log('Setting form data:', formDataToSet)
+      setFormData(formDataToSet)
     } catch (error) {
       console.error('Error fetching school:', error)
       setError('Failed to fetch school')
@@ -334,6 +344,7 @@ export default function EditSchoolPage() {
             onChange={(e) => setFormData({ ...formData, instagramUrl: e.target.value })}
             placeholder="https://instagram.com/..."
           />
+          <p className="text-xs text-gray-500">Debug: {formData.instagramUrl || 'empty'}</p>
         </div>
 
         <div className="space-y-2">
@@ -345,6 +356,7 @@ export default function EditSchoolPage() {
             onChange={(e) => setFormData({ ...formData, facebookUrl: e.target.value })}
             placeholder="https://facebook.com/..."
           />
+          <p className="text-xs text-gray-500">Debug: {formData.facebookUrl || 'empty'}</p>
         </div>
 
         <div className="space-y-2">
