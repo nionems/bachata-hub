@@ -64,6 +64,7 @@ export function FestivalCard({ festival }: FestivalCardProps) {
         <CardDescription className="flex items-center gap-2 text-xs">
           <MapPin className="h-3 w-3" />
           {festival.location}, {festival.state}
+          {festival.country && festival.country !== 'Australia' && `, ${festival.country}`}
         </CardDescription>
         {/* Dance Style Stickers */}
         {danceStylesArray.length > 0 && (

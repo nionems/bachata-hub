@@ -28,6 +28,7 @@ interface Festival {
   endDate: string
   location: string
   state: string
+  country?: string
   address: string
   eventLink: string
   price: string
@@ -55,6 +56,7 @@ export default function FestivalsPage() {
   const [selectedImage, setSelectedImage] = useState<{ url: string; title: string } | null>(null)
   const [selectedDanceStyle, setSelectedDanceStyle] = useState("all")
   const [availableDanceStyles, setAvailableDanceStyles] = useState<string[]>([])
+  const [activeTab, setActiveTab] = useState<'australia' | 'international'>('australia')
   
   const { selectedState, setSelectedState, filteredItems: filteredFestivals } = useStateFilter(festivals, { useGeolocation: false })
 
@@ -176,6 +178,14 @@ export default function FestivalsPage() {
     
     const filtered = festivals
       .filter((festival) => dateHelpers.isFutureDate(festival.startDate))
+      .filter((festival) => {
+        // Filter by country based on active tab
+        if (activeTab === 'australia') {
+          return festival.country === 'Australia' || !festival.country; // Default to Australia if no country specified
+        } else {
+          return festival.country && festival.country !== 'Australia';
+        }
+      })
       .filter((festival) => selectedState === "all" || festival.state === selectedState)
       .filter((festival) => {
         // Filter by selected dance style
@@ -203,7 +213,7 @@ export default function FestivalsPage() {
     console.log('Regular festivals:', regular);
 
     return { upcomingFestivals: filtered, featuredFestivals: featured, regularFestivals: regular };
-  }, [festivals, selectedState, selectedDanceStyle, dateHelpers]);
+  }, [festivals, selectedState, selectedDanceStyle, activeTab, dateHelpers]);
 
   if (isLoading) {
     return <LoadingSpinner message="Loading festivals..." />
@@ -233,18 +243,52 @@ export default function FestivalsPage() {
           <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent mb-2 sm:mb-4">
             Bachata Festivals
           </h1>
-          <p className="text-base sm:text-xl text-gray-600">
-            Australia's top Bachata festivals — all in one place.
+          <p className="text-base sm:text-xl text-gray-600 mb-6">
+            Discover amazing Bachata festivals around the world.
           </p>
+          
+          {/* Country Tabs */}
+          <div className="flex justify-center mb-6">
+            <div className="bg-white/80 backdrop-blur-sm rounded-full p-1 shadow-lg border border-gray-200">
+              <button
+                onClick={() => {
+                  setActiveTab('australia')
+                  setSelectedState('all') // Reset state filter when switching to Australia
+                }}
+                className={`px-6 py-2 rounded-full font-semibold transition-all duration-200 ${
+                  activeTab === 'australia'
+                    ? 'bg-gradient-to-r from-primary to-secondary text-white shadow-md'
+                    : 'text-gray-600 hover:text-primary hover:bg-gray-50'
+                }`}
+              >
+                🇦🇺 Australia
+              </button>
+              <button
+                onClick={() => {
+                  setActiveTab('international')
+                  setSelectedState('all') // Reset state filter when switching to International
+                }}
+                className={`px-6 py-2 rounded-full font-semibold transition-all duration-200 ${
+                  activeTab === 'international'
+                    ? 'bg-gradient-to-r from-primary to-secondary text-white shadow-md'
+                    : 'text-gray-600 hover:text-primary hover:bg-gray-50'
+                }`}
+              >
+                🌍 International
+              </button>
+            </div>
+          </div>
         </div>
 
         <div className="mb-4 sm:mb-8">
           <div className="flex flex-col gap-2 sm:flex-row sm:gap-4">
-            <StateFilter
-              selectedState={selectedState}
-              onChange={setSelectedState}
-            />
-            <div className="w-full sm:w-48">
+            {activeTab === 'australia' && (
+              <StateFilter
+                selectedState={selectedState}
+                onChange={setSelectedState}
+              />
+            )}
+            <div className={`w-full ${activeTab === 'australia' ? 'sm:w-48' : 'sm:w-64'}`}>
               <Select value={selectedDanceStyle} onValueChange={setSelectedDanceStyle}>
                 <SelectTrigger className="w-full bg-white/80 border-primary/30 shadow-lg rounded-xl text-base font-semibold transition-all focus:ring-2 focus:ring-primary focus:border-primary">
                   <SelectValue placeholder="Dance Style" />
@@ -318,7 +362,10 @@ export default function FestivalsPage() {
                     <div className="flex items-center justify-between text-gray-600 text-sm space-x-2">
                       <div className="flex items-center">
                         <MapPin className="w-4 h-4 mr-1" />
-                        <span className="truncate">{festival.location}, {festival.state}</span>
+                        <span className="truncate">
+                          {festival.location}, {festival.state}
+                          {festival.country && festival.country !== 'Australia' && `, ${festival.country}`}
+                        </span>
                       </div>
                       {festival.price && (
                         <div className="flex items-center">
@@ -374,9 +421,9 @@ export default function FestivalsPage() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 md:gap-8">
           {regularFestivals.length === 0 && featuredFestivals.length === 0 ? (
             <div className="col-span-full text-center py-6 sm:py-8 text-gray-500">
-              No festivals found 
-              {selectedState !== 'all' && ` in ${selectedState}`}
-              {selectedDanceStyle !== 'All Dance Styles' && ` for ${selectedDanceStyle}`}
+              No {activeTab === 'australia' ? 'Australian' : 'international'} festivals found 
+              {selectedState !== 'all' && activeTab === 'australia' && ` in ${selectedState}`}
+              {selectedDanceStyle !== 'all' && ` for ${selectedDanceStyle}`}
             </div>
           ) : (
             regularFestivals.map((festival) => (
@@ -413,7 +460,10 @@ export default function FestivalsPage() {
                   <div className="flex items-center justify-between text-gray-600 text-sm space-x-2">
                     <div className="flex items-center">
                       <MapPin className="w-4 h-4 mr-1" />
-                      <span className="truncate">{festival.location}, {festival.state}</span>
+                      <span className="truncate">
+                        {festival.location}, {festival.state}
+                        {festival.country && festival.country !== 'Australia' && `, ${festival.country}`}
+                      </span>
                     </div>
                     {festival.price && (
                       <div className="flex items-center">
