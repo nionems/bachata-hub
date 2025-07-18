@@ -1,7 +1,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { MapPin, Calendar, Clock, Users, Info, ExternalLink, Ticket, Star, Music, Instagram, Facebook } from "lucide-react"
+import { MapPin, Calendar, Clock, Users, Info, ExternalLink, Ticket, Star, Music, Instagram, Facebook, Navigation } from "lucide-react"
 import { Festival } from "@/types/festival"
 import Image from "next/image"
 import { useMemo } from "react"
@@ -58,8 +58,8 @@ export function FestivalCard({ festival }: FestivalCardProps) {
           </div>
         )}
         
-        {/* Social Media Icons on Image */}
-        {(festival.instagramLink || festival.facebookLink) && (
+        {/* Social Media and Map Icons on Image */}
+        {(festival.instagramLink || festival.facebookLink || festival.googleMapLink) && (
           <div className="absolute bottom-2 right-2 flex gap-1">
             {festival.instagramLink && (
               <Button
@@ -85,6 +85,19 @@ export function FestivalCard({ festival }: FestivalCardProps) {
                 }}
               >
                 <Facebook className="h-4 w-4" />
+              </Button>
+            )}
+            {festival.googleMapLink && (
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-8 w-8 p-0 bg-black/50 hover:bg-black/70 text-white backdrop-blur-sm"
+                onClick={(e) => {
+                  e.stopPropagation()
+                  window.open(festival.googleMapLink, "_blank")
+                }}
+              >
+                <Navigation className="h-4 w-4" />
               </Button>
             )}
           </div>

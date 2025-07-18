@@ -3,7 +3,7 @@
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
-import { Calendar, MapPin, DollarSign, Users, Ticket, Hotel, CheckCircle, Info, Clock, ExternalLink, X, Music, Instagram, Facebook } from "lucide-react"
+import { Calendar, MapPin, DollarSign, Users, Ticket, Hotel, CheckCircle, Info, Clock, ExternalLink, X, Music, Instagram, Facebook, Navigation } from "lucide-react"
 import { useState, useEffect, useMemo } from "react"
 import CollapsibleFilter from "@/components/collapsible-filter"
 import { StateFilter } from '@/components/StateFilter'
@@ -399,8 +399,8 @@ export default function FestivalsPage() {
                       </Badge>
                     </div>
                     
-                    {/* Social Media Icons on Image */}
-                    {(festival.instagramLink || festival.facebookLink) && (
+                    {/* Social Media and Map Icons on Image */}
+                    {(festival.instagramLink || festival.facebookLink || festival.googleMapLink) && (
                       <div className="absolute bottom-2 right-2 flex gap-1">
                         {festival.instagramLink && (
                           <Button
@@ -426,6 +426,19 @@ export default function FestivalsPage() {
                             }}
                           >
                             <Facebook className="h-4 w-4" />
+                          </Button>
+                        )}
+                        {festival.googleMapLink && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-8 w-8 p-0 bg-black/50 hover:bg-black/70 text-white backdrop-blur-sm"
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              window.open(festival.googleMapLink, "_blank")
+                            }}
+                          >
+                            <Navigation className="h-4 w-4" />
                           </Button>
                         )}
                       </div>
@@ -539,8 +552,8 @@ export default function FestivalsPage() {
                     onClick={(e) => handleImageClick(e, festival)}
                   />
                   
-                  {/* Social Media Icons on Image */}
-                  {(festival.instagramLink || festival.facebookLink) && (
+                  {/* Social Media and Map Icons on Image */}
+                  {(festival.instagramLink || festival.facebookLink || festival.googleMapLink) && (
                     <div className="absolute bottom-2 right-2 flex gap-1">
                       {festival.instagramLink && (
                         <Button
@@ -566,6 +579,19 @@ export default function FestivalsPage() {
                           }}
                         >
                           <Facebook className="h-4 w-4" />
+                        </Button>
+                      )}
+                      {festival.googleMapLink && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-8 w-8 p-0 bg-black/50 hover:bg-black/70 text-white backdrop-blur-sm"
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            window.open(festival.googleMapLink, "_blank")
+                          }}
+                        >
+                          <Navigation className="h-4 w-4" />
                         </Button>
                       )}
                     </div>
