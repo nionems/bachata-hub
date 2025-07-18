@@ -231,6 +231,18 @@ export default function AdminDashboard() {
   }, [activeTab])
 
   useEffect(() => {
+    if (activeTab === 'shops') {
+      fetchShops()
+    }
+  }, [activeTab])
+
+  useEffect(() => {
+    if (activeTab === 'media') {
+      fetchMedia()
+    }
+  }, [activeTab])
+
+  useEffect(() => {
     const loadShops = async () => {
       try {
         await fetchShops()
@@ -254,29 +266,9 @@ export default function AdminDashboard() {
     }
   }, [activeTab])
 
+  // Initial load of schools (default tab)
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        // ... existing fetch calls ...
-
-        // Fetch media
-        const mediaCollection = collection(db, 'medias')
-        const mediaSnapshot = await getDocs(mediaCollection)
-        const mediaList = mediaSnapshot.docs.map(doc => ({
-          id: doc.id,
-          ...doc.data(),
-          createdAt: doc.data().createdAt?.toDate(),
-          updatedAt: doc.data().updatedAt?.toDate(),
-        })) as Media[]
-        setMediaList(mediaList)
-      } catch (error) {
-        console.error('Error fetching data:', error)
-      } finally {
-        setIsLoading(false)
-      }
-    }
-
-    fetchData()
+    fetchSchools()
   }, [])
 
   useEffect(() => {
@@ -328,9 +320,12 @@ export default function AdminDashboard() {
 
   const fetchSchools = async () => {
     try {
+      console.log('Fetching schools...')
       const response = await fetch('/api/schools')
       if (!response.ok) throw new Error('Failed to fetch schools')
       const data = await response.json()
+      console.log('Fetched schools data:', data)
+      console.log('Number of schools fetched:', data.length)
       setSchools(data)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred')
@@ -342,9 +337,12 @@ export default function AdminDashboard() {
   const fetchDbEvents = async () => {
     try {
       setIsLoading(true)
+      console.log('Fetching events from admin API...')
       const response = await fetch('/api/admin/events')
       if (!response.ok) throw new Error('Failed to fetch events')
       const data = await response.json()
+      console.log('Fetched events data:', data)
+      console.log('Number of events fetched:', data.length)
       
       // Sort events by date (earliest first)
       const sortedEvents = data.sort((a: Event, b: Event) => {
@@ -408,9 +406,12 @@ export default function AdminDashboard() {
   const fetchShops = async () => {
     try {
       setIsLoading(true)
+      console.log('Fetching shops from admin API...')
       const response = await fetch('/api/admin/shops')
       if (!response.ok) throw new Error('Failed to fetch shops')
       const data = await response.json()
+      console.log('Fetched shops data:', data)
+      console.log('Number of shops fetched:', data.length)
       setShops(data)
     } catch (err) {
       console.error('Error fetching shops:', err)
