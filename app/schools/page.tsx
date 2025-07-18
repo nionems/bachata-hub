@@ -8,8 +8,6 @@ import CollapsibleFilter from "@/components/collapsible-filter"
 import { StateFilter } from '@/components/StateFilter'
 import { DanceStyleFilter } from '@/components/DanceStyleFilter'
 import { useStateFilter } from '@/hooks/useStateFilter'
-import { collection, getDocs } from 'firebase/firestore'
-import { db } from '../../firebase/config'
 import { SchoolSubmissionForm } from "@/components/SchoolSubmissionForm"
 import { ContactForm } from "@/components/ContactForm"
 import { ImageModal } from "@/components/ImageModal"
@@ -60,37 +58,16 @@ export default function SchoolsPage() {
       setIsLoading(true)
       setError(null)
       try {
-        const schoolsCollection = collection(db, 'schools')
-        const schoolsSnapshot = await getDocs(schoolsCollection)
-        const schoolsList = schoolsSnapshot.docs.map(doc => {
-          const data = doc.data()
-          return {
-            id: doc.id,
-            name: data.name || '',
-            location: data.location || '',
-            state: data.state || '',
-            address: data.address || '',
-            contactInfo: data.contactInfo || '',
-            instructors: data.instructors || [],
-            website: data.website || '',
-            danceStyles: Array.isArray(data.danceStyles) ? data.danceStyles : [],
-            imageUrl: data.imageUrl || '',
-            imageRef: data.imageRef || '',
-            comment: data.comment || '',
-            googleReviewsUrl: data.googleReviewsUrl || '',
-            googleRating: data.googleRating || 0,
-            googleReviewsCount: data.googleReviewsCount || 0,
-            createdAt: data.createdAt || new Date().toISOString(),
-            updatedAt: data.updatedAt || new Date().toISOString(),
-            googleReviewLink: data.googleReviewLink || '',
-            instagramUrl: data.instagramUrl || '',
-            facebookUrl: data.facebookUrl || '',
-            googleMapLink: data.googleMapLink || ''
-          } as School
-        })
+        console.log('Fetching schools from API...')
+        const response = await fetch('/api/schools')
+        if (!response.ok) throw new Error('Failed to fetch schools')
+        const schoolsList = await response.json()
+        
+        console.log('Fetched schools from API:', schoolsList.length)
+        console.log('Sample school data:', schoolsList[0])
         
         // Sort schools alphabetically by name
-        const sortedSchools = schoolsList.sort((a, b) => 
+        const sortedSchools = schoolsList.sort((a: School, b: School) => 
           a.name.localeCompare(b.name)
         )
         
