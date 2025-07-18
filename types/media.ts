@@ -3,7 +3,6 @@ export interface Media {
   name: string
   location: string
   state: string
-  contact: string
   imageUrl: string
   comment?: string
   instagramLink?: string
@@ -11,6 +10,7 @@ export interface Media {
   emailLink?: string
   mediaLink?: string
   mediaLink2?: string
+  status?: 'pending' | 'approved' | 'rejected'
   createdAt: Date
   updatedAt: Date
 } 

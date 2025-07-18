@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import { db } from '@/lib/firebase'
-import { doc, getDoc, updateDoc, deleteDoc } from 'firebase/firestore'
+import { doc, updateDoc, deleteDoc, getDoc } from 'firebase/firestore'
 
 export async function GET(
   request: Request,
@@ -23,16 +23,36 @@ export async function PUT(
   { params }: { params: { id: string } }
 ) {
   try {
+    const { id } = params
     const data = await request.json()
-    const mediaRef = doc(db, 'medias', params.id)
+    
+    console.log('Updating media:', id, 'with data:', data)
+    
+    const mediaRef = doc(db, 'medias', id)
+    const mediaDoc = await getDoc(mediaRef)
+    
+    if (!mediaDoc.exists()) {
+      return NextResponse.json(
+        { error: 'Media not found' },
+        { status: 404 }
+      )
+    }
+    
+    // Only update the status field
     await updateDoc(mediaRef, {
-      ...data,
+      status: data.status,
       updatedAt: new Date()
     })
-    return NextResponse.json({ id: params.id, ...data })
+    
+    console.log('Media updated successfully')
+    
+    return NextResponse.json({ success: true })
   } catch (error) {
     console.error('Error updating media:', error)
-    return NextResponse.json({ error: 'Failed to update media' }, { status: 500 })
+    return NextResponse.json(
+      { error: 'Failed to update media' },
+      { status: 500 }
+    )
   }
 }
 
@@ -41,11 +61,31 @@ export async function DELETE(
   { params }: { params: { id: string } }
 ) {
   try {
-    await deleteDoc(doc(db, 'medias', params.id))
-    return NextResponse.json({ message: 'Media deleted successfully' })
+    const { id } = params
+    
+    console.log('Deleting media:', id)
+    
+    const mediaRef = doc(db, 'medias', id)
+    const mediaDoc = await getDoc(mediaRef)
+    
+    if (!mediaDoc.exists()) {
+      return NextResponse.json(
+        { error: 'Media not found' },
+        { status: 404 }
+      )
+    }
+    
+    await deleteDoc(mediaRef)
+    
+    console.log('Media deleted successfully')
+    
+    return NextResponse.json({ success: true })
   } catch (error) {
     console.error('Error deleting media:', error)
-    return NextResponse.json({ error: 'Failed to delete media' }, { status: 500 })
+    return NextResponse.json(
+      { error: 'Failed to delete media' },
+      { status: 500 }
+    )
   }
 } 
  

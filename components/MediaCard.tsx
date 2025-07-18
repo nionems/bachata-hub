@@ -10,10 +10,12 @@ interface MediaCardProps {
   media: Media
   layout?: 'grid' | 'list'
   onDelete?: (id: string) => void
+  onApprove?: (id: string) => void
+  onReject?: (id: string) => void
   isAdmin?: boolean
 }
 
-export function MediaCard({ media, layout = 'grid', onDelete, isAdmin = false }: MediaCardProps) {
+export function MediaCard({ media, layout = 'grid', onDelete, onApprove, onReject, isAdmin = false }: MediaCardProps) {
   const [isCommentExpanded, setIsCommentExpanded] = useState(false)
   const [isImageModalOpen, setIsImageModalOpen] = useState(false)
   const router = useRouter()
@@ -71,6 +73,21 @@ export function MediaCard({ media, layout = 'grid', onDelete, isAdmin = false }:
               </span>
             </div>
           </div>
+          
+          {/* Status badge for admin */}
+          {isAdmin && media.status && (
+            <div className="mt-2">
+              <span className={`inline-block px-2 py-1 text-xs rounded-full ${
+                media.status === 'approved' 
+                  ? 'bg-green-500/20 text-green-300 border border-green-500/30'
+                  : media.status === 'rejected'
+                  ? 'bg-red-500/20 text-red-300 border border-red-500/30'
+                  : 'bg-yellow-500/20 text-yellow-300 border border-yellow-500/30'
+              }`}>
+                {media.status.charAt(0).toUpperCase() + media.status.slice(1)}
+              </span>
+            </div>
+          )}
           {media.comment && (
             <div className="mt-1 relative">
               <div className={`text-xs sm:text-sm text-gray-300 ${!isCommentExpanded ? 'line-clamp-1' : 'max-h-32 overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-white/20 scrollbar-track-transparent border-r border-white/10'}`}>
@@ -134,7 +151,7 @@ export function MediaCard({ media, layout = 'grid', onDelete, isAdmin = false }:
                 <Facebook className="h-4 w-4" />
               </a>
             )}
-            {media.emailLink && (
+            {media.emailLink && isAdmin && (
               <a
                 href={`mailto:${media.emailLink}`}
                 onClick={(e) => e.stopPropagation()}
@@ -147,7 +164,29 @@ export function MediaCard({ media, layout = 'grid', onDelete, isAdmin = false }:
           </div>
 
           {isAdmin && (
-            <div className="flex gap-2 mt-4">
+            <div className="flex gap-2 mt-4 flex-wrap">
+              {media.status === 'pending' && (
+                <>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onApprove?.(media.id);
+                    }}
+                    className="bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600 text-sm"
+                  >
+                    Approve
+                  </button>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onReject?.(media.id);
+                    }}
+                    className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 text-sm"
+                  >
+                    Reject
+                  </button>
+                </>
+              )}
               <button
                 onClick={(e) => {
                   e.stopPropagation();

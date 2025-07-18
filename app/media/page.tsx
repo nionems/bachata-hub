@@ -35,12 +35,11 @@ export default function MediaPage() {
       setIsLoading(true)
       setError(null)
       try {
-        const mediaCollection = collection(db, 'medias')
-        const mediaSnapshot = await getDocs(mediaCollection)
-        const mediaList = mediaSnapshot.docs.map(doc => ({
-          id: doc.id,
-          ...doc.data()
-        })) as Media[]
+        const response = await fetch('/api/media')
+        if (!response.ok) {
+          throw new Error('Failed to fetch media')
+        }
+        const mediaList = await response.json() as Media[]
         
         // Sort media items alphabetically by name
         const sortedMediaList = mediaList.sort((a, b) => 
@@ -157,6 +156,16 @@ export default function MediaPage() {
               </Button>
             </div>
           </div>
+          
+          {/* Add Your Media Button */}
+          <div className="mt-4 flex justify-center">
+            <Button
+              onClick={() => setIsSubmissionFormOpen(true)}
+              className="bg-gradient-to-r from-primary to-secondary text-white px-6 py-3 rounded-full font-semibold hover:from-primary/90 hover:to-secondary/90 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105"
+            >
+              Add Your Media Content
+            </Button>
+          </div>
         </div>
 
         <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-4 md:gap-6">
@@ -213,7 +222,7 @@ export default function MediaPage() {
                 onClick={() => setIsSubmissionFormOpen(true)}
                 className="bg-secondary text-white px-6 sm:px-8 py-2 sm:py-3 rounded-full font-semibold hover:bg-secondary/90 transition-colors duration-200 text-center w-full sm:w-auto"
               >
-                Submit via Form
+                Add Your Media Content
               </Button>
             </div>
           </div>

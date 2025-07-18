@@ -862,7 +862,7 @@ export default function AdminDashboard() {
   const fetchMedia = async () => {
     try {
       setIsLoading(true)
-      const response = await fetch('/api/media')
+      const response = await fetch('/api/media?admin=true')
       if (!response.ok) throw new Error('Failed to fetch media')
       const data = await response.json()
       setMediaList(data)
@@ -895,6 +895,48 @@ export default function AdminDashboard() {
         console.error('Error deleting media:', error)
         toast.error('Failed to delete media')
       }
+    }
+  }
+
+  const handleApproveMedia = async (mediaId: string) => {
+    try {
+      const response = await fetch(`/api/media/${mediaId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ status: 'approved' }),
+      })
+
+      if (!response.ok) throw new Error('Failed to approve media')
+      
+      // Refresh media list
+      fetchMedia()
+      toast.success('Media approved successfully')
+    } catch (err) {
+      console.error('Failed to approve media:', err)
+      toast.error('Failed to approve media')
+    }
+  }
+
+  const handleRejectMedia = async (mediaId: string) => {
+    try {
+      const response = await fetch(`/api/media/${mediaId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ status: 'rejected' }),
+      })
+
+      if (!response.ok) throw new Error('Failed to reject media')
+      
+      // Refresh media list
+      fetchMedia()
+      toast.success('Media rejected successfully')
+    } catch (err) {
+      console.error('Failed to reject media:', err)
+      toast.error('Failed to reject media')
     }
   }
 
@@ -1063,7 +1105,6 @@ export default function AdminDashboard() {
     (media.name?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
     (media.location?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
     (media.state?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
-    (media.contact?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
     (media.emailLink?.toLowerCase() || '').includes(searchTerm.toLowerCase())
   )
 
@@ -2317,6 +2358,8 @@ export default function AdminDashboard() {
                     media={media}
                     layout={layout}
                     onDelete={handleDeleteMedia}
+                    onApprove={handleApproveMedia}
+                    onReject={handleRejectMedia}
                     isAdmin={true}
                   />
                 ))}
