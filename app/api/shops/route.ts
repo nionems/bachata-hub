@@ -42,10 +42,22 @@ export async function POST(request: Request) {
     } = data
 
     // Validate required fields
-    if (!name || !location || !state || !contactName || !contactEmail || !price || !condition || !imageUrl || !info) {
-      console.error('Missing required fields')
+    const missingFields = []
+    if (!name) missingFields.push('name')
+    if (!location) missingFields.push('location')
+    if (!state) missingFields.push('state')
+    if (!contactName) missingFields.push('contactName')
+    if (!contactEmail) missingFields.push('contactEmail')
+    if (!price) missingFields.push('price')
+    if (!condition) missingFields.push('condition')
+    if (!imageUrl) missingFields.push('imageUrl')
+    if (!info) missingFields.push('info')
+    
+    if (missingFields.length > 0) {
+      console.error('Missing required fields:', missingFields)
+      console.error('Received data:', data)
       return NextResponse.json(
-        { error: 'Missing required fields' },
+        { error: 'Missing required fields', missingFields, receivedData: data },
         { status: 400 }
       )
     }

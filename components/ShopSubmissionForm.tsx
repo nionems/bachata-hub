@@ -145,7 +145,11 @@ export function ShopSubmissionForm({ isOpen, onClose }: ShopSubmissionFormProps)
 
       if (!shopResponse.ok) {
         const shopData = await shopResponse.json()
-        throw new Error(shopData.details || shopData.error || 'Failed to submit shop')
+        console.error('Shop submission error:', shopData)
+        const errorMessage = shopData.missingFields 
+          ? `Missing required fields: ${shopData.missingFields.join(', ')}`
+          : shopData.details || shopData.error || 'Failed to submit shop'
+        throw new Error(errorMessage)
       }
 
       setMessage({ type: 'success', text: 'Item submitted successfully! It will be reviewed by our team.' })
