@@ -10,10 +10,10 @@ export async function GET(request: Request) {
     
     const schoolsRef = collection(db, 'schools')
     const snapshot = await getDocs(schoolsRef)
-    let schools = snapshot.docs.map(doc => ({
+    let schools: School[] = snapshot.docs.map(doc => ({
       id: doc.id,
       ...doc.data()
-    }))
+    })) as School[]
     
     // If not admin, only return approved schools
     if (!admin) {

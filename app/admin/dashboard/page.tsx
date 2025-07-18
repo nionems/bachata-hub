@@ -157,30 +157,7 @@ interface Accommodation {
   updatedAt: string
 }
 
-interface School {
-  id: string
-  name: string
-  location: string
-  state: string
-  address: string
-  contactInfo: string
-  instructors: string[]
-  website: string
-  danceStyles: string[]
-  imageUrl: string
-  imageRef: string
-  comment: string
-  googleReviewsUrl?: string
-  googleRating?: number
-  googleReviewsCount?: number
-  createdAt: string
-  updatedAt: string
-  googleReviewLink?: string
-  instagramUrl?: string
-  facebookUrl?: string
-  googleMapLink?: string
-  status?: 'pending' | 'approved' | 'rejected'
-}
+
 
 // Add User interface at the top with other interfaces
 interface User {
