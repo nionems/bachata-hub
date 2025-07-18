@@ -12,4 +12,5 @@ export interface Instructor {
   privatePricePerHour?: string;
   createdAt: string;
   updatedAt: string;
+  status?: 'pending' | 'approved' | 'rejected';
 } 

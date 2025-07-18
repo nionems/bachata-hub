@@ -7,8 +7,10 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { StateSelect } from "@/components/ui/StateSelect"
-import { X } from "lucide-react"
+import { X, Upload, X as XIcon, ImageIcon } from "lucide-react"
 import { toast } from "react-hot-toast"
+import { DANCE_STYLES } from "@/lib/constants"
+import { Checkbox } from "@/components/ui/checkbox"
 
 interface InstructorSubmissionFormProps {
   isOpen: boolean
@@ -23,10 +25,8 @@ interface InstructorFormData {
   website: string
   facebookLink: string
   instagramLink: string
-  contactInfo: string
   email: string
-  danceStyles: string
-  experience: string
+  danceStyles: string[]
   imageUrl: string
   privatePricePerHour: string
 }
@@ -40,10 +40,8 @@ export function InstructorSubmissionForm({ isOpen, onClose }: InstructorSubmissi
     website: '',
     facebookLink: '',
     instagramLink: '',
-    contactInfo: '',
     email: '',
-    danceStyles: '',
-    experience: '',
+    danceStyles: [],
     imageUrl: '',
     privatePricePerHour: ''
   })
@@ -51,10 +49,52 @@ export function InstructorSubmissionForm({ isOpen, onClose }: InstructorSubmissi
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState(false)
+  const [imageFile, setImageFile] = useState<File | null>(null)
+  const [imagePreview, setImagePreview] = useState<string | null>(null)
+  const [uploadProgress, setUploadProgress] = useState(0)
+  const [isUploading, setIsUploading] = useState(false)
 
   const handleInputChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target
     setFormData(prev => ({ ...prev, [name]: value }))
+  }
+
+  const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file) {
+      setImageFile(file)
+      const reader = new FileReader()
+      reader.onload = (e) => {
+        setImagePreview(e.target?.result as string)
+      }
+      reader.readAsDataURL(file)
+    }
+  }
+
+  const handleDanceStyleChange = (style: string, checked: boolean) => {
+    setFormData(prev => ({
+      ...prev,
+      danceStyles: checked 
+        ? [...prev.danceStyles, style]
+        : prev.danceStyles.filter(s => s !== style)
+    }))
+  }
+
+  const uploadImage = async (file: File): Promise<string> => {
+    const formData = new FormData()
+    formData.append('file', file)
+    
+    const response = await fetch('/api/upload', {
+      method: 'POST',
+      body: formData,
+    })
+    
+    if (!response.ok) {
+      throw new Error('Failed to upload image')
+    }
+    
+    const data = await response.json()
+    return data.imageUrl
   }
 
   const handleSubmit = async (e: FormEvent) => {
@@ -62,6 +102,57 @@ export function InstructorSubmissionForm({ isOpen, onClose }: InstructorSubmissi
     setIsLoading(true)
 
     try {
+      let imageUrl = formData.imageUrl
+
+      // Upload image if file is selected
+      if (imageFile) {
+        setIsUploading(true)
+        setUploadProgress(0)
+        
+        try {
+          imageUrl = await uploadImage(imageFile)
+          setUploadProgress(100)
+        } catch (uploadError) {
+          console.error('Image upload failed:', uploadError)
+          toast.error('Image upload failed. Please try again or use a URL instead.')
+          setIsUploading(false)
+          setIsLoading(false)
+          return
+        } finally {
+          setIsUploading(false)
+        }
+      }
+
+      // Validate dance styles
+      if (formData.danceStyles.length === 0) {
+        toast.error('Please select at least one dance style')
+        setIsLoading(false)
+        return
+      }
+
+      // Create instructor data with uploaded image URL
+      const instructorData = {
+        ...formData,
+        imageUrl: imageUrl || formData.imageUrl
+      }
+
+      // Create instructor in database
+      const instructorResponse = await fetch('/api/instructors', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(instructorData),
+      })
+
+      if (!instructorResponse.ok) {
+        const errorData = await instructorResponse.json()
+        throw new Error(errorData.error || 'Failed to create instructor')
+      }
+
+      const createdInstructor = await instructorResponse.json()
+      console.log('Instructor created:', createdInstructor)
+
       // Send email notification
       const emailResponse = await fetch('/api/submit-form', {
         method: 'POST',
@@ -70,15 +161,15 @@ export function InstructorSubmissionForm({ isOpen, onClose }: InstructorSubmissi
         },
         body: JSON.stringify({
           type: 'instructor_submission',
-          data: formData
+          data: instructorData
         }),
       })
 
       if (!emailResponse.ok) {
-        throw new Error('Failed to send email notification')
+        console.warn('Failed to send email notification, but instructor was created')
       }
 
-      toast.success('Instructor submitted successfully!')
+      toast.success('Instructor submitted successfully! It will be reviewed and approved soon.')
       onClose()
       setFormData({
         name: '',
@@ -88,13 +179,14 @@ export function InstructorSubmissionForm({ isOpen, onClose }: InstructorSubmissi
         website: '',
         facebookLink: '',
         instagramLink: '',
-        contactInfo: '',
         email: '',
-        danceStyles: '',
-        experience: '',
+        danceStyles: [],
         imageUrl: '',
         privatePricePerHour: ''
       })
+      setImageFile(null)
+      setImagePreview(null)
+      setUploadProgress(0)
     } catch (error) {
       console.error('Error submitting instructor:', error)
       toast.error('Failed to submit instructor. Please try again.')
@@ -197,17 +289,7 @@ export function InstructorSubmissionForm({ isOpen, onClose }: InstructorSubmissi
               />
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="contactInfo" className="text-primary">Contact Information *</Label>
-              <Input
-                id="contactInfo"
-                name="contactInfo"
-                value={formData.contactInfo}
-                onChange={handleInputChange}
-                required
-                className="bg-white/80 backdrop-blur-sm rounded-lg"
-              />
-            </div>
+
 
             <div className="space-y-2">
               <Label htmlFor="email" className="text-primary">Email Address *</Label>
@@ -223,34 +305,30 @@ export function InstructorSubmissionForm({ isOpen, onClose }: InstructorSubmissi
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="danceStyles" className="text-primary">Dance Styles *</Label>
-              <Input
-                id="danceStyles"
-                name="danceStyles"
-                value={formData.danceStyles}
-                onChange={handleInputChange}
-                placeholder="e.g., Bachata, Salsa, Kizomba"
-                required
-                className="bg-white/80 backdrop-blur-sm rounded-lg"
-              />
+              <Label className="text-primary">Dance Styles *</Label>
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-2 max-h-32 overflow-y-auto bg-white/80 backdrop-blur-sm rounded-lg p-3">
+                {DANCE_STYLES.map((style) => (
+                  <div key={style} className="flex items-center space-x-2">
+                    <Checkbox
+                      id={style}
+                      checked={formData.danceStyles.includes(style)}
+                      onCheckedChange={(checked) => handleDanceStyleChange(style, checked as boolean)}
+                    />
+                    <Label htmlFor={style} className="text-sm font-normal cursor-pointer">
+                      {style}
+                    </Label>
+                  </div>
+                ))}
+              </div>
+              {formData.danceStyles.length === 0 && (
+                <p className="text-xs text-red-500">Please select at least one dance style</p>
+              )}
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="experience" className="text-primary">Years of Experience *</Label>
-              <Input
-                id="experience"
-                name="experience"
-                type="number"
-                value={formData.experience}
-                onChange={handleInputChange}
-                required
-                min="0"
-                className="bg-white/80 backdrop-blur-sm rounded-lg"
-              />
-            </div>
+
 
             <div className="space-y-2">
-              <Label htmlFor="privatePricePerHour" className="text-primary">Private Price per Hour</Label>
+              <Label htmlFor="privatePricePerHour" className="text-primary">Private Price per Hour (Optional)</Label>
               <Input
                 id="privatePricePerHour"
                 name="privatePricePerHour"
@@ -275,25 +353,117 @@ export function InstructorSubmissionForm({ isOpen, onClose }: InstructorSubmissi
             />
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="imageUrl" className="text-primary">Image URL *</Label>
-            <Input
-              id="imageUrl"
-              name="imageUrl"
-              type="url"
-              value={formData.imageUrl}
-              onChange={handleInputChange}
-              required
-              placeholder="Enter Google Drive image URL"
-              className="bg-white/80 backdrop-blur-sm rounded-lg"
-            />
-            <p className="text-xs text-gray-500 mt-1">
-              To add an image:
-              <br />1. Upload your image to Google Drive
-              <br />2. Right-click the image and select "Share"
-              <br />3. Set access to "Anyone with the link"
-              <br />4. Copy the link and paste it here
-            </p>
+          {/* Instructor Image */}
+          <div className="space-y-1">
+            <Label htmlFor="image" className="text-primary text-xs font-medium">Profile Image *</Label>
+            
+            {/* File Upload Section */}
+            <div className="space-y-1.5">
+              {/* Single Upload Box */}
+              <div className="relative">
+                <input
+                  id="image-input"
+                  name="image-input"
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageChange}
+                  className="hidden"
+                />
+                <label
+                  htmlFor="image-input"
+                  className="flex items-center justify-center w-full h-16 border-2 border-dashed border-gray-300 rounded-md cursor-pointer hover:border-primary transition-colors bg-white/90 backdrop-blur-sm"
+                >
+                  <ImageIcon className="h-5 w-5 text-gray-400 mr-2" />
+                  <span className="text-sm text-gray-600 font-medium">Upload Photo</span>
+                </label>
+              </div>
+
+              {/* Image Preview */}
+              {imagePreview && (
+                <div className="relative group">
+                  <div 
+                    className="relative cursor-pointer overflow-hidden rounded-lg border"
+                    onClick={() => {
+                      // Open image in new tab/window
+                      const newWindow = window.open()
+                      if (newWindow) {
+                        newWindow.document.write(`
+                          <html>
+                            <head><title>Image Preview</title></head>
+                            <body style="margin:0;display:flex;justify-content:center;align-items:center;min-height:100vh;background:#f5f5f5;">
+                              <img src="${imagePreview}" style="max-width:90%;max-height:90%;object-fit:contain;border-radius:8px;box-shadow:0 4px 20px rgba(0,0,0,0.15);" />
+                            </body>
+                          </html>
+                        `)
+                      }
+                    }}
+                  >
+                    <img
+                      src={imagePreview}
+                      alt="Preview"
+                      className="w-full h-48 object-cover transition-transform duration-200 group-hover:scale-105"
+                    />
+                    {/* Clickable overlay with zoom icon */}
+                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all duration-200 flex items-center justify-center">
+                      <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 bg-white/90 rounded-full p-2 shadow-lg">
+                        <svg className="w-6 h-6 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7" />
+                        </svg>
+                      </div>
+                    </div>
+                    {/* Click hint text */}
+                    <div className="absolute bottom-2 left-2 bg-black/70 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                      Click to enlarge
+                    </div>
+                  </div>
+                  <Button
+                    type="button"
+                    variant="destructive"
+                    size="sm"
+                    onClick={() => {
+                      setImageFile(null)
+                      setImagePreview(null)
+                    }}
+                    className="absolute top-2 right-2"
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                </div>
+              )}
+
+              {/* Upload Progress */}
+              {uploadProgress > 0 && uploadProgress < 100 && (
+                <div className="w-full bg-gray-200 rounded-full h-2">
+                  <div
+                    className="bg-primary h-2 rounded-full transition-all duration-300"
+                    style={{ width: `${uploadProgress}%` }}
+                  ></div>
+                </div>
+              )}
+
+              {/* Alternative: Image URL (fallback) */}
+              <div className="space-y-1">
+                <Label htmlFor="imageUrl" className="text-sm text-gray-600">
+                  Or provide image URL (Google Drive, etc.)
+                </Label>
+                <Input
+                  id="imageUrl"
+                  name="imageUrl"
+                  type="url"
+                  value={formData.imageUrl}
+                  onChange={handleInputChange}
+                  placeholder="https://drive.google.com/..."
+                  className="bg-white/80 backdrop-blur-sm rounded-lg text-sm"
+                />
+              </div>
+
+              {/* Instructions */}
+              <div className="text-xs text-gray-600 bg-blue-50 p-2 rounded-lg">
+                <strong>📱 Mobile-friendly:</strong> Tap the upload box to take a photo or choose from your gallery.
+                <br />
+                <strong>💡 Tip:</strong> Good lighting and clear photos help showcase your profile better!
+              </div>
+            </div>
           </div>
 
           {error && (
@@ -315,10 +485,10 @@ export function InstructorSubmissionForm({ isOpen, onClose }: InstructorSubmissi
             </Button>
             <Button
               type="submit"
-              disabled={isLoading}
+              disabled={isLoading || isUploading}
               className="w-full bg-primary hover:bg-primary/90 text-white rounded-lg"
             >
-              {isLoading ? 'Submitting...' : 'Submit Profile'}
+              {isUploading ? 'Uploading Image...' : isLoading ? 'Submitting...' : 'Submit Profile'}
             </Button>
           </div>
         </form>

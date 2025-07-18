@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import { db } from '@/lib/firebase'
-import { doc, getDoc, updateDoc, deleteDoc } from 'firebase/firestore'
+import { doc, updateDoc, deleteDoc, getDoc } from 'firebase/firestore'
 
 // Get single instructor
 export async function GET(
@@ -31,29 +31,37 @@ export async function GET(
   }
 }
 
-// Update instructor
 export async function PUT(
   request: Request,
   { params }: { params: { id: string } }
 ) {
   try {
+    const { id } = params
     const data = await request.json()
-    const instructorRef = doc(db, 'instructors', params.id)
     
-    // Add updated timestamp
-    const updateData = {
-      ...data,
-      updatedAt: new Date().toISOString()
+    console.log('Updating instructor:', id, 'with data:', data)
+    
+    const instructorRef = doc(db, 'instructors', id)
+    const instructorDoc = await getDoc(instructorRef)
+    
+    if (!instructorDoc.exists()) {
+      return NextResponse.json(
+        { error: 'Instructor not found' },
+        { status: 404 }
+      )
     }
-
-    await updateDoc(instructorRef, updateData)
     
-    return NextResponse.json({
-      id: params.id,
-      ...updateData
+    // Only update the status field
+    await updateDoc(instructorRef, {
+      status: data.status,
+      updatedAt: new Date().toISOString()
     })
+    
+    console.log('Instructor updated successfully')
+    
+    return NextResponse.json({ success: true })
   } catch (error) {
-    console.error('Failed to update instructor:', error)
+    console.error('Error updating instructor:', error)
     return NextResponse.json(
       { error: 'Failed to update instructor' },
       { status: 500 }
@@ -61,18 +69,32 @@ export async function PUT(
   }
 }
 
-// Delete instructor
 export async function DELETE(
   request: Request,
   { params }: { params: { id: string } }
 ) {
   try {
-    const instructorRef = doc(db, 'instructors', params.id)
+    const { id } = params
+    
+    console.log('Deleting instructor:', id)
+    
+    const instructorRef = doc(db, 'instructors', id)
+    const instructorDoc = await getDoc(instructorRef)
+    
+    if (!instructorDoc.exists()) {
+      return NextResponse.json(
+        { error: 'Instructor not found' },
+        { status: 404 }
+      )
+    }
+    
     await deleteDoc(instructorRef)
     
-    return NextResponse.json({ message: 'Instructor deleted successfully' })
+    console.log('Instructor deleted successfully')
+    
+    return NextResponse.json({ success: true })
   } catch (error) {
-    console.error('Failed to delete instructor:', error)
+    console.error('Error deleting instructor:', error)
     return NextResponse.json(
       { error: 'Failed to delete instructor' },
       { status: 500 }

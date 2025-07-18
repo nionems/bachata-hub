@@ -67,6 +67,7 @@ interface Instructor {
   privatePricePerHour?: string
   createdAt: string
   updatedAt: string
+  status?: 'pending' | 'approved' | 'rejected'
 }
 
 interface Shop {
@@ -392,11 +393,20 @@ export default function AdminDashboard() {
   const fetchInstructors = async () => {
     try {
       setIsLoading(true)
-      const response = await fetch('/api/instructors')
+      console.log('Fetching instructors from API...')
+      const response = await fetch('/api/instructors?admin=true')
       if (!response.ok) throw new Error('Failed to fetch instructors')
-      const data = await response.json()
-      console.log('Fetched instructors:', data) // Debug log
-      setInstructors(data)
+      const instructorsList = await response.json()
+      
+      console.log('Fetched instructors from API:', instructorsList.length)
+      console.log('Sample instructor data:', instructorsList[0])
+      
+      // Sort instructors alphabetically by name
+      const sortedInstructors = instructorsList.sort((a: Instructor, b: Instructor) => 
+        a.name.localeCompare(b.name)
+      )
+      
+      setInstructors(sortedInstructors)
     } catch (err) {
       console.error('Error fetching instructors:', err)
       setError('Failed to load instructors')
@@ -608,6 +618,48 @@ export default function AdminDashboard() {
     } catch (err) {
       console.error('Failed to delete instructor:', err)
       setError('Failed to delete instructor')
+    }
+  }
+
+  const handleApproveInstructor = async (instructorId: string) => {
+    try {
+      const response = await fetch(`/api/instructors/${instructorId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ status: 'approved' }),
+      })
+
+      if (!response.ok) throw new Error('Failed to approve instructor')
+      
+      // Refresh instructors list
+      fetchInstructors()
+      toast.success('Instructor approved successfully')
+    } catch (err) {
+      console.error('Failed to approve instructor:', err)
+      toast.error('Failed to approve instructor')
+    }
+  }
+
+  const handleRejectInstructor = async (instructorId: string) => {
+    try {
+      const response = await fetch(`/api/instructors/${instructorId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ status: 'rejected' }),
+      })
+
+      if (!response.ok) throw new Error('Failed to reject instructor')
+      
+      // Refresh instructors list
+      fetchInstructors()
+      toast.success('Instructor rejected successfully')
+    } catch (err) {
+      console.error('Failed to reject instructor:', err)
+      toast.error('Failed to reject instructor')
     }
   }
 
@@ -1562,8 +1614,39 @@ export default function AdminDashboard() {
                         </div>
                       </div>
 
+                      {/* Status Badge */}
+                      {instructor.status && (
+                        <div className="mt-2">
+                          <span className={`inline-block px-2 py-1 text-xs font-semibold rounded-full ${
+                            instructor.status === 'approved' 
+                              ? 'bg-green-100 text-green-800' 
+                              : instructor.status === 'rejected'
+                              ? 'bg-red-100 text-red-800'
+                              : 'bg-yellow-100 text-yellow-800'
+                          }`}>
+                            {instructor.status.charAt(0).toUpperCase() + instructor.status.slice(1)}
+                          </span>
+                        </div>
+                      )}
+
                       {/* Action Buttons */}
-                      <div className="mt-4 flex gap-2">
+                      <div className="mt-4 flex gap-2 flex-wrap">
+                        {instructor.status === 'pending' && (
+                          <>
+                            <button
+                              onClick={() => handleApproveInstructor(instructor.id)}
+                              className="bg-green-500 text-white px-2.5 py-1 rounded hover:bg-green-600 text-sm"
+                            >
+                              Approve
+                            </button>
+                            <button
+                              onClick={() => handleRejectInstructor(instructor.id)}
+                              className="bg-red-500 text-white px-2.5 py-1 rounded hover:bg-red-600 text-sm"
+                            >
+                              Reject
+                            </button>
+                          </>
+                        )}
                         <button
                           onClick={() => router.push(`/admin/instructors/${instructor.id}/edit`)}
                           className="bg-yellow-500 text-white px-2.5 py-1 rounded hover:bg-yellow-600 text-sm"
