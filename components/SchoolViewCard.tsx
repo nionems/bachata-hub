@@ -20,6 +20,14 @@ export function SchoolViewCard({ school }: SchoolViewCardProps) {
     facebookUrl: school.facebookUrl,
     website: school.website
   })
+  
+  // Log if social media links exist
+  if (school.instagramUrl || school.facebookUrl) {
+    console.log('School has social media links:', school.name, {
+      instagram: school.instagramUrl,
+      facebook: school.facebookUrl
+    })
+  }
 
   const handleImageClick = (e: React.MouseEvent) => {
     e.stopPropagation();

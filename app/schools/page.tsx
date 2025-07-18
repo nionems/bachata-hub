@@ -65,6 +65,7 @@ export default function SchoolsPage() {
         
         console.log('Fetched schools from API:', schoolsList.length)
         console.log('Sample school data:', schoolsList[0])
+        console.log('Schools with social media:', schoolsList.filter(s => s.instagramUrl || s.facebookUrl).map(s => ({name: s.name, instagram: s.instagramUrl, facebook: s.facebookUrl})))
         
         // Sort schools alphabetically by name
         const sortedSchools = schoolsList.sort((a: School, b: School) => 
