@@ -11,8 +11,6 @@ import { DanceStyleFilter } from '@/components/DanceStyleFilter'
 import { useStateFilter } from '@/hooks/useStateFilter'
 import { CompetitionCard } from '@/components/CompetitionCard'
 import { Competition } from '@/types/competition'
-import { collection, getDocs } from 'firebase/firestore'
-import { db } from '@/lib/firebase'
 import { LoadingSpinner } from '@/components/loading-spinner'
 import { CompetitionSubmissionForm } from '@/components/CompetitionSubmissionForm'
 import { Input } from "@/components/ui/input"
@@ -52,12 +50,11 @@ export default function CompetitionsPage() {
       setIsLoading(true)
       setError(null)
       try {
-        const competitionsCollection = collection(db, 'competitions')
-        const competitionsSnapshot = await getDocs(competitionsCollection)
-        const competitionsList = competitionsSnapshot.docs.map(doc => ({
-          id: doc.id,
-          ...doc.data()
-        })) as Competition[]
+        const response = await fetch('/api/competitions')
+        if (!response.ok) {
+          throw new Error('Failed to fetch competitions')
+        }
+        const competitionsList = await response.json() as Competition[]
         
         // Sort competitions by date
         const sortedCompetitions = competitionsList.sort((a, b) => {
@@ -181,7 +178,7 @@ export default function CompetitionsPage() {
           <TabsContent value="upcoming" className="w-full">
             <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-4 md:gap-6">
               {searchFilteredCompetitions
-                .filter(comp => comp.status === 'Upcoming')
+                .filter(comp => new Date(comp.endDate) >= new Date())
                 .map((competition) => (
                   <CompetitionCard key={competition.id} competition={competition} />
               ))}
@@ -191,7 +188,7 @@ export default function CompetitionsPage() {
           <TabsContent value="past" className="w-full">
             <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-4 md:gap-6">
               {searchFilteredCompetitions
-                .filter(comp => comp.status === 'Completed')
+                .filter(comp => new Date(comp.endDate) < new Date())
                 .map((competition) => (
                   <CompetitionCard key={competition.id} competition={competition} />
               ))}
