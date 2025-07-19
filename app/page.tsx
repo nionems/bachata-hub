@@ -25,6 +25,7 @@ import { LoadingSpinner } from "@/components/loading-spinner"
 import { IdeaBoxForm } from '@/components/IdeaBoxForm'
 import { StickyEventBar } from '@/components/StickyEventBar'
 import { CommunityJoinPopup } from '@/components/CommunityJoinPopup'
+import { EventSubmissionForm } from '@/components/EventSubmissionForm'
 import { doc, getDoc } from 'firebase/firestore'
 import { db } from '@/lib/firebase'
 
@@ -123,6 +124,7 @@ export default function Home() {
   const [selectedImage, setSelectedImage] = useState<{ url: string; title: string } | null>(null)
   const [isIdeaBoxOpen, setIsIdeaBoxOpen] = useState(false)
   const [isCommunityPopupOpen, setIsCommunityPopupOpen] = useState(false)
+  const [isEventSubmissionOpen, setIsEventSubmissionOpen] = useState(false)
 
   // Show community popup only on first visit (per browser/device)
   useEffect(() => {
@@ -399,7 +401,7 @@ export default function Home() {
           <div className="container mx-auto px-0 relative z-10 h-full flex flex-col items-center justify-center">
             <div className="w-full flex flex-col items-center justify-center">
               <p className="text-xs sm:text-base md:text-lg lg:text-xl text-white/90 text-center comic-neue px-4 mt-8 sm:mt-12 md:mt-16 lg:mt-20">
-                Your Bachata Guide in Australia
+                Your Bachata Guide in Australia & more...
               </p>
               <div className="flex items-center justify-center gap-1 sm:gap-2 md:gap-4 relative w-full px-2 sm:px-4 md:px-8">
                 <Link href="/events" className="w-24 sm:w-28 md:w-36 ml-4 sm:ml-12 md:ml-24">
@@ -564,6 +566,20 @@ export default function Home() {
                 </p>
               </div>
             )}
+            
+            {/* Add Your Event Button */}
+            <div className="text-center mt-6 sm:mt-8">
+              <Button
+                onClick={() => setIsEventSubmissionOpen(true)}
+                className="bg-gradient-to-r from-emerald-500 to-violet-500 hover:from-emerald-600 hover:to-violet-600 text-white px-6 py-3 rounded-full shadow-lg hover:shadow-xl transition-all duration-200 font-semibold text-sm sm:text-base"
+              >
+                <Calendar className="w-4 h-4 mr-2" />
+                Add Your Event
+              </Button>
+              <p className="text-gray-600 text-xs sm:text-sm mt-2">
+                Have an event to share? Submit it here and we'll add it to our calendar!
+              </p>
+            </div>
           </div>
         </section>
 
@@ -667,6 +683,12 @@ export default function Home() {
         <CommunityJoinPopup
           isOpen={isCommunityPopupOpen}
           onClose={handleCommunityPopupClose}
+        />
+
+        {/* Add the EventSubmissionForm component */}
+        <EventSubmissionForm
+          isOpen={isEventSubmissionOpen}
+          onClose={() => setIsEventSubmissionOpen(false)}
         />
       </main>
     )

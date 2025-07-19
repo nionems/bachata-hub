@@ -285,13 +285,14 @@ export function EventSubmissionForm({ isOpen, onClose }: EventSubmissionFormProp
             <h3 className="font-medium text-yellow-800 mb-1 text-xs">Event Description & Image</h3>
             <div className="space-y-1">
               <div className="bg-blue-50 p-1.5 rounded-md">
-                <h4 className="font-medium text-blue-800 mb-0.5 text-xs">📸 To include an image/flyer:</h4>
+                <h4 className="font-medium text-blue-800 mb-0.5 text-xs">📸 To include an image/flyer (REQUIRED for carousel display):</h4>
                 <ol className="list-decimal list-inside text-blue-700 space-y-0 text-xs">
                   <li>Upload image to Google Drive</li>
                   <li>Right-click → "Get link"</li>
                   <li>Set access to "Anyone with link can view"</li>
                   <li>Paste the link in description below</li>
                 </ol>
+                <p className="text-blue-700 text-xs mt-1 font-medium">💡 Only Google Drive images will appear in the main page carousel!</p>
               </div>
               <div className="space-y-0.5">
                 <Label htmlFor="description" className="text-primary text-xs">Description</Label>
@@ -301,7 +302,7 @@ export function EventSubmissionForm({ isOpen, onClose }: EventSubmissionFormProp
                   value={formData.description}
                   onChange={handleInputChange}
                   className="min-h-[60px] bg-white/80 backdrop-blur-sm rounded-lg text-sm"
-                  placeholder="Describe your event, what to expect, dress code, skill level, etc. You can paste an image link here too!"
+                  placeholder="Describe your event: music style, number of rooms, workshops, social dancing, skill levels, etc. IMPORTANT: To make sure your event image appears in the carousel on the main page, paste a Google Drive image link here!"
                 />
               </div>
             </div>
