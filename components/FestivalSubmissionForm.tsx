@@ -248,7 +248,8 @@ export function FestivalSubmissionForm({ isOpen, onClose }: FestivalSubmissionFo
   }
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
+    <>
+      <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-[95vw] sm:max-w-[600px] bg-gradient-to-br from-primary/10 to-secondary/10 max-h-[90vh] overflow-y-auto">
         <DialogHeader className="sticky top-0 z-10 bg-white/80 backdrop-blur-sm">
           <DialogTitle className="text-primary text-lg sm:text-xl flex justify-between items-center">
