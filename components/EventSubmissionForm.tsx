@@ -50,7 +50,7 @@ export function EventSubmissionForm({ isOpen, onClose }: EventSubmissionFormProp
 
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const { showSuccess, close: closeSuccess, isOpen: isSuccessOpen, config: successConfig } = useSuccessConfirmation()
+  const { showSuccess, hideSuccess, isSuccessVisible } = useSuccessConfirmation()
 
   const handleInputChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target
@@ -83,13 +83,9 @@ export function EventSubmissionForm({ isOpen, onClose }: EventSubmissionFormProp
 
       console.log('Event created:', data)
 
-      // Show success confirmation
-      showSuccess({
-        title: "Event Submitted! 🎉",
-        message: "Your event has been submitted successfully and is awaiting approval.",
-        subtitle: "We'll review your event and add it to our calendar soon!",
-        type: 'event'
-      })
+      // Show success confirmation and reset form
+      showSuccess('event')
+      onClose()
 
       // Reset form
       setFormData({
@@ -337,15 +333,12 @@ export function EventSubmissionForm({ isOpen, onClose }: EventSubmissionFormProp
         </form>
       </DialogContent>
 
-      {/* Success Confirmation */}
-      <SuccessConfirmation
-        isOpen={isSuccessOpen}
-        onClose={closeSuccess}
-        title={successConfig.title}
-        message={successConfig.message}
-        subtitle={successConfig.subtitle}
-        type={successConfig.type}
-      />
+        {/* Success Confirmation Popup */}
+        <SuccessConfirmation
+          isOpen={isSuccessVisible}
+          onClose={hideSuccess}
+          type="event"
+        />
     </Dialog>
   )
 } 

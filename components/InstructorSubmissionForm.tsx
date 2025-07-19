@@ -11,6 +11,8 @@ import { X, Upload, X as XIcon, ImageIcon } from "lucide-react"
 import { toast } from "react-hot-toast"
 import { DANCE_STYLES } from "@/lib/constants"
 import { Checkbox } from "@/components/ui/checkbox"
+import { SubmitButton, useSubmitButton } from "@/components/ui/submit-button"
+import { SuccessConfirmation, useSuccessConfirmation } from "@/components/ui/success-confirmation"
 
 interface InstructorSubmissionFormProps {
   isOpen: boolean
@@ -46,13 +48,18 @@ export function InstructorSubmissionForm({ isOpen, onClose }: InstructorSubmissi
     privatePricePerHour: ''
   })
 
-  const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState(false)
   const [imageFile, setImageFile] = useState<File | null>(null)
   const [imagePreview, setImagePreview] = useState<string | null>(null)
   const [uploadProgress, setUploadProgress] = useState(0)
   const [isUploading, setIsUploading] = useState(false)
+
+  // Use the modern submit button hook
+  const { isLoading, handleSubmit: handleSubmitButton } = useSubmitButton()
+
+  // Use the success confirmation hook
+  const { showSuccess, hideSuccess, isSuccessVisible } = useSuccessConfirmation()
 
   const handleInputChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target
@@ -115,7 +122,6 @@ export function InstructorSubmissionForm({ isOpen, onClose }: InstructorSubmissi
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
-    setIsLoading(true)
 
     try {
       let imageUrl = formData.imageUrl
@@ -132,7 +138,6 @@ export function InstructorSubmissionForm({ isOpen, onClose }: InstructorSubmissi
           console.error('Image upload failed:', uploadError)
           toast.error('Image upload failed. Please try again or use a URL instead.')
           setIsUploading(false)
-          setIsLoading(false)
           return
         } finally {
           setIsUploading(false)
@@ -142,7 +147,6 @@ export function InstructorSubmissionForm({ isOpen, onClose }: InstructorSubmissi
       // Validate dance styles
       if (formData.danceStyles.length === 0) {
         toast.error('Please select at least one dance style')
-        setIsLoading(false)
         return
       }
 
@@ -185,7 +189,8 @@ export function InstructorSubmissionForm({ isOpen, onClose }: InstructorSubmissi
         console.warn('Failed to send email notification, but instructor was created')
       }
 
-      toast.success('Instructor submitted successfully! It will be reviewed and approved soon.')
+      // Show success confirmation and reset form
+      showSuccess('instructor')
       onClose()
       setFormData({
         name: '',
@@ -206,8 +211,6 @@ export function InstructorSubmissionForm({ isOpen, onClose }: InstructorSubmissi
     } catch (error) {
       console.error('Error submitting instructor:', error)
       toast.error('Failed to submit instructor. Please try again.')
-    } finally {
-      setIsLoading(false)
     }
   }
 
@@ -502,16 +505,22 @@ export function InstructorSubmissionForm({ isOpen, onClose }: InstructorSubmissi
             >
               Cancel
             </Button>
-            <Button
+            <SubmitButton
               type="submit"
-              disabled={isLoading || isUploading}
+              disabled={isLoading}
               className="w-full bg-primary hover:bg-primary/90 text-white rounded-lg"
             >
-              {isUploading ? 'Uploading Image...' : isLoading ? 'Submitting...' : 'Submit Profile'}
-            </Button>
+              {isLoading ? 'Submitting...' : 'Submit Profile'}
+            </SubmitButton>
           </div>
         </form>
       </DialogContent>
+        {/* Success Confirmation Popup */}
+        <SuccessConfirmation
+          isOpen={isSuccessVisible}
+          onClose={hideSuccess}
+          type="instructor"
+        />
     </Dialog>
   )
 } 

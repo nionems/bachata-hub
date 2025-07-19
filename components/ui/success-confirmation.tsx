@@ -12,7 +12,7 @@ interface SuccessConfirmationProps {
   title?: string
   message?: string
   subtitle?: string
-  type?: 'default' | 'festival' | 'competition' | 'event' | 'instructor' | 'dj' | 'shop' | 'school'
+  type?: 'default' | 'festival' | 'competition' | 'event' | 'instructor' | 'dj' | 'shop' | 'school' | 'media'
   autoClose?: boolean
   autoCloseDelay?: number
 }
@@ -94,6 +94,13 @@ export function SuccessConfirmation({
           bgColor: 'bg-gradient-to-br from-indigo-50 to-purple-50',
           borderColor: 'border-indigo-200',
           iconBg: 'bg-indigo-100'
+        }
+      case 'media':
+        return {
+          icon: <CheckCircle className="w-12 h-12 text-pink-500" />,
+          bgColor: 'bg-gradient-to-br from-pink-50 to-rose-50',
+          borderColor: 'border-pink-200',
+          iconBg: 'bg-pink-100'
         }
       default:
         return {
@@ -178,31 +185,23 @@ export function SuccessConfirmation({
 // Hook for easy success confirmation
 export function useSuccessConfirmation() {
   const [isOpen, setIsOpen] = useState(false)
-  const [config, setConfig] = useState<{
-    title?: string
-    message?: string
-    subtitle?: string
-    type?: 'default' | 'festival' | 'competition' | 'event' | 'instructor' | 'dj' | 'shop' | 'school'
-  }>({})
+  const [type, setType] = useState<'default' | 'festival' | 'competition' | 'event' | 'instructor' | 'dj' | 'shop' | 'school' | 'media'>('default')
 
-  const showSuccess = (config: {
-    title?: string
-    message?: string
-    subtitle?: string
-    type?: 'default' | 'festival' | 'competition' | 'event' | 'instructor' | 'dj' | 'shop' | 'school'
-  } = {}) => {
-    setConfig(config)
+  const showSuccess = (type: 'default' | 'festival' | 'competition' | 'event' | 'instructor' | 'dj' | 'shop' | 'school' | 'media' = 'default') => {
+    setType(type)
     setIsOpen(true)
   }
 
-  const close = () => {
+  const hideSuccess = () => {
     setIsOpen(false)
   }
 
   return {
-    showSuccess,
-    close,
     isOpen,
-    config
+    isSuccessVisible: isOpen,
+    showSuccess,
+    hideSuccess,
+    onClose: hideSuccess,
+    type
   }
 } 

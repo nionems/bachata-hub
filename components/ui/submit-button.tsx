@@ -14,6 +14,7 @@ interface SubmitButtonProps {
   variant?: 'default' | 'gradient' | 'outline'
   size?: 'sm' | 'md' | 'lg'
   icon?: 'send' | 'arrow' | 'check' | 'none'
+  type?: 'button' | 'submit' | 'reset'
 }
 
 export function SubmitButton({
@@ -24,7 +25,8 @@ export function SubmitButton({
   className,
   variant = 'gradient',
   size = 'md',
-  icon = 'send'
+  icon = 'send',
+  type = 'submit'
 }: SubmitButtonProps) {
   const getIcon = () => {
     if (isLoading) {
@@ -69,7 +71,7 @@ export function SubmitButton({
 
   return (
     <Button
-      type="submit"
+      type={type}
       disabled={disabled || isLoading}
       className={cn(
         'relative overflow-hidden transition-all duration-300 ease-in-out font-semibold rounded-lg',

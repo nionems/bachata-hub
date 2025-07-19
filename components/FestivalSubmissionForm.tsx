@@ -8,7 +8,8 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { StateSelect } from "@/components/ui/StateSelect"
 import { Checkbox } from "@/components/ui/checkbox"
-import { SubmitButton } from "@/components/ui/submit-button"
+import { SubmitButton, useSubmitButton } from "@/components/ui/submit-button"
+import { SuccessConfirmation, useSuccessConfirmation } from "@/components/ui/success-confirmation"
 import { X, ImageIcon, CheckCircle } from "lucide-react"
 import { toast } from "react-hot-toast"
 import { DANCE_STYLES, COUNTRIES } from "@/lib/constants"
@@ -66,11 +67,16 @@ export function FestivalSubmissionForm({ isOpen, onClose }: FestivalSubmissionFo
     facebookLink: ''
   })
 
-  const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState(false)
   const [showSuccessPopup, setShowSuccessPopup] = useState(false)
   const [imagePreview, setImagePreview] = useState<string | null>(null)
+
+  // Use the modern submit button hook
+  const { isLoading, handleSubmit: handleSubmitButton } = useSubmitButton()
+
+  // Use the success confirmation hook
+  const { showSuccess, hideSuccess, isSuccessVisible } = useSuccessConfirmation()
 
   const handleInputChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target
@@ -129,7 +135,6 @@ export function FestivalSubmissionForm({ isOpen, onClose }: FestivalSubmissionFo
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
-    setIsLoading(true)
 
     try {
       // If there's a file, upload it first
@@ -202,10 +207,7 @@ export function FestivalSubmissionForm({ isOpen, onClose }: FestivalSubmissionFo
         },
         body: JSON.stringify({
           type: 'festival_submission',
-          data: {
-            ...formData,
-            imageUrl,
-          }
+          data: festivalData
         }),
       })
 
@@ -213,18 +215,15 @@ export function FestivalSubmissionForm({ isOpen, onClose }: FestivalSubmissionFo
         console.warn('Failed to send email notification, but festival was created')
       }
 
-      setShowSuccessPopup(true)
-      // Close the popup after 3 seconds
-      setTimeout(() => {
-        setShowSuccessPopup(false)
-        onClose()
-      }, 3000)
+      // Show success confirmation and reset form
+      showSuccess('festival')
+      onClose()
       setFormData({
         name: '',
         startDate: '',
         endDate: '',
         location: '',
-        state: '',
+        state: 'NSW',
         country: 'Australia',
         address: '',
         eventLink: '',
@@ -240,11 +239,13 @@ export function FestivalSubmissionForm({ isOpen, onClose }: FestivalSubmissionFo
         instagramLink: '',
         facebookLink: ''
       })
+      setImagePreview(null)
+      setError(null)
+      setSuccess(false)
+      setShowSuccessPopup(false)
     } catch (error) {
       console.error('Error submitting festival:', error)
-      toast.error('Failed to submit festival. Please try again.')
-    } finally {
-      setIsLoading(false)
+      setError(error instanceof Error ? error.message : 'Failed to submit festival. Please try again.')
     }
   }
 
@@ -627,7 +628,7 @@ export function FestivalSubmissionForm({ isOpen, onClose }: FestivalSubmissionFo
               Cancel
             </Button>
             <SubmitButton
-              isLoading={isLoading}
+                             isLoading={isLoading}
               variant="gradient"
               size="md"
               icon="send"
@@ -639,27 +640,12 @@ export function FestivalSubmissionForm({ isOpen, onClose }: FestivalSubmissionFo
       </DialogContent>
     </Dialog>
 
-    {/* Success Popup - Mobile Friendly */}
-    {showSuccessPopup && (
-      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
-        <div className="bg-white rounded-lg p-6 max-w-sm w-full mx-4 shadow-xl text-center">
-          <div className="flex items-center justify-center mb-4">
-            <div className="bg-green-100 rounded-full p-3">
-              <CheckCircle className="w-8 h-8 text-green-600" />
-            </div>
-          </div>
-          <h3 className="text-lg font-semibold text-gray-900 mb-2">
-            Thank You! 🎉
-          </h3>
-          <p className="text-gray-600 mb-4">
-            Your festival submission has been sent successfully and is awaiting approval.
-          </p>
-          <p className="text-sm text-gray-500">
-            We'll review your submission and get back to you soon!
-          </p>
-        </div>
-      </div>
-    )}
+            {/* Success Confirmation Popup */}
+        <SuccessConfirmation
+          isOpen={isSuccessVisible}
+          onClose={hideSuccess}
+          type="festival"
+        />
   </>
   )
 } 

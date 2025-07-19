@@ -9,6 +9,8 @@ import { Textarea } from "@/components/ui/textarea"
 import { StateSelect } from "@/components/ui/StateSelect"
 import { toast } from "sonner"
 import { X, Upload, Camera, Image as ImageIcon, CheckCircle, AlertCircle, Loader2 } from "lucide-react"
+import { SubmitButton, useSubmitButton } from "@/components/ui/submit-button"
+import { SuccessConfirmation, useSuccessConfirmation } from "@/components/ui/success-confirmation"
 
 interface ShopSubmissionFormProps {
   isOpen: boolean
@@ -48,11 +50,16 @@ export function ShopSubmissionForm({ isOpen, onClose }: ShopSubmissionFormProps)
     info: ''
   })
 
-  const [isLoading, setIsLoading] = useState(false)
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
   const [imagePreview, setImagePreview] = useState<string | null>(null)
   const [uploadProgress, setUploadProgress] = useState(0)
   const [message, setMessage] = useState<{ type: 'success' | 'error' | 'loading', text: string } | null>(null)
+
+  // Use the modern submit button hook
+  const { isLoading, handleSubmit: handleSubmitButton } = useSubmitButton()
+
+  // Use the success confirmation hook
+  const { showSuccess, hideSuccess, isSuccessVisible } = useSuccessConfirmation()
 
   const handleInputChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target
@@ -97,7 +104,6 @@ export function ShopSubmissionForm({ isOpen, onClose }: ShopSubmissionFormProps)
       return
     }
     
-    setIsLoading(true)
     setUploadProgress(0)
     setMessage({ type: 'loading', text: 'Submitting your item...' })
 
@@ -154,38 +160,32 @@ export function ShopSubmissionForm({ isOpen, onClose }: ShopSubmissionFormProps)
         throw new Error(errorMessage)
       }
 
-      setMessage({ type: 'success', text: 'Item submitted successfully! It will be reviewed by our team.' })
-      setTimeout(() => {
-        onClose()
-        setMessage(null)
-      }, 2000)
-      
-      // Reset form
-          setFormData({
-      name: '',
-      location: '',
-      state: '',
-      contactName: '',
-      contactEmail: '',
-      contactPhone: '',
-      website: '',
-      instagramUrl: '',
-      facebookUrl: '',
-      price: '',
-      condition: '',
-      imageUrl: '',
-      info: ''
-    })
+      // Show success confirmation and reset form
+      showSuccess('shop')
+      onClose()
+      setFormData({
+        name: '',
+        location: '',
+        state: '',
+        contactName: '',
+        contactEmail: '',
+        contactPhone: '',
+        website: '',
+        instagramUrl: '',
+        facebookUrl: '',
+        price: '',
+        condition: '',
+        imageUrl: '',
+        info: ''
+      })
       setSelectedFile(null)
       setImagePreview(null)
       setUploadProgress(0)
+      setMessage(null)
     } catch (error) {
       console.error('Error submitting shop:', error)
       const errorMessage = error instanceof Error ? error.message : 'Failed to submit shop. Please try again.'
       setMessage({ type: 'error', text: errorMessage })
-    } finally {
-      setIsLoading(false)
-      setUploadProgress(0)
     }
   }
 
@@ -517,15 +517,15 @@ export function ShopSubmissionForm({ isOpen, onClose }: ShopSubmissionFormProps)
               </div>
             </div>
           </div>
-          <div className="pt-1">
-            <Button
-              type="submit"
-              disabled={isLoading}
-              className="w-full bg-primary hover:bg-primary/90 text-white h-10"
-            >
-              {isLoading ? 'Submitting...' : 'Submit Item'}
-            </Button>
-          </div>
+                      <div className="pt-1">
+              <SubmitButton
+                type="submit"
+                disabled={isLoading}
+                className="w-full bg-primary hover:bg-primary/90 text-white h-10"
+              >
+                {isLoading ? 'Submitting...' : 'Submit Item'}
+              </SubmitButton>
+            </div>
         </form>
       </DialogContent>
     </Dialog>
@@ -557,6 +557,13 @@ export function ShopSubmissionForm({ isOpen, onClose }: ShopSubmissionFormProps)
           </div>
         </div>
       )}
+
+              {/* Success Confirmation Popup */}
+        <SuccessConfirmation
+          isOpen={isSuccessVisible}
+          onClose={hideSuccess}
+          type="shop"
+        />
     </>
   )
 } 

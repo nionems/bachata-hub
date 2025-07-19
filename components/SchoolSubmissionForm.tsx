@@ -10,6 +10,8 @@ import { StateSelect } from "@/components/ui/StateSelect"
 import { toast } from "sonner"
 import { X, Upload, Camera, Image as ImageIcon, CheckCircle, AlertCircle, Loader2 } from "lucide-react"
 import { DANCE_STYLES } from "@/lib/constants"
+import { SubmitButton, useSubmitButton } from "@/components/ui/submit-button"
+import { SuccessConfirmation, useSuccessConfirmation } from "@/components/ui/success-confirmation"
 
 interface SchoolSubmissionFormProps {
   isOpen: boolean
@@ -47,11 +49,16 @@ export function SchoolSubmissionForm({ isOpen, onClose }: SchoolSubmissionFormPr
     imageUrl: ''
   })
 
-  const [isLoading, setIsLoading] = useState(false)
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
   const [imagePreview, setImagePreview] = useState<string | null>(null)
   const [uploadProgress, setUploadProgress] = useState(0)
   const [message, setMessage] = useState<{ type: 'success' | 'error' | 'loading', text: string } | null>(null)
+
+  // Use the modern submit button hook
+  const { isLoading, handleSubmit: handleSubmitButton } = useSubmitButton()
+
+  // Use the success confirmation hook
+  const { showSuccess, hideSuccess, isSuccessVisible } = useSuccessConfirmation()
 
   const handleInputChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target
@@ -104,7 +111,6 @@ export function SchoolSubmissionForm({ isOpen, onClose }: SchoolSubmissionFormPr
       return
     }
     
-    setIsLoading(true)
     setUploadProgress(0)
     setMessage({ type: 'loading', text: 'Submitting your school...' })
 
@@ -195,13 +201,9 @@ export function SchoolSubmissionForm({ isOpen, onClose }: SchoolSubmissionFormPr
         console.warn('Failed to send email notification, but school was created')
       }
 
-      setMessage({ type: 'success', text: 'School submitted successfully! It will be reviewed by our team.' })
-      setTimeout(() => {
-        onClose()
-        setMessage(null)
-      }, 2000)
-      
-      // Reset form
+      // Show success confirmation and reset form
+      showSuccess('school')
+      onClose()
       setFormData({
         name: '',
         location: '',
@@ -219,13 +221,10 @@ export function SchoolSubmissionForm({ isOpen, onClose }: SchoolSubmissionFormPr
       setSelectedFile(null)
       setImagePreview(null)
       setUploadProgress(0)
-    } catch (err) {
-      console.error('Error submitting school:', err)
-      const errorMessage = err instanceof Error ? err.message : 'Failed to submit form. Please try again.'
-      setMessage({ type: 'error', text: errorMessage })
-    } finally {
-      setIsLoading(false)
-      setUploadProgress(0)
+      setMessage(null)
+    } catch (error) {
+      console.error('Error submitting school:', error)
+      setMessage({ type: 'error', text: error instanceof Error ? error.message : 'Failed to submit school. Please try again.' })
     }
   }
 
@@ -524,13 +523,13 @@ export function SchoolSubmissionForm({ isOpen, onClose }: SchoolSubmissionFormPr
             >
               Cancel
             </Button>
-            <Button
+            <SubmitButton
               type="submit"
               disabled={isLoading}
               className="w-full sm:w-auto bg-primary hover:bg-primary/90 text-white rounded-lg"
             >
               {isLoading ? 'Submitting...' : 'Submit School'}
-            </Button>
+            </SubmitButton>
           </div>
         </form>
       </DialogContent>
@@ -563,6 +562,13 @@ export function SchoolSubmissionForm({ isOpen, onClose }: SchoolSubmissionFormPr
         </div>
       </div>
     )}
+
+            {/* Success Confirmation Popup */}
+        <SuccessConfirmation
+          isOpen={isSuccessVisible}
+          onClose={hideSuccess}
+          type="school"
+        />
   </>
   )
 } 

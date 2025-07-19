@@ -20,6 +20,8 @@ import {
 } from "@/components/ui/select"
 import { toast } from "sonner"
 import { X, Upload, ImageIcon } from "lucide-react"
+import { SubmitButton, useSubmitButton } from "@/components/ui/submit-button"
+import { SuccessConfirmation, useSuccessConfirmation } from "@/components/ui/success-confirmation"
 
 interface MediaSubmissionFormProps {
   isOpen: boolean
@@ -66,11 +68,16 @@ export function MediaSubmissionForm({ isOpen, onClose }: MediaSubmissionFormProp
     imageUrl: ''
   })
 
-  const [isLoading, setIsLoading] = useState(false)
   const [imageFile, setImageFile] = useState<File | null>(null)
   const [imagePreview, setImagePreview] = useState<string | null>(null)
   const [uploadProgress, setUploadProgress] = useState(0)
   const [isUploading, setIsUploading] = useState(false)
+
+  // Use the modern submit button hook
+  const { isLoading, handleSubmit: handleSubmitButton } = useSubmitButton()
+
+  // Use the success confirmation hook
+  const { showSuccess, hideSuccess, isSuccessVisible } = useSuccessConfirmation()
 
   const handleInputChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target
@@ -124,7 +131,6 @@ export function MediaSubmissionForm({ isOpen, onClose }: MediaSubmissionFormProp
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
-    setIsLoading(true)
 
     try {
       let imageUrl = formData.imageUrl
@@ -141,7 +147,6 @@ export function MediaSubmissionForm({ isOpen, onClose }: MediaSubmissionFormProp
           console.error('Image upload failed:', uploadError)
           toast.error('Image upload failed. Please try again or use a URL instead.')
           setIsUploading(false)
-          setIsLoading(false)
           return
         } finally {
           setIsUploading(false)
@@ -190,7 +195,8 @@ export function MediaSubmissionForm({ isOpen, onClose }: MediaSubmissionFormProp
         console.warn('Failed to send email notification, but media was created')
       }
 
-      toast.success('Media submitted successfully! It will be reviewed and approved soon.')
+      // Show success confirmation and reset form
+      showSuccess('media')
       onClose()
       setFormData({
         name: '',
@@ -211,8 +217,6 @@ export function MediaSubmissionForm({ isOpen, onClose }: MediaSubmissionFormProp
     } catch (error) {
       console.error('Error submitting media:', error)
       toast.error('Failed to submit media. Please try again.')
-    } finally {
-      setIsLoading(false)
     }
   }
 
@@ -510,16 +514,23 @@ export function MediaSubmissionForm({ isOpen, onClose }: MediaSubmissionFormProp
             >
               Cancel
             </Button>
-            <Button
+            <SubmitButton
               type="submit"
               disabled={isLoading}
               className="w-full bg-primary hover:bg-primary/90 text-white rounded-lg"
             >
               {isLoading ? 'Submitting...' : 'Submit Media'}
-            </Button>
+            </SubmitButton>
           </div>
         </form>
       </DialogContent>
+
+              {/* Success Confirmation Popup */}
+        <SuccessConfirmation
+          isOpen={isSuccessVisible}
+          onClose={hideSuccess}
+          type="media"
+        />
     </Dialog>
   )
 } 

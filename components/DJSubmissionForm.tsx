@@ -10,6 +10,8 @@ import { StateSelect } from "@/components/ui/StateSelect"
 import { toast } from "sonner"
 import { X, Upload, X as XIcon, ImageIcon } from "lucide-react"
 import { Checkbox } from "@/components/ui/checkbox"
+import { SubmitButton, useSubmitButton } from "@/components/ui/submit-button"
+import { SuccessConfirmation, useSuccessConfirmation } from "@/components/ui/success-confirmation"
 
 // Limited dance styles for DJs
 const DJ_DANCE_STYLES = ['Salsa', 'Bachata', 'Kizomba', 'Zouk'] as const
@@ -48,11 +50,16 @@ export function DJSubmissionForm({ isOpen, onClose }: DJSubmissionFormProps) {
     musicLink: ''
   })
 
-  const [isLoading, setIsLoading] = useState(false)
   const [imageFile, setImageFile] = useState<File | null>(null)
   const [imagePreview, setImagePreview] = useState<string | null>(null)
   const [uploadProgress, setUploadProgress] = useState(0)
   const [isUploading, setIsUploading] = useState(false)
+
+  // Use the modern submit button hook
+  const { isLoading, handleSubmit: handleSubmitButton } = useSubmitButton()
+
+  // Use the success confirmation hook
+  const { showSuccess, hideSuccess, isSuccessVisible } = useSuccessConfirmation()
 
   const handleInputChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target
@@ -115,7 +122,6 @@ export function DJSubmissionForm({ isOpen, onClose }: DJSubmissionFormProps) {
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
-    setIsLoading(true)
 
     try {
       let imageUrl = formData.imageUrl
@@ -132,7 +138,6 @@ export function DJSubmissionForm({ isOpen, onClose }: DJSubmissionFormProps) {
           console.error('Image upload failed:', uploadError)
           toast.error('Image upload failed. Please try again or use a URL instead.')
           setIsUploading(false)
-          setIsLoading(false)
           return
         } finally {
           setIsUploading(false)
@@ -142,7 +147,6 @@ export function DJSubmissionForm({ isOpen, onClose }: DJSubmissionFormProps) {
       // Validate dance styles
       if (formData.danceStyles.length === 0) {
         toast.error('Please select at least one dance style')
-        setIsLoading(false)
         return
       }
 
@@ -185,7 +189,8 @@ export function DJSubmissionForm({ isOpen, onClose }: DJSubmissionFormProps) {
         console.warn('Failed to send email notification, but DJ was created')
       }
 
-      toast.success('DJ submitted successfully! It will be reviewed and approved soon.')
+      // Show success confirmation and reset form
+      showSuccess('dj')
       onClose()
       setFormData({
         name: '',
@@ -206,8 +211,6 @@ export function DJSubmissionForm({ isOpen, onClose }: DJSubmissionFormProps) {
     } catch (error) {
       console.error('Error submitting DJ:', error)
       toast.error('Failed to submit DJ. Please try again.')
-    } finally {
-      setIsLoading(false)
     }
   }
 
@@ -493,15 +496,22 @@ export function DJSubmissionForm({ isOpen, onClose }: DJSubmissionFormProps) {
             >
               Cancel
             </Button>
-            <Button
+            <SubmitButton
               type="submit"
               disabled={isLoading}
               className="w-full bg-primary hover:bg-primary/90 text-white rounded-lg"
             >
               {isLoading ? 'Submitting...' : 'Submit DJ Profile'}
-            </Button>
+            </SubmitButton>
           </div>
         </form>
+
+        {/* Success Confirmation Popup */}
+        <SuccessConfirmation
+          isOpen={isSuccessVisible}
+          onClose={hideSuccess}
+          type="dj"
+        />
       </DialogContent>
     </Dialog>
   )

@@ -497,7 +497,15 @@ export default function Home() {
                               </div>
                               <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-3">
                                 <h3 className="text-base font-semibold text-white mb-0.5 line-clamp-1">{event.name}</h3>
-                                <p className="text-white/90 text-xs mb-0.5">{event.date}</p>
+                                <div className="flex items-center gap-2 text-white/90 text-xs mb-0.5">
+                                  <span>{event.date}</span>
+                                  {event.time && event.time !== 'All day' && (
+                                    <>
+                                      <span>•</span>
+                                      <span>{event.time}</span>
+                                    </>
+                                  )}
+                                </div>
                                 <p className="text-white/90 text-xs line-clamp-1">{event.location}</p>
                               </div>
                               {/* Event Link Button */}
@@ -529,7 +537,15 @@ export default function Home() {
                               </div>
                               <div>
                                 <h3 className="text-base font-semibold text-gray-900 mb-2 line-clamp-2">{event.name}</h3>
-                                <p className="text-gray-600 text-sm mb-1">{event.date}</p>
+                                <div className="flex items-center gap-2 text-gray-600 text-sm mb-1">
+                                  <span>{event.date}</span>
+                                  {event.time && event.time !== 'All day' && (
+                                    <>
+                                      <span>•</span>
+                                      <span>{event.time}</span>
+                                    </>
+                                  )}
+                                </div>
                                 <p className="text-gray-600 text-sm line-clamp-2">{event.location}</p>
                               </div>
                               {event.description && (
