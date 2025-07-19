@@ -58,29 +58,34 @@ export async function PUT(
       )
     }
     
-    // Update all festival fields
+    // Get existing festival data
+    const existingData = festivalDoc.data()
+    
+    // Update only provided fields (partial update)
     const updateData: any = {
-      name: data.name,
-      startDate: data.startDate,
-      endDate: data.endDate,
-      location: data.location,
-      state: data.state,
-      country: data.country || 'Australia',
-      address: data.address,
-      eventLink: data.eventLink || '',
-      price: data.price,
-      ticketLink: data.ticketLink || '',
-      danceStyles: data.danceStyles || [],
-      imageUrl: data.imageUrl || '',
-      description: data.description || '',
-      ambassadorCode: data.ambassadorCode || '',
-      googleMapLink: data.googleMapLink || '',
-      featured: data.featured || 'no',
-      published: data.published !== undefined ? data.published : true,
-      instagramLink: data.instagramLink || '',
-      facebookLink: data.facebookLink || '',
       updatedAt: new Date().toISOString()
     }
+    
+    // Only update fields that are provided in the request
+    if (data.name !== undefined) updateData.name = data.name
+    if (data.startDate !== undefined) updateData.startDate = data.startDate
+    if (data.endDate !== undefined) updateData.endDate = data.endDate
+    if (data.location !== undefined) updateData.location = data.location
+    if (data.state !== undefined) updateData.state = data.state
+    if (data.country !== undefined) updateData.country = data.country
+    if (data.address !== undefined) updateData.address = data.address
+    if (data.eventLink !== undefined) updateData.eventLink = data.eventLink
+    if (data.price !== undefined) updateData.price = data.price
+    if (data.ticketLink !== undefined) updateData.ticketLink = data.ticketLink
+    if (data.danceStyles !== undefined) updateData.danceStyles = data.danceStyles
+    if (data.imageUrl !== undefined) updateData.imageUrl = data.imageUrl
+    if (data.description !== undefined) updateData.description = data.description
+    if (data.ambassadorCode !== undefined) updateData.ambassadorCode = data.ambassadorCode
+    if (data.googleMapLink !== undefined) updateData.googleMapLink = data.googleMapLink
+    if (data.featured !== undefined) updateData.featured = data.featured
+    if (data.published !== undefined) updateData.published = data.published
+    if (data.instagramLink !== undefined) updateData.instagramLink = data.instagramLink
+    if (data.facebookLink !== undefined) updateData.facebookLink = data.facebookLink
     
     // Handle status updates
     if (data.status) {
