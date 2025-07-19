@@ -129,7 +129,6 @@ interface Competition {
   id: string
   name: string
   organizer: string
-  contactInfo: string
   email: string
   startDate: string
   endDate: string
@@ -139,14 +138,18 @@ interface Competition {
   eventLink: string
   price: string
   ticketLink: string
-  danceStyles: string
+  resultLink: string
+  danceStyles: string[]
   imageUrl: string
   comment: string
   googleMapLink: string
   categories: string[]
   level: string[]
-  status: string
+  status?: 'pending' | 'approved' | 'rejected'
+  published?: boolean
   socialLink: string
+  instagramLink: string
+  facebookLink: string
   createdAt: string
   updatedAt: string
 }
@@ -208,6 +211,7 @@ export default function AdminDashboard() {
   const [showNewPassword, setShowNewPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [shopStatusFilter, setShopStatusFilter] = useState('all')
+  const [competitionStatusFilter, setCompetitionStatusFilter] = useState('all')
   const router = useRouter()
 
   // useEffect(() => {
@@ -844,9 +848,52 @@ export default function AdminDashboard() {
       
       // Refresh competitions list
       fetchCompetitions()
+      toast.success('Competition deleted successfully')
     } catch (err) {
       console.error('Failed to delete competition:', err)
-      setError('Failed to delete competition')
+      toast.error('Failed to delete competition')
+    }
+  }
+
+  const handleApproveCompetition = async (competitionId: string) => {
+    try {
+      const response = await fetch(`/api/competitions/${competitionId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ status: 'approved', published: true }),
+      })
+
+      if (!response.ok) throw new Error('Failed to approve competition')
+      
+      // Refresh competitions list
+      fetchCompetitions()
+      toast.success('Competition approved successfully')
+    } catch (err) {
+      console.error('Failed to approve competition:', err)
+      toast.error('Failed to approve competition')
+    }
+  }
+
+  const handleRejectCompetition = async (competitionId: string) => {
+    try {
+      const response = await fetch(`/api/competitions/${competitionId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ status: 'rejected', published: false }),
+      })
+
+      if (!response.ok) throw new Error('Failed to reject competition')
+      
+      // Refresh competitions list
+      fetchCompetitions()
+      toast.success('Competition rejected successfully')
+    } catch (err) {
+      console.error('Failed to reject competition:', err)
+      toast.error('Failed to reject competition')
     }
   }
 
@@ -1131,7 +1178,6 @@ export default function AdminDashboard() {
     (competition.organizer?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
     (competition.location?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
     (competition.state?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
-    (competition.danceStyles && typeof competition.danceStyles === 'string' && competition.danceStyles.toLowerCase().includes(searchTerm.toLowerCase())) ||
     (competition.danceStyles && Array.isArray(competition.danceStyles) && competition.danceStyles.some(style => (style?.toLowerCase() || '').includes(searchTerm.toLowerCase())))
   )
 
@@ -1990,12 +2036,24 @@ export default function AdminDashboard() {
                   {searchTerm ? `${filteredCompetitions.length} of ${competitions.length} competitions` : `${competitions.length} total competitions`}
                 </div>
               </div>
-              <button
-                onClick={() => router.push('/admin/competitions/new')}
-                className="bg-green-600 text-white px-3 py-1.5 rounded hover:bg-green-700 text-sm"
-              >
-                Add New Competition
-              </button>
+              <div className="flex gap-2">
+                <select
+                  value={competitionStatusFilter}
+                  onChange={(e) => setCompetitionStatusFilter(e.target.value)}
+                  className="px-3 py-1.5 border rounded text-sm"
+                >
+                  <option value="all">All Competitions</option>
+                  <option value="pending">Pending Only</option>
+                  <option value="approved">Approved Only</option>
+                  <option value="rejected">Rejected Only</option>
+                </select>
+                <button
+                  onClick={() => router.push('/admin/competitions/new')}
+                  className="bg-green-600 text-white px-3 py-1.5 rounded hover:bg-green-700 text-sm"
+                >
+                  Add New Competition
+                </button>
+              </div>
             </div>
 
             {isLoading ? (
@@ -2006,9 +2064,24 @@ export default function AdminDashboard() {
               <div className="text-center py-8 text-gray-500">
                 {searchTerm ? `No competitions found matching "${searchTerm}".` : 'No competitions found. Click "Add New Competition" to create one.'}
               </div>
+            ) : filteredCompetitions.filter(competition => {
+                if (competitionStatusFilter === 'all') return true
+                return competition.status === competitionStatusFilter
+              }).length === 0 ? (
+              <div className="text-center py-8 text-gray-500">
+                No {competitionStatusFilter === 'all' ? '' : competitionStatusFilter} competitions found.
+                {competitionStatusFilter === 'pending' && ' All competitions have been processed.'}
+                {competitionStatusFilter === 'approved' && ' No competitions have been approved yet.'}
+                {competitionStatusFilter === 'rejected' && ' No competitions have been rejected.'}
+              </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {filteredCompetitions.map((competition) => (
+                {filteredCompetitions
+                  .filter(competition => {
+                    if (competitionStatusFilter === 'all') return true
+                    return competition.status === competitionStatusFilter
+                  })
+                  .map((competition) => (
                   <div
                     key={competition.id}
                     className="bg-white rounded-lg shadow-md overflow-hidden"
@@ -2057,18 +2130,34 @@ export default function AdminDashboard() {
                         </div>
                         <div className="flex items-center">
                           <span className={`px-2 py-1 rounded-full text-xs ${
-                            competition.status === 'Upcoming' ? 'bg-yellow-100 text-yellow-800' :
-                            competition.status === 'Ongoing' ? 'bg-green-100 text-green-800' :
-                            competition.status === 'Completed' ? 'bg-gray-100 text-gray-800' :
-                            'bg-red-100 text-red-800'
+                            competition.status === 'approved' ? 'bg-green-100 text-green-800' :
+                            competition.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
+                            competition.status === 'rejected' ? 'bg-red-100 text-red-800' :
+                            'bg-gray-100 text-gray-800'
                           }`}>
-                            {competition.status}
+                            {competition.status || 'pending'}
                           </span>
                         </div>
                       </div>
 
                       {/* Action Buttons */}
-                      <div className="mt-4 flex gap-2">
+                      <div className="mt-4 flex gap-2 flex-wrap">
+                        {competition.status === 'pending' && (
+                          <>
+                            <button
+                              onClick={() => handleApproveCompetition(competition.id)}
+                              className="bg-green-500 text-white px-2.5 py-1 rounded hover:bg-green-600 text-sm"
+                            >
+                              Approve
+                            </button>
+                            <button
+                              onClick={() => handleRejectCompetition(competition.id)}
+                              className="bg-red-500 text-white px-2.5 py-1 rounded hover:bg-red-600 text-sm"
+                            >
+                              Reject
+                            </button>
+                          </>
+                        )}
                         <button
                           onClick={() => router.push(`/admin/competitions/${competition.id}/edit`)}
                           className="bg-yellow-500 text-white px-2.5 py-1 rounded hover:bg-yellow-600 text-sm"
