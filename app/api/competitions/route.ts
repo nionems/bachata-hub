@@ -32,7 +32,7 @@ interface CompetitionData {
   socialLink: string
   instagramLink: string
   facebookLink: string
-  status?: 'pending' | 'approved' | 'rejected'
+  status?: 'pending' | 'approved' | 'rejected' | 'Upcoming' | 'Completed'
   published?: boolean
   createdAt: string
   updatedAt: string
@@ -73,13 +73,24 @@ export async function GET(request: Request) {
       ...doc.data()
     })) as CompetitionData[]
 
-    // If not admin, filter to only published and approved competitions
+    // If not admin, filter competitions
     if (!admin) {
       const beforeFilter = competitions.length
-      competitions = competitions.filter(competition => 
-        (competition.published === true) && 
-        (competition.status === 'approved' || !competition.status)
-      )
+      competitions = competitions.filter(competition => {
+        // Include competitions that are published and approved (new system)
+        if (competition.published === true && competition.status === 'approved') {
+          return true
+        }
+        // Include competitions that don't have the new approval system (old competitions)
+        if (!competition.published && !competition.status) {
+          return true
+        }
+        // Include competitions with old status system (Upcoming, Completed, etc.)
+        if (!competition.published && (competition.status === 'Upcoming' || competition.status === 'Completed')) {
+          return true
+        }
+        return false
+      })
       const afterFilter = competitions.length
       console.log(`API Route: Filtered competitions - before: ${beforeFilter}, after: ${afterFilter}`)
       
@@ -87,9 +98,19 @@ export async function GET(request: Request) {
       const filteredOut = snapshot.docs.map((doc: any) => ({
         id: doc.id,
         ...doc.data()
-      })).filter((competition: CompetitionData) => 
-        !(competition.published === true && (competition.status === 'approved' || !competition.status))
-      )
+      })).filter((competition: CompetitionData) => {
+        // Check if this competition would be filtered out
+        if (competition.published === true && competition.status === 'approved') {
+          return false
+        }
+        if (!competition.published && !competition.status) {
+          return false
+        }
+        if (!competition.published && (competition.status === 'Upcoming' || competition.status === 'Completed')) {
+          return false
+        }
+        return true
+      })
       if (filteredOut.length > 0) {
         console.log('Competitions filtered out:', filteredOut.map((c: CompetitionData) => ({ id: c.id, name: c.name, status: c.status, published: c.published })))
       }
