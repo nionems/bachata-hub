@@ -13,7 +13,7 @@ import { toast } from "react-hot-toast"
 import { DANCE_STYLES, COUNTRIES } from "@/lib/constants"
 
 // Filter dance styles to show only the requested ones
-const FESTIVAL_DANCE_STYLES = ['Bachata', 'Salsa', 'Kizomba', 'Zouk', 'Mambo'] as const
+const FESTIVAL_DANCE_STYLES = ['Bachata', 'Salsa', 'Kizomba', 'Zouk', 'Mambo', 'Afrobeat'] as const
 
 interface FestivalSubmissionFormProps {
   isOpen: boolean
@@ -87,9 +87,23 @@ export function FestivalSubmissionForm({ isOpen, onClose }: FestivalSubmissionFo
 
   const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0] || null
-    setFormData(prev => ({ ...prev, image: file }))
     
     if (file) {
+      // Check file size (5MB limit)
+      const maxSize = 5 * 1024 * 1024 // 5MB in bytes
+      if (file.size > maxSize) {
+        toast.error('Image file is too large. Try taking a screenshot instead of uploading a high-quality photo. Maximum size: 5MB.')
+        e.target.value = '' // Clear the input
+        return
+      }
+      
+      // Check file type
+      if (!file.type.startsWith('image/')) {
+        toast.error('Please select a valid image file.')
+        e.target.value = '' // Clear the input
+        return
+      }
+      
       const reader = new FileReader()
       reader.onload = (e) => {
         setImagePreview(e.target?.result as string)
@@ -98,6 +112,8 @@ export function FestivalSubmissionForm({ isOpen, onClose }: FestivalSubmissionFo
     } else {
       setImagePreview(null)
     }
+    
+    setFormData(prev => ({ ...prev, image: file }))
   }
 
   const handleDanceStyleChange = (style: string, checked: boolean) => {
@@ -297,6 +313,23 @@ export function FestivalSubmissionForm({ isOpen, onClose }: FestivalSubmissionFo
             </div>
 
             <div className="space-y-1">
+              <Label htmlFor="country" className="text-primary text-sm">Country</Label>
+              <select
+                id="country"
+                name="country"
+                value={formData.country}
+                onChange={handleInputChange}
+                className="w-full px-3 py-1.5 border border-gray-300 rounded-md bg-white/80 backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent h-9"
+              >
+                {COUNTRIES.map((country) => (
+                  <option key={country} value={country}>
+                    {country}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="space-y-1">
               <Label htmlFor="state" className="text-primary text-sm">
                 {formData.country === 'Australia' ? 'State *' : 'State/Province'}
               </Label>
@@ -316,23 +349,6 @@ export function FestivalSubmissionForm({ isOpen, onClose }: FestivalSubmissionFo
                   className="bg-white/80 backdrop-blur-sm h-9"
                 />
               )}
-            </div>
-
-            <div className="space-y-1">
-              <Label htmlFor="country" className="text-primary text-sm">Country</Label>
-              <select
-                id="country"
-                name="country"
-                value={formData.country}
-                onChange={handleInputChange}
-                className="w-full px-3 py-1.5 border border-gray-300 rounded-md bg-white/80 backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent h-9"
-              >
-                {COUNTRIES.map((country) => (
-                  <option key={country} value={country}>
-                    {country}
-                  </option>
-                ))}
-              </select>
             </div>
 
             <div className="space-y-1">
@@ -476,6 +492,9 @@ export function FestivalSubmissionForm({ isOpen, onClose }: FestivalSubmissionFo
                     <ImageIcon className="h-4 w-4 text-gray-400 mr-2" />
                     <span className="text-xs text-gray-600 font-medium">Upload Photo</span>
                   </label>
+                  <p className="text-xs text-gray-500 mt-1">
+                    📸 Maximum file size: 5MB. 💡 Tip: Take a screenshot instead of uploading high-quality photos for smaller file sizes. Supported formats: JPG, PNG, GIF, WebP
+                  </p>
                 </div>
 
                 {/* Image Preview */}
@@ -571,7 +590,7 @@ export function FestivalSubmissionForm({ isOpen, onClose }: FestivalSubmissionFo
               name="ambassadorCode"
               value={formData.ambassadorCode}
               onChange={handleInputChange}
-              placeholder="e.g., BACHATAHUB20, DANCE10, etc."
+              placeholder="e.g., BACHATAAU/Ambasador, BACHATAHUB20, DANCE10, etc."
               className="bg-white/80 backdrop-blur-sm h-9"
             />
             <p className="text-xs text-gray-500 mt-1">

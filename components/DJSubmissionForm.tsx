@@ -61,7 +61,23 @@ export function DJSubmissionForm({ isOpen, onClose }: DJSubmissionFormProps) {
 
   const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
+    
     if (file) {
+      // Check file size (5MB limit)
+      const maxSize = 5 * 1024 * 1024 // 5MB in bytes
+      if (file.size > maxSize) {
+        toast.error('Image file is too large. Try taking a screenshot instead of uploading a high-quality photo. Maximum size: 5MB.')
+        e.target.value = '' // Clear the input
+        return
+      }
+      
+      // Check file type
+      if (!file.type.startsWith('image/')) {
+        toast.error('Please select a valid image file.')
+        e.target.value = '' // Clear the input
+        return
+      }
+      
       setImageFile(file)
       const reader = new FileReader()
       reader.onload = (e) => {
@@ -309,6 +325,9 @@ export function DJSubmissionForm({ isOpen, onClose }: DJSubmissionFormProps) {
                   <ImageIcon className="h-5 w-5 text-gray-400 mr-2" />
                   <span className="text-sm text-gray-600 font-medium">Upload Photo</span>
                 </label>
+                <p className="text-xs text-gray-500 mt-1">
+                  📸 Maximum file size: 5MB. 💡 Tip: Take a screenshot instead of uploading high-quality photos for smaller file sizes. Supported formats: JPG, PNG, GIF, WebP
+                </p>
               </div>
 
               {/* Image Preview */}

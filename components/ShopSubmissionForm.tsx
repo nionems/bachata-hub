@@ -65,12 +65,14 @@ export function ShopSubmissionForm({ isOpen, onClose }: ShopSubmissionFormProps)
       // Validate file type
       if (!file.type.startsWith('image/')) {
         setMessage({ type: 'error', text: 'Please select an image file' })
+        e.target.value = '' // Clear the input
         return
       }
 
       // Validate file size (max 5MB)
       if (file.size > 5 * 1024 * 1024) {
-        setMessage({ type: 'error', text: 'Image size is too big. Please select an image smaller than 5MB.' })
+        setMessage({ type: 'error', text: 'Image file is too large. Try taking a screenshot instead of uploading a high-quality photo. Maximum size: 5MB.' })
+        e.target.value = '' // Clear the input
         return
       }
 
@@ -423,6 +425,9 @@ export function ShopSubmissionForm({ isOpen, onClose }: ShopSubmissionFormProps)
                   <ImageIcon className="h-5 w-5 text-gray-400 mr-2" />
                   <span className="text-sm text-gray-600 font-medium">Upload Photo</span>
                 </label>
+                <p className="text-xs text-gray-500 mt-1">
+                  📸 Maximum file size: 5MB. 💡 Tip: Take a screenshot instead of uploading high-quality photos for smaller file sizes. Supported formats: JPG, PNG, GIF, WebP
+                </p>
               </div>
 
               {/* Image Preview */}

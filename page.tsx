@@ -31,8 +31,24 @@ export default function Page() {
   };
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      setSelectedImage(e.target.files[0]);
+    const file = e.target.files?.[0]
+    if (file) {
+      // Check file size (5MB limit)
+      const maxSize = 5 * 1024 * 1024 // 5MB in bytes
+      if (file.size > maxSize) {
+        alert('Image file is too large. Try taking a screenshot instead of uploading a high-quality photo. Maximum size: 5MB.')
+        e.target.value = '' // Clear the input
+        return
+      }
+      
+      // Check file type
+      if (!file.type.startsWith('image/')) {
+        alert('Please select a valid image file.')
+        e.target.value = '' // Clear the input
+        return
+      }
+      
+      setSelectedImage(file);
     }
   };
 
