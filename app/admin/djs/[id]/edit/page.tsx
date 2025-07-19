@@ -50,10 +50,6 @@ export default function EditDJPage({ params }: { params: { id: string } }) {
           danceStylesArr = data.danceStyles
         } else if (typeof data.danceStyles === 'string') {
           danceStylesArr = data.danceStyles.split(',').map((s: string) => s.trim()).filter(Boolean)
-        } else if (Array.isArray(data.musicStyles)) {
-          danceStylesArr = data.musicStyles
-        } else if (typeof data.musicStyles === 'string') {
-          danceStylesArr = data.musicStyles.split(',').map((s: string) => s.trim()).filter(Boolean)
         }
         
         setFormData({

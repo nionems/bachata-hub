@@ -180,7 +180,7 @@ async function getAdminEmailHtml(type: string, data: any) {
         <p><strong>State:</strong> ${data.state}</p>
         <p><strong>Contact:</strong> ${data.contact}</p>
         <p><strong>Email:</strong> ${data.email}</p>
-        <p><strong>Music Styles:</strong> ${data.musicStyles}</p>
+        <p><strong>Dance Styles:</strong> ${Array.isArray(data.danceStyles) ? data.danceStyles.join(', ') : data.danceStyles}</p>
         <p><strong>Comment:</strong> ${data.comment || 'N/A'}</p>
         <p><strong>Instagram:</strong> ${data.instagramLink || 'N/A'}</p>
         <p><strong>Facebook:</strong> ${data.facebookLink || 'N/A'}</p>

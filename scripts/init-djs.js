@@ -30,7 +30,7 @@ async function initDJsCollection() {
                 location: 'Sydney',
                 state: 'NSW',
                 contact: '0434047460',
-                musicStyles: 'Bachata/Salsa',
+                danceStyles: ['Bachata', 'Salsa'],
                 imageUrl: '',  // URL of the uploaded image in Firebase Storage
                 comment: 'great fun',
                 instagramLink: 'https://www.instagram.com/nohmonsnaps/',
