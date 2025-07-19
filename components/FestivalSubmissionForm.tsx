@@ -48,7 +48,7 @@ export function FestivalSubmissionForm({ isOpen, onClose }: FestivalSubmissionFo
     startDate: '',
     endDate: '',
     location: '',
-    state: '',
+    state: 'NSW', // Default state for Australia
     country: 'Australia',
     address: '',
     eventLink: '',
@@ -150,13 +150,16 @@ export function FestivalSubmissionForm({ isOpen, onClose }: FestivalSubmissionFo
         imageUrl = uploadedImageUrl
       }
 
+      // Ensure state is set correctly based on country
+      const finalState = formData.country !== 'Australia' ? 'N/A' : formData.state
+
       // Prepare festival data for database
       const festivalData = {
         name: formData.name,
         startDate: formData.startDate,
         endDate: formData.endDate,
         location: formData.location,
-        state: formData.state,
+        state: finalState,
         country: formData.country,
         address: formData.address,
         eventLink: formData.eventLink,
