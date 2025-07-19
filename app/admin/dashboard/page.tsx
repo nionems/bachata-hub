@@ -214,6 +214,7 @@ export default function AdminDashboard() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [shopStatusFilter, setShopStatusFilter] = useState('all')
   const [competitionStatusFilter, setCompetitionStatusFilter] = useState('all')
+  const [djStatusFilter, setDJStatusFilter] = useState('all')
   const router = useRouter()
 
   // useEffect(() => {
@@ -2058,12 +2059,24 @@ export default function AdminDashboard() {
                   {searchTerm ? `${filteredDJs.length} of ${djs.length} DJs` : `${djs.length} total DJs`}
                 </div>
               </div>
-              <button
-                onClick={() => router.push('/admin/djs/new')}
-                className="bg-blue-500 text-white px-3 py-1.5 rounded hover:bg-blue-600 text-sm"
-              >
-                Add New DJ
-              </button>
+              <div className="flex gap-2">
+                <select
+                  value={djStatusFilter}
+                  onChange={(e) => setDJStatusFilter(e.target.value)}
+                  className="px-3 py-1.5 border rounded text-sm"
+                >
+                  <option value="all">All DJs</option>
+                  <option value="pending">Pending Only</option>
+                  <option value="approved">Approved Only</option>
+                  <option value="rejected">Rejected Only</option>
+                </select>
+                <button
+                  onClick={() => router.push('/admin/djs/new')}
+                  className="bg-blue-500 text-white px-3 py-1.5 rounded hover:bg-blue-600 text-sm"
+                >
+                  Add New DJ
+                </button>
+              </div>
             </div>
 
             {isLoading ? (
@@ -2074,6 +2087,16 @@ export default function AdminDashboard() {
               <div className="text-center py-8 text-gray-500">
                 {searchTerm ? `No DJs found matching "${searchTerm}".` : 'No DJs found. Click "Add New DJ" to create one.'}
               </div>
+            ) : filteredDJs.filter(dj => {
+                if (djStatusFilter === 'all') return true
+                return dj.status === djStatusFilter
+              }).length === 0 ? (
+              <div className="text-center py-8 text-gray-500">
+                No {djStatusFilter === 'all' ? '' : djStatusFilter} DJs found.
+                {djStatusFilter === 'pending' && ' All DJs have been processed.'}
+                {djStatusFilter === 'approved' && ' No DJs have been approved yet.'}
+                {djStatusFilter === 'rejected' && ' No DJs have been rejected.'}
+              </div>
             ) : (
               <div className={`
                 ${layout === 'grid' 
@@ -2081,7 +2104,12 @@ export default function AdminDashboard() {
                   : 'flex flex-col gap-4'
                 }
               `} style={layout === 'grid' ? { gridAutoFlow: 'dense' } : {}}>
-                {filteredDJs.map((dj) => (
+                {filteredDJs
+                  .filter(dj => {
+                    if (djStatusFilter === 'all') return true
+                    return dj.status === djStatusFilter
+                  })
+                  .map((dj) => (
                   <DJCard key={dj.id} dj={dj} />
                 ))}
               </div>
