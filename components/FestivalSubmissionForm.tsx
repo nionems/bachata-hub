@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { StateSelect } from "@/components/ui/StateSelect"
 import { Checkbox } from "@/components/ui/checkbox"
+import { SubmitButton } from "@/components/ui/submit-button"
 import { X, ImageIcon, CheckCircle } from "lucide-react"
 import { toast } from "react-hot-toast"
 import { DANCE_STYLES, COUNTRIES } from "@/lib/constants"
@@ -625,13 +626,14 @@ export function FestivalSubmissionForm({ isOpen, onClose }: FestivalSubmissionFo
             >
               Cancel
             </Button>
-            <Button
-              type="submit"
-              disabled={isLoading}
-              className="bg-primary hover:bg-primary/90"
+            <SubmitButton
+              isLoading={isLoading}
+              variant="gradient"
+              size="md"
+              icon="send"
             >
-              {isLoading ? 'Submitting...' : 'Submit Festival'}
-            </Button>
+              Submit Festival
+            </SubmitButton>
           </div>
         </form>
       </DialogContent>

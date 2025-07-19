@@ -7,6 +7,8 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { StateSelect } from "@/components/ui/StateSelect"
+import { SubmitButton } from "@/components/ui/submit-button"
+import { SuccessConfirmation, useSuccessConfirmation } from "@/components/ui/success-confirmation"
 import { toast } from "sonner"
 import { X } from "lucide-react"
 
@@ -38,7 +40,7 @@ export function EventSubmissionForm({ isOpen, onClose }: EventSubmissionFormProp
     endTime: "",
     location: "",
     city: "",
-    state: "",
+    state: "NSW",
     description: "",
     organizerName: "",
     organizerEmail: "",
@@ -48,6 +50,7 @@ export function EventSubmissionForm({ isOpen, onClose }: EventSubmissionFormProp
 
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const { showSuccess, close: closeSuccess, isOpen: isSuccessOpen, config: successConfig } = useSuccessConfirmation()
 
   const handleInputChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target
@@ -78,8 +81,17 @@ export function EventSubmissionForm({ isOpen, onClose }: EventSubmissionFormProp
         throw new Error(data.details || data.error || "Failed to submit event")
       }
 
-      toast.success("Event submitted successfully! We'll review it and add it to the calendar.")
-      onClose()
+      console.log('Event created:', data)
+
+      // Show success confirmation
+      showSuccess({
+        title: "Event Submitted! 🎉",
+        message: "Your event has been submitted successfully and is awaiting approval.",
+        subtitle: "We'll review your event and add it to our calendar soon!",
+        type: 'event'
+      })
+
+      // Reset form
       setFormData({
         eventName: '',
         eventDate: '',
@@ -87,18 +99,17 @@ export function EventSubmissionForm({ isOpen, onClose }: EventSubmissionFormProp
         endTime: '',
         location: '',
         city: '',
-        state: '',
+        state: 'NSW',
         description: '',
         organizerName: '',
         organizerEmail: '',
         ticketLink: '',
         eventLink: ''
       })
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Failed to submit form. Please try again.'
-      setError(errorMessage)
-      toast.error(errorMessage)
-      console.error("Error submitting event:", err)
+      setError(null)
+    } catch (error) {
+      console.error('Error submitting event:', error)
+      setError('Failed to submit event. Please try again.')
     } finally {
       setIsLoading(false)
     }
@@ -313,16 +324,28 @@ export function EventSubmissionForm({ isOpen, onClose }: EventSubmissionFormProp
           )}
 
           <div className="flex justify-end pt-2">
-            <Button
-              type="submit"
-              disabled={isLoading}
-              className="bg-primary hover:bg-primary/90 rounded-lg h-8"
+            <SubmitButton
+              isLoading={isLoading}
+              variant="gradient"
+              size="md"
+              icon="send"
+              className="w-full sm:w-auto"
             >
-              {isLoading ? 'Submitting...' : 'Submit Event'}
-            </Button>
+              Submit Event
+            </SubmitButton>
           </div>
         </form>
       </DialogContent>
+
+      {/* Success Confirmation */}
+      <SuccessConfirmation
+        isOpen={isSuccessOpen}
+        onClose={closeSuccess}
+        title={successConfig.title}
+        message={successConfig.message}
+        subtitle={successConfig.subtitle}
+        type={successConfig.type}
+      />
     </Dialog>
   )
 } 

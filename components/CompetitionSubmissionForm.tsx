@@ -8,6 +8,8 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { StateSelect } from "@/components/ui/StateSelect"
 import { Checkbox } from "@/components/ui/checkbox"
+import { SubmitButton } from "@/components/ui/submit-button"
+import { SuccessConfirmation, useSuccessConfirmation } from "@/components/ui/success-confirmation"
 import { toast } from "react-hot-toast"
 import { X, ImageIcon, CheckCircle } from "lucide-react"
 import { COUNTRIES } from "@/lib/constants"
@@ -88,8 +90,8 @@ export function CompetitionSubmissionForm({ isOpen, onClose }: CompetitionSubmis
   })
 
   const [isLoading, setIsLoading] = useState(false)
-  const [showSuccessPopup, setShowSuccessPopup] = useState(false)
   const [imagePreview, setImagePreview] = useState<string | null>(null)
+  const { showSuccess, close: closeSuccess, isOpen: isSuccessOpen, config: successConfig } = useSuccessConfirmation()
 
   const handleInputChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value, type } = e.target
@@ -233,59 +235,41 @@ export function CompetitionSubmissionForm({ isOpen, onClose }: CompetitionSubmis
       const createdCompetition = await competitionResponse.json()
       console.log('Competition created:', createdCompetition)
 
-      // Send email notification
-      const emailResponse = await fetch('/api/submit-form', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          type: 'competition_submission',
-          data: {
-            ...formData,
-            imageUrl,
-            country: 'Australia'
-          }
-        }),
+      // Show success confirmation
+      showSuccess({
+        title: "Competition Submitted! 🏆",
+        message: "Your competition has been submitted successfully and is awaiting approval.",
+        subtitle: "We'll review your competition and add it to our listings soon!",
+        type: 'competition'
       })
 
-      if (!emailResponse.ok) {
-        console.warn('Failed to send email notification, but competition was created')
-      }
-
-      setShowSuccessPopup(true)
-      // Close the popup after 3 seconds
-      setTimeout(() => {
-        setShowSuccessPopup(false)
-        onClose()
-      }, 3000)
-
       // Reset form
-                      setFormData({
-          name: '',
-          organizer: '',
-          email: '',
-          startDate: '',
-          endDate: '',
-          location: '',
-          state: 'NSW',
-          address: '',
-          eventLink: '',
-          price: '',
-          ticketLink: '',
-          resultLink: '',
-          danceStyles: [],
-          imageUrl: '',
-          image: null,
-          comment: '',
-          googleMapLink: '',
-          categories: [],
-          level: [],
-          socialLink: '',
-          instagramLink: '',
-          facebookLink: ''
-        })
-        setImagePreview(null)
+      setFormData({
+        name: '',
+        organizer: '',
+        email: '',
+        startDate: '',
+        endDate: '',
+        location: '',
+        state: 'NSW',
+        address: '',
+        eventLink: '',
+        price: '',
+        ticketLink: '',
+        resultLink: '',
+        danceStyles: [],
+        imageUrl: '',
+        image: null,
+        comment: '',
+        googleMapLink: '',
+        categories: [],
+        level: [],
+        socialLink: '',
+        instagramLink: '',
+        facebookLink: ''
+      })
+      setImagePreview(null)
+      // setError(null) // This line was not in the new_code, so it's removed.
     } catch (error) {
       console.error('Error submitting competition:', error)
       toast.error('Failed to submit competition. Please try again.')
@@ -682,16 +666,28 @@ export function CompetitionSubmissionForm({ isOpen, onClose }: CompetitionSubmis
             >
               Cancel
             </Button>
-            <Button
-              type="submit"
-              disabled={isLoading}
-              className="w-full bg-primary hover:bg-primary/90 text-white rounded-lg"
+            <SubmitButton
+              isLoading={isLoading}
+              variant="gradient"
+              size="md"
+              icon="send"
+              className="w-full"
             >
-              {isLoading ? 'Submitting...' : 'Submit Competition'}
-            </Button>
+              Submit Competition
+            </SubmitButton>
           </div>
         </form>
       </DialogContent>
+
+      {/* Success Confirmation */}
+      <SuccessConfirmation
+        isOpen={isSuccessOpen}
+        onClose={closeSuccess}
+        title={successConfig.title}
+        message={successConfig.message}
+        subtitle={successConfig.subtitle}
+        type={successConfig.type}
+      />
     </Dialog>
   )
 } 

@@ -15,6 +15,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card'
 import MediaForm from '@/components/MediaForm'
 import { MediaCard } from '@/components/MediaCard'
+import { useConfirmation, ConfirmationDialog } from '@/components/ui/confirmation-dialog'
 
 
 
@@ -198,6 +199,7 @@ export default function AdminDashboard() {
   const [mediaList, setMediaList] = useState<Media[]>([])
   const [users, setUsers] = useState<User[]>([])
   const [isLoading, setIsLoading] = useState(true)
+  const { confirm, close, isOpen, config } = useConfirmation()
   const [error, setError] = useState<string | null>(null)
   const [searchTerm, setSearchTerm] = useState('')
   const [layout, setLayout] = useState<'grid' | 'list'>('grid')
@@ -521,41 +523,51 @@ export default function AdminDashboard() {
   }
 
   const handleDelete = async (id: string) => {
-    if (window.confirm('Are you sure you want to delete this accommodation?')) {
-      try {
-        const response = await fetch(`/api/accommodations/${id}`, {
-          method: 'DELETE',
-        });
+    confirm({
+      title: 'Delete Accommodation',
+      description: 'Are you sure you want to delete this accommodation? This action cannot be undone.',
+      type: 'delete',
+      onConfirm: async () => {
+        try {
+          const response = await fetch(`/api/accommodations/${id}`, {
+            method: 'DELETE',
+          });
 
-        if (!response.ok) {
-          throw new Error('Failed to delete accommodation');
+          if (!response.ok) {
+            throw new Error('Failed to delete accommodation');
+          }
+
+          setAccommodations(accommodations.filter(acc => acc.id !== id));
+          toast.success('Accommodation deleted successfully');
+        } catch (error) {
+          console.error('Error deleting accommodation:', error);
+          toast.error('Failed to delete accommodation');
         }
-
-        setAccommodations(accommodations.filter(acc => acc.id !== id));
-        toast.success('Accommodation deleted successfully');
-      } catch (error) {
-        console.error('Error deleting accommodation:', error);
-        toast.error('Failed to delete accommodation');
       }
-    }
+    });
   };
 
   const handleDeleteEvent = async (eventId: string) => {
-    if (!confirm('Are you sure you want to delete this event?')) return
+    confirm({
+      title: 'Delete Event',
+      description: 'Are you sure you want to delete this event? This action cannot be undone.',
+      type: 'delete',
+      onConfirm: async () => {
+        try {
+          const response = await fetch(`/api/events/${eventId}`, {
+            method: 'DELETE',
+          })
 
-    try {
-      const response = await fetch(`/api/events/${eventId}`, {
-        method: 'DELETE',
-      })
-
-      if (!response.ok) throw new Error('Failed to delete event')
-      
-      // Refresh events list
-      fetchDbEvents()
-    } catch (err) {
-      console.error('Failed to delete event:', err)
-      setError('Failed to delete event')
-    }
+          if (!response.ok) throw new Error('Failed to delete event')
+          
+          // Refresh events list
+          fetchDbEvents()
+        } catch (err) {
+          console.error('Failed to delete event:', err)
+          setError('Failed to delete event')
+        }
+      }
+    });
   }
 
   const handleToggleEventPublished = async (eventId: string, currentPublished: boolean) => {
@@ -582,21 +594,26 @@ export default function AdminDashboard() {
   }
 
   const handleDeleteFestival = async (festivalId: string) => {
-    if (!confirm('Are you sure you want to delete this festival?')) return
+    confirm({
+      title: 'Delete Festival',
+      description: 'Are you sure you want to delete this festival? This action cannot be undone.',
+      type: 'delete',
+      onConfirm: async () => {
+        try {
+          const response = await fetch(`/api/festivals/${festivalId}`, {
+            method: 'DELETE',
+          })
 
-    try {
-      const response = await fetch(`/api/festivals/${festivalId}`, {
-        method: 'DELETE',
-      })
-
-      if (!response.ok) throw new Error('Failed to delete festival')
-      
-      // Refresh festivals list
-      fetchFestivals()
-    } catch (err) {
-      console.error('Failed to delete festival:', err)
-      setError('Failed to delete festival')
-    }
+          if (!response.ok) throw new Error('Failed to delete festival')
+          
+          // Refresh festivals list
+          fetchFestivals()
+        } catch (err) {
+          console.error('Failed to delete festival:', err)
+          setError('Failed to delete festival')
+        }
+      }
+    });
   }
 
   const handleTogglePublished = async (festivalId: string, currentPublished: boolean) => {
@@ -665,19 +682,24 @@ export default function AdminDashboard() {
   }
 
   const handleDeleteInstructor = async (instructorId: string) => {
-    if (!confirm('Are you sure you want to delete this instructor?')) return
+    confirm({
+      title: 'Delete Instructor',
+      description: 'Are you sure you want to delete this instructor? This action cannot be undone.',
+      type: 'delete',
+      onConfirm: async () => {
+        try {
+          const response = await fetch(`/api/instructors/${instructorId}`, {
+            method: 'DELETE',
+          })
 
-    try {
-      const response = await fetch(`/api/instructors/${instructorId}`, {
-        method: 'DELETE',
-      })
-
-      if (!response.ok) throw new Error('Failed to delete instructor')
-      fetchInstructors()
-    } catch (err) {
-      console.error('Failed to delete instructor:', err)
-      setError('Failed to delete instructor')
-    }
+          if (!response.ok) throw new Error('Failed to delete instructor')
+          fetchInstructors()
+        } catch (err) {
+          console.error('Failed to delete instructor:', err)
+          setError('Failed to delete instructor')
+        }
+      }
+    });
   }
 
   const handleApproveInstructor = async (instructorId: string) => {
@@ -723,75 +745,95 @@ export default function AdminDashboard() {
   }
 
   const handleDeleteShop = async (shopId: string) => {
-    if (!confirm('Are you sure you want to delete this shop?')) return
+    confirm({
+      title: 'Delete Shop',
+      description: 'Are you sure you want to delete this shop? This action cannot be undone.',
+      type: 'delete',
+      onConfirm: async () => {
+        try {
+          const response = await fetch(`/api/shops/${shopId}`, {
+            method: 'DELETE',
+          })
 
-    try {
-      const response = await fetch(`/api/shops/${shopId}`, {
-        method: 'DELETE',
-      })
-
-      if (!response.ok) throw new Error('Failed to delete shop')
-      
-      // Refresh shops list
-      await fetchShops()
-    } catch (err) {
-      console.error('Failed to delete shop:', err)
-      setError('Failed to delete shop')
-    }
+          if (!response.ok) throw new Error('Failed to delete shop')
+          
+          // Refresh shops list
+          await fetchShops()
+        } catch (err) {
+          console.error('Failed to delete shop:', err)
+          setError('Failed to delete shop')
+        }
+      }
+    });
   }
 
   const handleApproveShop = async (shopId: string) => {
-    if (!confirm('Are you sure you want to approve this shop?')) return
+    confirm({
+      title: 'Approve Shop',
+      description: 'Are you sure you want to approve this shop? It will be published on the website.',
+      type: 'approve',
+      onConfirm: async () => {
+        try {
+          const response = await fetch(`/api/shops/${shopId}/approve`, {
+            method: 'POST',
+          })
 
-    try {
-      const response = await fetch(`/api/shops/${shopId}/approve`, {
-        method: 'POST',
-      })
-
-      if (!response.ok) throw new Error('Failed to approve shop')
-      
-      // Refresh shops list
-      await fetchShops()
-      toast.success('Shop approved successfully')
-    } catch (err) {
-      console.error('Failed to approve shop:', err)
-      toast.error('Failed to approve shop')
-    }
+          if (!response.ok) throw new Error('Failed to approve shop')
+          
+          // Refresh shops list
+          await fetchShops()
+          toast.success('Shop approved successfully')
+        } catch (err) {
+          console.error('Failed to approve shop:', err)
+          toast.error('Failed to approve shop')
+        }
+      }
+    });
   }
 
   const handleRejectShop = async (shopId: string) => {
-    if (!confirm('Are you sure you want to reject this shop?')) return
+    confirm({
+      title: 'Reject Shop',
+      description: 'Are you sure you want to reject this shop? It will not be published.',
+      type: 'reject',
+      onConfirm: async () => {
+        try {
+          const response = await fetch(`/api/shops/${shopId}/reject`, {
+            method: 'POST',
+          })
 
-    try {
-      const response = await fetch(`/api/shops/${shopId}/reject`, {
-        method: 'POST',
-      })
-
-      if (!response.ok) throw new Error('Failed to reject shop')
-      
-      // Refresh shops list
-      await fetchShops()
-      toast.success('Shop rejected successfully')
-    } catch (err) {
-      console.error('Failed to reject shop:', err)
-      toast.error('Failed to reject shop')
-    }
+          if (!response.ok) throw new Error('Failed to reject shop')
+          
+          // Refresh shops list
+          await fetchShops()
+          toast.success('Shop rejected successfully')
+        } catch (err) {
+          console.error('Failed to reject shop:', err)
+          toast.error('Failed to reject shop')
+        }
+      }
+    });
   }
 
   const handleDeleteDJ = async (djId: string) => {
-    if (!confirm('Are you sure you want to delete this DJ?')) return
+    confirm({
+      title: 'Delete DJ',
+      description: 'Are you sure you want to delete this DJ? This action cannot be undone.',
+      type: 'delete',
+      onConfirm: async () => {
+        try {
+          const response = await fetch(`/api/djs/${djId}`, {
+            method: 'DELETE',
+          })
 
-    try {
-      const response = await fetch(`/api/djs/${djId}`, {
-        method: 'DELETE',
-      })
-
-      if (!response.ok) throw new Error('Failed to delete DJ')
-      fetchDJs()
-    } catch (err) {
-      console.error('Failed to delete DJ:', err)
-      setError('Failed to delete DJ')
-    }
+          if (!response.ok) throw new Error('Failed to delete DJ')
+          fetchDJs()
+        } catch (err) {
+          console.error('Failed to delete DJ:', err)
+          setError('Failed to delete DJ')
+        }
+      }
+    });
   }
 
   const handleApproveDJ = async (djId: string) => {
@@ -837,22 +879,27 @@ export default function AdminDashboard() {
   }
 
   const handleDeleteCompetition = async (competitionId: string) => {
-    if (!confirm('Are you sure you want to delete this competition?')) return
+    confirm({
+      title: 'Delete Competition',
+      description: 'Are you sure you want to delete this competition? This action cannot be undone.',
+      type: 'delete',
+      onConfirm: async () => {
+        try {
+          const response = await fetch(`/api/competitions/${competitionId}`, {
+            method: 'DELETE',
+          })
 
-    try {
-      const response = await fetch(`/api/competitions/${competitionId}`, {
-        method: 'DELETE',
-      })
-
-      if (!response.ok) throw new Error('Failed to delete competition')
-      
-      // Refresh competitions list
-      fetchCompetitions()
-      toast.success('Competition deleted successfully')
-    } catch (err) {
-      console.error('Failed to delete competition:', err)
-      toast.error('Failed to delete competition')
-    }
+          if (!response.ok) throw new Error('Failed to delete competition')
+          
+          // Refresh competitions list
+          fetchCompetitions()
+          toast.success('Competition deleted successfully')
+        } catch (err) {
+          console.error('Failed to delete competition:', err)
+          toast.error('Failed to delete competition')
+        }
+      }
+    });
   }
 
   const handleApproveCompetition = async (competitionId: string) => {
@@ -898,22 +945,27 @@ export default function AdminDashboard() {
   }
 
   const handleDeleteSchool = async (schoolId: string) => {
-    if (!confirm('Are you sure you want to delete this school?')) return
+    confirm({
+      title: 'Delete School',
+      description: 'Are you sure you want to delete this school? This action cannot be undone.',
+      type: 'delete',
+      onConfirm: async () => {
+        try {
+          const response = await fetch(`/api/schools/${schoolId}`, {
+            method: 'DELETE',
+          })
 
-    try {
-      const response = await fetch(`/api/schools/${schoolId}`, {
-        method: 'DELETE',
-      })
-
-      if (!response.ok) throw new Error('Failed to delete school')
-      
-      // Refresh schools list
-      fetchSchools()
-      toast.success('School deleted successfully')
-    } catch (err) {
-      console.error('Failed to delete school:', err)
-      toast.error('Failed to delete school')
-    }
+          if (!response.ok) throw new Error('Failed to delete school')
+          
+          // Refresh schools list
+          fetchSchools()
+          toast.success('School deleted successfully')
+        } catch (err) {
+          console.error('Failed to delete school:', err)
+          toast.error('Failed to delete school')
+        }
+      }
+    });
   }
 
   const handleApproveSchool = async (schoolId: string) => {
@@ -980,21 +1032,26 @@ export default function AdminDashboard() {
   }, [activeTab])
 
   const handleDeleteMedia = async (id: string) => {
-    if (window.confirm('Are you sure you want to delete this media?')) {
-      try {
-        const response = await fetch(`/api/media/${id}`, {
-          method: 'DELETE',
-        })
+    confirm({
+      title: 'Delete Media',
+      description: 'Are you sure you want to delete this media? This action cannot be undone.',
+      type: 'delete',
+      onConfirm: async () => {
+        try {
+          const response = await fetch(`/api/media/${id}`, {
+            method: 'DELETE',
+          })
 
-        if (!response.ok) throw new Error('Failed to delete media')
-        
-        setMediaList(mediaList.filter(media => media.id !== id))
-        toast.success('Media deleted successfully')
-      } catch (error) {
-        console.error('Error deleting media:', error)
-        toast.error('Failed to delete media')
+          if (!response.ok) throw new Error('Failed to delete media')
+          
+          setMediaList(mediaList.filter(media => media.id !== id))
+          toast.success('Media deleted successfully')
+        } catch (error) {
+          console.error('Error deleting media:', error)
+          toast.error('Failed to delete media')
+        }
       }
-    }
+    });
   }
 
   const handleApproveMedia = async (mediaId: string) => {
@@ -1093,18 +1150,23 @@ export default function AdminDashboard() {
   }
 
   const handleDeleteUser = async (userId: string) => {
-    if (!confirm('Are you sure you want to delete this user?')) return
-
-    try {
-      const userRef = doc(db, 'users', userId)
-      await deleteDoc(userRef)
-      // Refresh the users list
-      fetchUsers()
-      toast.success('User deleted successfully')
-    } catch (err) {
-      console.error('Failed to delete user:', err)
-      toast.error('Failed to delete user')
-    }
+    confirm({
+      title: 'Delete User',
+      description: 'Are you sure you want to delete this user? This action cannot be undone.',
+      type: 'delete',
+      onConfirm: async () => {
+        try {
+          const userRef = doc(db, 'users', userId)
+          await deleteDoc(userRef)
+          // Refresh the users list
+          fetchUsers()
+          toast.success('User deleted successfully')
+        } catch (err) {
+          console.error('Failed to delete user:', err)
+          toast.error('Failed to delete user')
+        }
+      }
+    });
   }
 
   const handleSelectAll = () => {
@@ -2847,6 +2909,20 @@ export default function AdminDashboard() {
           </button>
         </form>
       </div>
+
+      {/* Modern Confirmation Dialog */}
+      {config && (
+        <ConfirmationDialog
+          isOpen={isOpen}
+          onClose={close}
+          onConfirm={config.onConfirm}
+          title={config.title}
+          description={config.description}
+          type={config.type}
+          confirmText={config.confirmText}
+          cancelText={config.cancelText}
+        />
+      )}
     </div>
   )
 } 
