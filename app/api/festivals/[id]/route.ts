@@ -100,6 +100,14 @@ export async function PUT(
     
     console.log('Festival updated successfully')
     
+    // Clear the festivals cache to ensure the public page shows updated data
+    try {
+      await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/festivals?clearCache=true`)
+      console.log('Festivals cache cleared after update')
+    } catch (cacheError) {
+      console.warn('Failed to clear festivals cache:', cacheError)
+    }
+    
     return NextResponse.json({ success: true })
   } catch (error) {
     console.error('Error updating festival:', error)

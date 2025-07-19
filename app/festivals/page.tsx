@@ -94,8 +94,8 @@ export default function FestivalsPage() {
       setIsLoading(true)
       setError(null)
       try {
-        // Use the API route that filters published festivals
-        const response = await fetch('/api/festivals')
+        // Use the API route that filters published festivals, with cache clearing for debugging
+        const response = await fetch('/api/festivals?clearCache=true')
         if (!response.ok) {
           throw new Error('Failed to fetch festivals')
         }
@@ -103,6 +103,7 @@ export default function FestivalsPage() {
         
         // Festivals are already sorted by name from the API
         setFestivals(festivalsList)
+        console.log('Fetched festivals:', festivalsList.length, 'festivals')
       } catch (err) {
         console.error('Error fetching festivals:', err)
         setError('Failed to load festivals')

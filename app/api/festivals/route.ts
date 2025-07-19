@@ -71,7 +71,16 @@ export async function GET(request: Request) {
 
     // If not admin, filter to only approved festivals
     if (!admin) {
+      const beforeFilter = festivals.length
       festivals = festivals.filter(festival => festival.status === 'approved' || !festival.status)
+      const afterFilter = festivals.length
+      console.log(`API Route: Filtered festivals - before: ${beforeFilter}, after: ${afterFilter}`)
+      
+      // Log festivals that didn't pass the filter
+      const filteredOut = festivals.filter(festival => festival.status !== 'approved' && festival.status)
+      if (filteredOut.length > 0) {
+        console.log('Festivals filtered out due to status:', filteredOut.map(f => ({ id: f.id, name: f.name, status: f.status, published: f.published })))
+      }
     }
 
     // Log featured festivals for debugging
