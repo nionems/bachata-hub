@@ -62,12 +62,8 @@ export async function GET(request: Request) {
 
     let competitionsRef: any = db.collection('competitions')
     
-    // If not admin, only get published competitions
-    if (!admin) {
-      competitionsRef = competitionsRef.where('published', '==', true)
-    }
-    
-    competitionsRef = competitionsRef.orderBy('name') // Pre-sort by name to reduce client-side processing
+    // Get all competitions first, then filter client-side to avoid index requirements
+    // This is simpler and doesn't require composite indexes
     
     const snapshot = await competitionsRef.get()
     console.log(`API Route (GET /api/competitions): Fetched ${snapshot.docs.length} competitions from Firestore in ${Date.now() - startTime}ms`)
@@ -77,19 +73,30 @@ export async function GET(request: Request) {
       ...doc.data()
     })) as CompetitionData[]
 
-    // If not admin, filter to only approved competitions
+    // If not admin, filter to only published and approved competitions
     if (!admin) {
       const beforeFilter = competitions.length
-      competitions = competitions.filter(competition => competition.status === 'approved' || !competition.status)
+      competitions = competitions.filter(competition => 
+        (competition.published === true) && 
+        (competition.status === 'approved' || !competition.status)
+      )
       const afterFilter = competitions.length
       console.log(`API Route: Filtered competitions - before: ${beforeFilter}, after: ${afterFilter}`)
       
       // Log competitions that didn't pass the filter
-      const filteredOut = competitions.filter(competition => competition.status !== 'approved' && competition.status)
+      const filteredOut = snapshot.docs.map((doc: any) => ({
+        id: doc.id,
+        ...doc.data()
+      })).filter((competition: CompetitionData) => 
+        !(competition.published === true && (competition.status === 'approved' || !competition.status))
+      )
       if (filteredOut.length > 0) {
-        console.log('Competitions filtered out due to status:', filteredOut.map(c => ({ id: c.id, name: c.name, status: c.status, published: c.published })))
+        console.log('Competitions filtered out:', filteredOut.map((c: CompetitionData) => ({ id: c.id, name: c.name, status: c.status, published: c.published })))
       }
     }
+
+    // Sort competitions by name
+    competitions.sort((a, b) => a.name.localeCompare(b.name))
 
     // Update cache only for non-admin requests
     if (!admin) {
