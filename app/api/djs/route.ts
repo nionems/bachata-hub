@@ -62,12 +62,21 @@ export async function POST(request: Request) {
       );
     }
 
+    // Validate dance styles
+    if (!danceStyles || (Array.isArray(danceStyles) && danceStyles.length === 0)) {
+      console.error('Missing dance styles');
+      return NextResponse.json(
+        { error: 'Please select at least one dance style' },
+        { status: 400 }
+      );
+    }
+
     const djData = {
       name,
       location,
       state,
-      contact: email || '', // Map email to contact field for admin dashboard
-      emailLink: email || '',
+      contact: email, // Map email to contact field for admin dashboard
+      emailLink: emailLink || email, // Use emailLink if provided, otherwise use email
       facebookLink: facebookLink || '',
       instagramLink: instagramLink || '',
       imageUrl: imageUrl || '',

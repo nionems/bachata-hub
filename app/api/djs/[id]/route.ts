@@ -55,12 +55,41 @@ export async function PUT(
         { status: 404 }
       )
     }
+
+    // Validate required fields
+    if (!data.name || !data.location || !data.state || !data.contact) {
+      return NextResponse.json(
+        { error: 'Missing required fields' },
+        { status: 400 }
+      )
+    }
+
+    // Validate dance styles
+    if (!data.danceStyles || (Array.isArray(data.danceStyles) && data.danceStyles.length === 0)) {
+      return NextResponse.json(
+        { error: 'Please select at least one dance style' },
+        { status: 400 }
+      )
+    }
     
-    // Only update the status field
-    await djRef.update({
-      status: data.status,
+    // Update all DJ fields
+    const updateData = {
+      name: data.name,
+      location: data.location,
+      state: data.state,
+      contact: data.contact,
+      danceStyles: Array.isArray(data.danceStyles) ? data.danceStyles : [data.danceStyles].filter(Boolean),
+      imageUrl: data.imageUrl || '',
+      comment: data.comment || '',
+      instagramLink: data.instagramLink || '',
+      facebookLink: data.facebookLink || '',
+      emailLink: data.emailLink || data.contact, // Use emailLink if provided, otherwise use contact
+      musicLink: data.musicLink || '',
+      status: data.status || 'pending',
       updatedAt: new Date().toISOString()
-    })
+    }
+    
+    await djRef.update(updateData)
     
     console.log('DJ updated successfully')
     
