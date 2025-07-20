@@ -29,8 +29,8 @@ interface DJFormData {
   danceStyles: string[]
   imageUrl: string
   comment: string
-  instagramLink: string
-  facebookLink: string
+  instagramUsername: string
+  facebookUsername: string
   emailLink: string
   musicLink: string
 }
@@ -44,8 +44,8 @@ export function DJSubmissionForm({ isOpen, onClose }: DJSubmissionFormProps) {
     danceStyles: [],
     imageUrl: '',
     comment: '',
-    instagramLink: '',
-    facebookLink: '',
+    instagramUsername: '',
+    facebookUsername: '',
     emailLink: '',
     musicLink: ''
   })
@@ -150,9 +150,20 @@ export function DJSubmissionForm({ isOpen, onClose }: DJSubmissionFormProps) {
         return
       }
 
-      // Create DJ data with uploaded image URL
+      // Convert usernames to full URLs
+      const instagramLink = formData.instagramUsername 
+        ? `https://instagram.com/${formData.instagramUsername.replace('@', '')}`
+        : ''
+      
+      const facebookLink = formData.facebookUsername 
+        ? `https://facebook.com/${formData.facebookUsername.replace('@', '')}`
+        : ''
+
+      // Create DJ data with uploaded image URL and converted links
       const djData = {
         ...formData,
+        instagramLink,
+        facebookLink,
         imageUrl: imageUrl || formData.imageUrl
       }
 
@@ -200,8 +211,8 @@ export function DJSubmissionForm({ isOpen, onClose }: DJSubmissionFormProps) {
         danceStyles: [],
         imageUrl: '',
         comment: '',
-        instagramLink: '',
-        facebookLink: '',
+        instagramUsername: '',
+        facebookUsername: '',
         emailLink: '',
         musicLink: ''
       })
@@ -422,42 +433,51 @@ export function DJSubmissionForm({ isOpen, onClose }: DJSubmissionFormProps) {
           </div>
 
             <div className="space-y-2">
-              <Label htmlFor="instagramLink" className="text-primary">Instagram Link</Label>
-              <Input
-                id="instagramLink"
-                name="instagramLink"
-                type="url"
-                value={formData.instagramLink}
-                onChange={handleInputChange}
-                placeholder="https://instagram.com/username"
-                className="bg-white/80 backdrop-blur-sm rounded-lg"
-              />
+              <Label htmlFor="instagramUsername" className="text-primary">Instagram Username</Label>
+              <div className="relative">
+                <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 text-sm">@</span>
+                <Input
+                  id="instagramUsername"
+                  name="instagramUsername"
+                  type="text"
+                  value={formData.instagramUsername}
+                  onChange={handleInputChange}
+                  placeholder="yourusername"
+                  className="bg-white/80 backdrop-blur-sm rounded-lg pl-8"
+                />
+              </div>
+              <p className="text-xs text-gray-500">Just enter your username, we'll add the @ and link for you</p>
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="facebookLink" className="text-primary">Facebook Link</Label>
-              <Input
-                id="facebookLink"
-                name="facebookLink"
-                type="url"
-                value={formData.facebookLink}
-                onChange={handleInputChange}
-                placeholder="https://facebook.com/username"
-                className="bg-white/80 backdrop-blur-sm rounded-lg"
-              />
+              <Label htmlFor="facebookUsername" className="text-primary">Facebook Username</Label>
+              <div className="relative">
+                <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 text-sm">facebook.com/</span>
+                <Input
+                  id="facebookUsername"
+                  name="facebookUsername"
+                  type="text"
+                  value={formData.facebookUsername}
+                  onChange={handleInputChange}
+                  placeholder="yourusername"
+                  className="bg-white/80 backdrop-blur-sm rounded-lg pl-24"
+                />
+              </div>
+              <p className="text-xs text-gray-500">Just enter your username, we'll add the full link for you</p>
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="emailLink" className="text-primary">Email</Label>
+              <Label htmlFor="emailLink" className="text-primary">Business Email (Optional)</Label>
               <Input
                 id="emailLink"
                 name="emailLink"
                 type="email"
                 value={formData.emailLink}
                 onChange={handleInputChange}
-                placeholder="your@email.com"
+                placeholder="business@email.com"
                 className="bg-white/80 backdrop-blur-sm rounded-lg"
               />
+              <p className="text-xs text-gray-500">Additional business email for bookings or inquiries</p>
             </div>
 
             <div className="space-y-2">
