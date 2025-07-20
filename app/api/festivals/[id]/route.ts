@@ -118,6 +118,59 @@ export async function PUT(
   }
 }
 
+export async function PATCH(
+  request: Request,
+  { params }: { params: { id: string } }
+) {
+  try {
+    const { id } = params
+    const data = await request.json()
+    
+    console.log('Patching festival:', id, 'with data:', data)
+    
+    const db = getDb()
+    const festivalRef = db.collection('festivals').doc(id)
+    const festivalDoc = await festivalRef.get()
+    
+    if (!festivalDoc.exists) {
+      return NextResponse.json(
+        { error: 'Festival not found' },
+        { status: 404 }
+      )
+    }
+    
+    // Update only provided fields (partial update)
+    const updateData: any = {
+      updatedAt: new Date().toISOString()
+    }
+    
+    // Only update fields that are provided in the request
+    if (data.published !== undefined) updateData.published = data.published
+    if (data.featured !== undefined) updateData.featured = data.featured
+    if (data.status !== undefined) updateData.status = data.status
+    
+    await festivalRef.update(updateData)
+    
+    console.log('Festival patched successfully')
+    
+    // Clear the festivals cache to ensure the public page shows updated data
+    try {
+      await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/festivals?clearCache=true`)
+      console.log('Festivals cache cleared after patch')
+    } catch (cacheError) {
+      console.warn('Failed to clear festivals cache:', cacheError)
+    }
+    
+    return NextResponse.json({ success: true })
+  } catch (error) {
+    console.error('Error patching festival:', error)
+    return NextResponse.json(
+      { error: 'Failed to patch festival' },
+      { status: 500 }
+    )
+  }
+}
+
 export async function DELETE(
   request: Request,
   { params }: { params: { id: string } }
