@@ -49,7 +49,6 @@ export async function POST(request: Request) {
       comment,
       instagramUsername,
       facebookUsername,
-      emailLink,
       musicLink
     } = data;
 
@@ -86,7 +85,6 @@ export async function POST(request: Request) {
       state,
       email: email, // Store the original email field
       contact: email, // Also map to contact field for admin dashboard compatibility
-      emailLink: emailLink || '', // Additional business email
       facebookLink: facebookLink,
       instagramLink: instagramLink,
       imageUrl: imageUrl || '',

@@ -31,7 +31,6 @@ interface DJFormData {
   comment: string
   instagramUsername: string
   facebookUsername: string
-  emailLink: string
   musicLink: string
 }
 
@@ -46,7 +45,6 @@ export function DJSubmissionForm({ isOpen, onClose }: DJSubmissionFormProps) {
     comment: '',
     instagramUsername: '',
     facebookUsername: '',
-    emailLink: '',
     musicLink: ''
   })
 
@@ -213,7 +211,6 @@ export function DJSubmissionForm({ isOpen, onClose }: DJSubmissionFormProps) {
         comment: '',
         instagramUsername: '',
         facebookUsername: '',
-        emailLink: '',
         musicLink: ''
       })
       setImageFile(null)
@@ -291,8 +288,10 @@ export function DJSubmissionForm({ isOpen, onClose }: DJSubmissionFormProps) {
                 value={formData.email}
                 onChange={handleInputChange}
                 required
+                placeholder="your@email.com"
                 className="bg-white/80 backdrop-blur-sm rounded-lg"
               />
+              <p className="text-xs text-gray-500">Email is only for admin use and will not be displayed publicly</p>
             </div>
 
             <div className="space-y-2">
@@ -464,20 +463,6 @@ export function DJSubmissionForm({ isOpen, onClose }: DJSubmissionFormProps) {
                 />
               </div>
               <p className="text-xs text-gray-500">Just enter your username, we'll add the full link for you</p>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="emailLink" className="text-primary">Business Email (Optional)</Label>
-              <Input
-                id="emailLink"
-                name="emailLink"
-                type="email"
-                value={formData.emailLink}
-                onChange={handleInputChange}
-                placeholder="business@email.com"
-                className="bg-white/80 backdrop-blur-sm rounded-lg"
-              />
-              <p className="text-xs text-gray-500">Additional business email for bookings or inquiries</p>
             </div>
 
             <div className="space-y-2">
