@@ -47,8 +47,8 @@ export async function POST(request: Request) {
       danceStyles,
       imageUrl,
       comment,
-      instagramLink,
-      facebookLink,
+      instagramUsername,
+      facebookUsername,
       emailLink,
       musicLink
     } = data;
@@ -71,14 +71,24 @@ export async function POST(request: Request) {
       );
     }
 
+    // Convert usernames to full URLs
+    const instagramLink = instagramUsername 
+      ? `https://instagram.com/${instagramUsername.replace('@', '')}`
+      : '';
+    
+    const facebookLink = facebookUsername 
+      ? `https://facebook.com/${facebookUsername.replace('@', '')}`
+      : '';
+
     const djData = {
       name,
       location,
       state,
-      contact: email, // Map email to contact field for admin dashboard
-      emailLink: emailLink || email, // Use emailLink if provided, otherwise use email
-      facebookLink: facebookLink || '',
-      instagramLink: instagramLink || '',
+      email: email, // Store the original email field
+      contact: email, // Also map to contact field for admin dashboard compatibility
+      emailLink: emailLink || '', // Additional business email
+      facebookLink: facebookLink,
+      instagramLink: instagramLink,
       imageUrl: imageUrl || '',
       comment: comment || '',
       danceStyles: Array.isArray(danceStyles) ? danceStyles : [danceStyles].filter(Boolean),
