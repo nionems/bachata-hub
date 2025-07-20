@@ -8,13 +8,12 @@ interface DJFormData {
   name: string
   location: string
   state: string
-  contact: string
+  email: string
   danceStyles: string[]
   imageUrl: string
   comment: string
   instagramLink: string
   facebookLink: string
-  emailLink: string
   musicLink: string
 }
 
@@ -24,13 +23,12 @@ export default function EditDJPage({ params }: { params: { id: string } }) {
     name: '',
     location: '',
     state: '',
-    contact: '',
+    email: '',
     danceStyles: [],
     imageUrl: '',
     comment: '',
     instagramLink: '',
     facebookLink: '',
-    emailLink: '',
     musicLink: ''
   })
   const [isLoading, setIsLoading] = useState(false)
@@ -208,11 +206,11 @@ export default function EditDJPage({ params }: { params: { id: string } }) {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700">Contact</label>
+            <label className="block text-sm font-medium text-gray-700">Email</label>
             <input
-              type="text"
-              name="contact"
-              value={formData.contact}
+              type="email"
+              name="email"
+              value={formData.email}
               onChange={handleInputChange}
               required
               className="mt-0.5 sm:mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
@@ -284,17 +282,6 @@ export default function EditDJPage({ params }: { params: { id: string } }) {
               type="url"
               name="facebookLink"
               value={formData.facebookLink}
-              onChange={handleInputChange}
-              className="mt-0.5 sm:mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Email Link</label>
-            <input
-              type="email"
-              name="emailLink"
-              value={formData.emailLink}
               onChange={handleInputChange}
               className="mt-0.5 sm:mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
             />

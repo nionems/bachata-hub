@@ -57,7 +57,7 @@ export async function PUT(
     }
 
     // Validate required fields
-    if (!data.name || !data.location || !data.state || !data.contact) {
+    if (!data.name || !data.location || !data.state || !data.email) {
       return NextResponse.json(
         { error: 'Missing required fields' },
         { status: 400 }
@@ -77,13 +77,12 @@ export async function PUT(
       name: data.name,
       location: data.location,
       state: data.state,
-      contact: data.contact,
+      email: data.email,
       danceStyles: Array.isArray(data.danceStyles) ? data.danceStyles : [data.danceStyles].filter(Boolean),
       imageUrl: data.imageUrl || '',
       comment: data.comment || '',
       instagramLink: data.instagramLink || '',
       facebookLink: data.facebookLink || '',
-      emailLink: data.emailLink || data.contact, // Use emailLink if provided, otherwise use contact
       musicLink: data.musicLink || '',
       status: data.status || 'pending',
       updatedAt: new Date().toISOString()

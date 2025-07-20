@@ -83,8 +83,7 @@ export async function POST(request: Request) {
       name,
       location,
       state,
-      email: email, // Store the original email field
-      contact: email, // Also map to contact field for admin dashboard compatibility
+      email: email, // Store the email field
       facebookLink: facebookLink,
       instagramLink: instagramLink,
       imageUrl: imageUrl || '',

@@ -112,13 +112,12 @@ interface DJ {
   name: string
   location: string
   state: string
-  contact: string
+  email: string
   danceStyles: string[]
   imageUrl: string
   comment: string
   instagramLink: string
   facebookLink: string
-  emailLink: string
   musicLink: string
   status?: 'pending' | 'approved' | 'rejected'
   createdAt: string
@@ -1604,9 +1603,9 @@ export default function AdminDashboard() {
           <p className="text-gray-600">
             <span className="font-medium">Location:</span> {dj.location}, {dj.state}
           </p>
-          {dj.emailLink && (
+          {dj.musicLink && (
             <p className="text-gray-600">
-              <span className="font-medium">Email:</span> <a href={`mailto:${dj.emailLink}`} className="text-blue-600 hover:underline">{dj.emailLink}</a>
+              <span className="font-medium">Music Link:</span> <a href={dj.musicLink} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">{dj.musicLink}</a>
             </p>
           )}
           {dj.danceStyles && dj.danceStyles.length > 0 && (
@@ -1631,6 +1630,11 @@ export default function AdminDashboard() {
               {dj.status === 'approved' ? 'Approved' : dj.status === 'rejected' ? 'Rejected' : 'Pending'}
             </span>
           </p>
+          {dj.email && (
+            <p className="text-gray-600">
+              <span className="font-medium">Email:</span> <a href={`mailto:${dj.email}`} className="text-blue-600 hover:underline">{dj.email}</a>
+            </p>
+          )}
         </div>
 
         {/* Action Buttons */}

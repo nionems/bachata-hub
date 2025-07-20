@@ -8,13 +8,12 @@ interface DJFormData {
   name: string
   location: string
   state: string
-  contact: string
+  email: string
   danceStyles: string[]
   imageUrl: string
   comment: string
   instagramLink: string
   facebookLink: string
-  emailLink: string
   musicLink: string
 }
 
@@ -24,13 +23,12 @@ export default function NewDJPage() {
     name: '',
     location: '',
     state: '',
-    contact: '',
+    email: '',
     danceStyles: [],
     imageUrl: '',
     comment: '',
     instagramLink: '',
     facebookLink: '',
-    emailLink: '',
     musicLink: ''
   })
   const [isLoading, setIsLoading] = useState(false)
@@ -184,13 +182,14 @@ export default function NewDJPage() {
 
         {/* Contact */}
         <div>
-          <label className="block text-sm font-medium mb-1">Contact*</label>
+          <label className="block text-sm font-medium mb-1">Email*</label>
           <input
-            type="text"
-            name="contact"
-            value={formData.contact}
+            type="email"
+            name="email"
+            value={formData.email}
             onChange={handleInputChange}
             className="w-full p-2 border rounded"
+            placeholder="your@email.com"
             required
           />
         </div>
@@ -250,36 +249,25 @@ export default function NewDJPage() {
         {/* Social Links */}
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium mb-1">Instagram Link</label>
+            <label className="block text-sm font-medium mb-1">Instagram Username</label>
             <input
-              type="url"
+              type="text"
               name="instagramLink"
               value={formData.instagramLink}
               onChange={handleInputChange}
               className="w-full p-2 border rounded"
-              placeholder="https://instagram.com/..."
+              placeholder="yourusername"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium mb-1">Facebook Link</label>
+            <label className="block text-sm font-medium mb-1">Facebook Username</label>
             <input
-              type="url"
+              type="text"
               name="facebookLink"
               value={formData.facebookLink}
               onChange={handleInputChange}
               className="w-full p-2 border rounded"
-              placeholder="https://facebook.com/..."
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium mb-1">Email Link</label>
-            <input
-              type="email"
-              name="emailLink"
-              value={formData.emailLink}
-              onChange={handleInputChange}
-              className="w-full p-2 border rounded"
-              placeholder="example@email.com"
+              placeholder="yourusername"
             />
           </div>
         </div>

@@ -4,7 +4,6 @@ export interface Dj {
   location: string;
   state: string;
   email: string; // Primary email address (admin use only)
-  contact: string; // Contact field for admin dashboard compatibility
   facebookLink: string;
   instagramLink: string;
   imageUrl: string;
