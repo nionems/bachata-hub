@@ -56,36 +56,49 @@ export async function PUT(
       )
     }
 
-    // Validate required fields
-    if (!data.name || !data.location || !data.state || !data.email) {
-      return NextResponse.json(
-        { error: 'Missing required fields' },
-        { status: 400 }
-      )
-    }
-
-    // Validate dance styles
-    if (!data.danceStyles || (Array.isArray(data.danceStyles) && data.danceStyles.length === 0)) {
-      return NextResponse.json(
-        { error: 'Please select at least one dance style' },
-        { status: 400 }
-      )
+    // Get current DJ data
+    const currentData = djDoc.data()
+    
+    // Handle partial updates (like status changes) vs full updates
+    let updateData: any = {
+      updatedAt: new Date().toISOString()
     }
     
-    // Update all DJ fields
-    const updateData = {
-      name: data.name,
-      location: data.location,
-      state: data.state,
-      email: data.email,
-      danceStyles: Array.isArray(data.danceStyles) ? data.danceStyles : [data.danceStyles].filter(Boolean),
-      imageUrl: data.imageUrl || '',
-      comment: data.comment || '',
-      instagramLink: data.instagramLink || '',
-      facebookLink: data.facebookLink || '',
-      musicLink: data.musicLink || '',
-      status: data.status || 'pending',
-      updatedAt: new Date().toISOString()
+    // If this is a status-only update (approval/rejection)
+    if (data.status && Object.keys(data).length === 1) {
+      updateData.status = data.status
+    } else {
+      // Full update - validate required fields
+      if (!data.name || !data.location || !data.state || !data.email) {
+        return NextResponse.json(
+          { error: 'Missing required fields' },
+          { status: 400 }
+        )
+      }
+
+      // Validate dance styles
+      if (!data.danceStyles || (Array.isArray(data.danceStyles) && data.danceStyles.length === 0)) {
+        return NextResponse.json(
+          { error: 'Please select at least one dance style' },
+          { status: 400 }
+        )
+      }
+      
+      // Update all DJ fields
+      updateData = {
+        name: data.name,
+        location: data.location,
+        state: data.state,
+        email: data.email,
+        danceStyles: Array.isArray(data.danceStyles) ? data.danceStyles : [data.danceStyles].filter(Boolean),
+        imageUrl: data.imageUrl || '',
+        comment: data.comment || '',
+        instagramLink: data.instagramLink || '',
+        facebookLink: data.facebookLink || '',
+        musicLink: data.musicLink || '',
+        status: data.status || (currentData?.status as string) || 'pending',
+        updatedAt: new Date().toISOString()
+      }
     }
     
     await djRef.update(updateData)
