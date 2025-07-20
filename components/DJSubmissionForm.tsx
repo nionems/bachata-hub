@@ -52,6 +52,7 @@ export function DJSubmissionForm({ isOpen, onClose }: DJSubmissionFormProps) {
   const [imagePreview, setImagePreview] = useState<string | null>(null)
   const [uploadProgress, setUploadProgress] = useState(0)
   const [isUploading, setIsUploading] = useState(false)
+  const [emailError, setEmailError] = useState<string | null>(null)
 
   // Use the modern submit button hook
   const { isLoading, handleSubmit: handleSubmitButton } = useSubmitButton()
@@ -62,6 +63,11 @@ export function DJSubmissionForm({ isOpen, onClose }: DJSubmissionFormProps) {
   const handleInputChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target
     setFormData(prev => ({ ...prev, [name]: value }))
+    
+    // Clear email error when user starts typing
+    if (name === 'email') {
+      setEmailError(null)
+    }
   }
 
   const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -145,6 +151,21 @@ export function DJSubmissionForm({ isOpen, onClose }: DJSubmissionFormProps) {
       // Validate dance styles
       if (formData.danceStyles.length === 0) {
         toast.error('Please select at least one dance style')
+        return
+      }
+
+      // Validate email
+      if (!formData.email || !formData.email.trim()) {
+        setEmailError('Please enter your email address')
+        toast.error('Please enter your email address')
+        return
+      }
+
+      // Validate email format
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+      if (!emailRegex.test(formData.email)) {
+        setEmailError('Please enter a valid email address')
+        toast.error('Please enter a valid email address')
         return
       }
 
@@ -289,9 +310,12 @@ export function DJSubmissionForm({ isOpen, onClose }: DJSubmissionFormProps) {
                 onChange={handleInputChange}
                 required
                 placeholder="your@email.com"
-                className="bg-white/80 backdrop-blur-sm rounded-lg"
+                className={`bg-white/80 backdrop-blur-sm rounded-lg ${emailError ? 'border-red-500 focus:border-red-500' : ''}`}
               />
               <p className="text-xs text-gray-500">Email is only for admin use and will not be displayed publicly</p>
+              {emailError && (
+                <p className="text-xs text-red-500">{emailError}</p>
+              )}
             </div>
 
             <div className="space-y-2">
@@ -520,4 +544,4 @@ export function DJSubmissionForm({ isOpen, onClose }: DJSubmissionFormProps) {
       </DialogContent>
     </Dialog>
   )
-} 
+}
