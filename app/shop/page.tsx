@@ -1,10 +1,6 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { unstable_noStore as noStore } from 'next/cache'
-
-// Force dynamic rendering to prevent caching
-export const dynamic = 'force-dynamic'
 import { Card, CardFooter } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { MapPin, Star, Globe, MessageSquare, ExternalLink, Instagram, Facebook, Share, RefreshCw } from "lucide-react"
