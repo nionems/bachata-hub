@@ -221,7 +221,7 @@ export function DJSubmissionForm({ isOpen, onClose }: DJSubmissionFormProps) {
 
       // Show success confirmation and reset form
       showSuccess('dj')
-      onClose()
+      // Don't close immediately - let success confirmation handle it
       setFormData({
         name: '',
         location: '',
@@ -538,7 +538,10 @@ export function DJSubmissionForm({ isOpen, onClose }: DJSubmissionFormProps) {
         {/* Success Confirmation Popup */}
         <SuccessConfirmation
           isOpen={isSuccessVisible}
-          onClose={hideSuccess}
+          onClose={() => {
+            hideSuccess()
+            onClose() // Close the form when success confirmation closes
+          }}
           type="dj"
         />
       </DialogContent>
