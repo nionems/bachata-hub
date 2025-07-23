@@ -8,12 +8,21 @@ export function AddToHomeScreenModal() {
   const [isOpen, setIsOpen] = useState(false)
   const [hasSeenModal, setHasSeenModal] = useState(false)
 
+  // Detect iPad
+  const isIPad = () => {
+    if (typeof window === 'undefined') return false
+    const userAgent = navigator.userAgent.toLowerCase()
+    return userAgent.includes('ipad') || 
+           (userAgent.includes('macintosh') && 'ontouchend' in document) ||
+           (window.innerWidth >= 768 && window.innerWidth <= 1024 && 'ontouchend' in document)
+  }
+
   useEffect(() => {
-    // Only show on desktop and if user hasn't seen it before
-    const isDesktop = window.innerWidth >= 768
+    // Only show on desktop (not iPad) and if user hasn't seen it before
+    const isDesktop = window.innerWidth >= 768 && !isIPad()
     const hasSeen = localStorage.getItem('addToHomeScreenModalSeen')
     
-    console.log('AddToHomeScreenModal debug:', { isDesktop, hasSeen, hasSeenModal })
+    console.log('AddToHomeScreenModal debug:', { isDesktop, isIPad: isIPad(), hasSeen, hasSeenModal })
     
     if (isDesktop && !hasSeen && !hasSeenModal) {
       // Delay the modal to show after page load
@@ -28,8 +37,8 @@ export function AddToHomeScreenModal() {
     }
   }, [hasSeenModal])
 
-  // Only show button on desktop, but allow modal to work on all devices
-  const isDesktop = typeof window !== 'undefined' ? window.innerWidth >= 768 : true
+  // Only show button on desktop (not iPad), but allow modal to work on all devices
+  const isDesktop = typeof window !== 'undefined' ? window.innerWidth >= 768 && !isIPad() : true
 
   const handleClose = () => {
     setIsOpen(false)
