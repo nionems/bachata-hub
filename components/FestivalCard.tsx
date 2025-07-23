@@ -40,12 +40,12 @@ export function FestivalCard({ festival }: FestivalCardProps) {
 
   return (
     <Card className="overflow-hidden hover:shadow-lg transition-shadow">
-      <div className="h-56 overflow-hidden relative">
+      <div className="h-64 overflow-hidden relative">
         <Image
           src={festival.imageUrl || '/placeholder.svg'}
           alt={festival.name}
           fill
-          className="object-cover transition-transform hover:scale-105"
+          className="object-cover object-top transition-transform hover:scale-105"
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
           priority={false}
         />
