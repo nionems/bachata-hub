@@ -124,125 +124,6 @@ export function DJSubmissionForm({ isOpen, onClose }: DJSubmissionFormProps) {
     return data.imageUrl
   }
 
-  const handleSubmit = async (e: FormEvent) => {
-    e.preventDefault()
-
-    try {
-      let imageUrl = formData.imageUrl
-
-      // Upload image if file is selected
-      if (imageFile) {
-        setIsUploading(true)
-        setUploadProgress(0)
-        
-        try {
-          imageUrl = await uploadImage(imageFile)
-          setUploadProgress(100)
-        } catch (uploadError) {
-          console.error('Image upload failed:', uploadError)
-          toast.error('Image upload failed. Please try again or use a URL instead.')
-          setIsUploading(false)
-          return
-        } finally {
-          setIsUploading(false)
-        }
-      }
-
-      // Validate dance styles
-      if (formData.danceStyles.length === 0) {
-        toast.error('Please select at least one dance style')
-        return
-      }
-
-      // Validate email
-      if (!formData.email || !formData.email.trim()) {
-        setEmailError('Please enter your email address')
-        toast.error('Please enter your email address')
-        return
-      }
-
-      // Validate email format
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-      if (!emailRegex.test(formData.email)) {
-        setEmailError('Please enter a valid email address')
-        toast.error('Please enter a valid email address')
-        return
-      }
-
-      // Convert usernames to full URLs
-      const instagramLink = formData.instagramUsername 
-        ? `https://instagram.com/${formData.instagramUsername.replace('@', '')}`
-        : ''
-      
-      const facebookLink = formData.facebookUsername 
-        ? `https://facebook.com/${formData.facebookUsername.replace('@', '')}`
-        : ''
-
-      // Create DJ data with uploaded image URL and converted links
-      const djData = {
-        ...formData,
-        instagramLink,
-        facebookLink,
-        imageUrl: imageUrl || formData.imageUrl
-      }
-
-      // Create DJ in database
-      const djResponse = await fetch('/api/djs', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(djData),
-      })
-
-      if (!djResponse.ok) {
-        const errorData = await djResponse.json()
-        throw new Error(errorData.error || 'Failed to create DJ')
-      }
-
-      const createdDJ = await djResponse.json()
-      console.log('DJ created:', createdDJ)
-
-      // Send email notification
-      const emailResponse = await fetch('/api/submit-form', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          type: 'dj_submission',
-          data: djData
-        }),
-      })
-
-      if (!emailResponse.ok) {
-        console.warn('Failed to send email notification, but DJ was created')
-      }
-
-      // Show success confirmation and reset form
-      showSuccess('dj')
-      // Don't close immediately - let success confirmation handle it
-      setFormData({
-        name: '',
-        location: '',
-        state: '',
-        email: '',
-        danceStyles: [],
-        imageUrl: '',
-        comment: '',
-        instagramUsername: '',
-        facebookUsername: '',
-        musicLink: ''
-      })
-      setImageFile(null)
-      setImagePreview(null)
-      setUploadProgress(0)
-    } catch (error) {
-      console.error('Error submitting DJ:', error)
-      toast.error('Failed to submit DJ. Please try again.')
-    }
-  }
-
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-[95vw] sm:max-w-[600px] bg-gradient-to-br from-primary/10 to-secondary/10 max-h-[90vh] overflow-y-auto rounded-xl sm:rounded-2xl">
@@ -263,7 +144,127 @@ export function DJSubmissionForm({ isOpen, onClose }: DJSubmissionFormProps) {
           </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4">
+        <form onSubmit={(e) => {
+          e.preventDefault()
+          handleSubmitButton(async () => {
+            try {
+              let imageUrl = formData.imageUrl
+
+              // Upload image if file is selected
+              if (imageFile) {
+                setIsUploading(true)
+                setUploadProgress(0)
+                
+                try {
+                  imageUrl = await uploadImage(imageFile)
+                  setUploadProgress(100)
+                } catch (uploadError) {
+                  console.error('Image upload failed:', uploadError)
+                  toast.error('Image upload failed. Please try again or use a URL instead.')
+                  setIsUploading(false)
+                  throw uploadError
+                } finally {
+                  setIsUploading(false)
+                }
+              }
+
+              // Validate dance styles
+              if (formData.danceStyles.length === 0) {
+                toast.error('Please select at least one dance style')
+                throw new Error('No dance styles selected')
+              }
+
+              // Validate email
+              if (!formData.email || !formData.email.trim()) {
+                setEmailError('Please enter your email address')
+                toast.error('Please enter your email address')
+                throw new Error('Email required')
+              }
+
+              // Validate email format
+              const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+              if (!emailRegex.test(formData.email)) {
+                setEmailError('Please enter a valid email address')
+                toast.error('Please enter a valid email address')
+                throw new Error('Invalid email format')
+              }
+
+              // Convert usernames to full URLs
+              const instagramLink = formData.instagramUsername 
+                ? `https://instagram.com/${formData.instagramUsername.replace('@', '')}`
+                : ''
+              
+              const facebookLink = formData.facebookUsername 
+                ? `https://facebook.com/${formData.facebookUsername.replace('@', '')}`
+                : ''
+
+              // Create DJ data with uploaded image URL and converted links
+              const djData = {
+                ...formData,
+                instagramLink,
+                facebookLink,
+                imageUrl: imageUrl || formData.imageUrl
+              }
+
+              // Create DJ in database
+              const djResponse = await fetch('/api/djs', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(djData),
+              })
+
+              if (!djResponse.ok) {
+                const errorData = await djResponse.json()
+                throw new Error(errorData.error || 'Failed to create DJ')
+              }
+
+              const createdDJ = await djResponse.json()
+              console.log('DJ created:', createdDJ)
+
+              // Send email notification
+              const emailResponse = await fetch('/api/submit-form', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                  type: 'dj_submission',
+                  data: djData
+                }),
+              })
+
+              if (!emailResponse.ok) {
+                console.warn('Failed to send email notification, but DJ was created')
+              }
+
+              // Show success confirmation and reset form
+              showSuccess('dj')
+              // Don't close immediately - let success confirmation handle it
+              setFormData({
+                name: '',
+                location: '',
+                state: '',
+                email: '',
+                danceStyles: [],
+                imageUrl: '',
+                comment: '',
+                instagramUsername: '',
+                facebookUsername: '',
+                musicLink: ''
+              })
+              setImageFile(null)
+              setImagePreview(null)
+              setUploadProgress(0)
+              setEmailError('')
+            } catch (error) {
+              console.error('Error submitting DJ:', error)
+              toast.error('Failed to submit DJ. Please try again.')
+              throw error
+            }
+          })
+        }} className="space-y-3 sm:space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="name" className="text-primary">DJ Name *</Label>

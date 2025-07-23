@@ -129,97 +129,6 @@ export function MediaSubmissionForm({ isOpen, onClose }: MediaSubmissionFormProp
     return data.imageUrl
   }
 
-  const handleSubmit = async (e: FormEvent) => {
-    e.preventDefault()
-
-    try {
-      let imageUrl = formData.imageUrl
-
-      // Upload image if file is selected
-      if (imageFile) {
-        setIsUploading(true)
-        setUploadProgress(0)
-        
-        try {
-          imageUrl = await uploadImage(imageFile)
-          setUploadProgress(100)
-        } catch (uploadError) {
-          console.error('Image upload failed:', uploadError)
-          toast.error('Image upload failed. Please try again or use a URL instead.')
-          setIsUploading(false)
-          return
-        } finally {
-          setIsUploading(false)
-        }
-      }
-
-      // Create media data with uploaded image URL and constructed social links
-      const mediaData = {
-        ...formData,
-        imageUrl: imageUrl || formData.imageUrl,
-        // Construct full URLs from usernames
-        instagramLink: formData.instagramLink ? `https://instagram.com/${formData.instagramLink.replace('@', '')}` : '',
-        facebookLink: formData.facebookLink ? `https://facebook.com/${formData.facebookLink}` : ''
-      }
-
-      // Create media in database
-      const mediaResponse = await fetch('/api/media', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(mediaData),
-      })
-
-      if (!mediaResponse.ok) {
-        const errorData = await mediaResponse.json()
-        throw new Error(errorData.error || 'Failed to create media')
-      }
-
-      const createdMedia = await mediaResponse.json()
-      console.log('Media created:', createdMedia)
-
-      // Send email notification
-      const emailResponse = await fetch('/api/submit-form', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          type: 'media_submission',
-          data: mediaData
-        }),
-      })
-
-      if (!emailResponse.ok) {
-        console.warn('Failed to send email notification, but media was created')
-      }
-
-      // Show success confirmation and reset form
-      showSuccess('media')
-      onClose()
-      setFormData({
-        name: '',
-        location: '',
-        state: '',
-        email: '',
-        comment: '',
-        instagramLink: '',
-        facebookLink: '',
-        emailLink: '',
-        mediaLink: '',
-        mediaLink2: '',
-        imageUrl: ''
-      })
-      setImageFile(null)
-      setImagePreview(null)
-      setUploadProgress(0)
-    } catch (error) {
-      console.error('Error submitting media:', error)
-      toast.error('Failed to submit media. Please try again.')
-    }
-  }
-
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-[95vw] sm:max-w-[600px] bg-gradient-to-br from-primary/10 to-secondary/10 max-h-[90vh] overflow-y-auto rounded-xl sm:rounded-2xl">
@@ -227,7 +136,98 @@ export function MediaSubmissionForm({ isOpen, onClose }: MediaSubmissionFormProp
           <DialogTitle className="text-primary text-lg sm:text-xl">Submit Your Media</DialogTitle>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form onSubmit={(e) => {
+          e.preventDefault()
+          handleSubmitButton(async () => {
+            try {
+              let imageUrl = formData.imageUrl
+
+              // Upload image if file is selected
+              if (imageFile) {
+                setIsUploading(true)
+                setUploadProgress(0)
+                
+                try {
+                  imageUrl = await uploadImage(imageFile)
+                  setUploadProgress(100)
+                } catch (uploadError) {
+                  console.error('Image upload failed:', uploadError)
+                  toast.error('Image upload failed. Please try again or use a URL instead.')
+                  setIsUploading(false)
+                  throw uploadError
+                } finally {
+                  setIsUploading(false)
+                }
+              }
+
+              // Create media data with uploaded image URL and constructed social links
+              const mediaData = {
+                ...formData,
+                imageUrl: imageUrl || formData.imageUrl,
+                // Construct full URLs from usernames
+                instagramLink: formData.instagramLink ? `https://instagram.com/${formData.instagramLink.replace('@', '')}` : '',
+                facebookLink: formData.facebookLink ? `https://facebook.com/${formData.facebookLink}` : ''
+              }
+
+              // Create media in database
+              const mediaResponse = await fetch('/api/media', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(mediaData),
+              })
+
+              if (!mediaResponse.ok) {
+                const errorData = await mediaResponse.json()
+                throw new Error(errorData.error || 'Failed to create media')
+              }
+
+              const createdMedia = await mediaResponse.json()
+              console.log('Media created:', createdMedia)
+
+              // Send email notification
+              const emailResponse = await fetch('/api/submit-form', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                  type: 'media_submission',
+                  data: mediaData
+                }),
+              })
+
+              if (!emailResponse.ok) {
+                console.warn('Failed to send email notification, but media was created')
+              }
+
+              // Show success confirmation and reset form
+              showSuccess('media')
+              onClose()
+              setFormData({
+                name: '',
+                location: '',
+                state: '',
+                email: '',
+                comment: '',
+                instagramLink: '',
+                facebookLink: '',
+                emailLink: '',
+                mediaLink: '',
+                mediaLink2: '',
+                imageUrl: ''
+              })
+              setImageFile(null)
+              setImagePreview(null)
+              setUploadProgress(0)
+            } catch (error) {
+              console.error('Error submitting media:', error)
+              toast.error('Failed to submit media. Please try again.')
+              throw error
+            }
+          })
+        }} className="space-y-6">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="name" className="text-primary">Name *</Label>

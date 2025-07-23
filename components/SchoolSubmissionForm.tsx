@@ -98,127 +98,6 @@ export function SchoolSubmissionForm({ isOpen, onClose }: SchoolSubmissionFormPr
     }
   }
 
-  const handleSubmit = async (e: FormEvent) => {
-    e.preventDefault()
-    
-    // Validate dance styles
-    if (formData.danceStyles.length === 0) {
-      setMessage({ type: 'error', text: 'Please select at least one dance style' })
-      return
-    }
-    
-    setUploadProgress(0)
-    setMessage({ type: 'loading', text: 'Submitting your school...' })
-
-    try {
-      let finalImageUrl = formData.imageUrl
-
-      // Upload image if file is selected
-      if (selectedFile) {
-        setUploadProgress(10)
-        
-        const formDataUpload = new FormData()
-        formDataUpload.append('file', selectedFile)
-        
-        const uploadResponse = await fetch('/api/upload', {
-          method: 'POST',
-          body: formDataUpload,
-        })
-
-        setUploadProgress(50)
-
-        if (!uploadResponse.ok) {
-          throw new Error('Failed to upload image')
-        }
-
-        const uploadData = await uploadResponse.json()
-        finalImageUrl = uploadData.imageUrl
-        setUploadProgress(100)
-      }
-
-      // Validate that we have an image URL
-      if (!finalImageUrl) {
-        throw new Error('Please provide an image for your school')
-      }
-
-      // Create school in database
-      const schoolResponse = await fetch('/api/schools', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          name: formData.name,
-          location: formData.location,
-          state: formData.state,
-          website: formData.website,
-          instagramUrl: formData.instagramUrl,
-          facebookUrl: formData.facebookUrl,
-          email: formData.email,
-          danceStyles: formData.danceStyles,
-          comment: formData.description,
-          imageUrl: finalImageUrl,
-          status: 'pending'
-        }),
-      })
-
-      if (!schoolResponse.ok) {
-        const errorData = await schoolResponse.json()
-        throw new Error(errorData.error || 'Failed to create school')
-      }
-
-      // Send email notification
-      const emailResponse = await fetch('/api/submit-form', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          type: 'school_submission',
-          data: {
-            name: formData.name,
-            location: formData.location,
-            state: formData.state,
-            website: formData.website,
-            instagramUrl: formData.instagramUrl,
-            facebookUrl: formData.facebookUrl,
-            email: formData.email,
-            danceStyles: formData.danceStyles.join(', '),
-            description: formData.description,
-            imageUrl: finalImageUrl
-          }
-        }),
-      })
-
-      if (!emailResponse.ok) {
-        console.warn('Failed to send email notification, but school was created')
-      }
-
-      // Show success confirmation and reset form
-      showSuccess('school')
-      onClose()
-      setFormData({
-        name: '',
-        location: '',
-        state: '',
-        website: '',
-        instagramUrl: '',
-        facebookUrl: '',
-        email: '',
-        danceStyles: [],
-        description: '',
-        imageUrl: ''
-      })
-      setSelectedFile(null)
-      setImagePreview(null)
-      setUploadProgress(0)
-      setMessage(null)
-    } catch (error) {
-      console.error('Error submitting school:', error)
-      setMessage({ type: 'error', text: error instanceof Error ? error.message : 'Failed to submit school. Please try again.' })
-    }
-  }
-
   return (
     <>
       <Dialog open={isOpen} onOpenChange={onClose}>
@@ -240,7 +119,128 @@ export function SchoolSubmissionForm({ isOpen, onClose }: SchoolSubmissionFormPr
           </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4">
+        <form onSubmit={(e) => {
+          e.preventDefault()
+          handleSubmitButton(async () => {
+            // Validate dance styles
+            if (formData.danceStyles.length === 0) {
+              setMessage({ type: 'error', text: 'Please select at least one dance style' })
+              throw new Error('No dance styles selected')
+            }
+            
+            setUploadProgress(0)
+            setMessage({ type: 'loading', text: 'Submitting your school...' })
+
+            try {
+              let finalImageUrl = formData.imageUrl
+
+              // Upload image if file is selected
+              if (selectedFile) {
+                setUploadProgress(10)
+                
+                const formDataUpload = new FormData()
+                formDataUpload.append('file', selectedFile)
+                
+                const uploadResponse = await fetch('/api/upload', {
+                  method: 'POST',
+                  body: formDataUpload,
+                })
+
+                setUploadProgress(50)
+
+                if (!uploadResponse.ok) {
+                  throw new Error('Failed to upload image')
+                }
+
+                const uploadData = await uploadResponse.json()
+                finalImageUrl = uploadData.imageUrl
+                setUploadProgress(100)
+              }
+
+              // Validate that we have an image URL
+              if (!finalImageUrl) {
+                throw new Error('Please provide an image for your school')
+              }
+
+              // Create school in database
+              const schoolResponse = await fetch('/api/schools', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                  name: formData.name,
+                  location: formData.location,
+                  state: formData.state,
+                  website: formData.website,
+                  instagramUrl: formData.instagramUrl,
+                  facebookUrl: formData.facebookUrl,
+                  email: formData.email,
+                  danceStyles: formData.danceStyles,
+                  comment: formData.description,
+                  imageUrl: finalImageUrl,
+                  status: 'pending'
+                }),
+              })
+
+              if (!schoolResponse.ok) {
+                const errorData = await schoolResponse.json()
+                throw new Error(errorData.error || 'Failed to create school')
+              }
+
+              // Send email notification
+              const emailResponse = await fetch('/api/submit-form', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                  type: 'school_submission',
+                  data: {
+                    name: formData.name,
+                    location: formData.location,
+                    state: formData.state,
+                    website: formData.website,
+                    instagramUrl: formData.instagramUrl,
+                    facebookUrl: formData.facebookUrl,
+                    email: formData.email,
+                    danceStyles: formData.danceStyles.join(', '),
+                    description: formData.description,
+                    imageUrl: finalImageUrl
+                  }
+                }),
+              })
+
+              if (!emailResponse.ok) {
+                console.warn('Failed to send email notification, but school was created')
+              }
+
+              // Show success confirmation and reset form
+              showSuccess('school')
+              onClose()
+              setFormData({
+                name: '',
+                location: '',
+                state: '',
+                website: '',
+                instagramUrl: '',
+                facebookUrl: '',
+                email: '',
+                danceStyles: [],
+                description: '',
+                imageUrl: ''
+              })
+              setSelectedFile(null)
+              setImagePreview(null)
+              setUploadProgress(0)
+              setMessage(null)
+            } catch (error) {
+              console.error('Error submitting school:', error)
+              setMessage({ type: 'error', text: error instanceof Error ? error.message : 'Failed to submit school' })
+              throw error
+            }
+          })
+        }} className="space-y-3 sm:space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
             <div className="space-y-1 sm:space-y-2">
               <Label htmlFor="name" className="text-primary text-sm sm:text-base">School Name *</Label>

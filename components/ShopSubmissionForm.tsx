@@ -94,101 +94,6 @@ export function ShopSubmissionForm({ isOpen, onClose }: ShopSubmissionFormProps)
     }
   }
 
-  const handleSubmit = async (e: FormEvent) => {
-    e.preventDefault()
-    
-    // Validate that at least one contact method is provided
-    const hasContactMethod = formData.website || formData.instagramUrl || formData.facebookUrl || formData.contactPhone
-    if (!hasContactMethod) {
-      setMessage({ type: 'error', text: 'Please provide at least one contact method (website, Instagram, Facebook, or phone) so buyers can contact you.' })
-      return
-    }
-    
-    setUploadProgress(0)
-    setMessage({ type: 'loading', text: 'Submitting your item...' })
-
-    try {
-      let finalImageUrl = formData.imageUrl
-
-      // Upload image if file is selected
-      if (selectedFile) {
-        setUploadProgress(10)
-        
-        const formDataUpload = new FormData()
-        formDataUpload.append('file', selectedFile)
-        
-        const uploadResponse = await fetch('/api/upload', {
-          method: 'POST',
-          body: formDataUpload,
-        })
-
-        setUploadProgress(50)
-
-        if (!uploadResponse.ok) {
-          throw new Error('Failed to upload image')
-        }
-
-        const uploadData = await uploadResponse.json()
-        finalImageUrl = uploadData.imageUrl
-        setUploadProgress(100)
-      }
-
-      // Validate that we have an image URL
-      if (!finalImageUrl) {
-        throw new Error('Please provide an image for your item')
-      }
-
-      // Submit to the shops API with status: 'pending'
-      const shopResponse = await fetch('/api/shops', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          ...formData,
-          imageUrl: finalImageUrl,
-          status: 'pending',
-        }),
-      })
-
-      if (!shopResponse.ok) {
-        const shopData = await shopResponse.json()
-        console.error('Shop submission error:', shopData)
-        const errorMessage = shopData.missingFields 
-          ? `Missing required fields: ${shopData.missingFields.join(', ')}`
-          : shopData.details || shopData.error || 'Failed to submit shop'
-        throw new Error(errorMessage)
-      }
-
-      // Show success confirmation and reset form
-      showSuccess('shop')
-      onClose()
-      setFormData({
-        name: '',
-        location: '',
-        state: '',
-        contactName: '',
-        contactEmail: '',
-        contactPhone: '',
-        website: '',
-        instagramUrl: '',
-        facebookUrl: '',
-        price: '',
-        condition: '',
-        imageUrl: '',
-        info: ''
-      })
-      setSelectedFile(null)
-      setImagePreview(null)
-      setUploadProgress(0)
-      setMessage(null)
-    } catch (error) {
-      console.error('Error submitting shop:', error)
-      const errorMessage = error instanceof Error ? error.message : 'Failed to submit shop. Please try again.'
-      setMessage({ type: 'error', text: errorMessage })
-    }
-  }
-
   return (
     <>
       <Dialog open={isOpen} onOpenChange={onClose}>
@@ -200,7 +105,102 @@ export function ShopSubmissionForm({ isOpen, onClose }: ShopSubmissionFormProps)
         
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-1 sm:space-y-1.5">
+        <form onSubmit={(e) => {
+          e.preventDefault()
+          handleSubmitButton(async () => {
+            // Validate that at least one contact method is provided
+            const hasContactMethod = formData.website || formData.instagramUrl || formData.facebookUrl || formData.contactPhone
+            if (!hasContactMethod) {
+              setMessage({ type: 'error', text: 'Please provide at least one contact method (website, Instagram, Facebook, or phone) so buyers can contact you.' })
+              throw new Error('No contact method provided')
+            }
+            
+            setUploadProgress(0)
+            setMessage({ type: 'loading', text: 'Submitting your item...' })
+
+            try {
+              let finalImageUrl = formData.imageUrl
+
+              // Upload image if file is selected
+              if (selectedFile) {
+                setUploadProgress(10)
+                
+                const formDataUpload = new FormData()
+                formDataUpload.append('file', selectedFile)
+                
+                const uploadResponse = await fetch('/api/upload', {
+                  method: 'POST',
+                  body: formDataUpload,
+                })
+
+                setUploadProgress(50)
+
+                if (!uploadResponse.ok) {
+                  throw new Error('Failed to upload image')
+                }
+
+                const uploadData = await uploadResponse.json()
+                finalImageUrl = uploadData.imageUrl
+                setUploadProgress(100)
+              }
+
+              // Validate that we have an image URL
+              if (!finalImageUrl) {
+                throw new Error('Please provide an image for your item')
+              }
+
+              // Submit to the shops API with status: 'pending'
+              const shopResponse = await fetch('/api/shops', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                  ...formData,
+                  imageUrl: finalImageUrl,
+                  status: 'pending',
+                }),
+              })
+
+              if (!shopResponse.ok) {
+                const shopData = await shopResponse.json()
+                console.error('Shop submission error:', shopData)
+                const errorMessage = shopData.missingFields 
+                  ? `Missing required fields: ${shopData.missingFields.join(', ')}`
+                  : shopData.details || shopData.error || 'Failed to submit shop'
+                throw new Error(errorMessage)
+              }
+
+              // Show success confirmation and reset form
+              showSuccess('shop')
+              onClose()
+              setFormData({
+                name: '',
+                location: '',
+                state: '',
+                contactName: '',
+                contactEmail: '',
+                contactPhone: '',
+                website: '',
+                instagramUrl: '',
+                facebookUrl: '',
+                price: '',
+                condition: '',
+                imageUrl: '',
+                info: ''
+              })
+              setSelectedFile(null)
+              setImagePreview(null)
+              setUploadProgress(0)
+              setMessage(null)
+            } catch (error) {
+              console.error('Error submitting shop:', error)
+              const errorMessage = error instanceof Error ? error.message : 'Failed to submit shop. Please try again.'
+              setMessage({ type: 'error', text: errorMessage })
+              throw error
+            }
+          })
+        }} className="space-y-3 sm:space-y-4">
           {/* Basic Information */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
             <div className="space-y-0.5">
