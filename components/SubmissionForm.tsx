@@ -385,15 +385,7 @@ export function SubmissionForm({ isOpen, onClose, type }: SubmissionFormProps) {
             <div className="text-red-500 text-sm">{error}</div>
           )}
 
-          <div className="flex justify-end gap-4">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={onClose}
-              disabled={isLoading}
-            >
-              Cancel
-            </Button>
+          <div className="flex justify-end">
             <Button 
               type="submit" 
               disabled={isLoading}

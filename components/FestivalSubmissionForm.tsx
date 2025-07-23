@@ -535,16 +535,7 @@ export function FestivalSubmissionForm({ isOpen, onClose }: FestivalSubmissionFo
             <div className="text-green-500 text-sm">Festival submitted successfully!</div>
           )}
 
-          <div className="flex justify-end gap-2">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={onClose}
-              disabled={isLoading}
-              className="border-primary text-primary hover:bg-primary/10"
-            >
-              Cancel
-            </Button>
+          <div className="flex justify-end">
             <SubmitButton
                              isLoading={isLoading}
               variant="gradient"

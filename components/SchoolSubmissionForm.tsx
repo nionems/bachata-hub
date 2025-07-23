@@ -485,16 +485,7 @@ export function SchoolSubmissionForm({ isOpen, onClose }: SchoolSubmissionFormPr
 
 
 
-          <div className="flex flex-col sm:flex-row justify-end gap-2 pt-2">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={onClose}
-              disabled={isLoading}
-              className="w-full sm:w-auto border-primary text-primary hover:bg-primary/10 text-sm sm:text-base rounded-lg"
-            >
-              Cancel
-            </Button>
+          <div className="flex flex-col sm:flex-row justify-end pt-2">
             <SubmitButton
               type="submit"
               disabled={isLoading}

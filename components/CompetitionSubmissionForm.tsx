@@ -657,16 +657,7 @@ export function CompetitionSubmissionForm({ isOpen, onClose }: CompetitionSubmis
             </div>
           </div>
 
-          <div className="flex justify-end gap-2">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={onClose}
-              disabled={isLoading}
-              className="w-full rounded-lg"
-            >
-              Cancel
-            </Button>
+          <div className="flex justify-end">
             <SubmitButton
               isLoading={isLoading}
               variant="gradient"

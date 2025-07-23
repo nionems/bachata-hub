@@ -504,16 +504,7 @@ export function MediaSubmissionForm({ isOpen, onClose }: MediaSubmissionFormProp
             </div>
           </div>
 
-          <div className="flex justify-end gap-2">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={onClose}
-              disabled={isLoading}
-              className="w-full rounded-lg"
-            >
-              Cancel
-            </Button>
+          <div className="flex justify-end">
             <SubmitButton
               type="submit"
               disabled={isLoading}

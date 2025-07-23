@@ -497,15 +497,7 @@ export function InstructorSubmissionForm({ isOpen, onClose }: InstructorSubmissi
             <div className="text-green-500 text-sm">Profile submitted successfully!</div>
           )}
 
-          <div className="flex justify-end gap-2">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={onClose}
-              className="w-full rounded-lg"
-            >
-              Cancel
-            </Button>
+          <div className="flex justify-end">
             <SubmitButton
               type="submit"
               disabled={isLoading}
