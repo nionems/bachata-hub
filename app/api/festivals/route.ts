@@ -131,22 +131,18 @@ export async function POST(request: Request) {
       location,
       state,
       country,
-      address,
-      price,
       eventLink,
       ticketLink,
-      googleMapLink,
       danceStyles,
       imageUrl,
       description,
       ambassadorCode,
-      email,
       instagramLink,
       facebookLink
     } = data;
 
     // Validate required fields
-    if (!name || !startDate || !location || !state || !email) {
+    if (!name || !startDate || !location || !state) {
       console.error('Missing required fields');
       return NextResponse.json(
         { error: 'Missing required fields' },
@@ -161,11 +157,8 @@ export async function POST(request: Request) {
       location,
       state,
       country: country || 'Australia',
-      address: address || '',
-      price: price || '',
       eventLink: eventLink || '',
       ticketLink: ticketLink || '',
-      googleMapLink: googleMapLink || '',
       danceStyles: danceStyles || [],
       imageUrl: imageUrl || '',
       description: description || '',
