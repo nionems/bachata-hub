@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { StateSelect } from "@/components/ui/StateSelect"
 import { toast } from "sonner"
-import { X, Upload, Camera, Image as ImageIcon, CheckCircle, AlertCircle, Loader2 } from "lucide-react"
+import { X, Upload, X as XIcon, ImageIcon, Loader2, CheckCircle, AlertCircle } from "lucide-react"
 import { SubmitButton, useSubmitButton } from "@/components/ui/submit-button"
 import { SuccessConfirmation, useSuccessConfirmation } from "@/components/ui/success-confirmation"
 
@@ -521,9 +521,16 @@ export function ShopSubmissionForm({ isOpen, onClose }: ShopSubmissionFormProps)
               <SubmitButton
                 type="submit"
                 disabled={isLoading}
-                className="w-full bg-primary hover:bg-primary/90 text-white h-10"
+                className="w-full bg-primary hover:bg-primary/90 text-white h-10 flex items-center justify-center gap-2"
               >
-                {isLoading ? 'Submitting...' : 'Submit Item'}
+                {isLoading ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    Submitting...
+                  </>
+                ) : (
+                  'Submit Item'
+                )}
               </SubmitButton>
             </div>
         </form>

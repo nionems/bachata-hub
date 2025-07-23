@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { StateSelect } from "@/components/ui/StateSelect"
-import { X, Upload, X as XIcon, ImageIcon } from "lucide-react"
+import { X, Upload, X as XIcon, ImageIcon, Loader2 } from "lucide-react"
 import { toast } from "react-hot-toast"
 import { DANCE_STYLES } from "@/lib/constants"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -509,9 +509,16 @@ export function InstructorSubmissionForm({ isOpen, onClose }: InstructorSubmissi
             <SubmitButton
               type="submit"
               disabled={isLoading}
-              className="w-full bg-primary hover:bg-primary/90 text-white rounded-lg"
+              className="w-full bg-primary hover:bg-primary/90 text-white rounded-lg flex items-center justify-center gap-2"
             >
-              {isLoading ? 'Submitting...' : 'Submit Profile'}
+              {isLoading ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Submitting...
+                </>
+              ) : (
+                'Submit Profile'
+              )}
             </SubmitButton>
           </div>
         </form>

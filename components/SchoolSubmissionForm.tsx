@@ -498,9 +498,16 @@ export function SchoolSubmissionForm({ isOpen, onClose }: SchoolSubmissionFormPr
             <SubmitButton
               type="submit"
               disabled={isLoading}
-              className="w-full sm:w-auto bg-primary hover:bg-primary/90 text-white rounded-lg"
+              className="w-full sm:w-auto bg-primary hover:bg-primary/90 text-white rounded-lg flex items-center justify-center gap-2"
             >
-              {isLoading ? 'Submitting...' : 'Submit School'}
+              {isLoading ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Submitting...
+                </>
+              ) : (
+                'Submit School'
+              )}
             </SubmitButton>
           </div>
         </form>

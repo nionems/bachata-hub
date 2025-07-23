@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { StateSelect } from "@/components/ui/StateSelect"
 import { toast } from "sonner"
-import { X, Upload, X as XIcon, ImageIcon } from "lucide-react"
+import { X, Upload, X as XIcon, ImageIcon, Loader2 } from "lucide-react"
 import { Checkbox } from "@/components/ui/checkbox"
 import { SubmitButton, useSubmitButton } from "@/components/ui/submit-button"
 import { SuccessConfirmation, useSuccessConfirmation } from "@/components/ui/success-confirmation"
@@ -528,9 +528,16 @@ export function DJSubmissionForm({ isOpen, onClose }: DJSubmissionFormProps) {
             <SubmitButton
               type="submit"
               disabled={isLoading}
-              className="w-full bg-primary hover:bg-primary/90 text-white rounded-lg"
+              className="w-full bg-primary hover:bg-primary/90 text-white rounded-lg flex items-center justify-center gap-2"
             >
-              {isLoading ? 'Submitting...' : 'Submit DJ Profile'}
+              {isLoading ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Submitting...
+                </>
+              ) : (
+                'Submit DJ Profile'
+              )}
             </SubmitButton>
           </div>
         </form>
