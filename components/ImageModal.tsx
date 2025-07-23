@@ -13,6 +13,9 @@ export function ImageModal({ isOpen, onClose, imageUrl, title }: ImageModalProps
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-4xl p-0 bg-transparent border-none">
+        <DialogHeader>
+          <DialogTitle className="sr-only">{title}</DialogTitle>
+        </DialogHeader>
         <button
           onClick={onClose}
           className="absolute right-6 top-6 z-50 bg-primary hover:bg-primary/90 text-white rounded-full p-4 shadow-xl transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-white/50"

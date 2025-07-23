@@ -1,4 +1,4 @@
-import { Dialog, DialogContent } from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { X } from "lucide-react"
 import Image from "next/image"
 
@@ -13,6 +13,9 @@ export function ImageModal({ isOpen, onClose, imageUrl, title }: ImageModalProps
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-4xl w-full p-0 bg-transparent border-none">
+        <DialogHeader>
+          <DialogTitle className="sr-only">{title}</DialogTitle>
+        </DialogHeader>
         <button
           onClick={onClose}
           className="absolute top-4 right-4 text-white hover:text-gray-300 transition-colors z-50"
