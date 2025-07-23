@@ -36,6 +36,7 @@ export function CommunityJoinPopup({ isOpen, onClose }: CommunityJoinPopupProps)
 
     try {
       console.log('Sending join form data:', formData)
+      console.log('Form data JSON:', JSON.stringify(formData))
       
       // Call the API endpoint to save community member
       const response = await fetch('/api/community-join', {
@@ -50,8 +51,10 @@ export function CommunityJoinPopup({ isOpen, onClose }: CommunityJoinPopupProps)
 
       console.log('Response status:', response.status)
       console.log('Response data:', data)
+      console.log('Response headers:', Object.fromEntries(response.headers.entries()))
       
       if (!response.ok) {
+        console.error('Response not OK:', response.status, data)
         throw new Error(data.error || 'Failed to join community')
       }
 
