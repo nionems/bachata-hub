@@ -139,17 +139,10 @@ async function getAdminEmailHtml(type: string, data: any) {
         <p><strong>Festival Name:</strong> ${data.name}</p>
         <p><strong>Location:</strong> ${data.location}</p>
         <p><strong>State:</strong> ${data.state}</p>
-        <p><strong>Address:</strong> ${data.address}</p>
         <p><strong>Start Date:</strong> ${data.startDate}</p>
         <p><strong>End Date:</strong> ${data.endDate}</p>
-        <p><strong>Website:</strong> ${data.website || 'N/A'}</p>
         <p><strong>Instagram:</strong> ${data.instagramLink || 'N/A'}</p>
         <p><strong>Facebook:</strong> ${data.facebookLink || 'N/A'}</p>
-        <p><strong>Google Maps:</strong> ${data.googleMapLink || 'N/A'}</p>
-        <p><strong>Contact Name:</strong> ${data.contactName}</p>
-        <p><strong>Contact Email:</strong> ${data.contactEmail}</p>
-        <p><strong>Contact Phone:</strong> ${data.contactPhone || 'N/A'}</p>
-        <p><strong>Additional Comments:</strong> ${data.comment || 'N/A'}</p>
         <p><strong>Image URL:</strong> ${data.imageUrl}</p>
       `
       break;
