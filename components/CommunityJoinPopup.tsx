@@ -30,6 +30,7 @@ export function CommunityJoinPopup({ isOpen, onClose }: CommunityJoinPopupProps)
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
+    console.log('Form submitted, starting submission process...')
     setIsLoading(true)
     setError(null)
 
@@ -47,6 +48,9 @@ export function CommunityJoinPopup({ isOpen, onClose }: CommunityJoinPopupProps)
 
       const data = await response.json()
 
+      console.log('Response status:', response.status)
+      console.log('Response data:', data)
+      
       if (!response.ok) {
         throw new Error(data.error || 'Failed to join community')
       }
@@ -57,7 +61,7 @@ export function CommunityJoinPopup({ isOpen, onClose }: CommunityJoinPopupProps)
       toast.success('Welcome to the community! 🎉')
       
       // Mark user as joined in localStorage so popup won't show again
-      localStorage.setItem('communityJoined', 'true')
+      localStorage.setItem('communityPopupDismissed', 'true')
       
       setTimeout(() => {
         onClose()
