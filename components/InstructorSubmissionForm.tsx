@@ -120,100 +120,6 @@ export function InstructorSubmissionForm({ isOpen, onClose }: InstructorSubmissi
     return data.imageUrl
   }
 
-  const handleSubmit = async (e: FormEvent) => {
-    e.preventDefault()
-
-    try {
-      let imageUrl = formData.imageUrl
-
-      // Upload image if file is selected
-      if (imageFile) {
-        setIsUploading(true)
-        setUploadProgress(0)
-        
-        try {
-          imageUrl = await uploadImage(imageFile)
-          setUploadProgress(100)
-        } catch (uploadError) {
-          console.error('Image upload failed:', uploadError)
-          toast.error('Image upload failed. Please try again or use a URL instead.')
-          setIsUploading(false)
-          return
-        } finally {
-          setIsUploading(false)
-        }
-      }
-
-      // Validate dance styles
-      if (formData.danceStyles.length === 0) {
-        toast.error('Please select at least one dance style')
-        return
-      }
-
-      // Create instructor data with uploaded image URL
-      const instructorData = {
-        ...formData,
-        imageUrl: imageUrl || formData.imageUrl
-      }
-
-      // Create instructor in database
-      const instructorResponse = await fetch('/api/instructors', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(instructorData),
-      })
-
-      if (!instructorResponse.ok) {
-        const errorData = await instructorResponse.json()
-        throw new Error(errorData.error || 'Failed to create instructor')
-      }
-
-      const createdInstructor = await instructorResponse.json()
-      console.log('Instructor created:', createdInstructor)
-
-      // Send email notification
-      const emailResponse = await fetch('/api/submit-form', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          type: 'instructor_submission',
-          data: instructorData
-        }),
-      })
-
-      if (!emailResponse.ok) {
-        console.warn('Failed to send email notification, but instructor was created')
-      }
-
-      // Show success confirmation and reset form
-      showSuccess('instructor')
-      onClose()
-      setFormData({
-        name: '',
-        location: '',
-        state: '',
-        bio: '',
-        website: '',
-        facebookLink: '',
-        instagramLink: '',
-        email: '',
-        danceStyles: [],
-        imageUrl: '',
-        privatePricePerHour: ''
-      })
-      setImageFile(null)
-      setImagePreview(null)
-      setUploadProgress(0)
-    } catch (error) {
-      console.error('Error submitting instructor:', error)
-      toast.error('Failed to submit instructor. Please try again.')
-    }
-  }
-
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-[95vw] sm:max-w-[600px] bg-gradient-to-br from-primary/10 to-secondary/10 max-h-[90vh] overflow-y-auto rounded-xl sm:rounded-2xl">
@@ -234,7 +140,113 @@ export function InstructorSubmissionForm({ isOpen, onClose }: InstructorSubmissi
           </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4">
+        <form onSubmit={(e) => {
+          e.preventDefault()
+          handleSubmitButton(async () => {
+            try {
+              let imageUrl = formData.imageUrl
+
+              // Upload image if file is selected
+              if (imageFile) {
+                setIsUploading(true)
+                setUploadProgress(0)
+                
+                try {
+                  imageUrl = await uploadImage(imageFile)
+                  setUploadProgress(100)
+                } catch (uploadError) {
+                  console.error('Image upload failed:', uploadError)
+                  toast.error('Image upload failed. Please try again or use a URL instead.')
+                  setIsUploading(false)
+                  throw uploadError
+                } finally {
+                  setIsUploading(false)
+                }
+              }
+
+              // Validate dance styles
+              if (formData.danceStyles.length === 0) {
+                toast.error('Please select at least one dance style')
+                throw new Error('No dance styles selected')
+              }
+
+              // Create instructor data with uploaded image URL
+              const instructorData = {
+                name: formData.name,
+                location: formData.location,
+                state: formData.state,
+                bio: formData.bio,
+                website: formData.website,
+                facebookLink: formData.facebookLink,
+                instagramLink: formData.instagramLink,
+                email: formData.email,
+                danceStyles: formData.danceStyles,
+                imageUrl: imageUrl,
+                privatePricePerHour: formData.privatePricePerHour,
+                status: 'pending',
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString()
+              }
+
+              // Submit instructor data
+              const response = await fetch('/api/instructors', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(instructorData),
+              })
+
+              if (!response.ok) {
+                const errorData = await response.json()
+                throw new Error(errorData.error || 'Failed to submit instructor')
+              }
+
+              const createdInstructor = await response.json()
+              console.log('Instructor created:', createdInstructor)
+
+              // Send email notification
+              const emailResponse = await fetch('/api/send-email', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                  type: 'instructor_submission',
+                  data: instructorData
+                }),
+              })
+
+              if (!emailResponse.ok) {
+                console.warn('Failed to send email notification, but instructor was created')
+              }
+
+              // Show success confirmation and reset form
+              showSuccess('instructor')
+              onClose()
+              setFormData({
+                name: '',
+                location: '',
+                state: '',
+                bio: '',
+                website: '',
+                facebookLink: '',
+                instagramLink: '',
+                email: '',
+                danceStyles: [],
+                imageUrl: '',
+                privatePricePerHour: ''
+              })
+              setImageFile(null)
+              setImagePreview(null)
+              setUploadProgress(0)
+            } catch (error) {
+              console.error('Error submitting instructor:', error)
+              toast.error('Failed to submit instructor. Please try again.')
+              throw error
+            }
+          })
+        }} className="space-y-3 sm:space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="name" className="text-primary">Full Name *</Label>
@@ -499,18 +511,10 @@ export function InstructorSubmissionForm({ isOpen, onClose }: InstructorSubmissi
 
           <div className="flex justify-end">
             <SubmitButton
-              type="submit"
-              disabled={isLoading}
+              isLoading={isLoading}
               className="w-full bg-primary hover:bg-primary/90 text-white rounded-lg flex items-center justify-center gap-2"
             >
-              {isLoading ? (
-                <>
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                  Submitting...
-                </>
-              ) : (
-                'Submit Profile'
-              )}
+              Submit Profile
             </SubmitButton>
           </div>
         </form>
