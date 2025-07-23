@@ -111,6 +111,17 @@ export function FestivalCard({ festival }: FestivalCardProps) {
           {festival.location}
           {festival.country === 'Australia' ? `, ${festival.state}` : festival.state && festival.state !== 'N/A' ? `, ${festival.state}` : ''}
           {festival.country && festival.country !== 'Australia' && `, ${festival.country}`}
+          <span className="text-gray-500">•</span>
+          <Calendar className="h-3 w-3 text-green-600" />
+          <span>
+            {formattedDates.startDate}{" "}
+            {formattedDates.endDate && festival.startDate ? (
+              <>
+                –{" "}
+                {formattedDates.endDate}
+              </>
+            ) : null}
+          </span>
         </CardDescription>
         {/* Dance Style Stickers */}
         {danceStylesArray.length > 0 && (
@@ -133,19 +144,6 @@ export function FestivalCard({ festival }: FestivalCardProps) {
       </CardHeader>
       <CardContent className="p-3 pt-0">
         <div className="space-y-2">
-          <div className="flex items-center gap-2 text-xs">
-            <Calendar className="h-3 w-3 text-green-600" />
-            <span>
-              {formattedDates.startDate}{" "}
-              {formattedDates.endDate && festival.startDate ? (
-                <>
-                  –{" "}
-                  {formattedDates.endDate}
-                </>
-              ) : null}
-            </span>
-          </div>
-
           {festival.time && (
             <div className="flex items-center gap-2 text-xs">
               <Clock className="h-3 w-3 text-green-600" />
