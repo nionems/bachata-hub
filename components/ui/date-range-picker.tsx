@@ -29,9 +29,17 @@ export function DateRangePicker({
   placeholder = "Pick a date range",
   disabled = false
 }: DateRangePickerProps) {
+  const [open, setOpen] = React.useState(false)
+
+  const handleButtonClick = (e: React.MouseEvent | React.TouchEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setOpen(!open)
+  }
+
   return (
     <div className={cn("grid gap-2", className)}>
-      <Popover>
+      <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
           <Button
             id="date"
@@ -42,6 +50,8 @@ export function DateRangePicker({
             )}
             disabled={disabled}
             type="button"
+            onClick={handleButtonClick}
+            onTouchStart={handleButtonClick}
           >
             <CalendarIcon className="mr-2 h-4 w-4" />
             {dateRange?.from ? (
@@ -72,7 +82,13 @@ export function DateRangePicker({
             mode="range"
             defaultMonth={dateRange?.from}
             selected={dateRange}
-            onSelect={onDateRangeChange}
+            onSelect={(range) => {
+              onDateRangeChange?.(range)
+              // Close popover when range is selected
+              if (range?.from && range?.to) {
+                setTimeout(() => setOpen(false), 100)
+              }
+            }}
             numberOfMonths={2}
             disabled={(date) => date < new Date()}
             className="rounded-md border"
@@ -110,6 +126,17 @@ export function DateRangePicker({
           />
         </PopoverContent>
       </Popover>
+      
+      {/* Mobile fallback button */}
+      <Button
+        variant="outline"
+        size="sm"
+        className="sm:hidden touch-manipulation"
+        onClick={() => setOpen(true)}
+        type="button"
+      >
+        📅 Open Calendar
+      </Button>
     </div>
   )
 } 
