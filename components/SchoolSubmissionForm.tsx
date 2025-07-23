@@ -22,11 +22,9 @@ interface SchoolFormData {
   name: string
   location: string
   state: string
-  address: string
   website: string
   instagramUrl: string
   facebookUrl: string
-  contactInfo: string
   email: string
   danceStyles: string[]
   description: string
@@ -38,11 +36,9 @@ export function SchoolSubmissionForm({ isOpen, onClose }: SchoolSubmissionFormPr
     name: '',
     location: '',
     state: '',
-    address: '',
     website: '',
     instagramUrl: '',
     facebookUrl: '',
-    contactInfo: '',
     email: '',
     danceStyles: [],
     description: '',
@@ -155,11 +151,10 @@ export function SchoolSubmissionForm({ isOpen, onClose }: SchoolSubmissionFormPr
           name: formData.name,
           location: formData.location,
           state: formData.state,
-          address: formData.address,
           website: formData.website,
           instagramUrl: formData.instagramUrl,
           facebookUrl: formData.facebookUrl,
-          contactInfo: formData.contactInfo,
+          email: formData.email,
           danceStyles: formData.danceStyles,
           comment: formData.description,
           imageUrl: finalImageUrl,
@@ -184,11 +179,9 @@ export function SchoolSubmissionForm({ isOpen, onClose }: SchoolSubmissionFormPr
             name: formData.name,
             location: formData.location,
             state: formData.state,
-            address: formData.address,
             website: formData.website,
             instagramUrl: formData.instagramUrl,
             facebookUrl: formData.facebookUrl,
-            contactInfo: formData.contactInfo,
             email: formData.email,
             danceStyles: formData.danceStyles.join(', '),
             description: formData.description,
@@ -208,11 +201,9 @@ export function SchoolSubmissionForm({ isOpen, onClose }: SchoolSubmissionFormPr
         name: '',
         location: '',
         state: '',
-        address: '',
         website: '',
         instagramUrl: '',
         facebookUrl: '',
-        contactInfo: '',
         email: '',
         danceStyles: [],
         description: '',
@@ -259,6 +250,7 @@ export function SchoolSubmissionForm({ isOpen, onClose }: SchoolSubmissionFormPr
                 value={formData.name}
                 onChange={handleInputChange}
                 required
+                placeholder="e.g., Latin Dance Academy, Salsa Studio, etc."
                 className="bg-white/80 backdrop-blur-sm text-sm sm:text-base rounded-lg"
               />
             </div>
@@ -271,6 +263,7 @@ export function SchoolSubmissionForm({ isOpen, onClose }: SchoolSubmissionFormPr
                 value={formData.location}
                 onChange={handleInputChange}
                 required
+                placeholder="e.g., Sydney, Melbourne, Brisbane"
                 className="bg-white/80 backdrop-blur-sm text-sm sm:text-base rounded-lg"
               />
             </div>
@@ -285,18 +278,6 @@ export function SchoolSubmissionForm({ isOpen, onClose }: SchoolSubmissionFormPr
             </div>
 
             <div className="space-y-1 sm:space-y-2">
-              <Label htmlFor="address" className="text-primary text-sm sm:text-base">Address *</Label>
-              <Input
-                id="address"
-                name="address"
-                value={formData.address}
-                onChange={handleInputChange}
-                required
-                className="bg-white/80 backdrop-blur-sm text-sm sm:text-base rounded-lg"
-              />
-            </div>
-
-            <div className="space-y-1 sm:space-y-2">
               <Label htmlFor="website" className="text-primary text-sm sm:text-base">Website</Label>
               <Input
                 id="website"
@@ -304,7 +285,7 @@ export function SchoolSubmissionForm({ isOpen, onClose }: SchoolSubmissionFormPr
                 type="url"
                 value={formData.website}
                 onChange={handleInputChange}
-                placeholder="https://"
+                placeholder="https://www.yourschool.com.au"
                 className="bg-white/80 backdrop-blur-sm text-sm sm:text-base rounded-lg"
               />
             </div>
@@ -317,7 +298,7 @@ export function SchoolSubmissionForm({ isOpen, onClose }: SchoolSubmissionFormPr
                 type="url"
                 value={formData.instagramUrl}
                 onChange={handleInputChange}
-                placeholder="https://instagram.com/..."
+                placeholder="https://instagram.com/yourschool"
                 className="bg-white/80 backdrop-blur-sm text-sm sm:text-base rounded-lg"
               />
             </div>
@@ -330,20 +311,8 @@ export function SchoolSubmissionForm({ isOpen, onClose }: SchoolSubmissionFormPr
                 type="url"
                 value={formData.facebookUrl}
                 onChange={handleInputChange}
-                placeholder="https://facebook.com/..."
+                placeholder="https://facebook.com/yourschool"
                 className="bg-white/80 backdrop-blur-sm text-sm sm:text-base rounded-lg"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="contactInfo" className="text-primary">Contact Information *</Label>
-              <Input
-                id="contactInfo"
-                name="contactInfo"
-                value={formData.contactInfo}
-                onChange={handleInputChange}
-                required
-                className="bg-white/80 backdrop-blur-sm rounded-lg"
               />
             </div>
 
@@ -356,6 +325,7 @@ export function SchoolSubmissionForm({ isOpen, onClose }: SchoolSubmissionFormPr
                 value={formData.email}
                 onChange={handleInputChange}
                 required
+                placeholder="contact@yourschool.com.au"
                 className="bg-white/80 backdrop-blur-sm rounded-lg"
               />
             </div>
@@ -391,7 +361,9 @@ export function SchoolSubmissionForm({ isOpen, onClose }: SchoolSubmissionFormPr
               value={formData.description}
               onChange={handleInputChange}
               required
+              placeholder="Tell us about your dance school! Include information about your teaching style, experience, class offerings, pricing, and what makes your school unique. For example: 'We offer beginner to advanced classes in Bachata, Salsa, and Kizomba. Our experienced instructors provide personalized attention in small group settings. Classes run Monday to Friday with weekend workshops available.'"
               className="bg-white/80 backdrop-blur-sm text-sm sm:text-base rounded-lg"
+              rows={4}
             />
           </div>
 

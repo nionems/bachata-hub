@@ -39,14 +39,37 @@ export async function PUT(
     const data = await request.json();
     console.log('Received update data:', data);
 
-    // Validate required fields
-    if (!data.name || !data.location || !data.state || !data.address || !data.contactInfo) {
+    const schoolRef = doc(db, 'schools', params.id);
+    const schoolDoc = await getDoc(schoolRef);
+    
+    if (!schoolDoc.exists()) {
+      console.error('School not found with ID:', params.id);
+      return NextResponse.json(
+        { error: 'School not found' },
+        { status: 404 }
+      );
+    }
+
+    const existingData = schoolDoc.data();
+
+    // If this is just a status update, use existing data
+    if (Object.keys(data).length === 1 && data.status) {
+      const updateData = {
+        status: data.status,
+        updatedAt: new Date().toISOString()
+      };
+      
+      await updateDoc(schoolRef, updateData);
+      console.log('School status updated successfully');
+      return NextResponse.json({ id: params.id, ...existingData, ...updateData });
+    }
+
+    // For full updates, validate required fields
+    if (!data.name || !data.location || !data.state) {
       console.error('Missing required fields:', {
         hasName: !!data.name,
         hasLocation: !!data.location,
-        hasState: !!data.state,
-        hasAddress: !!data.address,
-        hasContactInfo: !!data.contactInfo
+        hasState: !!data.state
       });
       return NextResponse.json(
         { error: 'Missing required fields' },
@@ -58,8 +81,6 @@ export async function PUT(
       name,
       location,
       state,
-      address,
-      contactInfo,
       website,
       danceStyles,
       imageUrl,
@@ -85,8 +106,6 @@ export async function PUT(
       name,
       location,
       state,
-      address,
-      contactInfo,
       website: website || '',
       danceStyles: processedDanceStyles,
       imageUrl: imageUrl || '',
@@ -98,22 +117,11 @@ export async function PUT(
       facebookUrl: facebookUrl || '',
       googleMapLink: googleMapLink || '',
       comment: comment || '',
-      status: status || undefined,
+      status: status || existingData.status,
       updatedAt: new Date().toISOString()
     };
 
     console.log('Processed school data:', schoolData);
-
-    const schoolRef = doc(db, 'schools', params.id);
-    const schoolDoc = await getDoc(schoolRef);
-    
-    if (!schoolDoc.exists()) {
-      console.error('School not found with ID:', params.id);
-      return NextResponse.json(
-        { error: 'School not found' },
-        { status: 404 }
-      );
-    }
 
     await updateDoc(schoolRef, schoolData);
     console.log('School updated successfully');

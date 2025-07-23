@@ -40,8 +40,6 @@ export async function POST(request: Request) {
       name,
       location,
       state,
-      address,
-      contactInfo,
       website,
       danceStyles,
       imageUrl,
@@ -58,7 +56,7 @@ export async function POST(request: Request) {
     } = data;
 
     // Validate required fields
-    if (!name || !location || !state || !address || !contactInfo) {
+    if (!name || !location || !state) {
       console.error('Missing required fields');
       return NextResponse.json(
         { error: 'Missing required fields' },
@@ -70,8 +68,6 @@ export async function POST(request: Request) {
       name,
       location,
       state,
-      address,
-      contactInfo,
       website: website || '',
       danceStyles: Array.isArray(danceStyles) ? danceStyles : [],
       imageUrl: imageUrl || '',
@@ -103,9 +99,12 @@ export async function POST(request: Request) {
         stack: error.stack
       });
     }
-    return NextResponse.json({ 
-      error: 'Failed to create school',
-      details: error instanceof Error ? error.message : 'Unknown error'
-    }, { status: 500 });
+    return NextResponse.json(
+      { 
+        error: 'Failed to create school',
+        details: error instanceof Error ? error.message : 'Unknown error'
+      },
+      { status: 500 }
+    );
   }
 } 

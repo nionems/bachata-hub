@@ -3,8 +3,6 @@ export interface School {
   name: string
   location: string
   state: string
-  address: string
-  contactInfo: string
   instructors: string[]
   website: string
   danceStyles: string[]

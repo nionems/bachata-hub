@@ -1516,12 +1516,6 @@ export default function AdminDashboard() {
           <p className="text-gray-600">
             <span className="font-medium">Location:</span> {school.location}, {school.state}
           </p>
-          <p className="text-gray-600">
-            <span className="font-medium">Address:</span> {school.address}
-          </p>
-          <p className="text-gray-600">
-            <span className="font-medium">Contact:</span> {school.contactInfo}
-          </p>
           {school.website && (
             <p className="text-gray-600">
               <span className="font-medium">Website:</span> <a href={school.website} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">{school.website}</a>
