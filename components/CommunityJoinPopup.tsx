@@ -19,8 +19,6 @@ interface JoinFormData {
 }
 
 export function CommunityJoinPopup({ isOpen, onClose }: CommunityJoinPopupProps) {
-  console.log('CommunityJoinPopup rendered, isOpen:', isOpen)
-  
   const [formData, setFormData] = useState<JoinFormData>({
     name: '',
     email: ''
@@ -32,14 +30,10 @@ export function CommunityJoinPopup({ isOpen, onClose }: CommunityJoinPopupProps)
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
-    console.log('Form submitted, starting submission process...')
     setIsLoading(true)
     setError(null)
 
     try {
-      console.log('Sending join form data:', formData)
-      console.log('Form data JSON:', JSON.stringify(formData))
-      
       // Call the API endpoint to save community member
       const response = await fetch('/api/community-join', {
         method: 'POST',
@@ -50,17 +44,10 @@ export function CommunityJoinPopup({ isOpen, onClose }: CommunityJoinPopupProps)
       })
 
       const data = await response.json()
-
-      console.log('Response status:', response.status)
-      console.log('Response data:', data)
-      console.log('Response headers:', Object.fromEntries(response.headers.entries()))
       
       if (!response.ok) {
-        console.error('Response not OK:', response.status, data)
         throw new Error(data.error || 'Failed to join community')
       }
-
-      console.log('Community join response:', data)
       
       setSuccess(true)
       toast.success('Welcome to the community! 🎉')
@@ -77,7 +64,6 @@ export function CommunityJoinPopup({ isOpen, onClose }: CommunityJoinPopupProps)
         setSuccess(false)
       }, 3000)
     } catch (err) {
-      console.error('Error in handleSubmit:', err)
       const errorMessage = err instanceof Error ? err.message : 'Failed to join community. Please try again.'
       setError(errorMessage)
       toast.error(errorMessage)

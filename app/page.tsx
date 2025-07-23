@@ -126,31 +126,20 @@ export default function Home() {
   const [isCommunityPopupOpen, setIsCommunityPopupOpen] = useState(false)
   const [isEventSubmissionOpen, setIsEventSubmissionOpen] = useState(false)
 
-  console.log('Current popup state - isCommunityPopupOpen:', isCommunityPopupOpen)
-
   // Show community popup only on first visit (per browser/device)
   useEffect(() => {
-    // TEMPORARY: Always show popup for testing
-    console.log('TESTING: Always showing popup');
-    const timer = setTimeout(() => {
-      console.log('TESTING: Setting popup to show');
-      setIsCommunityPopupOpen(true);
-    }, 2000); // Reduced to 2 seconds for testing
-    return () => clearTimeout(timer);
-    
-    // ORIGINAL LOGIC (commented out for testing):
-    // const hasDismissed = localStorage.getItem('communityPopupDismissed');
-    // console.log('Checking popup trigger - hasDismissed:', hasDismissed);
-    // if (!hasDismissed) {
-    //   console.log('Setting popup timer - will show in 3 seconds');
-    //   const timer = setTimeout(() => {
-    //     console.log('Popup timer triggered - setting isCommunityPopupOpen to true');
-    //     setIsCommunityPopupOpen(true);
-    //   }, 3000);
-    //   return () => clearTimeout(timer);
-    // } else {
-    //   console.log('Popup already dismissed - not showing');
-    // }
+    const hasDismissed = localStorage.getItem('communityPopupDismissed');
+    console.log('Checking popup trigger - hasDismissed:', hasDismissed);
+    if (!hasDismissed) {
+      console.log('Setting popup timer - will show in 3 seconds');
+      const timer = setTimeout(() => {
+        console.log('Popup timer triggered - setting isCommunityPopupOpen to true');
+        setIsCommunityPopupOpen(true);
+      }, 3000);
+      return () => clearTimeout(timer);
+    } else {
+      console.log('Popup already dismissed - not showing');
+    }
   }, []);
 
   // Handler to close the popup and set the dismissed flag
