@@ -13,6 +13,9 @@ import { SuccessConfirmation, useSuccessConfirmation } from "@/components/ui/suc
 import { X, ImageIcon, CheckCircle } from "lucide-react"
 import { toast } from "react-hot-toast"
 import { DANCE_STYLES, COUNTRIES } from "@/lib/constants"
+import { DateRangePicker } from "@/components/ui/date-range-picker"
+import { DateRange } from "react-day-picker"
+import { format } from "date-fns"
 
 // Filter dance styles to show only the requested ones
 const FESTIVAL_DANCE_STYLES = ['Bachata', 'Salsa', 'Kizomba', 'Zouk', 'Mambo', 'Afrobeat'] as const
@@ -29,9 +32,7 @@ interface FestivalFormData {
   location: string
   state: string
   country: string
-  address: string
   eventLink: string
-  price: string
   ticketLink: string
   danceStyles: string[]
   imageUrl: string
@@ -39,7 +40,6 @@ interface FestivalFormData {
   description: string
   ambassadorCode: string
   googleMapLink: string
-  email: string
   instagramLink: string
   facebookLink: string
 }
@@ -52,9 +52,7 @@ export function FestivalSubmissionForm({ isOpen, onClose }: FestivalSubmissionFo
     location: '',
     state: 'NSW', // Default state for Australia
     country: 'Australia',
-    address: '',
     eventLink: '',
-    price: '',
     ticketLink: '',
     danceStyles: [],
     imageUrl: '',
@@ -62,10 +60,11 @@ export function FestivalSubmissionForm({ isOpen, onClose }: FestivalSubmissionFo
     description: '',
     ambassadorCode: '',
     googleMapLink: '',
-    email: '',
     instagramLink: '',
     facebookLink: ''
   })
+
+  const [dateRange, setDateRange] = useState<DateRange | undefined>()
 
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState(false)
@@ -90,6 +89,22 @@ export function FestivalSubmissionForm({ isOpen, onClose }: FestivalSubmissionFo
       }))
     } else {
       setFormData(prev => ({ ...prev, [name]: value }))
+    }
+  }
+
+  const handleDateRangeChange = (range: DateRange | undefined) => {
+    setDateRange(range)
+    if (range?.from) {
+      setFormData(prev => ({ 
+        ...prev, 
+        startDate: format(range.from!, 'yyyy-MM-dd')
+      }))
+    }
+    if (range?.to) {
+      setFormData(prev => ({ 
+        ...prev, 
+        endDate: format(range.to!, 'yyyy-MM-dd')
+      }))
     }
   }
 
@@ -168,16 +183,13 @@ export function FestivalSubmissionForm({ isOpen, onClose }: FestivalSubmissionFo
         location: formData.location,
         state: finalState,
         country: formData.country,
-        address: formData.address,
         eventLink: formData.eventLink,
-        price: formData.price,
         ticketLink: formData.ticketLink,
         danceStyles: formData.danceStyles,
         imageUrl: imageUrl,
         description: formData.description,
         ambassadorCode: formData.ambassadorCode,
         googleMapLink: formData.googleMapLink,
-        email: formData.email,
         instagramLink: formData.instagramLink ? `https://instagram.com/${formData.instagramLink.replace('@', '')}` : '',
         facebookLink: formData.facebookLink ? `https://facebook.com/${formData.facebookLink}` : ''
       }
@@ -225,9 +237,7 @@ export function FestivalSubmissionForm({ isOpen, onClose }: FestivalSubmissionFo
         location: '',
         state: 'NSW',
         country: 'Australia',
-        address: '',
         eventLink: '',
-        price: '',
         ticketLink: '',
         danceStyles: [],
         imageUrl: '',
@@ -235,7 +245,6 @@ export function FestivalSubmissionForm({ isOpen, onClose }: FestivalSubmissionFo
         description: '',
         ambassadorCode: '',
         googleMapLink: '',
-        email: '',
         instagramLink: '',
         facebookLink: ''
       })
@@ -285,27 +294,10 @@ export function FestivalSubmissionForm({ isOpen, onClose }: FestivalSubmissionFo
             </div>
 
             <div className="space-y-1">
-              <Label htmlFor="startDate" className="text-primary text-sm">Start Date *</Label>
-              <Input
-                id="startDate"
-                name="startDate"
-                type="date"
-                value={formData.startDate}
-                onChange={handleInputChange}
-                required
-                className="bg-white/80 backdrop-blur-sm h-9"
-              />
-            </div>
-
-            <div className="space-y-1">
-              <Label htmlFor="endDate" className="text-primary text-sm">End Date *</Label>
-              <Input
-                id="endDate"
-                name="endDate"
-                type="date"
-                value={formData.endDate}
-                onChange={handleInputChange}
-                required
+              <Label htmlFor="dateRange" className="text-primary text-sm">Date Range *</Label>
+              <DateRangePicker
+                dateRange={dateRange}
+                onDateRangeChange={handleDateRangeChange}
                 className="bg-white/80 backdrop-blur-sm h-9"
               />
             </div>
@@ -363,18 +355,6 @@ export function FestivalSubmissionForm({ isOpen, onClose }: FestivalSubmissionFo
             </div>
 
             <div className="space-y-1">
-              <Label htmlFor="address" className="text-primary text-sm">Address *</Label>
-              <Input
-                id="address"
-                name="address"
-                value={formData.address}
-                onChange={handleInputChange}
-                required
-                className="bg-white/80 backdrop-blur-sm h-9"
-              />
-            </div>
-
-            <div className="space-y-1">
               <Label htmlFor="eventLink" className="text-primary text-sm">Event Link</Label>
               <Input
                 id="eventLink"
@@ -383,18 +363,6 @@ export function FestivalSubmissionForm({ isOpen, onClose }: FestivalSubmissionFo
                 value={formData.eventLink}
                 onChange={handleInputChange}
                 placeholder="https://"
-                className="bg-white/80 backdrop-blur-sm h-9"
-              />
-            </div>
-
-            <div className="space-y-1">
-              <Label htmlFor="price" className="text-primary text-sm">Price</Label>
-              <Input
-                id="price"
-                name="price"
-                value={formData.price}
-                onChange={handleInputChange}
-                placeholder="e.g., $50"
                 className="bg-white/80 backdrop-blur-sm h-9"
               />
             </div>
@@ -463,106 +431,6 @@ export function FestivalSubmissionForm({ isOpen, onClose }: FestivalSubmissionFo
               {formData.danceStyles.length === 0 && (
                 <p className="text-xs text-red-500">Please select at least one dance style</p>
               )}
-            </div>
-
-            <div className="space-y-1">
-              <Label htmlFor="email" className="text-primary text-sm">Email *</Label>
-              <Input
-                id="email"
-                name="email"
-                type="email"
-                value={formData.email}
-                onChange={handleInputChange}
-                required
-                placeholder="your@email.com"
-                className="bg-white/80 backdrop-blur-sm h-9"
-              />
-            </div>
-
-
-
-            <div className="space-y-1">
-              <Label htmlFor="image" className="text-primary text-xs font-medium">Festival Image *</Label>
-              
-              {/* File Upload Section */}
-              <div className="space-y-1.5">
-                {/* Single Upload Box */}
-                <div className="relative">
-                  <input
-                    id="image-input"
-                    name="image-input"
-                    type="file"
-                    accept="image/*"
-                    onChange={handleImageChange}
-                    className="hidden"
-                  />
-                  <label
-                    htmlFor="image-input"
-                    className="flex items-center justify-center w-full h-12 border-2 border-dashed border-gray-300 rounded-md cursor-pointer hover:border-primary transition-colors bg-white/90 backdrop-blur-sm"
-                  >
-                    <ImageIcon className="h-4 w-4 text-gray-400 mr-2" />
-                    <span className="text-xs text-gray-600 font-medium">Upload Photo</span>
-                  </label>
-                  <p className="text-xs text-gray-500 mt-1">
-                    📸 Maximum file size: 5MB. 💡 Tip: Take a screenshot instead of uploading high-quality photos for smaller file sizes. Supported formats: JPG, PNG, GIF, WebP
-                  </p>
-                </div>
-
-                {/* Image Preview */}
-                {imagePreview && (
-                  <div className="relative group">
-                    <div 
-                      className="w-full h-24 bg-gray-100 rounded-md overflow-hidden"
-                      style={{
-                        backgroundImage: `url(${imagePreview})`,
-                        backgroundSize: 'cover',
-                        backgroundPosition: 'center'
-                      }}
-                    />
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setFormData(prev => ({ ...prev, image: null }))
-                        setImagePreview(null)
-                      }}
-                      className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
-                    >
-                      <X className="h-4 w-4" />
-                    </button>
-                  </div>
-                )}
-
-                {/* Or Divider */}
-                <div className="relative">
-                  <div className="absolute inset-0 flex items-center">
-                    <span className="w-full border-t" />
-                  </div>
-                  <div className="relative flex justify-center text-xs uppercase">
-                    <span className="bg-background px-2 text-muted-foreground">Or</span>
-                  </div>
-                </div>
-
-                {/* URL Input */}
-                <div>
-                  <Label htmlFor="imageUrl" className="text-sm text-muted-foreground">Use Google Drive Link</Label>
-                  <Input
-                    id="imageUrl"
-                    name="imageUrl"
-                    type="url"
-                    value={formData.imageUrl}
-                    onChange={handleInputChange}
-                    placeholder="Enter Google Drive image URL"
-                    className="bg-white/80 backdrop-blur-sm rounded-lg"
-                  />
-                  <p className="text-xs text-gray-500 mt-1">
-                    To add an image from Google Drive:
-                    <br />1. Upload your image to Google Drive
-                    <br />2. Right-click the image and select "Share"
-                    <br />3. Set access to "Anyone with the link"
-                    <br />4. Copy the link and paste it here
-                  </p>
-                </div>
-              </div>
             </div>
 
             <div className="space-y-1">

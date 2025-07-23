@@ -6,10 +6,10 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
-import { CalendarIcon, MapPin, X } from "lucide-react"
+import { MapPin, X } from "lucide-react"
 import CollapsibleFilter from "./collapsible-filter"
-import { Calendar } from "@/components/ui/calendar"
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import { DateRangePicker } from "@/components/ui/date-range-picker"
+import { DateRange } from "react-day-picker"
 import { format } from "date-fns"
 import { cn } from "@/lib/cn"
 
@@ -32,6 +32,11 @@ export default function CalendarFilter() {
     currentStartDate ? new Date(currentStartDate) : undefined,
   )
   const [endDate, setEndDate] = useState<Date | undefined>(currentEndDate ? new Date(currentEndDate) : undefined)
+  const [dateRange, setDateRange] = useState<DateRange | undefined>(
+    currentStartDate && currentEndDate 
+      ? { from: new Date(currentStartDate), to: new Date(currentEndDate) }
+      : undefined
+  )
 
   // State for active filters count
   const [activeFiltersCount, setActiveFiltersCount] = useState(() => {
@@ -43,6 +48,12 @@ export default function CalendarFilter() {
     if (currentEndDate) count++
     return count
   })
+
+  const handleDateRangeChange = (range: DateRange | undefined) => {
+    setDateRange(range)
+    setStartDate(range?.from)
+    setEndDate(range?.to)
+  }
 
   const applyFilters = () => {
     // Create a new URLSearchParams object
@@ -74,6 +85,7 @@ export default function CalendarFilter() {
     setLocation("")
     setStartDate(undefined)
     setEndDate(undefined)
+    setDateRange(undefined)
     setActiveFiltersCount(0)
     router.push("/calendar")
   }
@@ -169,46 +181,10 @@ export default function CalendarFilter() {
         {/* Date Range */}
         <div className="space-y-2">
           <Label>Date Range</Label>
-          <div className="flex flex-col sm:flex-row gap-2">
-            <div className="flex-1">
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant="outline"
-                    className={cn("w-full justify-start text-left font-normal", !startDate && "text-muted-foreground")}
-                  >
-                    <CalendarIcon className="mr-2 h-4 w-4" />
-                    {startDate ? format(startDate, "PPP") : "Start date"}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0">
-                  <Calendar mode="single" selected={startDate} onSelect={setStartDate} initialFocus />
-                </PopoverContent>
-              </Popover>
-            </div>
-            <div className="flex-1">
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant="outline"
-                    className={cn("w-full justify-start text-left font-normal", !endDate && "text-muted-foreground")}
-                  >
-                    <CalendarIcon className="mr-2 h-4 w-4" />
-                    {endDate ? format(endDate, "PPP") : "End date"}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0">
-                  <Calendar
-                    mode="single"
-                    selected={endDate}
-                    onSelect={setEndDate}
-                    initialFocus
-                    disabled={(date) => (startDate ? date < startDate : false)}
-                  />
-                </PopoverContent>
-              </Popover>
-            </div>
-          </div>
+          <DateRangePicker
+            dateRange={dateRange}
+            onDateRangeChange={handleDateRangeChange}
+          />
         </div>
 
         {/* Action Buttons */}

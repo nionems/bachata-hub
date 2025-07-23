@@ -8,11 +8,15 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { StateSelect } from "@/components/ui/StateSelect"
 import { Checkbox } from "@/components/ui/checkbox"
-import { SubmitButton } from "@/components/ui/submit-button"
+import { SubmitButton, useSubmitButton } from "@/components/ui/submit-button"
 import { SuccessConfirmation, useSuccessConfirmation } from "@/components/ui/success-confirmation"
 import { toast } from "react-hot-toast"
 import { X, ImageIcon, CheckCircle } from "lucide-react"
 import { COUNTRIES } from "@/lib/constants"
+import { DANCE_STYLES } from "@/lib/constants"
+import { DateRangePicker } from "@/components/ui/date-range-picker"
+import { DateRange } from "react-day-picker"
+import { format } from "date-fns"
 
 interface CompetitionSubmissionFormProps {
   isOpen: boolean
@@ -91,6 +95,7 @@ export function CompetitionSubmissionForm({ isOpen, onClose }: CompetitionSubmis
 
   const [isLoading, setIsLoading] = useState(false)
   const [imagePreview, setImagePreview] = useState<string | null>(null)
+  const [dateRange, setDateRange] = useState<DateRange | undefined>()
   const { showSuccess, hideSuccess, isSuccessVisible } = useSuccessConfirmation()
 
   const handleInputChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -102,6 +107,22 @@ export function CompetitionSubmissionForm({ isOpen, onClose }: CompetitionSubmis
       setFormData(prev => ({ ...prev, [name]: selectedOptions }))
     } else {
       setFormData(prev => ({ ...prev, [name]: value }))
+    }
+  }
+
+  const handleDateRangeChange = (range: DateRange | undefined) => {
+    setDateRange(range)
+    if (range?.from) {
+      setFormData(prev => ({ 
+        ...prev, 
+        startDate: format(range.from!, 'yyyy-MM-dd')
+      }))
+    }
+    if (range?.to) {
+      setFormData(prev => ({ 
+        ...prev, 
+        endDate: format(range.to!, 'yyyy-MM-dd')
+      }))
     }
   }
 
@@ -339,28 +360,12 @@ export function CompetitionSubmissionForm({ isOpen, onClose }: CompetitionSubmis
 
 
             <div className="space-y-2">
-              <Label htmlFor="startDate" className="text-primary">Start Date *</Label>
-              <Input
-                id="startDate"
-                name="startDate"
-                type="date"
-                value={formData.startDate}
-                onChange={handleInputChange}
-                required
+              <Label htmlFor="dateRange" className="text-primary">Date Range *</Label>
+              <DateRangePicker
+                dateRange={dateRange}
+                onDateRangeChange={handleDateRangeChange}
                 className="bg-white/80 backdrop-blur-sm rounded-lg"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="endDate" className="text-primary">End Date *</Label>
-              <Input
-                id="endDate"
-                name="endDate"
-                type="date"
-                value={formData.endDate}
-                onChange={handleInputChange}
-                required
-                className="bg-white/80 backdrop-blur-sm rounded-lg"
+                placeholder="Select competition dates"
               />
             </div>
 
