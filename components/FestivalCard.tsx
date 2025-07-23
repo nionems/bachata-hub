@@ -40,7 +40,7 @@ export function FestivalCard({ festival }: FestivalCardProps) {
 
   return (
     <Card className="overflow-hidden hover:shadow-lg transition-shadow">
-      <div className="h-48 overflow-hidden relative">
+      <div className="h-56 overflow-hidden relative">
         <Image
           src={festival.imageUrl || '/placeholder.svg'}
           alt={festival.name}
