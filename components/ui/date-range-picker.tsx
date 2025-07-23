@@ -29,11 +29,9 @@ export function DateRangePicker({
   placeholder = "Pick a date range",
   disabled = false
 }: DateRangePickerProps) {
-  const [open, setOpen] = React.useState(false)
-
   return (
     <div className={cn("grid gap-2", className)}>
-      <Popover open={open} onOpenChange={setOpen}>
+      <Popover>
         <PopoverTrigger asChild>
           <Button
             id="date"
@@ -43,12 +41,7 @@ export function DateRangePicker({
               !dateRange && "text-muted-foreground"
             )}
             disabled={disabled}
-            onClick={() => setOpen(!open)}
-            onTouchStart={(e) => {
-              // Prevent double-tap zoom on mobile
-              e.preventDefault()
-              setOpen(!open)
-            }}
+            type="button"
           >
             <CalendarIcon className="mr-2 h-4 w-4" />
             {dateRange?.from ? (
@@ -66,25 +59,20 @@ export function DateRangePicker({
           </Button>
         </PopoverTrigger>
         <PopoverContent 
-          className="w-auto p-0 sm:w-auto" 
+          className="w-auto p-0 sm:w-auto z-[9999]" 
           align="start" 
           side="bottom"
           sideOffset={4}
           avoidCollisions={true}
           collisionPadding={10}
+          style={{ zIndex: 9999 }}
         >
           <Calendar
             initialFocus
             mode="range"
             defaultMonth={dateRange?.from}
             selected={dateRange}
-            onSelect={(range) => {
-              onDateRangeChange?.(range)
-              // Close popover when range is selected on mobile
-              if (range?.from && range?.to) {
-                setTimeout(() => setOpen(false), 100)
-              }
-            }}
+            onSelect={onDateRangeChange}
             numberOfMonths={2}
             disabled={(date) => date < new Date()}
             className="rounded-md border"

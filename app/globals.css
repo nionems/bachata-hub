@@ -34,12 +34,31 @@
   body {
     @apply bg-background text-foreground font-sans;
     font-feature-settings: "rlig" 1, "calt" 1;
+    /* Prevent zoom on mobile */
+    touch-action: manipulation;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
   }
   h1, h2, h3, h4, h5, h6 {
     @apply font-bold;
   }
   p, span, div {
     @apply font-normal;
+  }
+  
+  /* Mobile touch improvements */
+  button, [role="button"] {
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+  }
+  
+  /* Ensure popovers work on mobile */
+  [data-radix-popper-content-wrapper] {
+    z-index: 9999 !important;
   }
   
   /* Custom scrollbar styles */
