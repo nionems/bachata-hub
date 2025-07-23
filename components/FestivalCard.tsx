@@ -153,9 +153,6 @@ export function FestivalCard({ festival }: FestivalCardProps) {
             </div>
           )}
           <div className="flex gap-2 items-center">
-            {festival.price && (
-              <Badge variant="price" className="text-xs">Price: {festival.price}</Badge>
-            )}
             {festival.ambassadorCode && (
               <Badge variant="secondary" className="bg-green-500/20 text-green-700 text-xs">
                 🎫 {festival.ambassadorCode}

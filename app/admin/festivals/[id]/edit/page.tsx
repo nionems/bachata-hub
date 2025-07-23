@@ -14,11 +14,9 @@ interface Festival {
   country?: string
   address: string
   eventLink: string
-  price: string
   ticketLink: string
   danceStyles: string[] | string
   imageUrl: string
-  description?: string
   ambassadorCode?: string
   googleMapLink: string
   featured?: 'yes' | 'no'
@@ -41,11 +39,9 @@ export default function EditFestivalPage({ params }: { params: { id: string } })
     country: 'Australia',
     address: '',
     eventLink: '',
-    price: '',
     ticketLink: '',
     danceStyles: [],
     imageUrl: '',
-    description: '',
     ambassadorCode: '',
     googleMapLink: '',
     featured: undefined,
@@ -241,8 +237,8 @@ export default function EditFestivalPage({ params }: { params: { id: string } })
           />
         </div>
 
-        {/* Event Links & Price */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        {/* Event Links */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label className="block text-sm font-medium mb-1">Event Link</label>
             <input
@@ -250,18 +246,6 @@ export default function EditFestivalPage({ params }: { params: { id: string } })
               value={formData.eventLink}
               onChange={(e) => setFormData({ ...formData, eventLink: e.target.value })}
               className="w-full p-2 border rounded"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium mb-1">Price*</label>
-            <input
-              type="number"
-              value={formData.price}
-              onChange={(e) => setFormData({ ...formData, price: e.target.value })}
-              className="w-full p-2 border rounded"
-              min="0"
-              step="0.01"
-              required
             />
           </div>
           <div>
@@ -520,21 +504,7 @@ export default function EditFestivalPage({ params }: { params: { id: string } })
           </div>
         </div>
 
-        {/* Description & Ambassador Code */}
-        <div>
-          <label className="block text-sm font-medium mb-1">Festival Description</label>
-          <textarea
-            value={formData.description || ''}
-            onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-            className="w-full p-2 border rounded"
-            rows={4}
-            placeholder="Describe your festival, what makes it special, what dancers can expect, workshops, performances, etc..."
-          />
-          <p className="text-xs text-gray-500 mt-1">
-            This description will be displayed on the festival card to help dancers understand what your festival offers.
-          </p>
-        </div>
-
+        {/* Ambassador Code */}
         <div>
           <label className="block text-sm font-medium mb-1">Ambassador/Discount Code</label>
           <input
