@@ -39,7 +39,6 @@ interface FestivalFormData {
   image: File | null
   description: string
   ambassadorCode: string
-  googleMapLink: string
   instagramLink: string
   facebookLink: string
 }
@@ -59,7 +58,6 @@ export function FestivalSubmissionForm({ isOpen, onClose }: FestivalSubmissionFo
     image: null,
     description: '',
     ambassadorCode: '',
-    googleMapLink: '',
     instagramLink: '',
     facebookLink: ''
   })
@@ -189,7 +187,6 @@ export function FestivalSubmissionForm({ isOpen, onClose }: FestivalSubmissionFo
         imageUrl: imageUrl,
         description: formData.description,
         ambassadorCode: formData.ambassadorCode,
-        googleMapLink: formData.googleMapLink,
         instagramLink: formData.instagramLink ? `https://instagram.com/${formData.instagramLink.replace('@', '')}` : '',
         facebookLink: formData.facebookLink ? `https://facebook.com/${formData.facebookLink}` : ''
       }
@@ -244,7 +241,6 @@ export function FestivalSubmissionForm({ isOpen, onClose }: FestivalSubmissionFo
         image: null,
         description: '',
         ambassadorCode: '',
-        googleMapLink: '',
         instagramLink: '',
         facebookLink: ''
       })
@@ -433,18 +429,6 @@ export function FestivalSubmissionForm({ isOpen, onClose }: FestivalSubmissionFo
               )}
             </div>
 
-            <div className="space-y-1">
-              <Label htmlFor="googleMapLink" className="text-primary text-sm">Google Map Link</Label>
-              <Input
-                id="googleMapLink"
-                name="googleMapLink"
-                type="url"
-                value={formData.googleMapLink}
-                onChange={handleInputChange}
-                placeholder="https://"
-                className="bg-white/80 backdrop-blur-sm h-9"
-              />
-            </div>
           </div>
 
           <div className="space-y-1">
