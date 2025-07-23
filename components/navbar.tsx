@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Link from "next/link"
 import { Menu, X, RefreshCw } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -8,6 +8,20 @@ import Image from "next/image"
 
 export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const [isIPad, setIsIPad] = useState(false)
+
+  // Detect iPad
+  useEffect(() => {
+    const detectIPad = () => {
+      if (typeof window === 'undefined') return false
+      const userAgent = navigator.userAgent.toLowerCase()
+      return userAgent.includes('ipad') || 
+             (userAgent.includes('macintosh') && 'ontouchend' in document) ||
+             (window.innerWidth >= 768 && window.innerWidth <= 1024 && 'ontouchend' in document)
+    }
+    
+    setIsIPad(detectIPad())
+  }, [])
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen)
@@ -76,11 +90,13 @@ export default function Navbar() {
                 {item.name}
               </Link>
             ))}
-              <Link href="/community">
-                <Button size="sm" className="bg-gradient-to-r from-emerald-500 to-violet-500 hover:from-emerald-600 hover:to-violet-600 text-white ml-2 whitespace-nowrap text-xs md:text-sm px-2 py-1 shadow-lg hover:shadow-xl transition-all duration-200">
-              Join the Community
-            </Button>
-              </Link>
+              {!isIPad && (
+                <Link href="/community">
+                  <Button size="sm" className="bg-gradient-to-r from-emerald-500 to-violet-500 hover:from-emerald-600 hover:to-violet-600 text-white ml-2 whitespace-nowrap text-xs md:text-sm px-2 py-1 shadow-lg hover:shadow-xl transition-all duration-200">
+                    Join the Community
+                  </Button>
+                </Link>
+              )}
             </div>
           </nav>
 
@@ -116,9 +132,11 @@ export default function Navbar() {
                 {item.name}
               </Link>
             ))}
-            <Button className="w-full mt-4 bg-gradient-to-r from-emerald-500 to-violet-500 hover:from-emerald-600 hover:to-violet-600 text-white shadow-lg hover:shadow-xl transition-all duration-200" onClick={handleLoginClick}>
-              Join the Community
-            </Button>
+            {!isIPad && (
+              <Button className="w-full mt-4 bg-gradient-to-r from-emerald-500 to-violet-500 hover:from-emerald-600 hover:to-violet-600 text-white shadow-lg hover:shadow-xl transition-all duration-200" onClick={handleLoginClick}>
+                Join the Community
+              </Button>
+            )}
           </div>
         </div>
       )}
