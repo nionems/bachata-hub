@@ -281,6 +281,7 @@ export function FestivalSubmissionForm({ isOpen, onClose }: FestivalSubmissionFo
                 value={formData.name}
                 onChange={handleInputChange}
                 required
+                placeholder="e.g., Sydney Bachata Festival, Latin Dance Congress"
                 className="bg-white/80 backdrop-blur-sm h-9"
               />
             </div>
@@ -354,7 +355,7 @@ export function FestivalSubmissionForm({ isOpen, onClose }: FestivalSubmissionFo
                 type="url"
                 value={formData.eventLink}
                 onChange={handleInputChange}
-                placeholder="https://"
+                placeholder="https://www.yourfestival.com.au"
                 className="bg-white/80 backdrop-blur-sm h-9"
               />
             </div>
@@ -367,7 +368,7 @@ export function FestivalSubmissionForm({ isOpen, onClose }: FestivalSubmissionFo
                 type="url"
                 value={formData.ticketLink}
                 onChange={handleInputChange}
-                placeholder="https://"
+                placeholder="https://tickets.yourfestival.com.au"
                 className="bg-white/80 backdrop-blur-sm h-9"
               />
             </div>

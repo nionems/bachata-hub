@@ -244,6 +244,7 @@ export function InstructorSubmissionForm({ isOpen, onClose }: InstructorSubmissi
                 value={formData.name}
                 onChange={handleInputChange}
                 required
+                placeholder="e.g., Maria Rodriguez, John Smith"
                 className="bg-white/80 backdrop-blur-sm rounded-lg"
               />
             </div>
@@ -256,6 +257,7 @@ export function InstructorSubmissionForm({ isOpen, onClose }: InstructorSubmissi
                 value={formData.location}
                 onChange={handleInputChange}
                 required
+                placeholder="e.g., Sydney, Melbourne, Brisbane"
                 className="bg-white/80 backdrop-blur-sm rounded-lg"
               />
             </div>
@@ -277,7 +279,7 @@ export function InstructorSubmissionForm({ isOpen, onClose }: InstructorSubmissi
                 type="url"
                 value={formData.website}
                 onChange={handleInputChange}
-                placeholder="https://"
+                placeholder="https://www.yourwebsite.com.au"
                 className="bg-white/80 backdrop-blur-sm rounded-lg"
               />
             </div>
@@ -290,7 +292,7 @@ export function InstructorSubmissionForm({ isOpen, onClose }: InstructorSubmissi
                 type="url"
                 value={formData.facebookLink}
                 onChange={handleInputChange}
-                placeholder="https://facebook.com/..."
+                placeholder="https://facebook.com/yourpage"
                 className="bg-white/80 backdrop-blur-sm rounded-lg"
               />
             </div>
@@ -303,12 +305,10 @@ export function InstructorSubmissionForm({ isOpen, onClose }: InstructorSubmissi
                 type="url"
                 value={formData.instagramLink}
                 onChange={handleInputChange}
-                placeholder="https://instagram.com/..."
+                placeholder="https://instagram.com/yourusername"
                 className="bg-white/80 backdrop-blur-sm rounded-lg"
               />
             </div>
-
-
 
             <div className="space-y-2">
               <Label htmlFor="email" className="text-primary">Email Address *</Label>
@@ -319,6 +319,7 @@ export function InstructorSubmissionForm({ isOpen, onClose }: InstructorSubmissi
                 value={formData.email}
                 onChange={handleInputChange}
                 required
+                placeholder="contact@yourwebsite.com.au"
                 className="bg-white/80 backdrop-blur-sm rounded-lg"
               />
             </div>
