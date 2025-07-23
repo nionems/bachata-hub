@@ -27,7 +27,7 @@ export async function POST(request: Request) {
     // Check if email already exists
     console.log('Checking for existing email:', email)
     const db = getDb()
-    const existingQuery = db.collection('community_members').where('email', '==', email)
+    const existingQuery = db.collection('users').where('email', '==', email)
     const existingSnapshot = await existingQuery.get()
     console.log('Existing email check result:', existingSnapshot.empty ? 'No existing email' : 'Email already exists')
     
@@ -38,8 +38,8 @@ export async function POST(request: Request) {
       )
     }
 
-    // Create community member data with IP address
-    const memberData = {
+    // Create user data with IP address
+    const userData = {
       name: name.trim(),
       email: email.toLowerCase().trim(),
       joinedAt: new Date().toISOString(),
@@ -51,13 +51,13 @@ export async function POST(request: Request) {
     }
 
     // Save to Firestore
-    console.log('Attempting to save to Firestore:', memberData)
-    const docRef = await db.collection('community_members').add(memberData)
+    console.log('Attempting to save to Firestore:', userData)
+    const docRef = await db.collection('users').add(userData)
     
-    console.log('Community member added successfully:', { id: docRef.id, email, ipAddress: clientIp })
+    console.log('User added successfully:', { id: docRef.id, email, ipAddress: clientIp })
 
     // Verify the document was actually saved
-    const savedDoc = await db.collection('community_members').doc(docRef.id).get()
+    const savedDoc = await db.collection('users').doc(docRef.id).get()
     console.log('Verification - Document exists:', savedDoc.exists)
     if (savedDoc.exists) {
       console.log('Verification - Document data:', savedDoc.data())
@@ -71,7 +71,7 @@ export async function POST(request: Request) {
       ipAddress: clientIp
     })
   } catch (error) {
-    console.error('Error adding community member:', error)
+    console.error('Error adding user:', error)
     console.error('Error details:', {
       message: error instanceof Error ? error.message : 'Unknown error',
       stack: error instanceof Error ? error.stack : undefined,
