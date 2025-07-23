@@ -144,112 +144,6 @@ export function FestivalSubmissionForm({ isOpen, onClose }: FestivalSubmissionFo
     }))
   }
 
-  const handleSubmit = async (e: FormEvent) => {
-    e.preventDefault()
-
-    try {
-      // If there's a file, upload it first
-      let imageUrl = formData.imageUrl
-      if (formData.image) {
-        const formDataFile = new FormData()
-        formDataFile.append('file', formData.image)
-        formDataFile.append('folder', 'festivals')
-        
-        const uploadResponse = await fetch('/api/upload', {
-          method: 'POST',
-          body: formDataFile,
-        })
-
-        if (!uploadResponse.ok) {
-          throw new Error('Failed to upload image')
-        }
-
-        const { imageUrl: uploadedImageUrl } = await uploadResponse.json()
-        imageUrl = uploadedImageUrl
-      }
-
-      // Ensure state is set correctly based on country
-      const finalState = formData.country !== 'Australia' ? 'N/A' : formData.state
-
-      // Prepare festival data for database
-      const festivalData = {
-        name: formData.name,
-        startDate: formData.startDate,
-        endDate: formData.endDate,
-        location: formData.location,
-        state: finalState,
-        country: formData.country,
-        eventLink: formData.eventLink,
-        ticketLink: formData.ticketLink,
-        danceStyles: formData.danceStyles,
-        imageUrl: imageUrl,
-        ambassadorCode: formData.ambassadorCode,
-        instagramLink: formData.instagramLink ? `https://instagram.com/${formData.instagramLink.replace('@', '')}` : '',
-        facebookLink: formData.facebookLink ? `https://facebook.com/${formData.facebookLink}` : ''
-      }
-
-      // Create festival in database
-      const festivalResponse = await fetch('/api/festivals', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(festivalData),
-      })
-
-      if (!festivalResponse.ok) {
-        const errorData = await festivalResponse.json()
-        throw new Error(errorData.error || 'Failed to create festival')
-      }
-
-      const createdFestival = await festivalResponse.json()
-      console.log('Festival created:', createdFestival)
-
-      // Send email notification
-      const emailResponse = await fetch('/api/submit-form', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          type: 'festival_submission',
-          data: festivalData
-        }),
-      })
-
-      if (!emailResponse.ok) {
-        console.warn('Failed to send email notification, but festival was created')
-      }
-
-      // Show success confirmation and reset form
-      showSuccess('festival')
-      onClose()
-      setFormData({
-        name: '',
-        startDate: '',
-        endDate: '',
-        location: '',
-        state: 'NSW',
-        country: 'Australia',
-        eventLink: '',
-        ticketLink: '',
-        danceStyles: [],
-        imageUrl: '',
-        image: null,
-        ambassadorCode: '',
-        instagramLink: '',
-        facebookLink: ''
-      })
-      setImagePreview(null)
-      setError(null)
-      setSuccess(false)
-      setShowSuccessPopup(false)
-    } catch (error) {
-      console.error('Error submitting festival:', error)
-      setError(error instanceof Error ? error.message : 'Failed to submit festival. Please try again.')
-    }
-  }
-
   return (
     <>
       <Dialog open={isOpen} onOpenChange={onClose}>
@@ -271,7 +165,120 @@ export function FestivalSubmissionForm({ isOpen, onClose }: FestivalSubmissionFo
           </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-2">
+        <form onSubmit={(e) => {
+          e.preventDefault()
+          handleSubmitButton(async () => {
+            try {
+              // If there's a file, upload it first
+              let imageUrl = formData.imageUrl
+              if (formData.image) {
+                const formDataFile = new FormData()
+                formDataFile.append('file', formData.image)
+                formDataFile.append('folder', 'festivals')
+                
+                const uploadResponse = await fetch('/api/upload', {
+                  method: 'POST',
+                  body: formDataFile,
+                })
+
+                if (!uploadResponse.ok) {
+                  throw new Error('Failed to upload image')
+                }
+
+                const { imageUrl: uploadedImageUrl } = await uploadResponse.json()
+                imageUrl = uploadedImageUrl
+              }
+
+              // Validate dance styles
+              if (formData.danceStyles.length === 0) {
+                setError('Please select at least one dance style')
+                throw new Error('No dance styles selected')
+              }
+
+              // Prepare festival data for database
+              const festivalData = {
+                name: formData.name,
+                startDate: formData.startDate,
+                endDate: formData.endDate,
+                location: formData.location,
+                state: formData.state,
+                country: formData.country,
+                eventLink: formData.eventLink,
+                ticketLink: formData.ticketLink,
+                danceStyles: formData.danceStyles,
+                imageUrl: imageUrl,
+                ambassadorCode: formData.ambassadorCode,
+                instagramLink: formData.instagramLink ? `https://instagram.com/${formData.instagramLink.replace('@', '')}` : '',
+                facebookLink: formData.facebookLink ? `https://facebook.com/${formData.facebookLink}` : '',
+                status: 'pending',
+                published: false,
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString()
+              }
+
+              // Create festival in database
+              const festivalResponse = await fetch('/api/festivals', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(festivalData),
+              })
+
+              if (!festivalResponse.ok) {
+                const errorData = await festivalResponse.json()
+                throw new Error(errorData.error || 'Failed to create festival')
+              }
+
+              const createdFestival = await festivalResponse.json()
+              console.log('Festival created:', createdFestival)
+
+              // Send email notification
+              const emailResponse = await fetch('/api/submit-form', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                  type: 'festival_submission',
+                  data: festivalData
+                }),
+              })
+
+              if (!emailResponse.ok) {
+                console.warn('Failed to send email notification, but festival was created')
+              }
+
+              // Show success confirmation and reset form
+              showSuccess('festival')
+              onClose()
+              setFormData({
+                name: '',
+                startDate: '',
+                endDate: '',
+                location: '',
+                state: 'NSW',
+                country: 'Australia',
+                eventLink: '',
+                ticketLink: '',
+                danceStyles: [],
+                imageUrl: '',
+                image: null,
+                ambassadorCode: '',
+                instagramLink: '',
+                facebookLink: ''
+              })
+              setImagePreview(null)
+              setError(null)
+              setSuccess(false)
+              setShowSuccessPopup(false)
+            } catch (error) {
+              console.error('Error submitting festival:', error)
+              setError(error instanceof Error ? error.message : 'Failed to submit festival. Please try again.')
+              throw error
+            }
+          })
+        }} className="space-y-2">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             <div className="space-y-1">
               <Label htmlFor="name" className="text-primary text-sm">Festival Name *</Label>
