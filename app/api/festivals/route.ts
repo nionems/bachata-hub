@@ -15,8 +15,6 @@ interface FestivalData {
   time: string
   location: string
   state: string
-  price?: string
-  description?: string
   imageUrl?: string
   websiteUrl?: string
   ticketLink?: string

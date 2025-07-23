@@ -12,7 +12,6 @@ interface Festival {
   location: string
   state: string
   country?: string
-  address: string
   eventLink: string
   ticketLink: string
   danceStyles: string[] | string
@@ -37,7 +36,6 @@ export default function EditFestivalPage({ params }: { params: { id: string } })
     location: '',
     state: '',
     country: 'Australia',
-    address: '',
     eventLink: '',
     ticketLink: '',
     danceStyles: [],
@@ -223,18 +221,6 @@ export default function EditFestivalPage({ params }: { params: { id: string } })
               />
             )}
           </div>
-        </div>
-
-        {/* Address */}
-        <div>
-          <label className="block text-sm font-medium mb-1">Address*</label>
-          <input
-            type="text"
-            value={formData.address}
-            onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-            className="w-full p-2 border rounded"
-            required
-          />
         </div>
 
         {/* Event Links */}

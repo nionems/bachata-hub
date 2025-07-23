@@ -11,13 +11,10 @@ interface FestivalFormData {
   location: string
   state: string
   country: string
-  address: string
   eventLink: string
-  price: string
   ticketLink: string
   danceStyles: string[]
   imageUrl: string
-  description: string
   ambassadorCode: string
   googleMapLink: string
   featured: 'yes' | 'no'
@@ -39,13 +36,10 @@ export default function NewFestivalPage() {
     location: '',
     state: '',
     country: 'Australia',
-    address: '',
     eventLink: '',
-    price: '',
     ticketLink: '',
     danceStyles: [],
     imageUrl: '',
-    description: '',
     ambassadorCode: '',
     googleMapLink: '',
     featured: 'no',
@@ -379,18 +373,6 @@ export default function NewFestivalPage() {
           </div>
         </div>
 
-        <div>
-          <label className="block text-sm font-medium mb-1">Address*</label>
-          <input
-            type="text"
-            value={formData.address}
-            onChange={handleChange}
-            name="address"
-            className="w-full p-2 border rounded"
-            required
-          />
-        </div>
-
         {/* Links and Price */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div>
@@ -401,19 +383,6 @@ export default function NewFestivalPage() {
               onChange={handleChange}
               name="eventLink"
               className="w-full p-2 border rounded"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium mb-1">Price*</label>
-            <input
-              type="number"
-              value={formData.price}
-              onChange={handleChange}
-              name="price"
-              className="w-full p-2 border rounded"
-              min="0"
-              step="0.01"
-              required
             />
           </div>
           <div>
@@ -539,21 +508,6 @@ export default function NewFestivalPage() {
         </div>
 
         {/* Description & Ambassador Code */}
-        <div>
-          <label className="block text-sm font-medium mb-1">Festival Description</label>
-          <textarea
-            value={formData.description}
-            onChange={handleChange}
-            name="description"
-            className="w-full p-2 border rounded"
-            rows={4}
-            placeholder="Describe your festival, what makes it special, what dancers can expect, workshops, performances, etc..."
-          />
-          <p className="text-xs text-gray-500 mt-1">
-            This description will be displayed on the festival card to help dancers understand what your festival offers.
-          </p>
-        </div>
-
         <div>
           <label className="block text-sm font-medium mb-1">Ambassador/Discount Code</label>
           <input

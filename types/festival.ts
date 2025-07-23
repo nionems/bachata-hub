@@ -6,8 +6,6 @@ export interface Festival {
   location: string;
   state: string;
   country?: string;
-  price?: string;
-  description?: string;
   imageUrl?: string;
   websiteUrl?: string;
   ticketLink?: string;
