@@ -104,16 +104,18 @@ export function FestivalCard({ festival }: FestivalCardProps) {
         )}
 
       </div>
-      <CardHeader className="p-3">
-        <CardTitle className="text-base text-primary">{festival.name}</CardTitle>
-        <CardDescription className="flex items-center gap-2 text-xs">
-          <MapPin className="h-3 w-3" />
-          {festival.location}
-          {festival.country === 'Australia' ? `, ${festival.state}` : festival.state && festival.state !== 'N/A' ? `, ${festival.state}` : ''}
-          {festival.country && festival.country !== 'Australia' && `, ${festival.country}`}
-          <span className="text-gray-500">•</span>
-          <Calendar className="h-3 w-3 text-green-600" />
-          <span>
+      <CardHeader className="p-2">
+        <CardTitle className="text-base text-primary mb-1">{festival.name}</CardTitle>
+        <CardDescription className="flex items-center gap-1 text-xs flex-wrap">
+          <MapPin className="h-3 w-3 flex-shrink-0" />
+          <span className="flex-shrink-0">
+            {festival.location}
+            {festival.country === 'Australia' ? `, ${festival.state}` : festival.state && festival.state !== 'N/A' ? `, ${festival.state}` : ''}
+            {festival.country && festival.country !== 'Australia' && `, ${festival.country}`}
+          </span>
+          <span className="text-gray-500 flex-shrink-0">•</span>
+          <Calendar className="h-3 w-3 text-green-600 flex-shrink-0" />
+          <span className="flex-shrink-0">
             {formattedDates.startDate}{" "}
             {formattedDates.endDate && festival.startDate ? (
               <>
@@ -125,76 +127,76 @@ export function FestivalCard({ festival }: FestivalCardProps) {
         </CardDescription>
         {/* Dance Style Stickers */}
         {danceStylesArray.length > 0 && (
-          <div className="flex flex-wrap gap-1 mt-2">
+          <div className="flex flex-wrap gap-1 mt-1">
             {danceStylesArray.slice(0, 3).map((style, index) => (
               <div 
                 key={index}
-                className="bg-green-500 text-white text-xs font-medium px-2 py-1 rounded-full shadow-sm"
+                className="bg-green-500 text-white text-xs font-medium px-2 py-0.5 rounded-full shadow-sm"
               >
                 {style}
               </div>
             ))}
             {danceStylesArray.length > 3 && (
-              <div className="bg-green-500 text-white text-xs font-medium px-2 py-1 rounded-full shadow-sm">
+              <div className="bg-green-500 text-white text-xs font-medium px-2 py-0.5 rounded-full shadow-sm">
                 +{danceStylesArray.length - 3}
               </div>
             )}
           </div>
         )}
       </CardHeader>
-      <CardContent className="p-3 pt-0">
-        <div className="space-y-2">
+      <CardContent className="p-2 pt-0">
+        <div className="space-y-1">
           {festival.time && (
-            <div className="flex items-center gap-2 text-xs">
+            <div className="flex items-center gap-1 text-xs">
               <Clock className="h-3 w-3 text-green-600" />
               <span>{festival.time}</span>
             </div>
           )}
-          <div className="flex gap-2 items-center">
-            {festival.ambassadorCode && (
+          {festival.ambassadorCode && (
+            <div className="flex gap-1 items-center">
               <Badge variant="secondary" className="bg-green-500/20 text-green-700 text-xs">
                 🎫 {festival.ambassadorCode}
               </Badge>
-            )}
-          </div>
-          <div className="flex flex-col gap-2 mt-3">
+            </div>
+          )}
+          <div className="flex flex-col gap-1 mt-2">
             {festival.ticketLink && (
               <Button
-                className="w-full bg-primary hover:bg-primary/90 text-white text-xs h-8 flex items-center justify-center gap-2"
+                className="w-full bg-primary hover:bg-primary/90 text-white text-xs h-7 flex items-center justify-center gap-1"
                 onClick={() => window.open(festival.ticketLink, "_blank")}
               >
-                <Ticket className="h-4 w-4" />
+                <Ticket className="h-3 w-3" />
                 <span>Tickets</span>
               </Button>
             )}
-            <div className="flex gap-2">
+            <div className="flex gap-1">
               {festival.websiteUrl && (
                 <Button
                   variant="outline"
-                  className="flex-1 border-primary text-primary hover:bg-primary/10 text-xs h-8 flex items-center justify-center gap-2"
+                  className="flex-1 border-primary text-primary hover:bg-primary/10 text-xs h-7 flex items-center justify-center gap-1"
                   onClick={() => window.open(festival.websiteUrl, "_blank")}
                 >
-                  <ExternalLink className="h-4 w-4" />
+                  <ExternalLink className="h-3 w-3" />
                   <span>Website</span>
                 </Button>
               )}
               {festival.eventLink && (
                 <Button
                   variant="outline"
-                  className="flex-1 border-primary text-primary hover:bg-primary/10 text-xs h-8 flex items-center justify-center gap-2"
+                  className="flex-1 border-primary text-primary hover:bg-primary/10 text-xs h-7 flex items-center justify-center gap-1"
                   onClick={() => window.open(festival.eventLink, "_blank")}
                 >
-                  <ExternalLink className="h-4 w-4" />
+                  <ExternalLink className="h-3 w-3" />
                   <span>Event</span>
                 </Button>
               )}
               {festival.googleMapLink && (
                 <Button
                   variant="outline"
-                  className="flex-1 border-primary text-primary hover:bg-primary/10 text-xs h-8 flex items-center justify-center gap-2"
+                  className="flex-1 border-primary text-primary hover:bg-primary/10 text-xs h-7 flex items-center justify-center gap-1"
                   onClick={() => window.open(festival.googleMapLink, "_blank")}
                 >
-                  <MapPin className="h-4 w-4" />
+                  <MapPin className="h-3 w-3" />
                   <span>Map</span>
                 </Button>
               )}
