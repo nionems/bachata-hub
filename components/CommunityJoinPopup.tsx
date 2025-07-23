@@ -19,6 +19,8 @@ interface JoinFormData {
 }
 
 export function CommunityJoinPopup({ isOpen, onClose }: CommunityJoinPopupProps) {
+  console.log('CommunityJoinPopup rendered, isOpen:', isOpen)
+  
   const [formData, setFormData] = useState<JoinFormData>({
     name: '',
     email: ''

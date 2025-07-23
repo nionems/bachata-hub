@@ -126,19 +126,27 @@ export default function Home() {
   const [isCommunityPopupOpen, setIsCommunityPopupOpen] = useState(false)
   const [isEventSubmissionOpen, setIsEventSubmissionOpen] = useState(false)
 
+  console.log('Current popup state - isCommunityPopupOpen:', isCommunityPopupOpen)
+
   // Show community popup only on first visit (per browser/device)
   useEffect(() => {
     const hasDismissed = localStorage.getItem('communityPopupDismissed');
+    console.log('Checking popup trigger - hasDismissed:', hasDismissed);
     if (!hasDismissed) {
+      console.log('Setting popup timer - will show in 3 seconds');
       const timer = setTimeout(() => {
+        console.log('Popup timer triggered - setting isCommunityPopupOpen to true');
         setIsCommunityPopupOpen(true);
       }, 3000);
       return () => clearTimeout(timer);
+    } else {
+      console.log('Popup already dismissed - not showing');
     }
   }, []);
 
   // Handler to close the popup and set the dismissed flag
   const handleCommunityPopupClose = () => {
+    console.log('Closing popup and setting dismissed flag');
     localStorage.setItem('communityPopupDismissed', 'true');
     setIsCommunityPopupOpen(false);
   };
