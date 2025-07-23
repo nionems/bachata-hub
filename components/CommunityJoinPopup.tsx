@@ -79,24 +79,18 @@ export function CommunityJoinPopup({ isOpen, onClose }: CommunityJoinPopupProps)
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-[95vw] sm:max-w-[500px] bg-gradient-to-br from-emerald-50 to-violet-50 rounded-xl sm:rounded-2xl border-2 border-emerald-200">
+      <DialogContent className="max-w-[95vw] sm:max-w-[450px] bg-gradient-to-br from-emerald-50 to-violet-50 rounded-xl sm:rounded-2xl border-2 border-emerald-200">
         <DialogHeader className="rounded-t-xl sm:rounded-t-2xl text-center">
-          <div className="flex justify-center mb-4">
-            <div className="bg-gradient-to-r from-emerald-400 to-violet-500 p-3 rounded-full">
-              <Gift className="h-8 w-8 text-white" />
+          <div className="flex justify-center mb-3">
+            <div className="bg-gradient-to-r from-emerald-400 to-violet-500 p-2 rounded-full">
+              <Gift className="h-6 w-6 text-white" />
             </div>
           </div>
-          <DialogTitle className="text-2xl font-bold bg-gradient-to-r from-emerald-600 to-violet-600 bg-clip-text text-transparent">
-            Win Dance Tickets, Shoes, or a Bachata T-Shirt! 🎁
+          <DialogTitle className="text-xl font-bold bg-gradient-to-r from-emerald-600 to-violet-600 bg-clip-text text-transparent">
+            Win Tickets, Shoes, & more...
           </DialogTitle>
-          <DialogDescription className="text-base text-gray-700 mt-2">
-            Enter your name & email for a chance to win.
-            <br />
-            <span className="font-semibold text-emerald-600">Winners announced soon — don't miss out!</span>
-          </DialogDescription>
         </DialogHeader>
-
-        <form onSubmit={handleSubmit} className="space-y-4 mt-6">
+        <form onSubmit={handleSubmit} className="space-y-3 mt-4">
           <div className="space-y-2">
             <Label htmlFor="name" className="text-gray-700 font-medium flex items-center gap-2">
               <User className="h-4 w-4" />
@@ -131,39 +125,21 @@ export function CommunityJoinPopup({ isOpen, onClose }: CommunityJoinPopupProps)
           </div>
 
           {error && (
-            <div className="text-red-500 text-sm bg-red-50 p-3 rounded-lg">{error}</div>
+            <div className="text-red-500 text-sm bg-red-50 p-2 rounded-lg">{error}</div>
           )}
 
           {success && (
-            <div className="text-green-600 text-sm bg-green-50 p-3 rounded-lg font-medium">
+            <div className="text-green-600 text-sm bg-green-50 p-2 rounded-lg font-medium">
               🎉 Welcome to the community! You're now entered to win amazing prizes!
             </div>
           )}
 
-          <div className="bg-gradient-to-r from-emerald-100 to-violet-100 p-4 rounded-lg border border-emerald-200">
-            <div className="flex items-center gap-2 text-emerald-700 font-medium mb-2">
-              <Users className="h-4 w-4" />
-              Join the Bachata Community
-            </div>
-            <p className="text-sm text-gray-600">
-              Connect with dancers, get event updates, and stay in the loop with the latest Bachata news!
-            </p>
-          </div>
 
-          <div className="flex flex-col sm:flex-row gap-3 pt-2">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={onClose}
-              disabled={isLoading}
-              className="border-emerald-300 text-emerald-700 hover:bg-emerald-50 rounded-lg flex-1"
-            >
-              Maybe Later
-            </Button>
+          <div className="pt-2">
             <Button
               type="submit"
               disabled={isLoading}
-              className="bg-gradient-to-r from-emerald-500 to-violet-500 hover:from-emerald-600 hover:to-violet-600 text-white rounded-lg flex-1 font-semibold shadow-lg hover:shadow-xl transition-all duration-200"
+              className="w-full bg-gradient-to-r from-emerald-500 to-violet-500 hover:from-emerald-600 hover:to-violet-600 text-white rounded-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-200"
             >
               {isLoading ? 'Joining...' : 'Join & Enter to Win! 🎁'}
             </Button>
