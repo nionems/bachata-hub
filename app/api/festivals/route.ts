@@ -135,7 +135,6 @@ export async function POST(request: Request) {
       ticketLink,
       danceStyles,
       imageUrl,
-      description,
       ambassadorCode,
       instagramLink,
       facebookLink
@@ -161,7 +160,6 @@ export async function POST(request: Request) {
       ticketLink: ticketLink || '',
       danceStyles: danceStyles || [],
       imageUrl: imageUrl || '',
-      description: description || '',
       ambassadorCode: ambassadorCode || '',
       instagramLink: instagramLink || '',
       facebookLink: facebookLink || '',

@@ -37,7 +37,6 @@ interface FestivalFormData {
   danceStyles: string[]
   imageUrl: string
   image: File | null
-  description: string
   ambassadorCode: string
   instagramLink: string
   facebookLink: string
@@ -56,7 +55,6 @@ export function FestivalSubmissionForm({ isOpen, onClose }: FestivalSubmissionFo
     danceStyles: [],
     imageUrl: '',
     image: null,
-    description: '',
     ambassadorCode: '',
     instagramLink: '',
     facebookLink: ''
@@ -185,7 +183,6 @@ export function FestivalSubmissionForm({ isOpen, onClose }: FestivalSubmissionFo
         ticketLink: formData.ticketLink,
         danceStyles: formData.danceStyles,
         imageUrl: imageUrl,
-        description: formData.description,
         ambassadorCode: formData.ambassadorCode,
         instagramLink: formData.instagramLink ? `https://instagram.com/${formData.instagramLink.replace('@', '')}` : '',
         facebookLink: formData.facebookLink ? `https://facebook.com/${formData.facebookLink}` : ''
@@ -239,7 +236,6 @@ export function FestivalSubmissionForm({ isOpen, onClose }: FestivalSubmissionFo
         danceStyles: [],
         imageUrl: '',
         image: null,
-        description: '',
         ambassadorCode: '',
         instagramLink: '',
         facebookLink: ''
@@ -513,21 +509,6 @@ export function FestivalSubmissionForm({ isOpen, onClose }: FestivalSubmissionFo
               )}
             </div>
 
-          </div>
-
-          <div className="space-y-1">
-            <Label htmlFor="description" className="text-primary text-sm">Festival Description</Label>
-            <Textarea
-              id="description"
-              name="description"
-              value={formData.description}
-              onChange={handleInputChange}
-              className="min-h-[100px] bg-white/80 backdrop-blur-sm"
-              placeholder="Describe your festival, what makes it special, what dancers can expect, workshops, performances, etc..."
-            />
-            <p className="text-xs text-gray-500 mt-1">
-              💡 This description will be displayed on the festival card to help dancers understand what your festival offers.
-            </p>
           </div>
 
           <div className="space-y-1">
