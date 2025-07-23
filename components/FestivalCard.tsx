@@ -17,13 +17,13 @@ export function FestivalCard({ festival }: FestivalCardProps) {
     const startDate = festival.startDate ? new Date(festival.startDate).toLocaleDateString("en-AU", {
       day: "numeric",
       month: "short",
-      year: "numeric",
+      year: "2-digit",
     }) : festival.date;
     
     const endDate = festival.endDate ? new Date(festival.endDate).toLocaleDateString("en-AU", {
       day: "numeric",
       month: "short",
-      year: "numeric",
+      year: "2-digit",
     }) : null;
     
     return { startDate, endDate };
@@ -114,14 +114,10 @@ export function FestivalCard({ festival }: FestivalCardProps) {
             {festival.country && festival.country !== 'Australia' && `, ${festival.country}`}
           </span>
           <span className="text-gray-500 flex-shrink-0">•</span>
-          <Calendar className="h-3 w-3 text-green-600 flex-shrink-0" />
-          <span className="flex-shrink-0">
-            {formattedDates.startDate}{" "}
-            {formattedDates.endDate && festival.startDate ? (
-              <>
-                –{" "}
-                {formattedDates.endDate}
-              </>
+          <span className="flex-shrink-0 text-green-600">
+            {formattedDates.startDate}
+            {formattedDates.endDate && festival.startDate && formattedDates.startDate !== formattedDates.endDate ? (
+              `-${formattedDates.endDate}`
             ) : null}
           </span>
         </CardDescription>
