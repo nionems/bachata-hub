@@ -400,12 +400,96 @@ export function FestivalSubmissionForm({ isOpen, onClose }: FestivalSubmissionFo
                 type="text"
                 value={formData.facebookLink}
                 onChange={handleInputChange}
-                placeholder="username or page name"
+                placeholder="username"
                 className="bg-white/80 backdrop-blur-sm h-9"
               />
               <p className="text-xs text-gray-500 mt-1">
-                📘 Just enter your username or page name (e.g., "dance.festival.sydney") - we'll add the full link automatically
+                📘 Just enter your username (e.g., "dancefestivalsydney") - we'll add the full link automatically
               </p>
+            </div>
+
+            <div className="space-y-1">
+              <Label htmlFor="image" className="text-primary text-xs font-medium">Festival Image *</Label>
+              
+              {/* File Upload Section */}
+              <div className="space-y-1.5">
+                {/* Single Upload Box */}
+                <div className="relative">
+                  <input
+                    id="image-input"
+                    name="image-input"
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageChange}
+                    className="hidden"
+                  />
+                  <label
+                    htmlFor="image-input"
+                    className="flex items-center justify-center w-full h-12 border-2 border-dashed border-gray-300 rounded-md cursor-pointer hover:border-primary transition-colors bg-white/90 backdrop-blur-sm"
+                  >
+                    <ImageIcon className="h-4 w-4 text-gray-400 mr-2" />
+                    <span className="text-xs text-gray-600 font-medium">Upload Photo</span>
+                  </label>
+                  <p className="text-xs text-gray-500 mt-1">
+                    📸 Maximum file size: 5MB. 💡 Tip: Take a screenshot instead of uploading high-quality photos for smaller file sizes. Supported formats: JPG, PNG, GIF, WebP
+                  </p>
+                </div>
+
+                {/* Image Preview */}
+                {imagePreview && (
+                  <div className="relative group">
+                    <div 
+                      className="w-full h-24 bg-gray-100 rounded-md overflow-hidden"
+                      style={{
+                        backgroundImage: `url(${imagePreview})`,
+                        backgroundSize: 'cover',
+                        backgroundPosition: 'center'
+                      }}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setFormData(prev => ({ ...prev, image: null }))
+                        setImagePreview(null)
+                      }}
+                      className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                    >
+                      <X className="h-4 w-4" />
+                    </button>
+                  </div>
+                )}
+
+                {/* Or Divider */}
+                <div className="relative">
+                  <div className="absolute inset-0 flex items-center">
+                    <span className="w-full border-t" />
+                  </div>
+                  <div className="relative flex justify-center text-xs uppercase">
+                    <span className="bg-background px-2 text-muted-foreground">Or</span>
+                  </div>
+                </div>
+
+                {/* URL Input */}
+                <div>
+                  <Label htmlFor="imageUrl" className="text-sm text-muted-foreground">Use Google Drive Link</Label>
+                  <Input
+                    id="imageUrl"
+                    name="imageUrl"
+                    type="url"
+                    value={formData.imageUrl}
+                    onChange={handleInputChange}
+                    placeholder="Enter Google Drive image URL"
+                    className="bg-white/80 backdrop-blur-sm rounded-lg"
+                  />
+                  <p className="text-xs text-gray-500 mt-1">
+                    To add an image from Google Drive:
+                    <br />1. Upload your image to Google Drive
+                    <br />2. Right-click the image and select "Share"
+                    <br />3. Set access to "Anyone with the link"
+                    <br />4. Copy the link and paste it here
+                  </p>
+                </div>
+              </div>
             </div>
 
             <div className="space-y-1">
