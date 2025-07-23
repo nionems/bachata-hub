@@ -888,18 +888,26 @@ export default function AdminDashboard() {
       type: 'delete',
       onConfirm: async () => {
         try {
+          console.log('Attempting to delete competition:', competitionId)
           const response = await fetch(`/api/competitions/${competitionId}`, {
             method: 'DELETE',
           })
 
-          if (!response.ok) throw new Error('Failed to delete competition')
+          console.log('Delete response status:', response.status)
+          console.log('Delete response ok:', response.ok)
+
+          if (!response.ok) {
+            const errorData = await response.json().catch(() => ({ error: 'Unknown error' }))
+            console.error('Delete competition error response:', errorData)
+            throw new Error(errorData.error || `Failed to delete competition (${response.status})`)
+          }
           
           // Refresh competitions list
           fetchCompetitions()
           toast.success('Competition deleted successfully')
         } catch (err) {
           console.error('Failed to delete competition:', err)
-          toast.error('Failed to delete competition')
+          toast.error(err instanceof Error ? err.message : 'Failed to delete competition')
         }
       }
     });
@@ -907,6 +915,7 @@ export default function AdminDashboard() {
 
   const handleApproveCompetition = async (competitionId: string) => {
     try {
+      console.log('Attempting to approve competition:', competitionId)
       const response = await fetch(`/api/competitions/${competitionId}`, {
         method: 'PUT',
         headers: {
@@ -915,19 +924,27 @@ export default function AdminDashboard() {
         body: JSON.stringify({ status: 'approved', published: true }),
       })
 
-      if (!response.ok) throw new Error('Failed to approve competition')
+      console.log('Approve response status:', response.status)
+      console.log('Approve response ok:', response.ok)
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ error: 'Unknown error' }))
+        console.error('Approve competition error response:', errorData)
+        throw new Error(errorData.error || `Failed to approve competition (${response.status})`)
+      }
       
       // Refresh competitions list
       fetchCompetitions()
       toast.success('Competition approved successfully')
     } catch (err) {
       console.error('Failed to approve competition:', err)
-      toast.error('Failed to approve competition')
+      toast.error(err instanceof Error ? err.message : 'Failed to approve competition')
     }
   }
 
   const handleRejectCompetition = async (competitionId: string) => {
     try {
+      console.log('Attempting to reject competition:', competitionId)
       const response = await fetch(`/api/competitions/${competitionId}`, {
         method: 'PUT',
         headers: {
@@ -936,14 +953,21 @@ export default function AdminDashboard() {
         body: JSON.stringify({ status: 'rejected', published: false }),
       })
 
-      if (!response.ok) throw new Error('Failed to reject competition')
+      console.log('Reject response status:', response.status)
+      console.log('Reject response ok:', response.ok)
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ error: 'Unknown error' }))
+        console.error('Reject competition error response:', errorData)
+        throw new Error(errorData.error || `Failed to reject competition (${response.status})`)
+      }
       
       // Refresh competitions list
       fetchCompetitions()
       toast.success('Competition rejected successfully')
     } catch (err) {
       console.error('Failed to reject competition:', err)
-      toast.error('Failed to reject competition')
+      toast.error(err instanceof Error ? err.message : 'Failed to reject competition')
     }
   }
 

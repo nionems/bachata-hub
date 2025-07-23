@@ -128,26 +128,41 @@ export async function DELETE(
   try {
     const { id } = params
     
-    console.log('Deleting competition:', id)
+    console.log('DELETE /api/competitions/[id] - Deleting competition:', id)
+    console.log('DELETE /api/competitions/[id] - Request URL:', request.url)
+    console.log('DELETE /api/competitions/[id] - Request method:', request.method)
     
     const db = getDb()
+    console.log('DELETE /api/competitions/[id] - Firebase admin initialized')
+    
     const competitionRef = db.collection('competitions').doc(id)
+    console.log('DELETE /api/competitions/[id] - Competition reference created')
+    
     const competitionDoc = await competitionRef.get()
+    console.log('DELETE /api/competitions/[id] - Competition document fetched, exists:', competitionDoc.exists)
     
     if (!competitionDoc.exists) {
+      console.log('DELETE /api/competitions/[id] - Competition not found, returning 404')
       return NextResponse.json(
         { error: 'Competition not found' },
         { status: 404 }
       )
     }
     
+    console.log('DELETE /api/competitions/[id] - Competition found, proceeding with deletion')
     await competitionRef.delete()
     
-    console.log('Competition deleted successfully')
+    console.log('DELETE /api/competitions/[id] - Competition deleted successfully')
     
     return NextResponse.json({ success: true })
   } catch (error) {
-    console.error('Error deleting competition:', error)
+    console.error('DELETE /api/competitions/[id] - Error deleting competition:', error)
+    if (error instanceof Error) {
+      console.error('DELETE /api/competitions/[id] - Error details:', {
+        message: error.message,
+        stack: error.stack
+      })
+    }
     return NextResponse.json(
       { error: 'Failed to delete competition' },
       { status: 500 }
