@@ -12,11 +12,30 @@ export function AddToHomeScreenModal() {
   const isIPad = () => {
     if (typeof window === 'undefined') return false
     const userAgent = navigator.userAgent.toLowerCase()
-    return userAgent.includes('ipad') || 
-           (userAgent.includes('macintosh') && 'ontouchend' in document) ||
-           (window.innerWidth >= 768 && window.innerWidth <= 1024 && 'ontouchend' in document) ||
-           // Android tablet detection
-           (userAgent.includes('android') && window.innerWidth >= 768 && window.innerWidth <= 1024)
+    const width = window.innerWidth
+    const hasTouch = 'ontouchend' in document
+    
+    const isIPadUserAgent = userAgent.includes('ipad')
+    const isMacWithTouch = userAgent.includes('macintosh') && hasTouch
+    const isTabletSize = width >= 768 && width <= 1024
+    const isTabletSizeWithTouch = isTabletSize && hasTouch
+    const isAndroidTablet = userAgent.includes('android') && isTabletSize
+    
+    const result = isIPadUserAgent || isMacWithTouch || isTabletSizeWithTouch || isAndroidTablet
+    
+    console.log('iPad/Tablet Detection:', {
+      userAgent,
+      width,
+      hasTouch,
+      isIPadUserAgent,
+      isMacWithTouch,
+      isTabletSize,
+      isTabletSizeWithTouch,
+      isAndroidTablet,
+      result
+    })
+    
+    return result
   }
 
   useEffect(() => {
@@ -97,13 +116,22 @@ export function AddToHomeScreenModal() {
   }
 
   if (!isOpen) {
-    console.log('Rendering button, isOpen:', isOpen, 'isIPad:', isIPad())
+    const isIPadDevice = isIPad()
+    console.log('Button rendering decision:', {
+      isOpen,
+      isIPadDevice,
+      willRender: !isIPadDevice
+    })
+    
     // Don't render button on iPad
-    if (isIPad()) {
+    if (isIPadDevice) {
+      console.log('Hiding button - device detected as iPad/tablet')
       return null
     }
+    
+    console.log('Showing button - device is not iPad/tablet')
     return (
-      <div className="fixed left-1/2 top-6 transform -translate-x-1/2 md:left-auto md:right-16 md:top-6 md:transform-none z-50">
+      <div className="fixed left-1/2 top-6 transform -translate-x-1/2 md:left-auto md:right-16 md:top-6 md:transform-none z-50 block md:hidden lg:block">
         <Button onClick={showModalForTesting} size="sm" className="bg-gradient-to-r from-primary to-secondary hover:from-primary/90 hover:to-secondary/90 text-white shadow-lg">
           Add to homescreen
         </Button>
