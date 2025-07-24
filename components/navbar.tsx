@@ -94,7 +94,7 @@ export default function Navbar() {
             ))}
               {!isIPad && (
                 <Link href="/community">
-                  <Button size="sm" className="bg-gradient-to-r from-emerald-500 to-violet-500 hover:from-emerald-600 hover:to-violet-600 text-white ml-2 whitespace-nowrap text-xs md:text-sm px-2 py-1 shadow-lg hover:shadow-xl transition-all duration-200">
+                  <Button size="sm" className="bg-gradient-to-r from-emerald-500 to-violet-500 hover:from-emerald-600 hover:to-violet-600 text-white ml-2 whitespace-nowrap text-xs md:text-sm px-2 py-1 shadow-lg hover:shadow-xl transition-all duration-200 block md:hidden xl:block">
                     Join the Community
                   </Button>
                 </Link>

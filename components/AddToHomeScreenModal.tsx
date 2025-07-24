@@ -131,7 +131,7 @@ export function AddToHomeScreenModal() {
     
     console.log('Showing button - device is not iPad/tablet')
     return (
-      <div className="fixed left-1/2 top-6 transform -translate-x-1/2 md:left-auto md:right-16 md:top-6 md:transform-none z-50 block md:hidden lg:block">
+      <div className="fixed left-1/2 top-6 transform -translate-x-1/2 md:left-auto md:right-16 md:top-6 md:transform-none z-50 block md:hidden xl:block">
         <Button onClick={showModalForTesting} size="sm" className="bg-gradient-to-r from-primary to-secondary hover:from-primary/90 hover:to-secondary/90 text-white shadow-lg">
           Add to homescreen
         </Button>
