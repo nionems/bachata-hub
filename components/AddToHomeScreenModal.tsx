@@ -8,13 +8,15 @@ export function AddToHomeScreenModal() {
   const [isOpen, setIsOpen] = useState(false)
   const [hasSeenModal, setHasSeenModal] = useState(false)
 
-  // Detect iPad
+  // Detect iPad and Android tablets
   const isIPad = () => {
     if (typeof window === 'undefined') return false
     const userAgent = navigator.userAgent.toLowerCase()
     return userAgent.includes('ipad') || 
            (userAgent.includes('macintosh') && 'ontouchend' in document) ||
-           (window.innerWidth >= 768 && window.innerWidth <= 1024 && 'ontouchend' in document)
+           (window.innerWidth >= 768 && window.innerWidth <= 1024 && 'ontouchend' in document) ||
+           // Android tablet detection
+           (userAgent.includes('android') && window.innerWidth >= 768 && window.innerWidth <= 1024)
   }
 
   useEffect(() => {
@@ -95,7 +97,11 @@ export function AddToHomeScreenModal() {
   }
 
   if (!isOpen) {
-    console.log('Rendering button, isOpen:', isOpen)
+    console.log('Rendering button, isOpen:', isOpen, 'isIPad:', isIPad())
+    // Don't render button on iPad
+    if (isIPad()) {
+      return null
+    }
     return (
       <div className="fixed left-1/2 top-6 transform -translate-x-1/2 md:left-auto md:right-16 md:top-6 md:transform-none z-50">
         <Button onClick={showModalForTesting} size="sm" className="bg-gradient-to-r from-primary to-secondary hover:from-primary/90 hover:to-secondary/90 text-white shadow-lg">

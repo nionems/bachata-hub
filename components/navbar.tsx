@@ -10,14 +10,16 @@ export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [isIPad, setIsIPad] = useState(false)
 
-  // Detect iPad
+  // Detect iPad and Android tablets
   useEffect(() => {
     const detectIPad = () => {
       if (typeof window === 'undefined') return false
       const userAgent = navigator.userAgent.toLowerCase()
       return userAgent.includes('ipad') || 
              (userAgent.includes('macintosh') && 'ontouchend' in document) ||
-             (window.innerWidth >= 768 && window.innerWidth <= 1024 && 'ontouchend' in document)
+             (window.innerWidth >= 768 && window.innerWidth <= 1024 && 'ontouchend' in document) ||
+             // Android tablet detection
+             (userAgent.includes('android') && window.innerWidth >= 768 && window.innerWidth <= 1024)
     }
     
     setIsIPad(detectIPad())
