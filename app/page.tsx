@@ -151,11 +151,42 @@ export default function Home() {
 
   const { selectedState, setSelectedState, filteredItems: filteredEvents, isGeoLoading, error: geoError } = useStateFilter(events, { useGeolocation: true })
 
+  // Add debugging for state filtering
+  useEffect(() => {
+    console.log('State filtering debug:', {
+      totalEvents: events.length,
+      selectedState,
+      filteredEventsCount: filteredEvents.length,
+      isGeoLoading,
+      geoError
+    })
+    
+    if (selectedState === 'SA') {
+      console.log('SA events found:', filteredEvents.filter(e => e.state === 'SA'))
+      console.log('All events with their states:', events.map(e => ({ name: e.name, state: e.state, location: e.location })))
+    }
+  }, [events, selectedState, filteredEvents, isGeoLoading, geoError])
+
   useEffect(() => {
     const fetchEvents = async () => {
       try {
         setLoading(true)
-        const weekEvents = await getWeekEvents()
+        
+        // Get user's detected state first
+        const userLocation = await getUserLocation()
+        const detectedState = userLocation?.state
+        console.log('Detected state:', detectedState)
+        
+        // If user is in South Australia, fetch only SA events
+        let weekEvents
+        if (detectedState === 'SA' || detectedState === 'South Australia') {
+          console.log('User is in South Australia, fetching only SA events')
+          weekEvents = await getWeekEvents(undefined, 'SA')
+        } else {
+          // Otherwise fetch all events
+          weekEvents = await getWeekEvents()
+        }
+        
         console.log('Fetched events:', weekEvents)
         const formattedEvents = formatEvents(weekEvents)
         console.log('Formatted events:', formattedEvents)
@@ -247,7 +278,7 @@ export default function Home() {
         location: event.location || "Location TBA",
         state: (() => {
           const location = event.location || '';
-          // Try to extract state from location
+          // Try to extract state from location with more comprehensive patterns
           const stateMatch = location.match(/\b(NSW|VIC|QLD|WA|SA|TAS|ACT|NT|New South Wales|Victoria|Queensland|Western Australia|South Australia|Tasmania|Australian Capital Territory|Northern Territory)\b/i);
           if (stateMatch) {
             const state = stateMatch[0].toUpperCase();
@@ -264,6 +295,14 @@ export default function Home() {
             };
             return stateMap[state] || state;
           }
+          
+          // Additional check for South Australia by city names
+          const saCities = ['adelaide', 'mount gambier', 'whyalla', 'murray bridge', 'port augusta'];
+          const locationLower = location.toLowerCase();
+          if (saCities.some(city => locationLower.includes(city))) {
+            return 'SA';
+          }
+          
           return "TBA";
         })(),
         address: event.location || "TBA",
@@ -500,76 +539,18 @@ export default function Home() {
                                     }
                                   })()}
                                 </div>
-                              </div>
-                              <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-3">
-                                <h3 className="text-base font-semibold text-white mb-0.5 line-clamp-1">{event.name}</h3>
-                                <div className="flex items-center gap-2 text-white/90 text-xs mb-0.5">
-                                  <span>{event.date}</span>
-                                  {event.time && event.time !== 'All day' && (
-                                    <>
-                                      <span>•</span>
-                                      <span>{event.time}</span>
-                                    </>
-                                  )}
+                                {/* Location overlay */}
+                                <div className="absolute bottom-3 left-3 bg-black/70 text-white px-3 py-1 rounded-md text-sm">
+                                  {event.location}
                                 </div>
-                                <p className="text-white/90 text-xs line-clamp-1">{event.location}</p>
                               </div>
-                              {/* Event Link Button */}
-                              {getEventLink(event) && (
-                                <div className="absolute top-3 right-3">
-                                  <Button
-                                    size="sm"
-                                    className="bg-gradient-to-r from-emerald-400 to-violet-500 hover:from-emerald-500 hover:to-violet-600 text-white text-xs h-8 px-3 flex items-center gap-1.5 rounded-full shadow-lg hover:shadow-xl transition-all duration-200 font-semibold border-0"
-                                    onClick={(e) => handleEventLinkClick(event, e)}
-                                  >
-                                    <ExternalLink className="w-3.5 h-3.5" />
-                                    <span>Event</span>
-                                  </Button>
-                                </div>
-                              )}
                             </div>
                           ) : (
-                            <div className="w-full h-full bg-white flex flex-col justify-between relative">
-                              {/* Day overlay on top of no-image cards */}
-                              <div className="absolute top-3 left-3 bg-black/70 text-white px-3 py-1 rounded-md text-sm font-semibold z-10">
-                                {(() => {
-                                  try {
-                                    const eventDate = new Date(event.date);
-                                    return eventDate.toLocaleDateString('en-US', { weekday: 'long' });
-                                  } catch {
-                                    return 'TBD';
-                                  }
-                                })()}
+                            <div className="w-full h-full bg-gradient-to-r from-emerald-400 to-violet-500 flex items-center justify-center">
+                              <div className="text-center text-white p-4">
+                                <div className="text-2xl font-bold mb-2">{event.name}</div>
+                                <div className="text-sm opacity-90">{event.location}</div>
                               </div>
-                              <div>
-                                <h3 className="text-base font-semibold text-gray-900 mb-2 line-clamp-2">{event.name}</h3>
-                                <div className="flex items-center gap-2 text-gray-600 text-sm mb-1">
-                                  <span>{event.date}</span>
-                                  {event.time && event.time !== 'All day' && (
-                                    <>
-                                      <span>•</span>
-                                      <span>{event.time}</span>
-                                    </>
-                                  )}
-                                </div>
-                                <p className="text-gray-600 text-sm line-clamp-2">{event.location}</p>
-                              </div>
-                              {event.description && (
-                                <p className="text-gray-500 text-xs line-clamp-3 mt-2">{event.description}</p>
-                              )}
-                              {/* Event Link Button for no-image cards */}
-                              {getEventLink(event) && (
-                                <div className="mt-2">
-                                  <Button
-                                    size="sm"
-                                    className="w-full bg-gradient-to-r from-emerald-400 to-violet-500 hover:from-emerald-500 hover:to-violet-600 text-white text-xs h-8 flex items-center justify-center gap-1.5 rounded-full shadow-lg hover:shadow-xl transition-all duration-200 font-semibold border-0"
-                                    onClick={(e) => handleEventLinkClick(event, e)}
-                                  >
-                                    <ExternalLink className="w-3.5 h-3.5" />
-                                    <span>View Event Details</span>
-                                  </Button>
-                                </div>
-                              )}
                             </div>
                           )}
                         </div>
@@ -578,14 +559,73 @@ export default function Home() {
                   ))}
                 </Slider>
               </div>
+            ) : selectedState === 'SA' && events.length > 0 ? (
+              // Fallback: If user is in SA but no SA events found, show all events
+              <div className="text-center py-8">
+                <p className="text-gray-600 mb-4">No events found in South Australia this week.</p>
+                <p className="text-sm text-gray-500">Showing events from across Australia instead.</p>
+                <div className="relative mt-4">
+                  <Slider {...settings}>
+                    {events.slice(0, 6).map((event) => (
+                      <div key={event.id} className="px-1 md:px-2">
+                        <div 
+                          className="bg-gradient-to-r from-emerald-400 to-violet-500 p-1 rounded-lg shadow-lg overflow-hidden relative h-72"
+                        >
+                          <div className="relative w-full h-full bg-white">
+                            {event.imageUrl && event.imageUrl !== '/images/placeholder.svg' ? (
+                              <div 
+                                className="relative w-full h-full bg-gradient-to-r from-emerald-400 to-violet-500 overflow-hidden flex items-start justify-center cursor-pointer"
+                                onClick={(e) => handleImageClick(event, e)}
+                              >
+                                <div className="relative w-full h-full">
+                                  <Image
+                                    src={event.imageUrl}
+                                    alt={event.name}
+                                    fill
+                                    loading="lazy"
+                                    className="object-contain object-top rounded-lg"
+                                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                                    onError={(e) => {
+                                      console.error('Error loading image:', event.imageUrl)
+                                      const target = e.target as HTMLImageElement
+                                      target.src = '/images/placeholder.svg'
+                                    }}
+                                  />
+                                  {/* Day overlay on top of image */}
+                                  <div className="absolute top-3 left-3 bg-black/70 text-white px-3 py-1 rounded-md text-sm font-semibold">
+                                    {(() => {
+                                      try {
+                                        const eventDate = new Date(event.date);
+                                        return eventDate.toLocaleDateString('en-US', { weekday: 'long' });
+                                      } catch {
+                                        return 'TBD';
+                                      }
+                                    })()}
+                                  </div>
+                                  {/* Location overlay */}
+                                  <div className="absolute bottom-3 left-3 bg-black/70 text-white px-3 py-1 rounded-md text-sm">
+                                    {event.location}
+                                  </div>
+                                </div>
+                              </div>
+                            ) : (
+                              <div className="w-full h-full bg-gradient-to-r from-emerald-400 to-violet-500 flex items-center justify-center">
+                                <div className="text-center text-white p-4">
+                                  <div className="text-2xl font-bold mb-2">{event.name}</div>
+                                  <div className="text-sm opacity-90">{event.location}</div>
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </Slider>
+                </div>
+              </div>
             ) : (
               <div className="text-center py-8">
-                <p className="text-gray-500 text-sm sm:text-base">
-                  {isGeoLoading ? 'Loading events...' : 
-                   geoError ? 'Error loading events' :
-                   selectedState === 'all' ? 'No events found' : 
-                   `No events found in ${selectedState}`}
-                </p>
+                <p className="text-gray-600">No events found this week.</p>
               </div>
             )}
             

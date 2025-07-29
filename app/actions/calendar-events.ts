@@ -69,7 +69,7 @@ const cityCalendarMap = {
     state: 'QLD'
   },
   'adelaide': {
-    id: '6b95632fc6fe63530bbdd89c944d792009478636f5bce7ffc8718ccd500915f@group.calendar.google.com',
+    id: '6b95632fc6fe63530bbdd89c944d792009478636f5b2ce7ffc8718ccd500915f@group.calendar.google.com',
     state: 'SA'
   },
   'gold coast': {
@@ -102,7 +102,40 @@ export async function getUserLocation(): Promise<{ city: string; state: string }
     const response = await fetch('https://api.ipapi.com/api/check?access_key=free')
     const data = await response.json()
     const city = (data.city || 'Sydney').toLowerCase()
-    const state = data.region_code || 'NSW'
+    let state = data.region_code || 'NSW'
+    
+    // Map region codes to state abbreviations
+    const stateMap: { [key: string]: string } = {
+      'NSW': 'NSW',
+      'VIC': 'VIC', 
+      'QLD': 'QLD',
+      'WA': 'WA',
+      'SA': 'SA',
+      'TAS': 'TAS',
+      'ACT': 'ACT',
+      'NT': 'NT',
+      // Full names
+      'New South Wales': 'NSW',
+      'Victoria': 'VIC',
+      'Queensland': 'QLD', 
+      'Western Australia': 'WA',
+      'South Australia': 'SA',
+      'Tasmania': 'TAS',
+      'Australian Capital Territory': 'ACT',
+      'Northern Territory': 'NT'
+    }
+    
+    // Map the state if it exists in our mapping
+    if (stateMap[state]) {
+      state = stateMap[state]
+    }
+    
+    // Additional check for South Australia by city
+    if (city === 'adelaide' || city.includes('adelaide')) {
+      state = 'SA'
+    }
+    
+    console.log('Detected location:', { city, state, originalRegion: data.region_code })
     return { city, state }
   } catch (error) {
     console.error('Error getting user location:', error)
@@ -229,7 +262,7 @@ async function fetchEventsFromCalendar(calendarId: string, startDate: Date, endD
     const events = data.items || []
     console.log(`Found ${events.length} events for calendar ${calendarId}`)
     
-    // Log each event's details
+    // Log each event's details with more detail for debugging
     if (events.length > 0) {
       console.log('Events found:')
       events.forEach((event: any) => {
@@ -240,10 +273,13 @@ async function fetchEventsFromCalendar(calendarId: string, startDate: Date, endD
           summary: event.summary,
           start: startDate,
           end: endDate,
-          description: event.description,
-          location: event.location
+          description: event.description?.substring(0, 100) + '...',
+          location: event.location,
+          calendarId: calendarId
         })
       })
+    } else {
+      console.log(`No events found for calendar ${calendarId}`)
     }
     
     return events
