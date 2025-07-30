@@ -528,12 +528,17 @@ export default function Home() {
                                     target.src = '/images/placeholder.svg'
                                   }}
                                 />
-                                {/* Day overlay on top of image */}
+                                {/* Date and time overlay on top of image */}
                                 <div className="absolute top-3 left-3 bg-black/70 text-white px-3 py-1 rounded-md text-sm font-semibold">
                                   {(() => {
                                     try {
                                       const eventDate = new Date(event.date);
-                                      return eventDate.toLocaleDateString('en-US', { weekday: 'long' });
+                                      const formattedDate = eventDate.toLocaleDateString('en-AU', { 
+                                        day: 'numeric', 
+                                        month: 'short' 
+                                      });
+                                      const formattedTime = event.time && event.time !== 'All day' ? event.time : '';
+                                      return `${formattedDate}${formattedTime ? ` • ${formattedTime}` : ''}`;
                                     } catch {
                                       return 'TBD';
                                     }
@@ -549,7 +554,22 @@ export default function Home() {
                             <div className="w-full h-full bg-gradient-to-r from-emerald-400 to-violet-500 flex items-center justify-center">
                               <div className="text-center text-white p-4">
                                 <div className="text-2xl font-bold mb-2">{event.name}</div>
-                                <div className="text-sm opacity-90">{event.location}</div>
+                                <div className="text-sm opacity-90 mb-2">{event.location}</div>
+                                <div className="text-xs opacity-80">
+                                  {(() => {
+                                    try {
+                                      const eventDate = new Date(event.date);
+                                      const formattedDate = eventDate.toLocaleDateString('en-AU', { 
+                                        day: 'numeric', 
+                                        month: 'short' 
+                                      });
+                                      const formattedTime = event.time && event.time !== 'All day' ? event.time : '';
+                                      return `${formattedDate}${formattedTime ? ` • ${formattedTime}` : ''}`;
+                                    } catch {
+                                      return 'TBD';
+                                    }
+                                  })()}
+                                </div>
                               </div>
                             </div>
                           )}
@@ -591,12 +611,17 @@ export default function Home() {
                                       target.src = '/images/placeholder.svg'
                                     }}
                                   />
-                                  {/* Day overlay on top of image */}
+                                  {/* Date and time overlay on top of image */}
                                   <div className="absolute top-3 left-3 bg-black/70 text-white px-3 py-1 rounded-md text-sm font-semibold">
                                     {(() => {
                                       try {
                                         const eventDate = new Date(event.date);
-                                        return eventDate.toLocaleDateString('en-US', { weekday: 'long' });
+                                        const formattedDate = eventDate.toLocaleDateString('en-AU', { 
+                                          day: 'numeric', 
+                                          month: 'short' 
+                                        });
+                                        const formattedTime = event.time && event.time !== 'All day' ? event.time : '';
+                                        return `${formattedDate}${formattedTime ? ` • ${formattedTime}` : ''}`;
                                       } catch {
                                         return 'TBD';
                                       }
@@ -612,7 +637,22 @@ export default function Home() {
                               <div className="w-full h-full bg-gradient-to-r from-emerald-400 to-violet-500 flex items-center justify-center">
                                 <div className="text-center text-white p-4">
                                   <div className="text-2xl font-bold mb-2">{event.name}</div>
-                                  <div className="text-sm opacity-90">{event.location}</div>
+                                  <div className="text-sm opacity-90 mb-2">{event.location}</div>
+                                  <div className="text-xs opacity-80">
+                                    {(() => {
+                                      try {
+                                        const eventDate = new Date(event.date);
+                                        const formattedDate = eventDate.toLocaleDateString('en-AU', { 
+                                          day: 'numeric', 
+                                          month: 'short' 
+                                        });
+                                        const formattedTime = event.time && event.time !== 'All day' ? event.time : '';
+                                        return `${formattedDate}${formattedTime ? ` • ${formattedTime}` : ''}`;
+                                      } catch {
+                                        return 'TBD';
+                                      }
+                                    })()}
+                                  </div>
                                 </div>
                               </div>
                             )}
