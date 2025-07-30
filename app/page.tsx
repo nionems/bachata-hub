@@ -533,12 +533,13 @@ export default function Home() {
                                   {(() => {
                                     try {
                                       const eventDate = new Date(event.date);
+                                      const dayName = eventDate.toLocaleDateString('en-AU', { weekday: 'short' });
                                       const formattedDate = eventDate.toLocaleDateString('en-AU', { 
                                         day: 'numeric', 
                                         month: 'short' 
                                       });
                                       const formattedTime = event.time && event.time !== 'All day' ? event.time : '';
-                                      return `${formattedDate}${formattedTime ? ` • ${formattedTime}` : ''}`;
+                                      return `${dayName} ${formattedDate}${formattedTime ? ` • ${formattedTime}` : ''}`;
                                     } catch {
                                       return 'TBD';
                                     }
@@ -559,12 +560,13 @@ export default function Home() {
                                   {(() => {
                                     try {
                                       const eventDate = new Date(event.date);
+                                      const dayName = eventDate.toLocaleDateString('en-AU', { weekday: 'short' });
                                       const formattedDate = eventDate.toLocaleDateString('en-AU', { 
                                         day: 'numeric', 
                                         month: 'short' 
                                       });
                                       const formattedTime = event.time && event.time !== 'All day' ? event.time : '';
-                                      return `${formattedDate}${formattedTime ? ` • ${formattedTime}` : ''}`;
+                                      return `${dayName} ${formattedDate}${formattedTime ? ` • ${formattedTime}` : ''}`;
                                     } catch {
                                       return 'TBD';
                                     }
@@ -616,12 +618,13 @@ export default function Home() {
                                     {(() => {
                                       try {
                                         const eventDate = new Date(event.date);
+                                        const dayName = eventDate.toLocaleDateString('en-AU', { weekday: 'short' });
                                         const formattedDate = eventDate.toLocaleDateString('en-AU', { 
                                           day: 'numeric', 
                                           month: 'short' 
                                         });
                                         const formattedTime = event.time && event.time !== 'All day' ? event.time : '';
-                                        return `${formattedDate}${formattedTime ? ` • ${formattedTime}` : ''}`;
+                                        return `${dayName} ${formattedDate}${formattedTime ? ` • ${formattedTime}` : ''}`;
                                       } catch {
                                         return 'TBD';
                                       }
@@ -642,12 +645,13 @@ export default function Home() {
                                     {(() => {
                                       try {
                                         const eventDate = new Date(event.date);
+                                        const dayName = eventDate.toLocaleDateString('en-AU', { weekday: 'short' });
                                         const formattedDate = eventDate.toLocaleDateString('en-AU', { 
                                           day: 'numeric', 
                                           month: 'short' 
                                         });
                                         const formattedTime = event.time && event.time !== 'All day' ? event.time : '';
-                                        return `${formattedDate}${formattedTime ? ` • ${formattedTime}` : ''}`;
+                                        return `${dayName} ${formattedDate}${formattedTime ? ` • ${formattedTime}` : ''}`;
                                       } catch {
                                         return 'TBD';
                                       }
