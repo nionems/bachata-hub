@@ -11,15 +11,32 @@ function initializeFirebaseAdmin() {
     if (getApps().length === 0) {
       console.log('Initializing Firebase Admin...');
       
+      // Validate environment variables
+      const projectId = process.env.FIREBASE_PROJECT_ID;
+      const clientEmail = process.env.FIREBASE_CLIENT_EMAIL;
+      const privateKey = process.env.FIREBASE_PRIVATE_KEY;
+      
+      if (!projectId) {
+        throw new Error('FIREBASE_PROJECT_ID environment variable is not set');
+      }
+      if (!clientEmail) {
+        throw new Error('FIREBASE_CLIENT_EMAIL environment variable is not set');
+      }
+      if (!privateKey) {
+        throw new Error('FIREBASE_PRIVATE_KEY environment variable is not set');
+      }
+      
+      console.log('Firebase Admin environment variables validated');
+      
       const serviceAccount = {
-        projectId: process.env.FIREBASE_PROJECT_ID,
-        clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-        privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
+        projectId,
+        clientEmail,
+        privateKey: privateKey.replace(/\\n/g, '\n'),
       };
 
       const app = initializeApp({
         credential: cert(serviceAccount),
-        storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET || `${process.env.FIREBASE_PROJECT_ID}.appspot.com`,
+        storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET || `${projectId}.appspot.com`,
       });
 
       console.log('Firebase Admin initialized successfully');

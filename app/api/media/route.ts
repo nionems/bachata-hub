@@ -74,15 +74,30 @@ export async function POST(request: Request) {
 
     console.log('Processed media data:', mediaData);
 
-    const db = getDb()
-    const mediaCollection = db.collection('medias')
-    const docRef = await mediaCollection.add(mediaData)
-    
-    console.log('Media created with ID:', docRef.id);
-    return NextResponse.json({
-      id: docRef.id,
-      ...mediaData
-    })
+    try {
+      const db = getDb()
+      console.log('Firebase DB instance obtained successfully');
+      
+      const mediaCollection = db.collection('medias')
+      console.log('Media collection reference created');
+      
+      const docRef = await mediaCollection.add(mediaData)
+      console.log('Media created with ID:', docRef.id);
+      
+      return NextResponse.json({
+        id: docRef.id,
+        ...mediaData
+      })
+    } catch (firebaseError) {
+      console.error('Firebase-specific error:', firebaseError);
+      if (firebaseError instanceof Error) {
+        console.error('Firebase error details:', {
+          message: firebaseError.message,
+          stack: firebaseError.stack
+        });
+      }
+      throw firebaseError;
+    }
 
   } catch (error) {
     console.error('Failed to create media:', error)
