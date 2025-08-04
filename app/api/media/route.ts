@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server'
-import { db } from '@/lib/firebase'
-import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc } from 'firebase/firestore'
+import { getDb } from '@/lib/firebase-admin'
 import { Media } from '@/types/media'
 
 export async function GET(request: Request) {
@@ -8,8 +7,9 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url)
     const admin = searchParams.get('admin')
     
-    const mediaCollection = collection(db, 'medias')
-    const mediaSnapshot = await getDocs(mediaCollection)
+    const db = getDb()
+    const mediaCollection = db.collection('medias')
+    const mediaSnapshot = await mediaCollection.get()
     let mediaList: Media[] = mediaSnapshot.docs.map(doc => ({
       id: doc.id,
       ...doc.data()
@@ -74,8 +74,9 @@ export async function POST(request: Request) {
 
     console.log('Processed media data:', mediaData);
 
-    const mediaCollection = collection(db, 'medias')
-    const docRef = await addDoc(mediaCollection, mediaData)
+    const db = getDb()
+    const mediaCollection = db.collection('medias')
+    const docRef = await mediaCollection.add(mediaData)
     
     console.log('Media created with ID:', docRef.id);
     return NextResponse.json({
