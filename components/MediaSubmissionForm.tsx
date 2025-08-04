@@ -180,7 +180,9 @@ export function MediaSubmissionForm({ isOpen, onClose }: MediaSubmissionFormProp
 
               if (!mediaResponse.ok) {
                 const errorData = await mediaResponse.json()
-                throw new Error(errorData.error || 'Failed to create media')
+                console.error('Server error response:', errorData)
+                const errorMessage = errorData.details || errorData.error || 'Failed to create media'
+                throw new Error(errorMessage)
               }
 
               const createdMedia = await mediaResponse.json()
