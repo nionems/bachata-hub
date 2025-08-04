@@ -529,7 +529,7 @@ export default function Home() {
                                   }}
                                 />
                                 {/* Date and time overlay on top of image */}
-                                <div className="absolute top-3 left-3 bg-black/70 text-white px-3 py-1 rounded-md text-sm font-semibold">
+                                <div className="absolute top-1 left-1 bg-black/70 text-white px-3 py-1 rounded-md text-sm font-semibold">
                                   {(() => {
                                     try {
                                       const eventDate = new Date(event.date);
@@ -552,7 +552,7 @@ export default function Home() {
                                 </div>
                                 {/* Event Link Button */}
                                 {getEventLink(event) && (
-                                  <div className="absolute top-3 right-3">
+                                  <div className="absolute top-1 right-1">
                                     <Button
                                       size="sm"
                                       className="bg-gradient-to-r from-emerald-400 to-violet-500 hover:from-emerald-500 hover:to-violet-600 text-white text-xs h-8 px-3 flex items-center gap-1.5 rounded-full shadow-lg hover:shadow-xl transition-all duration-200 font-semibold border-0"
@@ -586,9 +586,31 @@ export default function Home() {
                                     }
                                   })()}
                                 </div>
+                                {/* Date and time overlay on top of image */}
+                                <div className="absolute top-1 left-1 bg-black/70 text-white px-3 py-1 rounded-md text-sm font-semibold">
+                                  {(() => {
+                                    try {
+                                      const eventDate = new Date(event.date);
+                                      const dayName = eventDate.toLocaleDateString('en-AU', { weekday: 'short' });
+                                      const formattedDate = eventDate.toLocaleDateString('en-AU', { 
+                                        day: 'numeric', 
+                                        month: 'short' 
+                                      });
+                                      const formattedTime = event.time && event.time !== 'All day' ? event.time : '';
+                                      return `${dayName} ${formattedDate}${formattedTime ? ` • ${formattedTime}` : ''}`;
+                                    } catch {
+                                      return 'TBD';
+                                    }
+                                  })()}
+                                </div>
+                                {/* Location overlay */}
+                                <div className="absolute bottom-3 left-3 bg-black/70 text-white px-3 py-1 rounded-md text-sm">
+                                  <div className="font-semibold text-xs mb-1">{event.name}</div>
+                                  <div className="text-xs opacity-90">{event.location}</div>
+                                </div>
                                 {/* Event Link Button */}
                                 {getEventLink(event) && (
-                                  <div className="absolute top-3 right-3">
+                                  <div className="absolute top-1 right-1">
                                     <Button
                                       size="sm"
                                       className="bg-gradient-to-r from-emerald-400 to-violet-500 hover:from-emerald-500 hover:to-violet-600 text-white text-xs h-8 px-3 flex items-center gap-1.5 rounded-full shadow-lg hover:shadow-xl transition-all duration-200 font-semibold border-0"
@@ -641,7 +663,7 @@ export default function Home() {
                                     }}
                                   />
                                   {/* Date and time overlay on top of image */}
-                                  <div className="absolute top-3 left-3 bg-black/70 text-white px-3 py-1 rounded-md text-sm font-semibold">
+                                  <div className="absolute top-1 left-1 bg-black/70 text-white px-3 py-1 rounded-md text-sm font-semibold">
                                     {(() => {
                                       try {
                                         const eventDate = new Date(event.date);
