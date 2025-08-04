@@ -88,6 +88,7 @@ export default function MediaForm({ media, isEditing = false }: MediaFormProps) 
 
       const mediaData = {
         ...formData,
+        email: formData.emailLink, // Map emailLink to email for API
         imageUrl,
         updatedAt: new Date(),
       }
