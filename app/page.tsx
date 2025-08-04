@@ -550,6 +550,19 @@ export default function Home() {
                                   <div className="font-semibold text-xs mb-1">{event.name}</div>
                                   <div className="text-xs opacity-90">{event.location}</div>
                                 </div>
+                                {/* Event Link Button */}
+                                {getEventLink(event) && (
+                                  <div className="absolute bottom-3 right-3">
+                                    <Button
+                                      size="sm"
+                                      className="bg-gradient-to-r from-emerald-400 to-violet-500 hover:from-emerald-500 hover:to-violet-600 text-white text-xs h-8 px-3 flex items-center gap-1.5 rounded-full shadow-lg hover:shadow-xl transition-all duration-200 font-semibold border-0"
+                                      onClick={(e) => handleEventLinkClick(event, e)}
+                                    >
+                                      <ExternalLink className="w-3.5 h-3.5" />
+                                      <span>Event</span>
+                                    </Button>
+                                  </div>
+                                )}
                               </div>
                             </div>
                           ) : (
@@ -573,6 +586,19 @@ export default function Home() {
                                     }
                                   })()}
                                 </div>
+                                {/* Event Link Button */}
+                                {getEventLink(event) && (
+                                  <div className="absolute bottom-3 right-3">
+                                    <Button
+                                      size="sm"
+                                      className="bg-gradient-to-r from-emerald-400 to-violet-500 hover:from-emerald-500 hover:to-violet-600 text-white text-xs h-8 px-3 flex items-center gap-1.5 rounded-full shadow-lg hover:shadow-xl transition-all duration-200 font-semibold border-0"
+                                      onClick={(e) => handleEventLinkClick(event, e)}
+                                    >
+                                      <ExternalLink className="w-3.5 h-3.5" />
+                                      <span>Event</span>
+                                    </Button>
+                                  </div>
+                                )}
                               </div>
                             </div>
                           )}
@@ -660,6 +686,19 @@ export default function Home() {
                                     })()}
                                   </div>
                                 </div>
+                              </div>
+                            )}
+                            {/* Event Link Button */}
+                            {getEventLink(event) && (
+                              <div className="absolute bottom-3 right-3">
+                                <Button
+                                  size="sm"
+                                  className="bg-gradient-to-r from-emerald-400 to-violet-500 hover:from-emerald-500 hover:to-violet-600 text-white text-xs h-8 px-3 flex items-center gap-1.5 rounded-full shadow-lg hover:shadow-xl transition-all duration-200 font-semibold border-0"
+                                  onClick={(e) => handleEventLinkClick(event, e)}
+                                >
+                                  <ExternalLink className="w-3.5 h-3.5" />
+                                  <span>Event</span>
+                                </Button>
                               </div>
                             )}
                           </div>
