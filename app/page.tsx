@@ -546,7 +546,7 @@ export default function Home() {
                                   })()}
                                 </div>
                                 {/* Location overlay */}
-                                <div className="absolute bottom-3 left-3 bg-black/70 text-white px-3 py-1 rounded-md text-sm">
+                                <div className="absolute bottom-0 left-0 right-0 bg-black/70 text-white px-3 py-2">
                                   <div className="font-semibold text-xs mb-1">{event.name}</div>
                                   <div className="text-xs opacity-90">{event.location}</div>
                                 </div>
@@ -604,7 +604,7 @@ export default function Home() {
                                   })()}
                                 </div>
                                 {/* Location overlay */}
-                                <div className="absolute bottom-3 left-3 bg-black/70 text-white px-3 py-1 rounded-md text-sm">
+                                <div className="absolute bottom-0 left-0 right-0 bg-black/70 text-white px-3 py-2">
                                   <div className="font-semibold text-xs mb-1">{event.name}</div>
                                   <div className="text-xs opacity-90">{event.location}</div>
                                 </div>
@@ -680,7 +680,7 @@ export default function Home() {
                                     })()}
                                   </div>
                                   {/* Location overlay */}
-                                  <div className="absolute bottom-3 left-3 bg-black/70 text-white px-3 py-1 rounded-md text-sm">
+                                  <div className="absolute bottom-0 left-0 right-0 bg-black/70 text-white px-3 py-2">
                                     <div className="font-semibold text-xs mb-1">{event.name}</div>
                                     <div className="text-xs opacity-90">{event.location}</div>
                                   </div>
