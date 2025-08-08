@@ -445,7 +445,7 @@ export default function Home() {
           <div className="absolute inset-0 bg-gradient-to-r from-primary to-secondary"></div>
           <div className="container mx-auto px-0 relative z-10 h-full flex flex-col items-center justify-center">
             <div className="w-full flex flex-col items-center justify-center">
-              <p className="text-xs sm:text-base md:text-lg lg:text-xl text-white/90 text-center comic-neue px-4 mt-8 sm:mt-12 md:mt-16 lg:mt-20">
+              <p className="text-xs sm:text-base md:text-lg lg:text-xl text-white/90 text-center comic-neue px-4 mt-2 sm:mt-4 md:mt-6 lg:mt-8">
                 Your Bachata Guide in Australia & more...
               </p>
               <div className="flex items-center justify-center gap-1 sm:gap-2 md:gap-4 relative w-full px-2 sm:px-4 md:px-8">
@@ -736,15 +736,29 @@ export default function Home() {
               </div>
             )}
             
-            {/* Add Your Event Button */}
-            <div className="text-center mt-6 sm:mt-8">
-              <Button
-                onClick={() => setIsEventSubmissionOpen(true)}
-                className="bg-gradient-to-r from-emerald-500 to-violet-500 hover:from-emerald-600 hover:to-violet-600 text-white px-6 py-3 rounded-full shadow-lg hover:shadow-xl transition-all duration-200 font-semibold text-sm sm:text-base"
-              >
-                <Calendar className="w-4 h-4 mr-2" />
-                Add Your Event
-              </Button>
+            {/* Add Your Event and Ticketlime Buttons */}
+            <div className="text-center mt-3 sm:mt-4">
+              <div className="flex flex-col sm:flex-row gap-3 justify-center items-center">
+                <Button
+                  onClick={() => setIsEventSubmissionOpen(true)}
+                  className="bg-gradient-to-r from-emerald-500 to-violet-500 hover:from-emerald-600 hover:to-violet-600 text-white px-6 py-3 rounded-full shadow-lg hover:shadow-xl transition-all duration-200 font-semibold text-sm sm:text-base"
+                >
+                  <Calendar className="w-4 h-4 mr-2" />
+                  Add Your Event
+                </Button>
+                <Button
+                  onClick={() => window.open('https://app.ticketlime.com/auth/register?ref=BACHATAAU', '_blank')}
+                  className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white px-6 py-3 rounded-full shadow-lg hover:shadow-xl transition-all duration-200 font-semibold text-sm sm:text-base"
+                >
+                  <Image
+                    src="/images/ticketlime.JPG"
+                    alt="Ticketlime"
+                    width={120}
+                    height={40}
+                    className="h-8 w-auto object-contain rounded-full"
+                  />
+                </Button>
+              </div>
               <p className="text-gray-600 text-xs sm:text-sm mt-2">
                 Have an event to share? Submit it here and we'll add it to our calendar!
               </p>
