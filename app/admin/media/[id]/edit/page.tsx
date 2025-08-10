@@ -3,8 +3,6 @@
 import { useEffect, useState } from 'react'
 import MediaForm from '@/components/MediaForm'
 import { Media } from '@/types/media'
-import { doc, getDoc } from 'firebase/firestore'
-import { db } from '@/lib/firebase'
 import { useParams } from 'next/navigation'
 
 export default function EditMediaPage() {
@@ -15,14 +13,12 @@ export default function EditMediaPage() {
   useEffect(() => {
     const fetchMedia = async () => {
       try {
-        const mediaDoc = await getDoc(doc(db, 'medias', params.id as string))
-        if (mediaDoc.exists()) {
-          setMedia({
-            id: mediaDoc.id,
-            ...mediaDoc.data(),
-            createdAt: mediaDoc.data().createdAt?.toDate(),
-            updatedAt: mediaDoc.data().updatedAt?.toDate(),
-          } as Media)
+        const response = await fetch(`/api/media/${params.id}`)
+        if (response.ok) {
+          const mediaData = await response.json()
+          setMedia(mediaData as Media)
+        } else {
+          console.error('Failed to fetch media')
         }
       } catch (error) {
         console.error('Error fetching media:', error)

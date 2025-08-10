@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server'
 import { getDb } from '@/lib/firebase-admin'
-import { doc, deleteDoc, getDoc, updateDoc } from 'firebase/firestore'
 import { getWeekEvents } from '@/app/actions/calendar-events'
 import { Timestamp } from 'firebase-admin/firestore'
 

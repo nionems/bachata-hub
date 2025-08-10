@@ -1,14 +1,13 @@
 import { NextResponse } from 'next/server'
-import { db } from '@/lib/firebase'
-import { doc, updateDoc, deleteDoc, getDoc } from 'firebase/firestore'
+import { db } from '@/lib/firebase-admin'
 
 export async function GET(
   request: Request,
   { params }: { params: { id: string } }
 ) {
   try {
-    const mediaDoc = await getDoc(doc(db, 'medias', params.id))
-    if (!mediaDoc.exists()) {
+    const mediaDoc = await db.collection('medias').doc(params.id).get()
+    if (!mediaDoc.exists) {
       return NextResponse.json({ error: 'Media not found' }, { status: 404 })
     }
     return NextResponse.json({ id: mediaDoc.id, ...mediaDoc.data() })
@@ -28,21 +27,35 @@ export async function PUT(
     
     console.log('Updating media:', id, 'with data:', data)
     
-    const mediaRef = doc(db, 'medias', id)
-    const mediaDoc = await getDoc(mediaRef)
+    const mediaRef = db.collection('medias').doc(id)
+    const mediaDoc = await mediaRef.get()
     
-    if (!mediaDoc.exists()) {
+    if (!mediaDoc.exists) {
       return NextResponse.json(
         { error: 'Media not found' },
         { status: 404 }
       )
     }
     
-    // Only update the status field
-    await updateDoc(mediaRef, {
-      status: data.status,
+    // Update all provided fields
+    const updateData: any = {
       updatedAt: new Date()
-    })
+    }
+    
+    // Add all fields that are provided in the request
+    if (data.name !== undefined) updateData.name = data.name
+    if (data.location !== undefined) updateData.location = data.location
+    if (data.state !== undefined) updateData.state = data.state
+    if (data.comment !== undefined) updateData.comment = data.comment
+    if (data.instagramLink !== undefined) updateData.instagramLink = data.instagramLink
+    if (data.facebookLink !== undefined) updateData.facebookLink = data.facebookLink
+    if (data.email !== undefined) updateData.email = data.email
+    if (data.mediaLink !== undefined) updateData.mediaLink = data.mediaLink
+    if (data.mediaLink2 !== undefined) updateData.mediaLink2 = data.mediaLink2
+    if (data.imageUrl !== undefined) updateData.imageUrl = data.imageUrl
+    if (data.status !== undefined) updateData.status = data.status
+    
+    await mediaRef.update(updateData)
     
     console.log('Media updated successfully')
     
@@ -65,17 +78,17 @@ export async function DELETE(
     
     console.log('Deleting media:', id)
     
-    const mediaRef = doc(db, 'medias', id)
-    const mediaDoc = await getDoc(mediaRef)
+    const mediaRef = db.collection('medias').doc(id)
+    const mediaDoc = await mediaRef.get()
     
-    if (!mediaDoc.exists()) {
+    if (!mediaDoc.exists) {
       return NextResponse.json(
         { error: 'Media not found' },
         { status: 404 }
       )
     }
     
-    await deleteDoc(mediaRef)
+    await mediaRef.delete()
     
     console.log('Media deleted successfully')
     

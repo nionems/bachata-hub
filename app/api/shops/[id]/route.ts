@@ -1,5 +1,4 @@
-import { db } from '@/lib/firebase'
-import { doc, getDoc, deleteDoc, updateDoc } from 'firebase/firestore'
+import { db } from '@/lib/firebase-admin'
 import { NextResponse } from 'next/server'
 
 export async function GET(
@@ -8,10 +7,9 @@ export async function GET(
 ) {
   try {
     const { id } = params
-    const docRef = doc(db, 'shops', id)
-    const docSnap = await getDoc(docRef)
+    const docSnap = await db.collection('shops').doc(id).get()
 
-    if (!docSnap.exists()) {
+    if (!docSnap.exists) {
       return NextResponse.json(
         { error: 'Shop not found' },
         { status: 404 }
@@ -39,8 +37,7 @@ export async function DELETE(
     const { id } = params
     console.log('Attempting to delete shop with ID:', id)
     
-    const docRef = doc(db, 'shops', id)
-    await deleteDoc(docRef)
+    await db.collection('shops').doc(id).delete()
 
     console.log('Shop deleted successfully:', id)
     return NextResponse.json({ message: 'Shop deleted successfully' })
@@ -103,8 +100,7 @@ export async function PUT(
 
       console.log('Updating shop status with data:', updateData)
 
-      const docRef = doc(db, 'shops', id)
-      await updateDoc(docRef, updateData)
+      await db.collection('shops').doc(id).update(updateData)
 
       console.log('Shop status updated successfully')
       return NextResponse.json({ message: 'Shop status updated successfully' })
@@ -142,8 +138,7 @@ export async function PUT(
 
     console.log('Updating shop with data:', updateData)
 
-    const docRef = doc(db, 'shops', id)
-    await updateDoc(docRef, updateData)
+    await db.collection('shops').doc(id).update(updateData)
 
     console.log('Shop updated successfully')
     return NextResponse.json({ message: 'Shop updated successfully' })

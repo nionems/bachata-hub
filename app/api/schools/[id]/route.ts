@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server'
-import { db } from '@/lib/firebase'
-import { doc, getDoc, updateDoc, deleteDoc } from 'firebase/firestore'
+import { db } from '@/lib/firebase-admin'
 import { School } from '@/types/school'
 
 export async function GET(
@@ -8,10 +7,9 @@ export async function GET(
   { params }: { params: { id: string } }
 ) {
   try {
-    const schoolRef = doc(db, 'schools', params.id)
-    const schoolDoc = await getDoc(schoolRef)
+    const schoolDoc = await db.collection('schools').doc(params.id).get()
     
-    if (!schoolDoc.exists()) {
+    if (!schoolDoc.exists) {
       return NextResponse.json(
         { error: 'School not found' },
         { status: 404 }
@@ -39,10 +37,10 @@ export async function PUT(
     const data = await request.json();
     console.log('Received update data:', data);
 
-    const schoolRef = doc(db, 'schools', params.id);
-    const schoolDoc = await getDoc(schoolRef);
+    const schoolRef = db.collection('schools').doc(params.id);
+    const schoolDoc = await schoolRef.get();
     
-    if (!schoolDoc.exists()) {
+    if (!schoolDoc.exists) {
       console.error('School not found with ID:', params.id);
       return NextResponse.json(
         { error: 'School not found' },
@@ -59,7 +57,7 @@ export async function PUT(
         updatedAt: new Date().toISOString()
       };
       
-      await updateDoc(schoolRef, updateData);
+      await schoolRef.update(updateData);
       console.log('School status updated successfully');
       return NextResponse.json({ id: params.id, ...existingData, ...updateData });
     }
@@ -123,7 +121,7 @@ export async function PUT(
 
     console.log('Processed school data:', schoolData);
 
-    await updateDoc(schoolRef, schoolData);
+    await schoolRef.update(schoolData);
     console.log('School updated successfully');
     return NextResponse.json({ id: params.id, ...schoolData });
   } catch (error) {
@@ -149,17 +147,17 @@ export async function DELETE(
   { params }: { params: { id: string } }
 ) {
   try {
-    const schoolRef = doc(db, 'schools', params.id)
-    const schoolDoc = await getDoc(schoolRef)
+    const schoolRef = db.collection('schools').doc(params.id)
+    const schoolDoc = await schoolRef.get()
     
-    if (!schoolDoc.exists()) {
+    if (!schoolDoc.exists) {
       return NextResponse.json(
         { error: 'School not found' },
         { status: 404 }
       )
     }
 
-    await deleteDoc(schoolRef)
+    await schoolRef.delete()
     return NextResponse.json({ message: 'School deleted successfully' })
   } catch (error) {
     console.error('Error deleting school:', error)

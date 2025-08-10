@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server'
-import { db } from '@/lib/firebase'
-import { collection, addDoc, getDocs } from 'firebase/firestore'
+import { db } from '@/lib/firebase-admin'
 import { Instructor } from '@/types/instructor'
 
 // Add GET method to fetch all instructors
@@ -10,10 +9,9 @@ export async function GET(request: Request) {
     const admin = searchParams.get('admin')
     
     console.log('Fetching instructors from Firestore') // Debug log
-    const instructorsRef = collection(db, 'instructors')
-    const snapshot = await getDocs(instructorsRef)
+    const instructorsSnapshot = await db.collection('instructors').get()
     
-    let instructors: Instructor[] = snapshot.docs.map(doc => ({
+    let instructors: Instructor[] = instructorsSnapshot.docs.map(doc => ({
       id: doc.id,
       ...doc.data()
     })) as Instructor[]
@@ -75,7 +73,7 @@ export async function POST(request: Request) {
       danceStyles: typeof danceStyles === 'string' ? danceStyles.split(',').map(style => style.trim()) : Array.isArray(danceStyles) ? danceStyles : [],
       imageUrl: imageUrl || '',
       privatePricePerHour: privatePricePerHour || '',
-      status: 'pending',
+      status: 'approved', // Admin-created instructors are approved by default
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString()
     };
@@ -83,8 +81,7 @@ export async function POST(request: Request) {
     console.log('Processed instructor data:', instructorData);
 
     // Add to Firestore instructors collection
-    const instructorsRef = collection(db, 'instructors')
-    const docRef = await addDoc(instructorsRef, instructorData)
+    const docRef = await db.collection('instructors').add(instructorData)
 
     console.log('Instructor created with ID:', docRef.id);
 

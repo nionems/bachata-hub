@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server'
-import { db } from '@/lib/firebase'
-import { doc, updateDoc, deleteDoc, getDoc } from 'firebase/firestore'
+import { db } from '@/lib/firebase-admin'
 
 // Get single instructor
 export async function GET(
@@ -8,10 +7,9 @@ export async function GET(
   { params }: { params: { id: string } }
 ) {
   try {
-    const instructorRef = doc(db, 'instructors', params.id)
-    const instructorSnap = await getDoc(instructorRef)
+    const instructorDoc = await db.collection('instructors').doc(params.id).get()
     
-    if (!instructorSnap.exists()) {
+    if (!instructorDoc.exists) {
       return NextResponse.json(
         { error: 'Instructor not found' },
         { status: 404 }
@@ -19,8 +17,8 @@ export async function GET(
     }
 
     return NextResponse.json({
-      id: instructorSnap.id,
-      ...instructorSnap.data()
+      id: instructorDoc.id,
+      ...instructorDoc.data()
     })
   } catch (error) {
     console.error('Failed to fetch instructor:', error)
@@ -41,10 +39,10 @@ export async function PUT(
     
     console.log('Updating instructor:', id, 'with data:', data)
     
-    const instructorRef = doc(db, 'instructors', id)
-    const instructorDoc = await getDoc(instructorRef)
+    const instructorRef = db.collection('instructors').doc(id)
+    const instructorDoc = await instructorRef.get()
     
-    if (!instructorDoc.exists()) {
+    if (!instructorDoc.exists) {
       return NextResponse.json(
         { error: 'Instructor not found' },
         { status: 404 }
@@ -52,7 +50,7 @@ export async function PUT(
     }
     
     // Only update the status field
-    await updateDoc(instructorRef, {
+    await instructorRef.update({
       status: data.status,
       updatedAt: new Date().toISOString()
     })
@@ -78,17 +76,17 @@ export async function DELETE(
     
     console.log('Deleting instructor:', id)
     
-    const instructorRef = doc(db, 'instructors', id)
-    const instructorDoc = await getDoc(instructorRef)
+    const instructorRef = db.collection('instructors').doc(id)
+    const instructorDoc = await instructorRef.get()
     
-    if (!instructorDoc.exists()) {
+    if (!instructorDoc.exists) {
       return NextResponse.json(
         { error: 'Instructor not found' },
         { status: 404 }
       )
     }
     
-    await deleteDoc(instructorRef)
+    await instructorRef.delete()
     
     console.log('Instructor deleted successfully')
     
