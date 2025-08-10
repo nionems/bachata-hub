@@ -1,4 +1,4 @@
-import { db } from '@/lib/firebase-admin'
+import { getDb } from '@/lib/firebase-admin'
 import { NextResponse } from 'next/server'
 
 export async function GET(
@@ -7,6 +7,7 @@ export async function GET(
 ) {
   try {
     const { id } = params
+    const db = getDb()
     const docSnap = await db.collection('shops').doc(id).get()
 
     if (!docSnap.exists) {
@@ -37,6 +38,7 @@ export async function DELETE(
     const { id } = params
     console.log('Attempting to delete shop with ID:', id)
     
+    const db = getDb()
     await db.collection('shops').doc(id).delete()
 
     console.log('Shop deleted successfully:', id)
@@ -100,6 +102,7 @@ export async function PUT(
 
       console.log('Updating shop status with data:', updateData)
 
+      const db = getDb()
       await db.collection('shops').doc(id).update(updateData)
 
       console.log('Shop status updated successfully')
@@ -138,6 +141,7 @@ export async function PUT(
 
     console.log('Updating shop with data:', updateData)
 
+    const db = getDb()
     await db.collection('shops').doc(id).update(updateData)
 
     console.log('Shop updated successfully')

@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { db } from '@/lib/firebase-admin'
+import { getDb } from '@/lib/firebase-admin'
 import { School } from '@/types/school'
 
 export async function GET(request: Request) {
@@ -7,6 +7,7 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url)
     const admin = searchParams.get('admin')
     
+    const db = getDb()
     const schoolsSnapshot = await db.collection('schools').get()
     let schools: School[] = schoolsSnapshot.docs.map(doc => ({
       id: doc.id,
@@ -85,6 +86,7 @@ export async function POST(request: Request) {
 
     console.log('Processed school data:', schoolData);
 
+    const db = getDb()
     const docRef = await db.collection('schools').add(schoolData);
     console.log('School created with ID:', docRef.id);
     

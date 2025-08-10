@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { db } from '@/lib/firebase-admin'
+import { getDb } from '@/lib/firebase-admin'
 import { Instructor } from '@/types/instructor'
 
 // Add GET method to fetch all instructors
@@ -9,6 +9,7 @@ export async function GET(request: Request) {
     const admin = searchParams.get('admin')
     
     console.log('Fetching instructors from Firestore') // Debug log
+    const db = getDb()
     const instructorsSnapshot = await db.collection('instructors').get()
     
     let instructors: Instructor[] = instructorsSnapshot.docs.map(doc => ({
@@ -81,6 +82,7 @@ export async function POST(request: Request) {
     console.log('Processed instructor data:', instructorData);
 
     // Add to Firestore instructors collection
+    const db = getDb()
     const docRef = await db.collection('instructors').add(instructorData)
 
     console.log('Instructor created with ID:', docRef.id);

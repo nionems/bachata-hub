@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { db } from '@/lib/firebase-admin'
+import { getDb } from '@/lib/firebase-admin'
 import { School } from '@/types/school'
 
 export async function GET(
@@ -7,6 +7,7 @@ export async function GET(
   { params }: { params: { id: string } }
 ) {
   try {
+    const db = getDb()
     const schoolDoc = await db.collection('schools').doc(params.id).get()
     
     if (!schoolDoc.exists) {
@@ -37,6 +38,7 @@ export async function PUT(
     const data = await request.json();
     console.log('Received update data:', data);
 
+    const db = getDb()
     const schoolRef = db.collection('schools').doc(params.id);
     const schoolDoc = await schoolRef.get();
     
@@ -147,6 +149,7 @@ export async function DELETE(
   { params }: { params: { id: string } }
 ) {
   try {
+    const db = getDb()
     const schoolRef = db.collection('schools').doc(params.id)
     const schoolDoc = await schoolRef.get()
     

@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { db } from '@/lib/firebase-admin'
+import { getDb } from '@/lib/firebase-admin'
 
 // Get single instructor
 export async function GET(
@@ -7,6 +7,7 @@ export async function GET(
   { params }: { params: { id: string } }
 ) {
   try {
+    const db = getDb()
     const instructorDoc = await db.collection('instructors').doc(params.id).get()
     
     if (!instructorDoc.exists) {
@@ -39,6 +40,7 @@ export async function PUT(
     
     console.log('Updating instructor:', id, 'with data:', data)
     
+    const db = getDb()
     const instructorRef = db.collection('instructors').doc(id)
     const instructorDoc = await instructorRef.get()
     
@@ -76,6 +78,7 @@ export async function DELETE(
     
     console.log('Deleting instructor:', id)
     
+    const db = getDb()
     const instructorRef = db.collection('instructors').doc(id)
     const instructorDoc = await instructorRef.get()
     

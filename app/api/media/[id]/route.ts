@@ -1,11 +1,12 @@
 import { NextResponse } from 'next/server'
-import { db } from '@/lib/firebase-admin'
+import { getDb } from '@/lib/firebase-admin'
 
 export async function GET(
   request: Request,
   { params }: { params: { id: string } }
 ) {
   try {
+    const db = getDb()
     const mediaDoc = await db.collection('medias').doc(params.id).get()
     if (!mediaDoc.exists) {
       return NextResponse.json({ error: 'Media not found' }, { status: 404 })
@@ -27,6 +28,7 @@ export async function PUT(
     
     console.log('Updating media:', id, 'with data:', data)
     
+    const db = getDb()
     const mediaRef = db.collection('medias').doc(id)
     const mediaDoc = await mediaRef.get()
     
@@ -78,6 +80,7 @@ export async function DELETE(
     
     console.log('Deleting media:', id)
     
+    const db = getDb()
     const mediaRef = db.collection('medias').doc(id)
     const mediaDoc = await mediaRef.get()
     
