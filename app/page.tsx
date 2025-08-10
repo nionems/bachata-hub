@@ -222,7 +222,25 @@ export default function Home() {
 
   const formatEvents = (weekEvents: any[]) => {
     console.log('Raw events:', weekEvents)
-    const formattedWeekEvents = weekEvents.map(event => {
+    
+    // Filter out past events - only show events from today onwards (date only, not time)
+    const today = new Date()
+    today.setHours(0, 0, 0, 0) // Set to start of today
+    
+    const futureEvents = weekEvents.filter(event => {
+      const eventStart = event.start?.dateTime || event.start?.date
+      if (!eventStart) return false
+      
+      const eventDate = new Date(eventStart)
+      eventDate.setHours(0, 0, 0, 0) // Set to start of event date for comparison
+      
+      // Show events from today onwards (including today)
+      return eventDate >= today
+    })
+    
+    console.log('Future events after filtering:', futureEvents)
+    
+    const formattedWeekEvents = futureEvents.map(event => {
       // Get the image URL from the event
       let imageUrl = event.image || ''
       console.log('Original image URL:', imageUrl)
