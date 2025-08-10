@@ -51,6 +51,14 @@ export async function PUT(
     }
 
     const existingData = schoolDoc.data();
+    
+    if (!existingData) {
+      console.error('School data is null/undefined');
+      return NextResponse.json(
+        { error: 'School data not found' },
+        { status: 404 }
+      );
+    }
 
     // If this is just a status update, use existing data
     if (Object.keys(data).length === 1 && data.status) {
@@ -117,7 +125,7 @@ export async function PUT(
       facebookUrl: facebookUrl || '',
       googleMapLink: googleMapLink || '',
       comment: comment || '',
-      status: status || existingData.status,
+      status: status || existingData.status || 'pending',
       updatedAt: new Date().toISOString()
     };
 
