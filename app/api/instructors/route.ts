@@ -50,7 +50,8 @@ export async function POST(request: Request) {
       email,
       danceStyles,
       imageUrl,
-      privatePricePerHour
+      privatePricePerHour,
+      status
     } = data;
 
     // Validate required fields
