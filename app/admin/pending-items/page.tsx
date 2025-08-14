@@ -16,20 +16,27 @@ interface PendingItem {
   name: string
   location: string
   state: string
-  address: string
-  contactName: string
-  contactEmail: string
-  contactPhone: string
-  website: string
-  instagramUrl: string
-  facebookUrl: string
-  price: string
-  condition: string
-  comment: string
-  discountCode: string
-  imageUrl: string
-  googleMapLink: string
-  info: string
+  address?: string
+  contactName?: string
+  contactEmail?: string
+  contactPhone?: string
+  website?: string
+  instagramUrl?: string
+  facebookUrl?: string
+  price?: string
+  condition?: string
+  comment?: string
+  discountCode?: string
+  imageUrl?: string
+  googleMapLink?: string
+  info?: string
+  // Instructor specific fields
+  bio?: string
+  danceStyles?: string[]
+  privatePricePerHour?: string
+  emailLink?: string
+  facebookLink?: string
+  instagramLink?: string
   status: 'pending' | 'approved' | 'rejected'
   submittedAt: string
   reviewedAt?: string
@@ -214,12 +221,24 @@ export default function PendingItemsPage() {
               <CardContent>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                   <div>
-                    <p><strong>Contact:</strong> {item.contactName}</p>
-                    <p><strong>Email:</strong> {item.contactEmail}</p>
-                    <p><strong>Price:</strong> {item.price}</p>
-                    <p><strong>Condition:</strong> {item.condition}</p>
+                    {item.type === 'instructor' ? (
+                      <>
+                        <p><strong>Email:</strong> {item.emailLink}</p>
+                        <p><strong>Bio:</strong> {item.bio || 'N/A'}</p>
+                        <p><strong>Dance Styles:</strong> {Array.isArray(item.danceStyles) ? item.danceStyles.join(', ') : item.danceStyles || 'N/A'}</p>
+                        <p><strong>Private Price:</strong> {item.privatePricePerHour || 'N/A'}</p>
+                      </>
+                    ) : (
+                      <>
+                        <p><strong>Contact:</strong> {item.contactName}</p>
+                        <p><strong>Email:</strong> {item.contactEmail}</p>
+                        <p><strong>Price:</strong> {item.price}</p>
+                        <p><strong>Condition:</strong> {item.condition}</p>
+                      </>
+                    )}
                   </div>
                   <div>
+                    <p><strong>Type:</strong> <span className="capitalize">{item.type}</span></p>
                     <p><strong>Submitted:</strong> {formatDate(item.submittedAt)}</p>
                     {item.reviewedAt && (
                       <p><strong>Reviewed:</strong> {formatDate(item.reviewedAt)}</p>
@@ -229,9 +248,9 @@ export default function PendingItemsPage() {
                     )}
                   </div>
                 </div>
-                {item.info && (
+                {(item.info || item.bio) && (
                   <div className="mt-3">
-                    <p className="text-sm text-gray-600 line-clamp-2">{item.info}</p>
+                    <p className="text-sm text-gray-600 line-clamp-2">{item.info || item.bio}</p>
                   </div>
                 )}
               </CardContent>
@@ -255,19 +274,41 @@ export default function PendingItemsPage() {
                   <div className="space-y-1 text-sm">
                     <p><strong>Name:</strong> {selectedItem.name}</p>
                     <p><strong>Location:</strong> {selectedItem.location}, {selectedItem.state}</p>
-                    <p><strong>Contact:</strong> {selectedItem.contactName}</p>
-                    <p><strong>Email:</strong> {selectedItem.contactEmail}</p>
-                    <p><strong>Price:</strong> {selectedItem.price}</p>
-                    <p><strong>Condition:</strong> {selectedItem.condition}</p>
+                    <p><strong>Type:</strong> <span className="capitalize">{selectedItem.type}</span></p>
+                    {selectedItem.type === 'instructor' ? (
+                      <>
+                        <p><strong>Email:</strong> {selectedItem.emailLink}</p>
+                        <p><strong>Bio:</strong> {selectedItem.bio || 'N/A'}</p>
+                        <p><strong>Private Price:</strong> {selectedItem.privatePricePerHour || 'N/A'}</p>
+                      </>
+                    ) : (
+                      <>
+                        <p><strong>Contact:</strong> {selectedItem.contactName}</p>
+                        <p><strong>Email:</strong> {selectedItem.contactEmail}</p>
+                        <p><strong>Price:</strong> {selectedItem.price}</p>
+                        <p><strong>Condition:</strong> {selectedItem.condition}</p>
+                      </>
+                    )}
                   </div>
                 </div>
                 <div>
                   <h3 className="font-semibold mb-2">Additional Info</h3>
                   <div className="space-y-1 text-sm">
-                    <p><strong>Website:</strong> {selectedItem.website || 'N/A'}</p>
-                    <p><strong>Instagram:</strong> {selectedItem.instagramUrl || 'N/A'}</p>
-                    <p><strong>Facebook:</strong> {selectedItem.facebookUrl || 'N/A'}</p>
-                    <p><strong>Discount Code:</strong> {selectedItem.discountCode || 'N/A'}</p>
+                    {selectedItem.type === 'instructor' ? (
+                      <>
+                        <p><strong>Website:</strong> {selectedItem.website || 'N/A'}</p>
+                        <p><strong>Instagram:</strong> {selectedItem.instagramLink || 'N/A'}</p>
+                        <p><strong>Facebook:</strong> {selectedItem.facebookLink || 'N/A'}</p>
+                        <p><strong>Dance Styles:</strong> {Array.isArray(selectedItem.danceStyles) ? selectedItem.danceStyles.join(', ') : selectedItem.danceStyles || 'N/A'}</p>
+                      </>
+                    ) : (
+                      <>
+                        <p><strong>Website:</strong> {selectedItem.website || 'N/A'}</p>
+                        <p><strong>Instagram:</strong> {selectedItem.instagramUrl || 'N/A'}</p>
+                        <p><strong>Facebook:</strong> {selectedItem.facebookUrl || 'N/A'}</p>
+                        <p><strong>Discount Code:</strong> {selectedItem.discountCode || 'N/A'}</p>
+                      </>
+                    )}
                   </div>
                 </div>
               </div>
@@ -283,10 +324,10 @@ export default function PendingItemsPage() {
                 </div>
               )}
               
-              {selectedItem.info && (
+              {(selectedItem.info || selectedItem.bio) && (
                 <div>
                   <h3 className="font-semibold mb-2">Description</h3>
-                  <p className="text-sm text-gray-600">{selectedItem.info}</p>
+                  <p className="text-sm text-gray-600">{selectedItem.info || selectedItem.bio}</p>
                 </div>
               )}
               

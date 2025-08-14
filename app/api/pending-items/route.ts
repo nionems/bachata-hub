@@ -79,10 +79,11 @@ export async function POST(request: Request) {
 
 export async function GET() {
   try {
-    // Fetch from both pending_items and shops collections
-    const [pendingItemsSnapshot, shopsSnapshot] = await Promise.all([
+    // Fetch from pending_items, shops, and instructors collections
+    const [pendingItemsSnapshot, shopsSnapshot, instructorsSnapshot] = await Promise.all([
       getDocs(query(collection(db, 'pending_items'), orderBy('submittedAt', 'desc'))),
-      getDocs(query(collection(db, 'shops'), orderBy('createdAt', 'desc')))
+      getDocs(query(collection(db, 'shops'), orderBy('createdAt', 'desc'))),
+      getDocs(query(collection(db, 'instructors'), orderBy('createdAt', 'desc')))
     ])
     
     const pendingItems = pendingItemsSnapshot.docs.map(doc => ({
@@ -95,8 +96,15 @@ export async function GET() {
       ...doc.data()
     }))
 
+    const allInstructors = instructorsSnapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data()
+    }))
+
     console.log('All shops found:', allShops.length)
+    console.log('All instructors found:', allInstructors.length)
     console.log('Shops with status:', allShops.map((shop: any) => ({ id: shop.id, status: shop.status, name: shop.name })))
+    console.log('Instructors with status:', allInstructors.map((instructor: any) => ({ id: instructor.id, status: instructor.status, name: instructor.name })))
 
     const pendingShops = allShops
       .filter((shop: any) => shop.status === 'pending')
@@ -106,10 +114,19 @@ export async function GET() {
         submittedAt: shop.createdAt || shop.submittedAt || shop.updatedAt
       }))
 
+    const pendingInstructors = allInstructors
+      .filter((instructor: any) => instructor.status === 'pending')
+      .map((instructor: any) => ({
+        ...instructor,
+        type: 'instructor',
+        submittedAt: instructor.createdAt || instructor.submittedAt || instructor.updatedAt
+      }))
+
     console.log('Pending shops found:', pendingShops.length)
+    console.log('Pending instructors found:', pendingInstructors.length)
 
     // Combine and sort by submission date
-    const allPendingItems = [...pendingItems, ...pendingShops].sort((a, b) => {
+    const allPendingItems = [...pendingItems, ...pendingShops, ...pendingInstructors].sort((a, b) => {
       const dateA = new Date(a.submittedAt || a.createdAt || 0)
       const dateB = new Date(b.submittedAt || b.createdAt || 0)
       return dateB.getTime() - dateA.getTime()

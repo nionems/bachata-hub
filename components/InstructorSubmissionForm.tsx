@@ -206,14 +206,26 @@ export function InstructorSubmissionForm({ isOpen, onClose }: InstructorSubmissi
               console.log('Instructor created:', createdInstructor)
 
               // Send email notification
-              const emailResponse = await fetch('/api/send-email', {
+              const emailResponse = await fetch('/api/submit-form', {
                 method: 'POST',
                 headers: {
                   'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
                   type: 'instructor_submission',
-                  data: instructorData
+                  data: {
+                    name: formData.name,
+                    location: formData.location,
+                    state: formData.state,
+                    bio: formData.bio,
+                    website: formData.website,
+                    facebookLink: formData.facebookLink,
+                    instagramLink: formData.instagramLink,
+                    email: formData.email,
+                    danceStyles: formData.danceStyles.join(', '),
+                    privatePricePerHour: formData.privatePricePerHour,
+                    imageUrl: imageUrl || formData.imageUrl
+                  }
                 }),
               })
 

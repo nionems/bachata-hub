@@ -153,16 +153,65 @@ async function getAdminEmailHtml(type: string, data: any) {
         <p><strong>Name:</strong> ${data.name}</p>
         <p><strong>Location:</strong> ${data.location}</p>
         <p><strong>State:</strong> ${data.state}</p>
-        <p><strong>Bio:</strong> ${data.bio}</p>
+        <p><strong>Bio:</strong> ${data.bio || 'N/A'}</p>
         <p><strong>Website:</strong> ${data.website || 'N/A'}</p>
         <p><strong>Facebook:</strong> ${data.facebookLink || 'N/A'}</p>
         <p><strong>Instagram:</strong> ${data.instagramLink || 'N/A'}</p>
-        <p><strong>Contact Info:</strong> ${data.contactInfo}</p>
         <p><strong>Email:</strong> ${data.email}</p>
         <p><strong>Dance Styles:</strong> ${data.danceStyles}</p>
-        <p><strong>Experience:</strong> ${data.experience}</p>
+        <p><strong>Private Price Per Hour:</strong> ${data.privatePricePerHour || 'N/A'}</p>
         <p><strong>Image URL:</strong> ${data.imageUrl}</p>
+        
+        <hr style="margin: 20px 0;">
+        
+        <h3>Quick Actions:</h3>
+        <p>Click the buttons below to approve or reject this submission:</p>
+        
+        <div style="margin: 20px 0;">
+          <a href="${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/approve-instructor?name=${encodeURIComponent(data.name)}&location=${encodeURIComponent(data.location)}&state=${encodeURIComponent(data.state)}&bio=${encodeURIComponent(data.bio || '')}&website=${encodeURIComponent(data.website || '')}&facebookLink=${encodeURIComponent(data.facebookLink || '')}&instagramLink=${encodeURIComponent(data.instagramLink || '')}&email=${encodeURIComponent(data.email)}&danceStyles=${encodeURIComponent(data.danceStyles)}&privatePricePerHour=${encodeURIComponent(data.privatePricePerHour || '')}&imageUrl=${encodeURIComponent(data.imageUrl)}" 
+             style="background-color: #10B981; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; margin-right: 10px; display: inline-block;">
+            ✅ Approve & Add to Database
+          </a>
+          
+          <a href="${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/reject-instructor?name=${encodeURIComponent(data.name)}&location=${encodeURIComponent(data.location)}&state=${encodeURIComponent(data.state)}&email=${encodeURIComponent(data.email)}" 
+             style="background-color: #EF4444; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block;">
+            ❌ Reject Submission
+          </a>
+        </div>
+        
+        <p style="font-size: 12px; color: #666; margin-top: 20px;">
+          Note: These links will immediately approve or reject the submission. Use with caution.
+        </p>
       `
+
+      // Also save to database with pending status
+      try {
+        const { collection, addDoc } = await import('firebase/firestore')
+        const { db } = await import('@/lib/firebase')
+        
+        const instructorData = {
+          name: data.name,
+          location: data.location,
+          state: data.state,
+          comment: data.bio || '',
+          website: data.website || '',
+          facebookLink: data.facebookLink || '',
+          instagramLink: data.instagramLink || '',
+          emailLink: data.email,
+          danceStyles: data.danceStyles.split(',').map((style: string) => style.trim()),
+          imageUrl: data.imageUrl,
+          privatePricePerHour: data.privatePricePerHour || '',
+          status: 'pending' as const,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString()
+        }
+
+        await addDoc(collection(db, 'instructors'), instructorData)
+        console.log('Instructor submission saved to database with pending status')
+      } catch (dbError) {
+        console.error('Error saving instructor to database:', dbError)
+        // Continue with email sending even if database save fails
+      }
       break;
     case 'dj_submission':
       subject = 'New DJ Submission'

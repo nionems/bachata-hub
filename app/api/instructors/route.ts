@@ -74,7 +74,7 @@ export async function POST(request: Request) {
       danceStyles: typeof danceStyles === 'string' ? danceStyles.split(',').map(style => style.trim()) : Array.isArray(danceStyles) ? danceStyles : [],
       imageUrl: imageUrl || '',
       privatePricePerHour: privatePricePerHour || '',
-      status: 'approved', // Admin-created instructors are approved by default
+      status: status || 'pending', // User submissions are pending by default, admin-created are approved
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString()
     };
