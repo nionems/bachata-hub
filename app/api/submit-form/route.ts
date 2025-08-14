@@ -303,6 +303,8 @@ async function getAdminEmailHtml(type: string, data: any) {
 
 export async function POST(request: Request) {
   try {
+    console.log('Submit-form API called')
+    
     // Verify Resend configuration first
     const isResendConfigured = await verifyResendConfig();
     if (!isResendConfigured) {
@@ -349,6 +351,7 @@ export async function POST(request: Request) {
     }
 
     const { type, data } = body;
+    console.log('Received submission:', { type, data })
 
     if (!type || !data) {
       return NextResponse.json(
@@ -359,6 +362,7 @@ export async function POST(request: Request) {
 
     // Generate email content
     const { subject, html } = await getAdminEmailHtml(type, data);
+    console.log('Generated email content:', { subject, hasHtml: !!html })
 
     if (!subject || !html) {
       return NextResponse.json(
@@ -368,6 +372,7 @@ export async function POST(request: Request) {
     }
 
     // Send email
+    console.log('Attempting to send email to: bachata.au@gmail.com')
     const emailResponse = await resend.emails.send({
       from: "Bachata Hub <onboarding@resend.dev>",
       to: "bachata.au@gmail.com",
@@ -376,6 +381,7 @@ export async function POST(request: Request) {
       html: html
     });
 
+    console.log('Email response:', emailResponse)
     if (emailResponse.error) {
       console.error('Failed to send email:', emailResponse.error);
       return NextResponse.json(

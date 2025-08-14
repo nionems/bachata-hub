@@ -206,6 +206,7 @@ export function InstructorSubmissionForm({ isOpen, onClose }: InstructorSubmissi
               console.log('Instructor created:', createdInstructor)
 
               // Send email notification
+              console.log('Sending email notification for instructor submission...')
               const emailResponse = await fetch('/api/submit-form', {
                 method: 'POST',
                 headers: {
@@ -229,8 +230,13 @@ export function InstructorSubmissionForm({ isOpen, onClose }: InstructorSubmissi
                 }),
               })
 
+              console.log('Email response status:', emailResponse.status)
               if (!emailResponse.ok) {
+                const errorData = await emailResponse.json()
+                console.error('Email notification failed:', errorData)
                 console.warn('Failed to send email notification, but instructor was created')
+              } else {
+                console.log('Email notification sent successfully')
               }
 
               // Show success confirmation and reset form
