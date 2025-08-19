@@ -72,7 +72,7 @@ export async function GET(request: Request) {
     console.log(`API Route (GET /api/festivals): Fetched ${snapshot.docs.length} festivals from Firestore in ${Date.now() - startTime}ms`)
 
     // Process data more efficiently
-    let festivals = snapshot.docs.map((doc: any) => {
+    const rawFestivals = snapshot.docs.map((doc: any) => {
       const data = doc.data()
       return {
         id: doc.id,
@@ -85,6 +85,7 @@ export async function GET(request: Request) {
     }) as FestivalData[]
 
     // If not admin, filter to only approved festivals
+    let festivals = rawFestivals
     if (!admin) {
       const beforeFilter = festivals.length
       festivals = festivals.filter(festival => festival.status === 'approved' || !festival.status)
