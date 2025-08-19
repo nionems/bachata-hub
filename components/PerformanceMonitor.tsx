@@ -19,8 +19,8 @@ export function PerformanceMonitor({ name, onLoadComplete }: PerformanceMonitorP
       console.log(`🚀 ${name} loaded in ${duration}ms`)
       
       // Send to analytics if needed
-      if (typeof window !== 'undefined' && window.gtag) {
-        window.gtag('event', 'timing_complete', {
+      if (typeof window !== 'undefined' && (window as any).gtag) {
+        (window as any).gtag('event', 'timing_complete', {
           name: name,
           value: duration,
           event_category: 'performance'
