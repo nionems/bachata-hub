@@ -6,7 +6,7 @@ export const dynamic = 'force-dynamic'
 // Enhanced in-memory cache for festivals with better memory management
 let festivalsCache: any[] | null = null
 let cacheTimestamp: number = 0
-const CACHE_DURATION = 15 * 60 * 1000 // 15 minutes (increased for better performance)
+const CACHE_DURATION = 20 * 60 * 1000 // 20 minutes (increased for better performance)
 
 interface FestivalData {
   id: string
@@ -28,11 +28,21 @@ interface FestivalData {
   [key: string]: any // Allow for additional properties
 }
 
+// Connection pool for better performance
+let dbConnection: any = null
+const getDbConnection = () => {
+  if (!dbConnection) {
+    dbConnection = getDb()
+  }
+  return dbConnection
+}
+
 export async function GET(request: Request) {
   const startTime = Date.now()
   const url = new URL(request.url)
   const clearCache = url.searchParams.get('clearCache') === 'true'
   const admin = url.searchParams.get('admin')
+  const limit = url.searchParams.get('limit') ? parseInt(url.searchParams.get('limit')!) : undefined
   
   try {
     // Check cache (unless clearing cache or admin request)
@@ -48,7 +58,7 @@ export async function GET(request: Request) {
       console.log('API Route (GET /api/festivals): Cache cleared')
     }
 
-    const db = getDb();
+    const db = getDbConnection()
 
     // Optimize query by selecting only necessary fields and using compound queries
     let festivalsRef: any = db.collection('festivals')
@@ -61,22 +71,44 @@ export async function GET(request: Request) {
     // Pre-sort by name to reduce client-side processing
     festivalsRef = festivalsRef.orderBy('name')
     
+    // Add limit if specified
+    if (limit) {
+      festivalsRef = festivalsRef.limit(limit)
+    }
+    
     // Add timeout to prevent hanging queries
     const queryPromise = festivalsRef.get()
     const timeoutPromise = new Promise((_, reject) => 
-      setTimeout(() => reject(new Error('Database query timeout')), 8000)
+      setTimeout(() => reject(new Error('Database query timeout')), 6000) // Reduced timeout
     )
     
     const snapshot = await Promise.race([queryPromise, timeoutPromise]) as any
     
     console.log(`API Route (GET /api/festivals): Fetched ${snapshot.docs.length} festivals from Firestore in ${Date.now() - startTime}ms`)
 
-    // Process data more efficiently
+    // Process data more efficiently with field selection
     const rawFestivals = snapshot.docs.map((doc: any) => {
       const data = doc.data()
       return {
         id: doc.id,
-        ...data,
+        name: data.name,
+        startDate: data.startDate,
+        endDate: data.endDate,
+        location: data.location,
+        state: data.state,
+        country: data.country,
+        imageUrl: data.imageUrl,
+        eventLink: data.eventLink,
+        ticketLink: data.ticketLink,
+        price: data.price,
+        description: data.description,
+        ambassadorCode: data.ambassadorCode,
+        instagramLink: data.instagramLink,
+        facebookLink: data.facebookLink,
+        googleMapLink: data.googleMapLink,
+        featured: data.featured,
+        published: data.published,
+        status: data.status,
         // Ensure consistent data structure
         danceStyles: Array.isArray(data.danceStyles) ? data.danceStyles : 
                     typeof data.danceStyles === 'string' ? data.danceStyles.split(',').map((s: string) => s.trim()).filter(Boolean) : 
@@ -187,7 +219,7 @@ export async function POST(request: Request) {
 
     console.log('Processed festival data:', festivalData);
 
-    const db = getDb();
+    const db = getDbConnection();
 
     // Add to Firestore festivals collection
     const festivalsRef = db.collection('festivals')
