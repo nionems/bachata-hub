@@ -35,7 +35,7 @@ export function LazyFestivalCard({
           </div>
         )}
         <Image
-          src={festival.imageUrl}
+          src={festival.imageUrl || '/images/placeholder.jpg'}
           alt={festival.name}
           fill
           className={`object-cover transition-transform duration-300 hover:scale-105 cursor-pointer ${imageLoaded ? 'opacity-100' : 'opacity-0'}`}
