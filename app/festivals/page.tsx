@@ -4,7 +4,7 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Calendar, MapPin, DollarSign, Users, Ticket, Hotel, CheckCircle, Info, Clock, ExternalLink, X, Music, Instagram, Facebook, Navigation, ChevronDown, ChevronUp } from "lucide-react"
-import { useState, useEffect, useMemo } from "react"
+import { useState, useEffect, useMemo, useCallback, Suspense } from "react"
 import CollapsibleFilter from "@/components/collapsible-filter"
 import { StateFilter } from '@/components/StateFilter'
 import { DanceStyleFilter } from '@/components/DanceStyleFilter'
@@ -20,6 +20,7 @@ import { GridSkeleton } from "@/components/loading-skeleton"
 import { LoadingSpinner } from "@/components/loading-spinner"
 import { DANCE_STYLES } from "@/lib/constants"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { PerformanceMonitor } from "@/components/PerformanceMonitor"
 
 interface Festival {
   id: string
@@ -49,6 +50,182 @@ interface Festival {
   facebookLink?: string
 }
 
+// Lazy load festival cards to improve initial render
+const LazyFestivalCard = ({ festival, onImageClick, expandedDescriptions, toggleDescription, dateHelpers }: any) => {
+  const [imageLoaded, setImageLoaded] = useState(false)
+  
+  return (
+    <Card className="overflow-hidden bg-white shadow-lg hover:shadow-xl transition-shadow duration-300 border-2 border-yellow-300">
+      <div className="relative h-48 w-full overflow-hidden rounded-t-lg">
+        {!imageLoaded && (
+          <div className="absolute inset-0 bg-gray-200 animate-pulse flex items-center justify-center">
+            <div className="w-8 h-8 border-2 border-gray-300 border-t-primary rounded-full animate-spin"></div>
+          </div>
+        )}
+        <Image
+          src={festival.imageUrl}
+          alt={festival.name}
+          fill
+          className={`object-cover transition-transform duration-300 hover:scale-105 cursor-pointer ${imageLoaded ? 'opacity-100' : 'opacity-0'}`}
+          onClick={(e) => onImageClick(e, festival)}
+          onLoad={() => setImageLoaded(true)}
+          loading="lazy"
+          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+        />
+        <div className="absolute top-2 right-2">
+          <Badge className="bg-gradient-to-r from-yellow-400 to-orange-500 text-white border-0 shadow-lg">
+            ⭐ Featured
+          </Badge>
+        </div>
+        
+        {/* Social Media and Map Icons on Image */}
+        {(festival.instagramLink || festival.facebookLink || festival.googleMapLink) && (
+          <div className="absolute bottom-2 right-2 flex gap-1">
+            {festival.instagramLink && (
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-8 w-8 p-0 bg-black/50 hover:bg-black/70 text-white backdrop-blur-sm"
+                onClick={(e) => {
+                  e.stopPropagation()
+                  window.open(festival.instagramLink, "_blank")
+                }}
+              >
+                <Instagram className="h-4 w-4" />
+              </Button>
+            )}
+            {festival.facebookLink && (
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-8 w-8 p-0 bg-black/50 hover:bg-black/70 text-white backdrop-blur-sm"
+                onClick={(e) => {
+                  e.stopPropagation()
+                  window.open(festival.facebookLink, "_blank")
+                }}
+              >
+                <Facebook className="h-4 w-4" />
+              </Button>
+            )}
+            {festival.googleMapLink && (
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-8 w-8 p-0 bg-black/50 hover:bg-black/70 text-white backdrop-blur-sm"
+                onClick={(e) => {
+                  e.stopPropagation()
+                  window.open(festival.googleMapLink, "_blank")
+                }}
+              >
+                <Navigation className="h-4 w-4" />
+              </Button>
+            )}
+          </div>
+        )}
+      </div>
+      <div className="p-4">
+        <h3 className="text-lg font-semibold mb-2">{festival.name}</h3>
+        <div className="flex items-center text-gray-600 text-sm mb-2">
+          <Calendar className="w-4 h-4 mr-1" />
+          <span>{dateHelpers.formatDate(festival.startDate)}</span>
+          {festival.endDate && festival.endDate !== festival.startDate && (
+            <span className="mx-1">-</span>
+          )}
+          {festival.endDate && festival.endDate !== festival.startDate && (
+            <span>{dateHelpers.formatDate(festival.endDate)}</span>
+          )}
+        </div>
+        {festival.description && (
+          <div className="mb-2">
+            <div className={`text-sm text-gray-600 ${!expandedDescriptions[festival.id] ? 'line-clamp-2' : ''}`}>
+              {festival.description}
+            </div>
+            {festival.description.length > 100 && (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  toggleDescription(festival.id);
+                }}
+                className="text-primary hover:text-primary/80 text-xs mt-1 flex items-center gap-1"
+              >
+                {expandedDescriptions[festival.id] ? (
+                  <>
+                    Show Less <ChevronUp className="h-3 w-3" />
+                  </>
+                ) : (
+                  <>
+                    Read More <ChevronDown className="h-3 w-3" />
+                  </>
+                )}
+              </button>
+            )}
+          </div>
+        )}
+        {festival.ambassadorCode && (
+          <div className="mb-2">
+            <Badge variant="secondary" className="bg-green-500/20 text-green-700 hover:bg-green-500/30">
+              🎫 {festival.ambassadorCode}
+            </Badge>
+          </div>
+        )}
+        <div className="flex items-center justify-between text-gray-600 text-sm space-x-2">
+          <div className="flex items-center">
+            <MapPin className="w-4 h-4 mr-1" />
+            <span className="truncate">
+              {festival.location}
+              {festival.country === 'Australia' ? `, ${festival.state}` : festival.state && festival.state !== 'N/A' ? `, ${festival.state}` : ''}
+              {festival.country && festival.country !== 'Australia' && `, ${festival.country}`}
+            </span>
+          </div>
+          {festival.price && (
+            <div className="flex items-center">
+              <DollarSign className="w-4 h-4 mr-1" />
+              <span className="truncate">{festival.price}</span>
+            </div>
+          )}
+        </div>
+        {/* Dance Style Stickers */}
+        {festival.danceStyles && (
+          <div className="flex flex-wrap gap-1 mt-2">
+            {(Array.isArray(festival.danceStyles) ? festival.danceStyles : festival.danceStyles.split(',').map((s: string) => s.trim()).filter(Boolean)).slice(0, 3).map((style: string, index: number) => (
+              <div 
+                key={index}
+                className="bg-green-500 text-white text-xs font-medium px-2 py-1 rounded-full shadow-sm"
+              >
+                {style}
+              </div>
+            ))}
+            {(Array.isArray(festival.danceStyles) ? festival.danceStyles : festival.danceStyles.split(',').map((s: string) => s.trim()).filter(Boolean)).length > 3 && (
+              <div className="bg-green-500 text-white text-xs font-medium px-2 py-1 rounded-full shadow-sm">
+                +{(Array.isArray(festival.danceStyles) ? festival.danceStyles : festival.danceStyles.split(',').map((s: string) => s.trim()).filter(Boolean)).length - 3}
+              </div>
+            )}
+          </div>
+        )}
+        
+        <div className="mt-4 grid grid-cols-2 gap-2">
+          {festival.eventLink && (
+            <Link href={festival.eventLink} target="_blank" rel="noopener noreferrer" className="w-full">
+              <Button className="w-full bg-primary hover:bg-primary/90 text-white text-xs h-7 sm:h-8 flex items-center justify-center gap-2">
+                <Info className="h-3 w-3 sm:h-4 sm:w-4" />
+                <span>Event Details</span>
+              </Button>
+            </Link>
+          )}
+          {festival.ticketLink && (
+            <Link href={festival.ticketLink} target="_blank" rel="noopener noreferrer" className="w-full">
+              <Button className="w-full bg-primary hover:bg-primary/90 text-white text-xs h-7 sm:h-8 flex items-center justify-center gap-2">
+                <Ticket className="h-3 w-3 sm:h-4 sm:w-4" />
+                <span>Buy Tickets</span>
+              </Button>
+            </Link>
+          )}
+        </div>
+      </div>
+    </Card>
+  )
+}
+
 export default function FestivalsPage() {
   const [festivals, setFestivals] = useState<Festival[]>([])
   const [isLoading, setIsLoading] = useState(true)
@@ -66,7 +243,8 @@ export default function FestivalsPage() {
   
   const { selectedState, setSelectedState, filteredItems: filteredFestivals } = useStateFilter(festivals, { useGeolocation: false })
 
-  const handleImageClick = (e: React.MouseEvent, festival: Festival) => {
+  // Memoize callback functions to prevent unnecessary re-renders
+  const handleImageClick = useCallback((e: React.MouseEvent, festival: Festival) => {
     e.stopPropagation()
     if (festival.imageUrl) {
       setSelectedImage({
@@ -75,38 +253,51 @@ export default function FestivalsPage() {
       })
       setIsImageModalOpen(true)
     }
-  }
+  }, [])
 
-  const handleCloseModal = () => {
+  const handleCloseModal = useCallback(() => {
     setIsImageModalOpen(false);
     setSelectedImage(null);
-  }
+  }, [])
 
-  const toggleDescription = (festivalId: string) => {
+  const toggleDescription = useCallback((festivalId: string) => {
     setExpandedDescriptions(prev => ({
       ...prev,
       [festivalId]: !prev[festivalId]
     }));
-  }
+  }, [])
 
+  // Optimized data fetching with error handling and timeout
   useEffect(() => {
     const fetchFestivals = async () => {
       setIsLoading(true)
       setError(null)
+      
       try {
-        // Use the API route that filters published festivals, with cache clearing for debugging
-        const response = await fetch('/api/festivals?clearCache=true')
-        if (!response.ok) {
-          throw new Error('Failed to fetch festivals')
-        }
-        const festivalsList = await response.json()
+        // Add timeout to prevent hanging requests
+        const controller = new AbortController()
+        const timeoutId = setTimeout(() => controller.abort(), 10000) // 10 second timeout
         
-        // Festivals are already sorted by name from the API
+        const response = await fetch('/api/festivals?clearCache=true', {
+          signal: controller.signal
+        })
+        
+        clearTimeout(timeoutId)
+        
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`)
+        }
+        
+        const festivalsList = await response.json()
         setFestivals(festivalsList)
         console.log('Fetched festivals:', festivalsList.length, 'festivals')
       } catch (err) {
         console.error('Error fetching festivals:', err)
-        setError('Failed to load festivals')
+        if (err instanceof Error && err.name === 'AbortError') {
+          setError('Request timed out. Please try again.')
+        } else {
+          setError('Failed to load festivals')
+        }
       } finally {
         setIsLoading(false)
       }
@@ -115,60 +306,54 @@ export default function FestivalsPage() {
     fetchFestivals()
   }, [])
 
-  // Extract available dance styles from festivals based on active tab and filters
+  // Optimized useEffect with debouncing for filter processing
   useEffect(() => {
-    const styles = new Set<string>()
-    
-    let filteredFestivals = festivals
-    
-    if (activeTab === 'australia') {
-      // For Australia tab, filter by selected state
-      filteredFestivals = selectedState === 'all' 
-        ? festivals.filter(festival => festival.country === 'Australia' || !festival.country)
-        : festivals.filter(festival => festival.state === selectedState && (festival.country === 'Australia' || !festival.country))
-    } else {
-      // For international tab, filter by selected country
-      if (selectedCountry === 'all') {
-        filteredFestivals = festivals.filter(festival => festival.country && festival.country !== 'Australia')
+    const timeoutId = setTimeout(() => {
+      const styles = new Set<string>()
+      const countries = new Set<string>()
+      
+      // Extract countries from international festivals
+      festivals.forEach(festival => {
+        if (festival.country && festival.country !== 'Australia') {
+          countries.add(festival.country)
+        }
+      })
+      setAvailableCountries(Array.from(countries).sort())
+      
+      // Extract dance styles based on current filters
+      let filteredFestivals = festivals
+      
+      if (activeTab === 'australia') {
+        filteredFestivals = selectedState === 'all' 
+          ? festivals.filter(festival => festival.country === 'Australia' || !festival.country)
+          : festivals.filter(festival => festival.state === selectedState && (festival.country === 'Australia' || !festival.country))
       } else {
-        filteredFestivals = festivals.filter(festival => festival.country === selectedCountry)
+        if (selectedCountry === 'all') {
+          filteredFestivals = festivals.filter(festival => festival.country && festival.country !== 'Australia')
+        } else {
+          filteredFestivals = festivals.filter(festival => festival.country === selectedCountry)
+        }
       }
-    }
-    
-    filteredFestivals.forEach(festival => {
-      if (festival.danceStyles && Array.isArray(festival.danceStyles)) {
-        festival.danceStyles.forEach(style => styles.add(style))
+      
+      filteredFestivals.forEach(festival => {
+        if (festival.danceStyles && Array.isArray(festival.danceStyles)) {
+          festival.danceStyles.forEach(style => styles.add(style))
+        }
+      })
+      
+      const availableStyles = Array.from(styles).sort()
+      setAvailableDanceStyles(availableStyles)
+      
+      // Auto-select Bachata if available
+      if (availableStyles.includes('Bachata')) {
+        setSelectedDanceStyle('Bachata')
+      } else {
+        setSelectedDanceStyle('all')
       }
-    })
-    setAvailableDanceStyles(Array.from(styles).sort())
+    }, 100) // Debounce for 100ms to prevent excessive processing
+
+    return () => clearTimeout(timeoutId)
   }, [festivals, selectedState, activeTab, selectedCountry])
-
-  // Extract available countries from international festivals
-  useEffect(() => {
-    const countries = new Set<string>()
-    
-    // Get all international festivals (non-Australian)
-    const internationalFestivals = festivals.filter(festival => 
-      festival.country && festival.country !== 'Australia'
-    )
-    
-    internationalFestivals.forEach(festival => {
-      if (festival.country) {
-        countries.add(festival.country)
-      }
-    })
-    
-    setAvailableCountries(Array.from(countries).sort())
-  }, [festivals])
-
-  // Auto-select Bachata if available, reset when filters change
-  useEffect(() => {
-    if (availableDanceStyles.includes('Bachata')) {
-      setSelectedDanceStyle('Bachata')
-    } else {
-      setSelectedDanceStyle('all')
-    }
-  }, [availableDanceStyles, selectedState, activeTab, selectedCountry])
 
   // Memoized helper functions to avoid recalculation
   const dateHelpers = useMemo(() => {
@@ -213,33 +398,33 @@ export default function FestivalsPage() {
     }
 
     return { isFutureDate, getDateSortValue, formatDate }
-  }, []) // Empty dependency array since these functions don't depend on any state
+  }, [])
 
-  // Memoize filtering and sorting operations for better performance
+  // Optimized filtering and sorting with early returns
   const { upcomingFestivals, featuredFestivals, regularFestivals } = useMemo(() => {
-    console.log('Raw festivals data:', festivals);
+    if (festivals.length === 0) {
+      return { upcomingFestivals: [], featuredFestivals: [], regularFestivals: [] }
+    }
     
-    const filtered = festivals
+    // Pre-filter by country to reduce processing
+    let filtered = festivals
+    if (activeTab === 'australia') {
+      filtered = festivals.filter(festival => festival.country === 'Australia' || !festival.country)
+    } else {
+      if (selectedCountry === 'all') {
+        filtered = festivals.filter(festival => festival.country && festival.country !== 'Australia')
+      } else {
+        filtered = festivals.filter(festival => festival.country === selectedCountry)
+      }
+    }
+    
+    // Apply remaining filters
+    filtered = filtered
       .filter((festival) => dateHelpers.isFutureDate(festival.startDate))
-      .filter((festival) => {
-        // Filter by country based on active tab
-        if (activeTab === 'australia') {
-          return festival.country === 'Australia' || !festival.country; // Default to Australia if no country specified
-        } else {
-          // For international tab, filter by selected country
-          if (selectedCountry === 'all') {
-            return festival.country && festival.country !== 'Australia';
-          } else {
-            return festival.country === selectedCountry;
-          }
-        }
-      })
       .filter((festival) => selectedState === "all" || festival.state === selectedState)
       .filter((festival) => {
-        // Filter by selected dance style
         if (selectedDanceStyle === 'all') return true;
         
-        // Handle both string and array dance styles
         if (Array.isArray(festival.danceStyles)) {
           return festival.danceStyles.includes(selectedDanceStyle);
         } else if (typeof festival.danceStyles === 'string') {
@@ -249,16 +434,8 @@ export default function FestivalsPage() {
       })
       .sort((a, b) => dateHelpers.getDateSortValue(a.startDate) - dateHelpers.getDateSortValue(b.startDate));
 
-    console.log('Filtered festivals:', filtered);
-    
-    const featured = filtered.filter(festival => {
-      console.log(`Festival ${festival.name} featured value:`, festival.featured, typeof festival.featured);
-      return festival.featured === 'yes';
-    });
+    const featured = filtered.filter(festival => festival.featured === 'yes');
     const regular = filtered.filter(festival => festival.featured !== 'yes');
-
-    console.log('Featured festivals:', featured);
-    console.log('Regular festivals:', regular);
 
     return { upcomingFestivals: filtered, featuredFestivals: featured, regularFestivals: regular };
   }, [festivals, selectedState, selectedDanceStyle, activeTab, selectedCountry, dateHelpers]);
@@ -301,9 +478,9 @@ export default function FestivalsPage() {
               <button
                 onClick={() => {
                   setActiveTab('australia')
-                  setSelectedState('all') // Reset state filter when switching to Australia
-                  setSelectedCountry('all') // Reset country filter
-                  setSelectedDanceStyle('all') // Reset dance style filter
+                  setSelectedState('all')
+                  setSelectedCountry('all')
+                  setSelectedDanceStyle('all')
                 }}
                 className={`px-6 py-2 rounded-full font-semibold transition-all duration-200 ${
                   activeTab === 'australia'
@@ -316,9 +493,9 @@ export default function FestivalsPage() {
               <button
                 onClick={() => {
                   setActiveTab('international')
-                  setSelectedState('all') // Reset state filter when switching to International
-                  setSelectedCountry('all') // Reset country filter to show all countries
-                  setSelectedDanceStyle('all') // Reset dance style filter
+                  setSelectedState('all')
+                  setSelectedCountry('all')
+                  setSelectedDanceStyle('all')
                 }}
                 className={`px-6 py-2 rounded-full font-semibold transition-all duration-200 ${
                   activeTab === 'international'
@@ -392,169 +569,18 @@ export default function FestivalsPage() {
               ⭐ Featured Festivals
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 md:gap-8">
-              {featuredFestivals.map((festival) => (
-                <Card key={festival.id} className="overflow-hidden bg-white shadow-lg hover:shadow-xl transition-shadow duration-300 border-2 border-yellow-300">
-                  <div className="relative h-48 w-full overflow-hidden rounded-t-lg">
-                    <Image
-                      src={festival.imageUrl}
-                      alt={festival.name}
-                      fill
-                      className="object-cover transition-transform duration-300 hover:scale-105 cursor-pointer"
-                      onClick={(e) => handleImageClick(e, festival)}
-                    />
-                    <div className="absolute top-2 right-2">
-                      <Badge className="bg-gradient-to-r from-yellow-400 to-orange-500 text-white border-0 shadow-lg">
-                        ⭐ Featured
-                      </Badge>
-                    </div>
-                    
-                    {/* Social Media and Map Icons on Image */}
-                    {(festival.instagramLink || festival.facebookLink || festival.googleMapLink) && (
-                      <div className="absolute bottom-2 right-2 flex gap-1">
-                        {festival.instagramLink && (
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="h-8 w-8 p-0 bg-black/50 hover:bg-black/70 text-white backdrop-blur-sm"
-                            onClick={(e) => {
-                              e.stopPropagation()
-                              window.open(festival.instagramLink, "_blank")
-                            }}
-                          >
-                            <Instagram className="h-4 w-4" />
-                          </Button>
-                        )}
-                        {festival.facebookLink && (
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="h-8 w-8 p-0 bg-black/50 hover:bg-black/70 text-white backdrop-blur-sm"
-                            onClick={(e) => {
-                              e.stopPropagation()
-                              window.open(festival.facebookLink, "_blank")
-                            }}
-                          >
-                            <Facebook className="h-4 w-4" />
-                          </Button>
-                        )}
-                        {festival.googleMapLink && (
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="h-8 w-8 p-0 bg-black/50 hover:bg-black/70 text-white backdrop-blur-sm"
-                            onClick={(e) => {
-                              e.stopPropagation()
-                              window.open(festival.googleMapLink, "_blank")
-                            }}
-                          >
-                            <Navigation className="h-4 w-4" />
-                          </Button>
-                        )}
-                      </div>
-                    )}
-
-                  </div>
-                  <div className="p-4">
-                    <h3 className="text-lg font-semibold mb-2">{festival.name}</h3>
-                    <div className="flex items-center text-gray-600 text-sm mb-2">
-                      <Calendar className="w-4 h-4 mr-1" />
-                      <span>{dateHelpers.formatDate(festival.startDate)}</span>
-                      {festival.endDate && festival.endDate !== festival.startDate && (
-                        <span className="mx-1">-</span>
-                      )}
-                      {festival.endDate && festival.endDate !== festival.startDate && (
-                        <span>{dateHelpers.formatDate(festival.endDate)}</span>
-                      )}
-                    </div>
-                    {festival.description && (
-                      <div className="mb-2">
-                        <div className={`text-sm text-gray-600 ${!expandedDescriptions[festival.id] ? 'line-clamp-2' : ''}`}>
-                          {festival.description}
-                        </div>
-                        {festival.description.length > 100 && (
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              toggleDescription(festival.id);
-                            }}
-                            className="text-primary hover:text-primary/80 text-xs mt-1 flex items-center gap-1"
-                          >
-                            {expandedDescriptions[festival.id] ? (
-                              <>
-                                Show Less <ChevronUp className="h-3 w-3" />
-                              </>
-                            ) : (
-                              <>
-                                Read More <ChevronDown className="h-3 w-3" />
-                              </>
-                            )}
-                          </button>
-                        )}
-                      </div>
-                    )}
-                    {festival.ambassadorCode && (
-                      <div className="mb-2">
-                        <Badge variant="secondary" className="bg-green-500/20 text-green-700 hover:bg-green-500/30">
-                          🎫 {festival.ambassadorCode}
-                        </Badge>
-                      </div>
-                    )}
-                    <div className="flex items-center justify-between text-gray-600 text-sm space-x-2">
-                      <div className="flex items-center">
-                        <MapPin className="w-4 h-4 mr-1" />
-                                              <span className="truncate">
-                        {festival.location}
-                        {festival.country === 'Australia' ? `, ${festival.state}` : festival.state && festival.state !== 'N/A' ? `, ${festival.state}` : ''}
-                        {festival.country && festival.country !== 'Australia' && `, ${festival.country}`}
-                      </span>
-                      </div>
-                      {festival.price && (
-                        <div className="flex items-center">
-                          <DollarSign className="w-4 h-4 mr-1" />
-                          <span className="truncate">{festival.price}</span>
-                        </div>
-                      )}
-                    </div>
-                    {/* Dance Style Stickers */}
-                    {festival.danceStyles && (
-                      <div className="flex flex-wrap gap-1 mt-2">
-                        {(Array.isArray(festival.danceStyles) ? festival.danceStyles : festival.danceStyles.split(',').map(s => s.trim()).filter(Boolean)).slice(0, 3).map((style, index) => (
-                          <div 
-                            key={index}
-                            className="bg-green-500 text-white text-xs font-medium px-2 py-1 rounded-full shadow-sm"
-                          >
-                            {style}
-                          </div>
-                        ))}
-                        {(Array.isArray(festival.danceStyles) ? festival.danceStyles : festival.danceStyles.split(',').map(s => s.trim()).filter(Boolean)).length > 3 && (
-                          <div className="bg-green-500 text-white text-xs font-medium px-2 py-1 rounded-full shadow-sm">
-                            +{(Array.isArray(festival.danceStyles) ? festival.danceStyles : festival.danceStyles.split(',').map(s => s.trim()).filter(Boolean)).length - 3}
-                          </div>
-                        )}
-                      </div>
-                    )}
-                    
-                    <div className="mt-4 grid grid-cols-2 gap-2">
-                      {festival.eventLink && (
-                        <Link href={festival.eventLink} target="_blank" rel="noopener noreferrer" className="w-full">
-                          <Button className="w-full bg-primary hover:bg-primary/90 text-white text-xs h-7 sm:h-8 flex items-center justify-center gap-2">
-                            <Info className="h-3 w-3 sm:h-4 sm:w-4" />
-                            <span>Event Details</span>
-                          </Button>
-                        </Link>
-                      )}
-                      {festival.ticketLink && (
-                        <Link href={festival.ticketLink} target="_blank" rel="noopener noreferrer" className="w-full">
-                          <Button className="w-full bg-primary hover:bg-primary/90 text-white text-xs h-7 sm:h-8 flex items-center justify-center gap-2">
-                            <Ticket className="h-3 w-3 sm:h-4 sm:w-4" />
-                            <span>Buy Tickets</span>
-                          </Button>
-                        </Link>
-                      )}
-                    </div>
-                  </div>
-                </Card>
-              ))}
+              <Suspense fallback={<GridSkeleton count={3} />}>
+                {featuredFestivals.map((festival) => (
+                  <LazyFestivalCard
+                    key={festival.id}
+                    festival={festival}
+                    onImageClick={handleImageClick}
+                    expandedDescriptions={expandedDescriptions}
+                    toggleDescription={toggleDescription}
+                    dateHelpers={dateHelpers}
+                  />
+                ))}
+              </Suspense>
             </div>
           </div>
         )}
@@ -569,164 +595,18 @@ export default function FestivalsPage() {
               {selectedDanceStyle !== 'all' && ` for ${selectedDanceStyle}`}
             </div>
           ) : (
-            regularFestivals.map((festival) => (
-              <Card key={festival.id} className="overflow-hidden bg-white shadow-lg hover:shadow-xl transition-shadow duration-300">
-                <div className="relative h-48 w-full overflow-hidden rounded-t-lg">
-                  <Image
-                    src={festival.imageUrl}
-                    alt={festival.name}
-                    fill
-                    className="object-cover transition-transform duration-300 hover:scale-105 cursor-pointer"
-                    onClick={(e) => handleImageClick(e, festival)}
-                  />
-                  
-                  {/* Social Media and Map Icons on Image */}
-                  {(festival.instagramLink || festival.facebookLink || festival.googleMapLink) && (
-                    <div className="absolute bottom-2 right-2 flex gap-1">
-                      {festival.instagramLink && (
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="h-8 w-8 p-0 bg-black/50 hover:bg-black/70 text-white backdrop-blur-sm"
-                          onClick={(e) => {
-                            e.stopPropagation()
-                            window.open(festival.instagramLink, "_blank")
-                          }}
-                        >
-                          <Instagram className="h-4 w-4" />
-                        </Button>
-                      )}
-                      {festival.facebookLink && (
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="h-8 w-8 p-0 bg-black/50 hover:bg-black/70 text-white backdrop-blur-sm"
-                          onClick={(e) => {
-                            e.stopPropagation()
-                            window.open(festival.facebookLink, "_blank")
-                          }}
-                        >
-                          <Facebook className="h-4 w-4" />
-                        </Button>
-                      )}
-                      {festival.googleMapLink && (
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="h-8 w-8 p-0 bg-black/50 hover:bg-black/70 text-white backdrop-blur-sm"
-                          onClick={(e) => {
-                            e.stopPropagation()
-                            window.open(festival.googleMapLink, "_blank")
-                          }}
-                        >
-                          <Navigation className="h-4 w-4" />
-                        </Button>
-                      )}
-                    </div>
-                  )}
-
-                </div>
-                <div className="p-4">
-                  <h3 className="text-lg font-semibold mb-2">{festival.name}</h3>
-                  <div className="flex items-center text-gray-600 text-sm mb-2">
-                    <Calendar className="w-4 h-4 mr-1" />
-                    <span>{dateHelpers.formatDate(festival.startDate)}</span>
-                    {festival.endDate && festival.endDate !== festival.startDate && (
-                      <span className="mx-1">-</span>
-                    )}
-                    {festival.endDate && festival.endDate !== festival.startDate && (
-                      <span>{dateHelpers.formatDate(festival.endDate)}</span>
-                    )}
-                  </div>
-                  {festival.description && (
-                    <div className="mb-2">
-                      <div className={`text-sm text-gray-600 ${!expandedDescriptions[festival.id] ? 'line-clamp-2' : ''}`}>
-                        {festival.description}
-                      </div>
-                      {festival.description.length > 100 && (
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            toggleDescription(festival.id);
-                          }}
-                          className="text-primary hover:text-primary/80 text-xs mt-1 flex items-center gap-1"
-                        >
-                          {expandedDescriptions[festival.id] ? (
-                            <>
-                              Show Less <ChevronUp className="h-3 w-3" />
-                            </>
-                          ) : (
-                            <>
-                              Read More <ChevronDown className="h-3 w-3" />
-                            </>
-                          )}
-                        </button>
-                      )}
-                    </div>
-                  )}
-                  {festival.ambassadorCode && (
-                    <div className="mb-2">
-                      <Badge variant="secondary" className="bg-green-500/20 text-green-700 hover:bg-green-500/30">
-                        🎫 {festival.ambassadorCode}
-                      </Badge>
-                    </div>
-                  )}
-                  <div className="flex items-center justify-between text-gray-600 text-sm space-x-2">
-                    <div className="flex items-center">
-                      <MapPin className="w-4 h-4 mr-1" />
-                      <span className="truncate">
-                        {festival.location}
-                        {festival.country === 'Australia' ? `, ${festival.state}` : festival.state && festival.state !== 'N/A' ? `, ${festival.state}` : ''}
-                        {festival.country && festival.country !== 'Australia' && `, ${festival.country}`}
-                      </span>
-                    </div>
-                    {festival.price && (
-                      <div className="flex items-center">
-                        <DollarSign className="w-4 h-4 mr-1" />
-                        <span className="truncate">{festival.price}</span>
-                      </div>
-                    )}
-                  </div>
-                  {/* Dance Style Stickers */}
-                  {festival.danceStyles && (
-                    <div className="flex flex-wrap gap-1 mt-2">
-                      {(Array.isArray(festival.danceStyles) ? festival.danceStyles : festival.danceStyles.split(',').map(s => s.trim()).filter(Boolean)).slice(0, 3).map((style, index) => (
-                        <div 
-                          key={index}
-                          className="bg-green-500 text-white text-xs font-medium px-2 py-1 rounded-full shadow-sm"
-                        >
-                          {style}
-                        </div>
-                      ))}
-                      {(Array.isArray(festival.danceStyles) ? festival.danceStyles : festival.danceStyles.split(',').map(s => s.trim()).filter(Boolean)).length > 3 && (
-                        <div className="bg-green-500 text-white text-xs font-medium px-2 py-1 rounded-full shadow-sm">
-                          +{(Array.isArray(festival.danceStyles) ? festival.danceStyles : festival.danceStyles.split(',').map(s => s.trim()).filter(Boolean)).length - 3}
-                        </div>
-                      )}
-                    </div>
-                  )}
-                  
-                  <div className="mt-4 grid grid-cols-2 gap-2">
-                    {festival.eventLink && (
-                      <Link href={festival.eventLink} target="_blank" rel="noopener noreferrer" className="w-full">
-                        <Button className="w-full bg-primary hover:bg-primary/90 text-white text-xs h-7 sm:h-8 flex items-center justify-center gap-2">
-                          <Info className="h-3 w-3 sm:h-4 sm:w-4" />
-                          <span>Event Details</span>
-                        </Button>
-                      </Link>
-                    )}
-                    {festival.ticketLink && (
-                      <Link href={festival.ticketLink} target="_blank" rel="noopener noreferrer" className="w-full">
-                        <Button className="w-full bg-primary hover:bg-primary/90 text-white text-xs h-7 sm:h-8 flex items-center justify-center gap-2">
-                          <Ticket className="h-3 w-3 sm:h-4 sm:w-4" />
-                          <span>Buy Tickets</span>
-                        </Button>
-                      </Link>
-                    )}
-                  </div>
-                </div>
-              </Card>
-            ))
+            <Suspense fallback={<GridSkeleton count={6} />}>
+              {regularFestivals.map((festival) => (
+                <LazyFestivalCard
+                  key={festival.id}
+                  festival={festival}
+                  onImageClick={handleImageClick}
+                  expandedDescriptions={expandedDescriptions}
+                  toggleDescription={toggleDescription}
+                  dateHelpers={dateHelpers}
+                />
+              ))}
+            </Suspense>
           )}
         </div>
 
@@ -734,17 +614,11 @@ export default function FestivalsPage() {
         {isImageModalOpen && selectedImage && (
           <div 
             className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4"
-            onClick={() => {
-              setIsImageModalOpen(false)
-              setSelectedImage(null)
-            }}
+            onClick={handleCloseModal}
           >
             <button
               className="absolute top-4 right-4 text-white hover:text-gray-300 transition-colors"
-              onClick={() => {
-                setIsImageModalOpen(false)
-                setSelectedImage(null)
-              }}
+              onClick={handleCloseModal}
             >
               <X className="h-8 w-8" />
             </button>
@@ -814,6 +688,8 @@ export default function FestivalsPage() {
           isOpen={isSubmissionFormOpen}
           onClose={() => setIsSubmissionFormOpen(false)}
         />
+        
+        <PerformanceMonitor name="Festivals Page" />
       </div>
     </div>
   )

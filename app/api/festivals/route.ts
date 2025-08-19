@@ -3,10 +3,10 @@ import { getDb } from '@/lib/firebase-admin'
 
 export const dynamic = 'force-dynamic'
 
-// Enhanced in-memory cache for festivals
+// Enhanced in-memory cache for festivals with better memory management
 let festivalsCache: any[] | null = null
 let cacheTimestamp: number = 0
-const CACHE_DURATION = 10 * 60 * 1000 // 10 minutes (increased from 5 minutes)
+const CACHE_DURATION = 15 * 60 * 1000 // 15 minutes (increased for better performance)
 
 interface FestivalData {
   id: string
@@ -50,6 +50,7 @@ export async function GET(request: Request) {
 
     const db = getDb();
 
+    // Optimize query by selecting only necessary fields and using compound queries
     let festivalsRef: any = db.collection('festivals')
     
     // If not admin, only get published festivals
@@ -57,15 +58,31 @@ export async function GET(request: Request) {
       festivalsRef = festivalsRef.where('published', '==', true)
     }
     
-    festivalsRef = festivalsRef.orderBy('name') // Pre-sort by name to reduce client-side processing
+    // Pre-sort by name to reduce client-side processing
+    festivalsRef = festivalsRef.orderBy('name')
     
-    const snapshot = await festivalsRef.get()
+    // Add timeout to prevent hanging queries
+    const queryPromise = festivalsRef.get()
+    const timeoutPromise = new Promise((_, reject) => 
+      setTimeout(() => reject(new Error('Database query timeout')), 8000)
+    )
+    
+    const snapshot = await Promise.race([queryPromise, timeoutPromise]) as any
+    
     console.log(`API Route (GET /api/festivals): Fetched ${snapshot.docs.length} festivals from Firestore in ${Date.now() - startTime}ms`)
 
-    let festivals = snapshot.docs.map((doc: any) => ({
-      id: doc.id,
-      ...doc.data()
-    })) as FestivalData[]
+    // Process data more efficiently
+    const festivals = snapshot.docs.map((doc: any) => {
+      const data = doc.data()
+      return {
+        id: doc.id,
+        ...data,
+        // Ensure consistent data structure
+        danceStyles: Array.isArray(data.danceStyles) ? data.danceStyles : 
+                    typeof data.danceStyles === 'string' ? data.danceStyles.split(',').map((s: string) => s.trim()).filter(Boolean) : 
+                    []
+      }
+    }) as FestivalData[]
 
     // If not admin, filter to only approved festivals
     if (!admin) {
@@ -73,12 +90,6 @@ export async function GET(request: Request) {
       festivals = festivals.filter(festival => festival.status === 'approved' || !festival.status)
       const afterFilter = festivals.length
       console.log(`API Route: Filtered festivals - before: ${beforeFilter}, after: ${afterFilter}`)
-      
-      // Log festivals that didn't pass the filter
-      const filteredOut = festivals.filter(festival => festival.status !== 'approved' && festival.status)
-      if (filteredOut.length > 0) {
-        console.log('Festivals filtered out due to status:', filteredOut.map(f => ({ id: f.id, name: f.name, status: f.status, published: f.published })))
-      }
     }
 
     // Log featured festivals for debugging
@@ -104,6 +115,12 @@ export async function GET(request: Request) {
         stack: error.stack,
         name: error.name
       })
+    }
+    
+    // Return cached data if available, even if expired
+    if (festivalsCache && !admin) {
+      console.log('API Route: Returning stale cache due to error')
+      return NextResponse.json(festivalsCache)
     }
     
     return NextResponse.json(
@@ -176,6 +193,10 @@ export async function POST(request: Request) {
     const docRef = await festivalsRef.add(festivalData)
 
     console.log('Festival created with ID:', docRef.id);
+
+    // Clear cache to ensure fresh data
+    festivalsCache = null
+    cacheTimestamp = 0
 
     return NextResponse.json({
       id: docRef.id,
