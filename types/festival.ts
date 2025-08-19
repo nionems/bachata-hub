@@ -13,6 +13,7 @@ export interface Festival {
   startDate?: string;
   endDate?: string;
   eventLink?: string;
+  description?: string;
   ambassadorCode?: string;
   danceStyles?: string[] | string;
   featured?: 'yes' | 'no';
