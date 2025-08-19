@@ -40,10 +40,14 @@ export function unregisterServiceWorker() {
 
 // Request background sync when online
 export function requestBackgroundSync() {
-  if (typeof window !== 'undefined' && 'serviceWorker' in navigator && 'sync' in window.ServiceWorkerRegistration.prototype) {
+  if (typeof window !== 'undefined' && 'serviceWorker' in navigator) {
     navigator.serviceWorker.ready
       .then((registration) => {
-        return registration.sync.register('background-sync')
+        // Check if sync is available (it's not in all browsers)
+        if ('sync' in registration) {
+          return (registration as any).sync.register('background-sync')
+        }
+        console.log('Background sync not supported in this browser')
       })
       .catch((error) => {
         console.log('Background sync registration failed:', error)
