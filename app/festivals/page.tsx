@@ -51,11 +51,11 @@ interface Festival {
 }
 
 // Lazy load festival cards to improve initial render
-const LazyFestivalCard = ({ festival, onImageClick, expandedDescriptions, toggleDescription, dateHelpers }: any) => {
+const LazyFestivalCard = ({ festival, onImageClick, expandedDescriptions, toggleDescription, dateHelpers, isFeatured = false }: any) => {
   const [imageLoaded, setImageLoaded] = useState(false)
   
   return (
-    <Card className="overflow-hidden bg-white shadow-lg hover:shadow-xl transition-shadow duration-300 border-2 border-yellow-300">
+    <Card className={`overflow-hidden bg-white shadow-lg hover:shadow-xl transition-shadow duration-300 ${isFeatured ? 'border-2 border-yellow-300' : ''}`}>
       <div className="relative h-48 w-full overflow-hidden rounded-t-lg">
         {!imageLoaded && (
           <div className="absolute inset-0 bg-gray-200 animate-pulse flex items-center justify-center">
@@ -63,7 +63,7 @@ const LazyFestivalCard = ({ festival, onImageClick, expandedDescriptions, toggle
           </div>
         )}
         <Image
-          src={festival.imageUrl}
+          src={festival.imageUrl || '/images/placeholder.jpg'}
           alt={festival.name}
           fill
           className={`object-cover transition-transform duration-300 hover:scale-105 cursor-pointer ${imageLoaded ? 'opacity-100' : 'opacity-0'}`}
@@ -72,11 +72,13 @@ const LazyFestivalCard = ({ festival, onImageClick, expandedDescriptions, toggle
           loading="lazy"
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
         />
-        <div className="absolute top-2 right-2">
-          <Badge className="bg-gradient-to-r from-yellow-400 to-orange-500 text-white border-0 shadow-lg">
-            ⭐ Featured
-          </Badge>
-        </div>
+        {isFeatured && (
+          <div className="absolute top-2 right-2">
+            <Badge className="bg-gradient-to-r from-yellow-400 to-orange-500 text-white border-0 shadow-lg">
+              ⭐ Featured
+            </Badge>
+          </div>
+        )}
         
         {/* Social Media and Map Icons on Image */}
         {(festival.instagramLink || festival.facebookLink || festival.googleMapLink) && (
@@ -578,6 +580,7 @@ export default function FestivalsPage() {
                     expandedDescriptions={expandedDescriptions}
                     toggleDescription={toggleDescription}
                     dateHelpers={dateHelpers}
+                    isFeatured={true}
                   />
                 ))}
               </Suspense>
@@ -604,6 +607,7 @@ export default function FestivalsPage() {
                   expandedDescriptions={expandedDescriptions}
                   toggleDescription={toggleDescription}
                   dateHelpers={dateHelpers}
+                  isFeatured={false}
                 />
               ))}
             </Suspense>
