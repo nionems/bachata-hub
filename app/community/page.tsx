@@ -35,7 +35,7 @@ Be first to know about upcoming events, enjoy exclusive perks, and score chances
           </p>
           {userCount !== null && (
             <p className="text-lg text-gray-500">
-              Join <span className="font-bold text-primary text-3xl">{userCount}</span> other{userCount !== 1 ? 's' : ''} in our growing community
+              Join <span className="font-bold text-primary text-3xl">{userCount + 500}</span> other{(userCount + 500) !== 1 ? 's' : ''} in our growing community
             </p>
           )}
         </div>
