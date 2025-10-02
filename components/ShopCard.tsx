@@ -95,7 +95,7 @@ export function ShopCard({ shop }: ShopCardProps) {
                     <ExternalLink className="h-4 w-4" />
                   </a>
                 )}
-                {!shop.website && shop.instagramUrl && (
+                {shop.instagramUrl && (
                   <a
                     href={shop.instagramUrl}
                     target="_blank"
@@ -107,7 +107,7 @@ export function ShopCard({ shop }: ShopCardProps) {
                     <Instagram className="h-4 w-4" />
                   </a>
                 )}
-                {!shop.website && !shop.instagramUrl && shop.facebookUrl && (
+                {shop.facebookUrl && (
                   <a
                     href={shop.facebookUrl}
                     target="_blank"
