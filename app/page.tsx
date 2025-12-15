@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { unstable_noStore as noStore } from 'next/cache'
-import dynamic from 'next/dynamic'
+import dynamicImport from 'next/dynamic'
 
 // Force dynamic rendering to prevent caching
 export const dynamic = 'force-dynamic'
@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button"
 import { useState, useEffect, Suspense } from 'react'
 import { School as SchoolType } from '@/types/school'
 // Lazy load carousel to reduce initial bundle size
-const Slider = dynamic(() => import('react-slick'), { ssr: false })
+const Slider = dynamicImport(() => import('react-slick'), { ssr: false })
 import "slick-carousel/slick/slick.css"
 import "slick-carousel/slick/slick-theme.css"
 import Image from 'next/image'
