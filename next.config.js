@@ -76,21 +76,50 @@ const nextConfig = {
             key: 'Strict-Transport-Security',
             value: 'max-age=31536000; includeSubDomains'
           },
-          {
-            key: 'Cache-Control',
-            value: 'no-cache, no-store, must-revalidate'
-          },
-          {
-            key: 'Pragma',
-            value: 'no-cache'
-          },
-          {
-            key: 'Expires',
-            value: '0'
-          }
         ],
       },
       {
+        // Static assets - cache aggressively for performance
+        source: '/_next/static/:path*',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=31536000, immutable'
+          },
+        ],
+      },
+      {
+        // Images - cache for 1 year
+        source: '/images/:path*',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=31536000, immutable'
+          },
+        ],
+      },
+      {
+        // Fonts - cache for 1 year
+        source: '/fonts/:path*',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=31536000, immutable'
+          },
+        ],
+      },
+      {
+        // HTML pages - short cache with revalidation
+        source: '/:path*.html',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=3600, must-revalidate'
+          },
+        ],
+      },
+      {
+        // API routes - no cache for dynamic content
         source: '/api/:path*',
         headers: [
           {

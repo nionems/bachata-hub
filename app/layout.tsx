@@ -6,6 +6,7 @@ import Navbar from "@/components/navbar"
 import Footer from "@/components/footer"
 import { AIAssistant } from "@/components/AIAssistant"
 import { AddToHomeScreenModal } from "@/components/AddToHomeScreenModal"
+import { ServiceWorkerRegistration } from "@/components/ServiceWorkerRegistration"
 import { Analytics } from '@vercel/analytics/react'
 
 const fredoka = Fredoka({
@@ -107,6 +108,12 @@ export default function RootLayout({
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link rel="dns-prefetch" href="https://www.googleapis.com" />
+        <link rel="dns-prefetch" href="https://res.cloudinary.com" />
+        <link rel="dns-prefetch" href="https://drive.google.com" />
+        {/* Prefetch critical images */}
+        <link rel="preload" href="/images/BACHATA.AU (13).png" as="image" />
+        <link rel="preload" href="/images/placeholder.svg" as="image" />
         <link rel="icon" href="/favicon.ico?v=2" sizes="any" />
         <link rel="apple-touch-icon" href="/favicon.ico?v=2" />
         <link rel="mask-icon" href="/favicon.ico?v=2" />
@@ -126,6 +133,7 @@ export default function RootLayout({
         </main>
         <Footer />
         {/* <AIAssistant /> */}
+        <ServiceWorkerRegistration />
         <AddToHomeScreenModal />
         <Toaster />
         <Analytics />

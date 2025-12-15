@@ -1,5 +1,6 @@
 import { Resend } from "resend"
 import { NextResponse } from "next/server"
+import { google } from "googleapis"
 
 // Initialize Resend with the new API key
 const resend = new Resend(process.env.RESEND_API_KEY)
@@ -214,8 +215,102 @@ export async function POST(request: Request) {
       );
     }
 
+    // Add event to Google Calendar based on state/city
+    let calendarEventId = null;
+    try {
+      const state = formData.get('state')?.toString() || '';
+      const city = formData.get('city')?.toString() || '';
+      
+      // Map of states/cities to calendar IDs (matching the ones in calendar-events.ts)
+      const cityCalendarMap: { [key: string]: string } = {
+        'NSW': '4ea35178b00a2daa33a492682e866bd67e8b83797a948a31caa8a37e2a982dce@group.calendar.google.com', // Sydney
+        'VIC': '641b8d8fbee5ff9eb2402997e5990b3e52a737b134ec201748349884985c84f4@group.calendar.google.com', // Melbourne
+        'QLD': city.toLowerCase().includes('gold coast') 
+          ? 'c9ed91c3930331387d69631072510838ec9155b75ca697065025d24e34cde78b@group.calendar.google.com' // Gold Coast
+          : 'f0b5764410b23c93087a7d3ef5ed0d0a295ad2b811d10bb772533d7517d2fdc5@group.calendar.google.com', // Brisbane
+        'WA': 'e521c86aed4060431cf6de7405315790dcca0a10d4779cc333835199f3724c16@group.calendar.google.com', // Perth
+        'SA': '6b95632fc6fe63530bbdd89c944d792009478636f5b2ce7ffc8718ccd500915f@group.calendar.google.com', // Adelaide
+        'ACT': '3a82a9f1ed5a4e865ed9f13b24a96004fe7c4b2deb07a422f068c70753f421eb@group.calendar.google.com', // Canberra
+        'NT': '27319882e504521ffd07dca62fdf7a55f835bfb4233f4c096e787fa8e8fb881b@group.calendar.google.com', // Darwin
+        'TAS': '2f92a58bc97f58a3285a05a474f222d22aaed327af7431f21c2ad1a681c9607b@group.calendar.google.com', // Hobart
+      };
+
+      const calendarId = cityCalendarMap[state] || cityCalendarMap['NSW']; // Default to Sydney if state not found
+      
+      if (process.env.GOOGLE_CLIENT_EMAIL && process.env.GOOGLE_PRIVATE_KEY && calendarId) {
+        console.log(`Adding event to calendar: ${state} (${city}) -> ${calendarId}`);
+        
+        const auth = new google.auth.GoogleAuth({
+          credentials: {
+            client_email: process.env.GOOGLE_CLIENT_EMAIL,
+            private_key: process.env.GOOGLE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
+          },
+          scopes: ['https://www.googleapis.com/auth/calendar'],
+        });
+
+        const calendar = google.calendar({ version: 'v3', auth });
+        
+        const eventName = formData.get('eventName')?.toString() || '';
+        const eventDate = formData.get('eventDate')?.toString() || '';
+        const eventTime = formData.get('eventTime')?.toString() || '';
+        const endTime = formData.get('endTime')?.toString() || '';
+        const location = formData.get('location')?.toString() || '';
+        const description = formData.get('description')?.toString() || '';
+        
+        // Extract Google Drive image URL from description if present
+        let imageUrl = '';
+        const driveMatch = description.match(/https:\/\/drive\.google\.com\/[^\s"']+/);
+        if (driveMatch) {
+          imageUrl = driveMatch[0].trim();
+          // Convert to direct view URL if needed
+          const fileId = imageUrl.match(/\/d\/([^\/]+)/)?.[1] || imageUrl.match(/id=([^&]+)/)?.[1];
+          if (fileId) {
+            imageUrl = `https://drive.google.com/uc?export=view&id=${fileId}`;
+          }
+        }
+        
+        // Format description to include image URL in a way that getEventImage can find it
+        const formattedDescription = imageUrl 
+          ? `${description}\n\n[image:${imageUrl}]`
+          : description;
+
+        // Format datetime strings
+        const startDateTime = `${eventDate}T${eventTime}:00`;
+        const endDateTime = `${eventDate}T${endTime}:00`;
+
+        const calendarResponse = await calendar.events.insert({
+          calendarId: calendarId,
+          requestBody: {
+            summary: eventName,
+            description: formattedDescription,
+            start: {
+              dateTime: startDateTime,
+              timeZone: 'Australia/Sydney',
+            },
+            end: {
+              dateTime: endDateTime,
+              timeZone: 'Australia/Sydney',
+            },
+            location: location,
+          },
+        });
+
+        calendarEventId = calendarResponse.data.id;
+        console.log('Event added to Google Calendar successfully:', calendarEventId);
+      } else {
+        console.warn('Google Calendar credentials not configured, skipping calendar addition');
+      }
+    } catch (calendarError) {
+      console.error('Failed to add event to Google Calendar:', calendarError);
+      // Don't fail the entire request if calendar addition fails - email was sent successfully
+    }
+
     return Response.json({ 
       success: true,
+      calendarEventId: calendarEventId,
+      message: calendarEventId 
+        ? 'Event submitted and added to calendar successfully!' 
+        : 'Event submitted successfully! (Calendar addition may have failed)',
       debug: {
         adminEmailResponse
       }

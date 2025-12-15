@@ -2,14 +2,16 @@
 
 import Link from "next/link"
 import { unstable_noStore as noStore } from 'next/cache'
+import dynamic from 'next/dynamic'
 
 // Force dynamic rendering to prevent caching
 export const dynamic = 'force-dynamic'
 import { Calendar, Users, Music, School, ShoppingBag, Trophy, MapPin, Clock, Video, Info, Headphones, Film, Building2, Lightbulb, ChevronRight, ChevronLeft, ExternalLink, ZoomIn } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { School as SchoolType } from '@/types/school'
-import Slider from 'react-slick'
+// Lazy load carousel to reduce initial bundle size
+const Slider = dynamic(() => import('react-slick'), { ssr: false })
 import "slick-carousel/slick/slick.css"
 import "slick-carousel/slick/slick-theme.css"
 import Image from 'next/image'
@@ -168,33 +170,46 @@ export default function Home() {
   }, [events, selectedState, filteredEvents, isGeoLoading, geoError])
 
   useEffect(() => {
+    // Fetch events immediately without waiting for geolocation (non-blocking)
     const fetchEvents = async () => {
       try {
         setLoading(true)
         
-        // Get user's detected state first
-        const userLocation = await getUserLocation()
-        const detectedState = userLocation?.state
-        console.log('Detected state:', detectedState)
+        // Fetch all events first for immediate display
+        let weekEvents = await getWeekEvents()
         
-        // If user is in South Australia, fetch only SA events
-        let weekEvents
-        if (detectedState === 'SA' || detectedState === 'South Australia') {
-          console.log('User is in South Australia, fetching only SA events')
-          weekEvents = await getWeekEvents(undefined, 'SA')
-        } else {
-          // Otherwise fetch all events
-          weekEvents = await getWeekEvents()
-        }
+        // Then try to get user location in background (non-blocking)
+        getUserLocation()
+          .then((userLocation) => {
+            const detectedState = userLocation?.state
+            console.log('Detected state:', detectedState)
+            
+            // If user is in South Australia, refetch only SA events
+            if (detectedState === 'SA' || detectedState === 'South Australia') {
+              console.log('User is in South Australia, fetching only SA events')
+              getWeekEvents(undefined, 'SA')
+                .then((saEvents) => {
+                  const formattedEvents = formatEvents(saEvents)
+                  setEvents(formattedEvents)
+                })
+                .catch((err) => {
+                  console.error('Error fetching SA events:', err)
+                })
+            }
+          })
+          .catch((err) => {
+            console.error('Error getting location:', err)
+            // Continue with all events if location fails
+          })
         
         console.log('Fetched events:', weekEvents)
         const formattedEvents = formatEvents(weekEvents)
         console.log('Formatted events:', formattedEvents)
         setEvents(formattedEvents)
+        setLoading(false)
       } catch (err) {
         console.error('Error fetching events:', err)
         setError('Failed to load events')
-      } finally {
         setLoading(false)
       }
     }
@@ -340,7 +355,8 @@ export default function Home() {
   }
 
   // Add this carousel settings object before your Home component
-  const settings = {
+  // Only create settings when Slider is loaded and events are available
+  const settings = filteredEvents.length > 0 ? {
     dots: false,
     infinite: filteredEvents.length > 3,
     speed: 500,
@@ -366,7 +382,7 @@ export default function Home() {
         }
       }
     ]
-  }
+  } : null
 
   // Custom arrow components
   function CustomNextArrow(props: any) {
@@ -479,6 +495,7 @@ export default function Home() {
                   height={400}
                   quality={90}
                   priority
+                  fetchPriority="high"
                   className="w-40 h-40 sm:w-48 sm:h-48 md:w-80 md:h-80 relative z-10 -mt-2 sm:-mt-4 md:-mt-6"
                   style={{ 
                     objectFit: 'contain', 
@@ -520,7 +537,7 @@ export default function Home() {
               </div>
             ) : filteredEvents.length > 0 ? (
               <div className="relative">
-                <Slider {...settings}>
+                {settings && <Slider {...settings}>
                   {filteredEvents.map((event) => (
                     <div key={event.id} className="px-1 md:px-2">
                       <div 
@@ -538,8 +555,11 @@ export default function Home() {
                                   alt={event.name}
                                   fill
                                   loading="lazy"
+                                  fetchPriority="low"
                                   className="object-contain object-top rounded-lg"
                                   sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                                  placeholder="blur"
+                                  blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAAIAAoDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAhEAACAQMDBQAAAAAAAAAAAAABAgMABAUGIWGRkqGx0f/EABUBAQEAAAAAAAAAAAAAAAAAAAMF/8QAGhEAAgIDAAAAAAAAAAAAAAAAAAECEgMRkf/aAAwDAQACEQMRAD8AltJagyeH0AthI5xdrLcNM91BF5pX2HaH9bcfaSXWGaRmknyJckliyjqTzSlT54b6bk+h0R//2Q=="
                                   onError={(e) => {
                                     console.error('Error loading image:', event.imageUrl)
                                     const target = e.target as HTMLImageElement
@@ -646,7 +666,7 @@ export default function Home() {
                       </div>
                     </div>
                   ))}
-                </Slider>
+                </Slider>}
               </div>
             ) : selectedState === 'SA' && events.length > 0 ? (
               // Fallback: If user is in SA but no SA events found, show all events
@@ -654,7 +674,7 @@ export default function Home() {
                 <p className="text-gray-600 mb-4">No events found in South Australia this week.</p>
                 <p className="text-sm text-gray-500">Showing events from across Australia instead.</p>
                 <div className="relative mt-4">
-                  <Slider {...settings}>
+                  {settings && <Slider {...settings}>
                     {events.slice(0, 6).map((event) => (
                       <div key={event.id} className="px-1 md:px-2">
                         <div 
@@ -745,7 +765,7 @@ export default function Home() {
                         </div>
                       </div>
                     ))}
-                  </Slider>
+                  </Slider>}
                 </div>
               </div>
             ) : (

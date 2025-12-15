@@ -1,52 +1,84 @@
-const CACHE_NAME = 'bachata-hub-v1'
+const CACHE_NAME = 'bachata-hub-v2'
 const FESTIVAL_CACHE_NAME = 'festivals-cache-v1'
+const STATIC_CACHE_NAME = 'static-assets-v2'
 
-// Files to cache immediately
+// Files to cache immediately - critical for initial load
 const urlsToCache = [
   '/',
-  '/festivals',
-  '/api/festivals',
-  '/images/placeholder.jpg'
+  '/images/placeholder.jpg',
+  '/images/placeholder.svg',
+  '/images/BACHATA.AU (13).png',
+  '/images/ticketlime.JPG'
 ]
 
-// Install event - cache essential files
+// Install event - cache essential files with skipWaiting for faster activation
 self.addEventListener('install', (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME)
-      .then((cache) => {
-        console.log('Opened cache')
-        return cache.addAll(urlsToCache)
+    Promise.all([
+      caches.open(STATIC_CACHE_NAME).then((cache) => {
+        console.log('Caching static assets')
+        return cache.addAll(urlsToCache.filter(url => !url.startsWith('/api')))
+      }),
+      caches.open(CACHE_NAME).then((cache) => {
+        console.log('Opened main cache')
+        // Only cache non-API routes
+        return cache.addAll(urlsToCache.filter(url => !url.startsWith('/api')))
       })
+    ]).then(() => {
+      // Skip waiting to activate immediately
+      return self.skipWaiting()
+    })
   )
 })
 
-// Fetch event - serve from cache when possible
+// Fetch event - optimized caching strategy for performance
 self.addEventListener('fetch', (event) => {
   const { request } = event
+  const url = new URL(request.url)
   
-  // Handle festival API requests
-  if (request.url.includes('/api/festivals')) {
+  // Skip non-GET requests
+  if (request.method !== 'GET') {
+    return
+  }
+  
+  // Handle static assets (JS, CSS, images, fonts) - Cache First for speed
+  if (
+    request.destination === 'script' ||
+    request.destination === 'style' ||
+    request.destination === 'image' ||
+    request.destination === 'font' ||
+    url.pathname.startsWith('/_next/static') ||
+    url.pathname.startsWith('/images/') ||
+    url.pathname.endsWith('.js') ||
+    url.pathname.endsWith('.css') ||
+    url.pathname.endsWith('.woff') ||
+    url.pathname.endsWith('.woff2')
+  ) {
     event.respondWith(
-      caches.open(FESTIVAL_CACHE_NAME)
+      caches.open(STATIC_CACHE_NAME)
         .then((cache) => {
           return cache.match(request)
-            .then((response) => {
-              // Return cached response if available
-              if (response) {
-                return response
+            .then((cachedResponse) => {
+              // Return cached version immediately for speed
+              if (cachedResponse) {
+                return cachedResponse
               }
               
-              // Fetch from network and cache
+              // Fetch from network and cache for next time
               return fetch(request)
                 .then((networkResponse) => {
-                  // Clone the response before caching
-                  const responseToCache = networkResponse.clone()
-                  cache.put(request, responseToCache)
+                  if (networkResponse.status === 200) {
+                    const responseToCache = networkResponse.clone()
+                    cache.put(request, responseToCache)
+                  }
                   return networkResponse
                 })
                 .catch(() => {
-                  // Return cached response if network fails
-                  return cache.match(request)
+                  // For images, return placeholder if network fails
+                  if (request.destination === 'image') {
+                    return caches.match('/images/placeholder.svg')
+                  }
+                  throw new Error('Network request failed')
                 })
             })
         })
@@ -54,32 +86,97 @@ self.addEventListener('fetch', (event) => {
     return
   }
   
-  // Handle image requests
-  if (request.destination === 'image') {
+  // Handle festival API requests - Stale While Revalidate
+  if (request.url.includes('/api/festivals')) {
     event.respondWith(
-      caches.match(request)
-        .then((response) => {
-          // Return cached image if available
-          if (response) {
-            return response
-          }
-          
-          // Fetch from network and cache
-          return fetch(request)
-            .then((networkResponse) => {
-              // Only cache successful responses
-              if (networkResponse.status === 200) {
-                const responseToCache = networkResponse.clone()
-                caches.open(CACHE_NAME)
-                  .then((cache) => {
+      caches.open(FESTIVAL_CACHE_NAME)
+        .then((cache) => {
+          return cache.match(request)
+            .then((cachedResponse) => {
+              // Return cached response immediately
+              const fetchPromise = fetch(request)
+                .then((networkResponse) => {
+                  if (networkResponse.status === 200) {
+                    const responseToCache = networkResponse.clone()
                     cache.put(request, responseToCache)
-                  })
-              }
-              return networkResponse
+                  }
+                  return networkResponse
+                })
+                .catch(() => null)
+              
+              // Return cached version immediately, update in background
+              return cachedResponse || fetchPromise
             })
-            .catch(() => {
-              // Return placeholder if image fails to load
-              return caches.match('/images/placeholder.jpg')
+        })
+    )
+    return
+  }
+  
+  // Handle Google Calendar API requests - Always fetch fresh, no caching
+  if (request.url.includes('googleapis.com/calendar') || request.url.includes('googleapis.com/calendars')) {
+    event.respondWith(
+      fetch(request)
+        .then((networkResponse) => {
+          // Don't cache calendar API responses - always get fresh data
+          return networkResponse
+        })
+        .catch(() => {
+          // If network fails, don't return stale cached data for calendar
+          throw new Error('Calendar API request failed')
+        })
+    )
+    return
+  }
+  
+  // Handle API requests - Network First with short cache for non-calendar APIs
+  if (request.url.includes('/api/')) {
+    event.respondWith(
+      fetch(request)
+        .then((networkResponse) => {
+          // Only cache non-calendar API responses, and with a short TTL
+          if (networkResponse.status === 200 && !request.url.includes('calendar')) {
+            const responseToCache = networkResponse.clone()
+            caches.open(CACHE_NAME)
+              .then((cache) => {
+                cache.put(request, responseToCache)
+              })
+          }
+          return networkResponse
+        })
+        .catch(() => {
+          // Return cached response if network fails (only for non-calendar APIs)
+          if (!request.url.includes('calendar')) {
+            return caches.match(request)
+          }
+          throw new Error('API request failed')
+        })
+    )
+    return
+  }
+  
+  // Handle HTML pages - Network First with cache fallback
+  if (request.mode === 'navigate' || request.destination === 'document') {
+    event.respondWith(
+      fetch(request)
+        .then((networkResponse) => {
+          if (networkResponse.status === 200) {
+            const responseToCache = networkResponse.clone()
+            caches.open(CACHE_NAME)
+              .then((cache) => {
+                cache.put(request, responseToCache)
+              })
+          }
+          return networkResponse
+        })
+        .catch(() => {
+          // Return cached page if network fails
+          return caches.match(request)
+            .then((cachedPage) => {
+              if (cachedPage) {
+                return cachedPage
+              }
+              // Fallback to home page if specific page not cached
+              return caches.match('/')
             })
         })
     )
@@ -90,35 +187,42 @@ self.addEventListener('fetch', (event) => {
   event.respondWith(
     fetch(request)
       .then((response) => {
-        // Clone the response before caching
-        const responseToCache = response.clone()
-        caches.open(CACHE_NAME)
-          .then((cache) => {
-            cache.put(request, responseToCache)
-          })
+        if (response.status === 200) {
+          const responseToCache = response.clone()
+          caches.open(CACHE_NAME)
+            .then((cache) => {
+              cache.put(request, responseToCache)
+            })
+        }
         return response
       })
       .catch(() => {
-        // Return cached response if network fails
         return caches.match(request)
       })
   )
 })
 
-// Activate event - clean up old caches
+// Activate event - clean up old caches and claim clients immediately
 self.addEventListener('activate', (event) => {
   event.waitUntil(
-    caches.keys()
-      .then((cacheNames) => {
+    Promise.all([
+      caches.keys().then((cacheNames) => {
         return Promise.all(
           cacheNames.map((cacheName) => {
-            if (cacheName !== CACHE_NAME && cacheName !== FESTIVAL_CACHE_NAME) {
+            if (
+              cacheName !== CACHE_NAME &&
+              cacheName !== FESTIVAL_CACHE_NAME &&
+              cacheName !== STATIC_CACHE_NAME
+            ) {
               console.log('Deleting old cache:', cacheName)
               return caches.delete(cacheName)
             }
           })
         )
-      })
+      }),
+      // Claim all clients immediately for faster activation
+      self.clients.claim()
+    ])
   )
 })
 
