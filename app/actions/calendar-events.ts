@@ -319,50 +319,128 @@ export async function getWeekEvents(calendarId?: string, state?: string) {
 }
 
 // Helper function to fetch events from a single calendar
+// Uses API key for public calendars, service account for private calendars
 async function fetchEventsFromCalendar(calendarId: string, startDate: Date, endDate: Date, apiKey: string) {
   try {
-    const url = `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(calendarId)}/events?` +
-      `key=${apiKey}&` +
-      `timeMin=${startDate.toISOString()}&` +
-      `timeMax=${endDate.toISOString()}&` +
-      `singleEvents=true&` +
-      `orderBy=startTime&` +
-      `maxResults=250`
-
-    console.log(`Fetching events for calendar: ${calendarId}`)
-    const response = await fetch(url)
-
-    if (!response.ok) {
-      const errorData = await response.json()
-      console.error(`Error fetching events for calendar ${calendarId}:`, errorData)
-      return []
-    }
-
-    const data = await response.json()
-    const events = data.items || []
-    console.log(`Found ${events.length} events for calendar ${calendarId}`)
+    // Check if this is a private calendar (email address) that needs service account auth
+    const isPrivateCalendar = (calendarId.includes('@gmail.com') || calendarId.includes('@')) && !calendarId.includes('@group.calendar.google.com')
     
-    // Log each event's details with more detail for debugging
-    if (events.length > 0) {
-      console.log('Events found:')
-      events.forEach((event: any) => {
-        const startDate = event.start?.dateTime || event.start?.date
-        const endDate = event.end?.dateTime || event.end?.date
-        console.log('Event:', {
-          id: event.id,
-          summary: event.summary,
-          start: startDate,
-          end: endDate,
-          description: event.description?.substring(0, 100) + '...',
-          location: event.location,
-          calendarId: calendarId
-        })
+    if (isPrivateCalendar && process.env.GOOGLE_CLIENT_EMAIL && process.env.GOOGLE_PRIVATE_KEY) {
+      // Use service account authentication for private calendars
+      console.log(`Using service account auth for private calendar: ${calendarId}`)
+      const { google } = await import('googleapis')
+      
+      const auth = new google.auth.GoogleAuth({
+        credentials: {
+          client_email: process.env.GOOGLE_CLIENT_EMAIL,
+          private_key: process.env.GOOGLE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
+        },
+        scopes: ['https://www.googleapis.com/auth/calendar.readonly'],
       })
+
+      const calendar = google.calendar({ version: 'v3', auth })
+      
+      const response = await calendar.events.list({
+        calendarId: calendarId,
+        timeMin: startDate.toISOString(),
+        timeMax: endDate.toISOString(),
+        singleEvents: true,
+        orderBy: 'startTime',
+        maxResults: 250,
+      })
+
+      const events = response.data.items || []
+      console.log(`Found ${events.length} events in private calendar ${calendarId}`)
+      
+      // Log events for debugging
+      if (events.length > 0) {
+        console.log('Private calendar events found:')
+        events.forEach((event: any) => {
+          const eventStart = event.start?.dateTime || event.start?.date
+          console.log(`- ${event.summary} (${eventStart})`)
+        })
+      }
+      
+      return events
     } else {
-      console.log(`No events found for calendar ${calendarId}`)
+      // Use API key for public calendars
+      const url = `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(calendarId)}/events?` +
+        `key=${apiKey}&` +
+        `timeMin=${startDate.toISOString()}&` +
+        `timeMax=${endDate.toISOString()}&` +
+        `singleEvents=true&` +
+        `orderBy=startTime&` +
+        `maxResults=250`
+
+      console.log(`Fetching events for public calendar: ${calendarId}`)
+      const response = await fetch(url)
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        console.error(`Error fetching events for calendar ${calendarId}:`, errorData)
+        
+        // If API key fails and it's an email, try service account as fallback
+        if (calendarId.includes('@') && process.env.GOOGLE_CLIENT_EMAIL && process.env.GOOGLE_PRIVATE_KEY) {
+          console.log(`API key failed, retrying with service account auth for ${calendarId}`)
+          const { google } = await import('googleapis')
+          
+          const auth = new google.auth.GoogleAuth({
+            credentials: {
+              client_email: process.env.GOOGLE_CLIENT_EMAIL,
+              private_key: process.env.GOOGLE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
+            },
+            scopes: ['https://www.googleapis.com/auth/calendar.readonly'],
+          })
+
+          const calendar = google.calendar({ version: 'v3', auth })
+          
+          try {
+            const serviceAccountResponse = await calendar.events.list({
+              calendarId: calendarId,
+              timeMin: startDate.toISOString(),
+              timeMax: endDate.toISOString(),
+              singleEvents: true,
+              orderBy: 'startTime',
+              maxResults: 250,
+            })
+
+            const events = serviceAccountResponse.data.items || []
+            console.log(`Found ${events.length} events using service account for ${calendarId}`)
+            return events
+          } catch (serviceAccountError) {
+            console.error(`Service account auth also failed for ${calendarId}:`, serviceAccountError)
+            return []
+          }
+        }
+        return []
+      }
+
+      const data = await response.json()
+      const events = data.items || []
+      console.log(`Found ${events.length} events for calendar ${calendarId}`)
+      
+      // Log each event's details with more detail for debugging
+      if (events.length > 0) {
+        console.log('Events found:')
+        events.forEach((event: any) => {
+          const eventStart = event.start?.dateTime || event.start?.date
+          const eventEnd = event.end?.dateTime || event.end?.date
+          console.log('Event:', {
+            id: event.id,
+            summary: event.summary,
+            start: eventStart,
+            end: eventEnd,
+            description: event.description?.substring(0, 100) + '...',
+            location: event.location,
+            calendarId: calendarId
+          })
+        })
+      } else {
+        console.log(`No events found for calendar ${calendarId}`)
+      }
+      
+      return events
     }
-    
-    return events
   } catch (error) {
     console.error(`Error fetching events for calendar ${calendarId}:`, error)
     return []
