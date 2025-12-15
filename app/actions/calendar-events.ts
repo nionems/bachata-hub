@@ -206,14 +206,34 @@ export async function getWeekEvents(calendarId?: string, state?: string) {
       }
       
       // Also fetch from main calendar - events will be filtered by state based on location
+      // Fetch from both the configured calendar ID and the primary calendar (email address)
+      // This ensures events created on phone go to bachata.au@gmail.com are included
+      const mainCalendarIds: string[] = []
+      
+      // Add configured calendar ID if set
       if (process.env.GOOGLE_CALENDAR_ID) {
-        console.log(`Fetching events from main calendar (bachata.au@gmail.com) for state filtering...`)
+        mainCalendarIds.push(process.env.GOOGLE_CALENDAR_ID)
+      }
+      
+      // Also add primary calendar (email address) - this is where phone events usually go
+      if (process.env.GOOGLE_CLIENT_EMAIL) {
+        mainCalendarIds.push(process.env.GOOGLE_CLIENT_EMAIL)
+      } else {
+        // Fallback to bachata.au@gmail.com if GOOGLE_CLIENT_EMAIL not set
+        mainCalendarIds.push('bachata.au@gmail.com')
+      }
+      
+      // Remove duplicates
+      const uniqueCalendarIds = [...new Set(mainCalendarIds)]
+      
+      for (const calendarId of uniqueCalendarIds) {
+        console.log(`Fetching events from main calendar (${calendarId}) for state filtering...`)
         try {
-          const mainEvents = await fetchEventsFromCalendar(process.env.GOOGLE_CALENDAR_ID, now, endOfWeek, apiKey)
-          console.log(`Main calendar returned ${mainEvents.length} events (will be filtered by state: ${state})`)
+          const mainEvents = await fetchEventsFromCalendar(calendarId, now, endOfWeek, apiKey)
+          console.log(`Main calendar (${calendarId}) returned ${mainEvents.length} events (will be filtered by state: ${state})`)
           allEvents.push(...mainEvents)
         } catch (error) {
-          console.error('Error fetching from main calendar:', error)
+          console.error(`Error fetching from main calendar (${calendarId}):`, error)
         }
       }
       
@@ -228,22 +248,43 @@ export async function getWeekEvents(calendarId?: string, state?: string) {
       return { city, events }
     })
 
-    // Also fetch from the main bachata.au@gmail.com calendar if configured
-    // This ensures all events from the main calendar are included
+    // Also fetch from the main bachata.au@gmail.com calendar(s)
+    // Fetch from both the configured calendar ID and the primary calendar (email address)
+    // This ensures events created on phone to bachata.au@gmail.com are included
+    const mainCalendarIds: string[] = []
+    
+    // Add configured calendar ID if set
     if (process.env.GOOGLE_CALENDAR_ID) {
-      console.log(`Fetching events from main calendar (bachata.au@gmail.com): ${process.env.GOOGLE_CALENDAR_ID}`)
-      const mainCalendarPromise = fetchEventsFromCalendar(process.env.GOOGLE_CALENDAR_ID, now, endOfWeek, apiKey)
+      mainCalendarIds.push(process.env.GOOGLE_CALENDAR_ID)
+    }
+    
+    // Also add primary calendar (email address) - this is where phone events usually go
+    if (process.env.GOOGLE_CLIENT_EMAIL) {
+      mainCalendarIds.push(process.env.GOOGLE_CLIENT_EMAIL)
+    } else {
+      // Fallback to bachata.au@gmail.com if GOOGLE_CLIENT_EMAIL not set
+      mainCalendarIds.push('bachata.au@gmail.com')
+    }
+    
+    // Remove duplicates
+    const uniqueCalendarIds = [...new Set(mainCalendarIds)]
+    
+    for (const calendarId of uniqueCalendarIds) {
+      console.log(`Fetching events from main calendar: ${calendarId}`)
+      const mainCalendarPromise = fetchEventsFromCalendar(calendarId, now, endOfWeek, apiKey)
         .then(events => {
-          console.log(`Main calendar returned ${events.length} events`)
-          return { city: 'main', events }
+          console.log(`Main calendar (${calendarId}) returned ${events.length} events`)
+          return { city: `main-${calendarId}`, events }
         })
         .catch(error => {
-          console.error('Error fetching from main calendar:', error)
-          return { city: 'main', events: [] }
+          console.error(`Error fetching from main calendar (${calendarId}):`, error)
+          return { city: `main-${calendarId}`, events: [] }
         })
       calendarPromises.push(mainCalendarPromise)
-    } else {
-      console.warn('GOOGLE_CALENDAR_ID not configured - main calendar events will not be included')
+    }
+    
+    if (uniqueCalendarIds.length === 0) {
+      console.warn('No main calendar configured - main calendar events will not be included')
     }
 
     const results = await Promise.all(calendarPromises)
