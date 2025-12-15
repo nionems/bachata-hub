@@ -192,15 +192,31 @@ export async function getWeekEvents(calendarId?: string, state?: string) {
       return await fetchEventsFromCalendar(calendarId, now, endOfWeek, apiKey)
     }
 
-    // If a state is provided, fetch only from calendars in that state
+    // If a state is provided, fetch from calendars in that state PLUS main calendar
+    // Main calendar events will be filtered by state based on location in formatEvents
     if (state) {
       const stateCalendars = Object.values(cityCalendarMap).filter(cal => cal.state === state)
       const allEvents = []
+      
+      // Fetch from state-specific calendars
       for (const calendar of stateCalendars) {
         console.log(`Fetching events for ${state} calendar...`)
         const events = await fetchEventsFromCalendar(calendar.id, now, endOfWeek, apiKey)
         allEvents.push(...events)
       }
+      
+      // Also fetch from main calendar - events will be filtered by state based on location
+      if (process.env.GOOGLE_CALENDAR_ID) {
+        console.log(`Fetching events from main calendar (bachata.au@gmail.com) for state filtering...`)
+        try {
+          const mainEvents = await fetchEventsFromCalendar(process.env.GOOGLE_CALENDAR_ID, now, endOfWeek, apiKey)
+          console.log(`Main calendar returned ${mainEvents.length} events (will be filtered by state: ${state})`)
+          allEvents.push(...mainEvents)
+        } catch (error) {
+          console.error('Error fetching from main calendar:', error)
+        }
+      }
+      
       return allEvents
     }
 
@@ -211,6 +227,24 @@ export async function getWeekEvents(calendarId?: string, state?: string) {
       const events = await fetchEventsFromCalendar(calendar.id, now, endOfWeek, apiKey)
       return { city, events }
     })
+
+    // Also fetch from the main bachata.au@gmail.com calendar if configured
+    // This ensures all events from the main calendar are included
+    if (process.env.GOOGLE_CALENDAR_ID) {
+      console.log(`Fetching events from main calendar (bachata.au@gmail.com): ${process.env.GOOGLE_CALENDAR_ID}`)
+      const mainCalendarPromise = fetchEventsFromCalendar(process.env.GOOGLE_CALENDAR_ID, now, endOfWeek, apiKey)
+        .then(events => {
+          console.log(`Main calendar returned ${events.length} events`)
+          return { city: 'main', events }
+        })
+        .catch(error => {
+          console.error('Error fetching from main calendar:', error)
+          return { city: 'main', events: [] }
+        })
+      calendarPromises.push(mainCalendarPromise)
+    } else {
+      console.warn('GOOGLE_CALENDAR_ID not configured - main calendar events will not be included')
+    }
 
     const results = await Promise.all(calendarPromises)
     const allEvents = results.flatMap(result => result.events)
@@ -223,6 +257,11 @@ export async function getWeekEvents(calendarId?: string, state?: string) {
     })
 
     console.log(`Found total of ${allEvents.length} events across all calendars`)
+    
+    // Log calendar breakdown for debugging
+    results.forEach(({ city, events }) => {
+      console.log(`Calendar "${city}": ${events.length} events`)
+    })
     
     // Update cache for general requests
     if (!calendarId && !state) {

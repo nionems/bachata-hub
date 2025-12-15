@@ -127,6 +127,7 @@ export default function Home() {
   const [isIdeaBoxOpen, setIsIdeaBoxOpen] = useState(false)
   const [isCommunityPopupOpen, setIsCommunityPopupOpen] = useState(false)
   const [isEventSubmissionOpen, setIsEventSubmissionOpen] = useState(false)
+  const [showAllEvents, setShowAllEvents] = useState(false)
 
   // Show community popup only on first visit (per browser/device) - DISABLED
   // useEffect(() => {
@@ -152,6 +153,9 @@ export default function Home() {
   };
 
   const { selectedState, setSelectedState, filteredItems: filteredEvents, isGeoLoading, error: geoError } = useStateFilter(events, { useGeolocation: true })
+  
+  // Determine which events to show based on toggle
+  const displayEvents = showAllEvents ? events : filteredEvents
 
   // Add debugging for state filtering
   useEffect(() => {
@@ -356,11 +360,11 @@ export default function Home() {
 
   // Add this carousel settings object before your Home component
   // Only create settings when Slider is loaded and events are available
-  const settings = filteredEvents.length > 0 ? {
+  const settings = displayEvents.length > 0 ? {
     dots: false,
-    infinite: filteredEvents.length > 3,
+    infinite: displayEvents.length > 3,
     speed: 500,
-    slidesToShow: Math.min(3, filteredEvents.length),
+    slidesToShow: Math.min(3, displayEvents.length),
     slidesToScroll: 1,
     autoplay: true,
     autoplaySpeed: 3000,
@@ -370,7 +374,7 @@ export default function Home() {
       {
         breakpoint: 1024,
         settings: {
-          slidesToShow: Math.min(2, filteredEvents.length),
+          slidesToShow: Math.min(2, displayEvents.length),
           slidesToScroll: 1,
         }
       },
@@ -524,10 +528,21 @@ export default function Home() {
         {/* Featured Events This Week - Carousel */}
         <section className="py-4 sm:py-8 bg-white">
           <div className="container mx-auto px-4">
-            <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-center mb-3 sm:mb-4 bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-              Featured Events This Week
-              {selectedState !== 'all' && ` in ${selectedState}`}
-            </h2>
+            <div className="flex flex-col sm:flex-row items-center justify-between mb-3 sm:mb-4 gap-2">
+              <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-center bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+                Featured Events This Week
+                {!showAllEvents && selectedState !== 'all' && ` in ${selectedState}`}
+                {showAllEvents && ' - All Events'}
+              </h2>
+              <Button
+                onClick={() => setShowAllEvents(!showAllEvents)}
+                variant="outline"
+                size="sm"
+                className="text-xs sm:text-sm"
+              >
+                {showAllEvents ? `Show ${selectedState !== 'all' ? selectedState : 'Local'} Events` : 'Show All Events'}
+              </Button>
+            </div>
             {loading ? (
               <div className="flex justify-center items-center py-8">
                 <div className="text-center">
@@ -535,10 +550,10 @@ export default function Home() {
                   <p className="mt-4 text-gray-600">Loading events from across Australia...</p>
                 </div>
               </div>
-            ) : filteredEvents.length > 0 ? (
+            ) : displayEvents.length > 0 ? (
               <div className="relative">
                 {settings && <Slider {...settings}>
-                  {filteredEvents.map((event) => (
+                  {displayEvents.map((event) => (
                     <div key={event.id} className="px-1 md:px-2">
                       <div 
                         className="bg-gradient-to-r from-emerald-400 to-violet-500 p-1 rounded-lg shadow-lg overflow-hidden relative h-72"
@@ -668,7 +683,7 @@ export default function Home() {
                   ))}
                 </Slider>}
               </div>
-            ) : selectedState === 'SA' && events.length > 0 ? (
+            ) : !showAllEvents && selectedState === 'SA' && events.length > 0 ? (
               // Fallback: If user is in SA but no SA events found, show all events
               <div className="text-center py-8">
                 <p className="text-gray-600 mb-4">No events found in South Australia this week.</p>
