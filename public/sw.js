@@ -11,6 +11,13 @@ const urlsToCache = [
   '/images/ticketlime.JPG'
 ]
 
+// Check if a request URL is cacheable (exclude chrome-extension, chrome, etc.)
+function isCacheableRequest(request) {
+  const url = new URL(request.url)
+  // Don't cache chrome-extension, chrome, or other unsupported schemes
+  return url.protocol === 'http:' || url.protocol === 'https:'
+}
+
 // Install event - cache essential files with skipWaiting for faster activation
 self.addEventListener('install', (event) => {
   event.waitUntil(
@@ -67,9 +74,11 @@ self.addEventListener('fetch', (event) => {
               // Fetch from network and cache for next time
               return fetch(request)
                 .then((networkResponse) => {
-                  if (networkResponse.status === 200) {
+                  if (networkResponse.status === 200 && isCacheableRequest(request)) {
                     const responseToCache = networkResponse.clone()
-                    cache.put(request, responseToCache)
+                    cache.put(request, responseToCache).catch((err) => {
+                      console.warn('Failed to cache request:', request.url, err)
+                    })
                   }
                   return networkResponse
                 })
@@ -96,9 +105,11 @@ self.addEventListener('fetch', (event) => {
               // Return cached response immediately
               const fetchPromise = fetch(request)
                 .then((networkResponse) => {
-                  if (networkResponse.status === 200) {
+                  if (networkResponse.status === 200 && isCacheableRequest(request)) {
                     const responseToCache = networkResponse.clone()
-                    cache.put(request, responseToCache)
+                    cache.put(request, responseToCache).catch((err) => {
+                      console.warn('Failed to cache request:', request.url, err)
+                    })
                   }
                   return networkResponse
                 })
@@ -134,11 +145,13 @@ self.addEventListener('fetch', (event) => {
       fetch(request)
         .then((networkResponse) => {
           // Only cache non-calendar API responses, and with a short TTL
-          if (networkResponse.status === 200 && !request.url.includes('calendar')) {
+          if (networkResponse.status === 200 && !request.url.includes('calendar') && isCacheableRequest(request)) {
             const responseToCache = networkResponse.clone()
             caches.open(CACHE_NAME)
               .then((cache) => {
-                cache.put(request, responseToCache)
+                cache.put(request, responseToCache).catch((err) => {
+                  console.warn('Failed to cache request:', request.url, err)
+                })
               })
           }
           return networkResponse
@@ -159,11 +172,13 @@ self.addEventListener('fetch', (event) => {
     event.respondWith(
       fetch(request)
         .then((networkResponse) => {
-          if (networkResponse.status === 200) {
+          if (networkResponse.status === 200 && isCacheableRequest(request)) {
             const responseToCache = networkResponse.clone()
             caches.open(CACHE_NAME)
               .then((cache) => {
-                cache.put(request, responseToCache)
+                cache.put(request, responseToCache).catch((err) => {
+                  console.warn('Failed to cache request:', request.url, err)
+                })
               })
           }
           return networkResponse
@@ -187,11 +202,13 @@ self.addEventListener('fetch', (event) => {
   event.respondWith(
     fetch(request)
       .then((response) => {
-        if (response.status === 200) {
+        if (response.status === 200 && isCacheableRequest(request)) {
           const responseToCache = response.clone()
           caches.open(CACHE_NAME)
             .then((cache) => {
-              cache.put(request, responseToCache)
+              cache.put(request, responseToCache).catch((err) => {
+                console.warn('Failed to cache request:', request.url, err)
+              })
             })
         }
         return response
