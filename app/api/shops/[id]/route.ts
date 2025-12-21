@@ -3,10 +3,11 @@ import { NextResponse } from 'next/server'
 
 export async function GET(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> | { id: string } }
 ) {
   try {
-    const { id } = params
+    const resolvedParams = params instanceof Promise ? await params : params
+    const { id } = resolvedParams
     const db = getDb()
     const docSnap = await db.collection('shops').doc(id).get()
 
@@ -32,10 +33,11 @@ export async function GET(
 
 export async function DELETE(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> | { id: string } }
 ) {
   try {
-    const { id } = params
+    const resolvedParams = params instanceof Promise ? await params : params
+    const { id } = resolvedParams
     console.log('Attempting to delete shop with ID:', id)
     
     const db = getDb()
@@ -54,10 +56,11 @@ export async function DELETE(
 
 export async function PUT(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> | { id: string } }
 ) {
   try {
-    const { id } = params
+    const resolvedParams = params instanceof Promise ? await params : params
+    const { id } = resolvedParams
     const body = await request.json()
     console.log('Received update data:', body)
     

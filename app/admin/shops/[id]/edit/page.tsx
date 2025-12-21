@@ -31,19 +31,33 @@ interface Shop {
   website: string
 }
 
-export default function EditShopPage({ params }: { params: { id: string } }) {
+export default function EditShopPage({ params }: { params: Promise<{ id: string }> | { id: string } }) {
   const router = useRouter()
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [shop, setShop] = useState<Shop | null>(null)
   const [imagePreview, setImagePreview] = useState<string | null>(null)
   const [selectedImage, setSelectedImage] = useState<File | null>(null)
+  const [shopId, setShopId] = useState<string | null>(null)
 
   useEffect(() => {
+    const getParams = async () => {
+      const resolvedParams = params instanceof Promise ? await params : params
+      return resolvedParams.id
+    }
+    
+    getParams().then(id => {
+      setShopId(id)
+    })
+  }, [params])
+
+  useEffect(() => {
+    if (!shopId) return
+    
     const fetchShop = async () => {
       try {
-        console.log('Fetching shop with ID:', params.id)
-        const shopDoc = await getDoc(doc(db, 'shops', params.id))
+        console.log('Fetching shop with ID:', shopId)
+        const shopDoc = await getDoc(doc(db, 'shops', shopId))
         console.log('Shop document exists:', shopDoc.exists())
         if (shopDoc.exists()) {
           const shopData = shopDoc.data() as Shop
@@ -79,7 +93,7 @@ export default function EditShopPage({ params }: { params: { id: string } }) {
     }
 
     fetchShop()
-  }, [params.id])
+  }, [shopId])
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -190,7 +204,12 @@ export default function EditShopPage({ params }: { params: { id: string } }) {
         updatedAt: new Date().toISOString()
       }
 
-      const response = await fetch(`/api/shops/${params.id}`, {
+      if (!shopId) {
+        setError('Shop ID not found')
+        return
+      }
+      
+      const response = await fetch(`/api/shops/${shopId}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
