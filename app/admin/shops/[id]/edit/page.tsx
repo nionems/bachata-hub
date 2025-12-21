@@ -81,7 +81,7 @@ export default function EditShopPage({ params }: { params: Promise<{ id: string 
             setImagePreview(shopData.imageUrl)
           }
         } else {
-          console.log('Shop document does not exist for ID:', params.id)
+          console.log('Shop document does not exist for ID:', shopId)
           setError('Shop not found')
         }
       } catch (error) {
