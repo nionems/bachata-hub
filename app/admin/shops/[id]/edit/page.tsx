@@ -209,6 +209,8 @@ export default function EditShopPage({ params }: { params: Promise<{ id: string 
         return
       }
       
+      console.log('Submitting shop data:', shopData)
+      
       const response = await fetch(`/api/shops/${shopId}`, {
         method: 'PUT',
         headers: {
@@ -217,11 +219,14 @@ export default function EditShopPage({ params }: { params: Promise<{ id: string 
         body: JSON.stringify(shopData),
       })
 
+      const responseData = await response.json()
+      console.log('Update response:', responseData)
+
       if (!response.ok) {
-        const errorData = await response.json()
-        throw new Error(errorData.error || 'Failed to update shop')
+        throw new Error(responseData.error || 'Failed to update shop')
       }
 
+      console.log('Shop updated successfully, redirecting...')
       router.push('/admin/dashboard')
     } catch (error) {
       console.error('Error updating shop:', error)

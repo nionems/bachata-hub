@@ -89,8 +89,12 @@ export async function PUT(
 
     console.log('Status being updated:', status)
 
+    // Check if this is ONLY a status update (has status but no other fields)
+    // If name is present, it's a full update, not just a status update
+    const isStatusOnlyUpdate = status && ['approved', 'rejected', 'pending'].includes(status) && !name
+
     // If this is just a status update (approval/rejection), don't require all fields
-    if (status && ['approved', 'rejected', 'pending'].includes(status)) {
+    if (isStatusOnlyUpdate) {
       const updateData: any = {
         status,
         updatedAt: new Date().toISOString(),
