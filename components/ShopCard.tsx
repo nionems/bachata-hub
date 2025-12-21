@@ -1,10 +1,9 @@
 'use client'
 
-import { useState } from 'react'
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { ExternalLink, Share, Instagram, Facebook, MapPin, Tag, X, ChevronDown, ChevronUp } from "lucide-react"
+import { Instagram, Facebook, MapPin, Tag, ChevronDown, ChevronUp } from "lucide-react"
 import { toast } from "@/components/ui/use-toast"
 import { Shop } from "@/types/shop"
 
@@ -13,17 +12,14 @@ interface ShopCardProps {
 }
 
 export function ShopCard({ shop }: ShopCardProps) {
-  const [isImageModalOpen, setIsImageModalOpen] = useState(false)
-  const [isInfoExpanded, setIsInfoExpanded] = useState(false)
-
   // Debug log to see shop data
   console.log('Shop data:', { name: shop.name, info: shop.info, infoLength: shop.info?.length })
 
   const handleImageClick = (e: React.MouseEvent) => {
-                e.stopPropagation();
-    if (shop.imageUrl) {
-      setIsImageModalOpen(true);
-              }
+    e.stopPropagation();
+    if (shop.website) {
+      window.open(shop.website, '_blank', 'noopener,noreferrer');
+    }
   }
 
   return (
@@ -62,13 +58,15 @@ export function ShopCard({ shop }: ShopCardProps) {
           </div>
 
           {/* Middle section - Clickable area with subtle hint */}
-          <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-            <div className="bg-white/20 backdrop-blur-sm rounded-full p-2">
-              <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7" />
-              </svg>
+          {shop.website && (
+            <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+              <div className="bg-white/20 backdrop-blur-sm rounded-full p-2">
+                <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                </svg>
+              </div>
             </div>
-          </div>
+          )}
 
           {/* Bottom section - Compact info */}
           <div className="absolute bottom-0 left-0 right-0 z-20 bg-gradient-to-t from-black/90 via-black/60 to-transparent p-2 sm:p-3">
@@ -89,10 +87,10 @@ export function ShopCard({ shop }: ShopCardProps) {
                     target="_blank"
                     rel="noopener noreferrer"
                     onClick={(e) => e.stopPropagation()}
-                    className="p-1.5 bg-primary/20 hover:bg-primary/30 text-primary rounded-full transition-colors duration-200"
+                    className="px-3 py-1.5 bg-primary/20 hover:bg-primary/30 text-primary rounded-md border border-primary/30 hover:border-primary/50 transition-all duration-200 text-xs font-medium shadow-sm hover:shadow"
                     title="Website"
                   >
-                    <ExternalLink className="h-4 w-4" />
+                    Visit Website
                   </a>
                 )}
                 {shop.instagramUrl && (
@@ -121,8 +119,8 @@ export function ShopCard({ shop }: ShopCardProps) {
                 )}
               </div>
               <div className="flex gap-1 items-center">
-                <div
-                  className="p-1.5 bg-primary/20 hover:bg-primary/30 text-primary rounded-full transition-colors duration-200 cursor-pointer"
+                <button
+                  className="px-3 py-1.5 bg-primary/20 hover:bg-primary/30 text-primary rounded-md border border-primary/30 hover:border-primary/50 transition-all duration-200 text-xs font-medium shadow-sm hover:shadow cursor-pointer"
                   onClick={(e) => {
                     e.stopPropagation();
                     if (navigator.share) {
@@ -141,8 +139,8 @@ export function ShopCard({ shop }: ShopCardProps) {
                   }}
                   title="Share"
                 >
-                  <Share className="h-4 w-4" />
-                </div>
+                  Share
+                </button>
             {shop.googleMapLink && (
                   <a
                     href={shop.googleMapLink}
@@ -169,27 +167,6 @@ export function ShopCard({ shop }: ShopCardProps) {
           </div>
         </div>
       </Card>
-
-      {/* Image Modal */}
-      {isImageModalOpen && (
-        <div 
-          className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4"
-          onClick={() => setIsImageModalOpen(false)}
-        >
-          <button
-            className="absolute top-4 right-4 text-white hover:text-gray-300 transition-colors"
-            onClick={() => setIsImageModalOpen(false)}
-          >
-            <X className="h-8 w-8" />
-          </button>
-          <img
-            src={shop.imageUrl}
-            alt={shop.name}
-            className="max-h-[90vh] max-w-[90vw] object-contain"
-            onClick={(e) => e.stopPropagation()}
-          />
-      </div>
-      )}
     </>
   )
 } 
