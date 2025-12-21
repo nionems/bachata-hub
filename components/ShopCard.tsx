@@ -70,29 +70,11 @@ export function ShopCard({ shop }: ShopCardProps) {
 
           {/* Bottom section - Compact info */}
           <div className="absolute bottom-0 left-0 right-0 z-20 bg-gradient-to-t from-black/90 via-black/60 to-transparent p-2 sm:p-3">
-            <h3 className="text-sm sm:text-base font-semibold text-white line-clamp-1 mb-1">{shop.name}</h3>
-            <div className="flex items-center gap-1 sm:gap-2 text-[10px] text-gray-200 mb-1">
-              <MapPin className="h-3 w-3 flex-shrink-0" />
-              <span className="line-clamp-1">{shop.location}</span>
-            </div>
-            
-
+            <h3 className="text-sm sm:text-base font-semibold text-white line-clamp-1 mb-2">{shop.name}</h3>
             
             {/* Compact action buttons */}
             <div className="flex items-center justify-between gap-1">
               <div className="flex gap-1 items-center">
-                {shop.website && (
-                  <a
-                    href={shop.website}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    onClick={(e) => e.stopPropagation()}
-                    className="px-3 py-1.5 bg-primary/20 hover:bg-primary/30 text-primary rounded-md border border-primary/30 hover:border-primary/50 transition-all duration-200 text-xs font-medium shadow-sm hover:shadow"
-                    title="Website"
-                  >
-                    Visit Website
-                  </a>
-                )}
                 {shop.instagramUrl && (
                   <a
                     href={shop.instagramUrl}

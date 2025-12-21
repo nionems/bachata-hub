@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { Card, CardFooter } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { MapPin, Star, Globe, MessageSquare, ExternalLink, Instagram, Facebook, Share, RefreshCw } from "lucide-react"
+import { MapPin, Star, Globe, MessageSquare, ExternalLink, Instagram, Facebook, Share, RefreshCw, Search, X, ArrowUpDown } from "lucide-react"
 import { ContactForm } from "@/components/ContactForm"
 import { ShopSubmissionForm } from "@/components/ShopSubmissionForm"
 import { Button } from "@/components/ui/button"
@@ -12,9 +12,10 @@ import { toast } from "@/components/ui/use-toast"
 import { ShopCard } from '@/components/ShopCard'
 import { Shop } from '@/types/shop'
 import { LoadingSpinner } from '@/components/loading-spinner'
-import { StateFilter } from "@/components/StateFilter"
 import { DANCE_STYLES } from '@/lib/constants'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Input } from "@/components/ui/input"
+import { Badge } from "@/components/ui/badge"
 
 export default function ShopsPage() {
   const [shops, setShops] = useState<Shop[]>([])
@@ -24,8 +25,9 @@ export default function ShopsPage() {
   const [isSubmissionFormOpen, setIsSubmissionFormOpen] = useState(false)
   const [selectedImage, setSelectedImage] = useState<{ url: string; title: string } | null>(null)
   const [activeTab, setActiveTab] = useState("new")
-  const [selectedState, setSelectedState] = useState("all")
   const [lastUpdated, setLastUpdated] = useState<Date>(new Date())
+  const [searchTerm, setSearchTerm] = useState("")
+  const [sortBy, setSortBy] = useState<"name" | "location" | "none">("none")
 
     const fetchShops = async () => {
       setIsLoading(true)
@@ -54,12 +56,36 @@ export default function ShopsPage() {
     fetchShops()
   }, [])
 
-  // Filter shops by condition and state
-  const filterByState = (shops: Shop[]) =>
-    selectedState && selectedState !== 'all' ? shops.filter(shop => shop.state === selectedState) : shops
+  // Filter and sort shops
+  const filterAndSortShops = (shops: Shop[]) => {
+    let filtered = shops
+
+    // Filter by search term
+    if (searchTerm.trim()) {
+      const term = searchTerm.toLowerCase()
+      filtered = filtered.filter(shop => 
+        shop.name.toLowerCase().includes(term) ||
+        shop.location.toLowerCase().includes(term) ||
+        shop.comment?.toLowerCase().includes(term)
+      )
+    }
+
+    // Sort shops
+    if (sortBy === "name") {
+      filtered = [...filtered].sort((a, b) => a.name.localeCompare(b.name))
+    } else if (sortBy === "location") {
+      filtered = [...filtered].sort((a, b) => a.location.localeCompare(b.location))
+    }
+
+    return filtered
+  }
   
-  const newShops = filterByState(shops.filter(shop => shop.condition === 'New'))
-  const secondHandShops = filterByState(shops.filter(shop => shop.condition === 'Second Hand'))
+  const newShops = filterAndSortShops(shops.filter(shop => shop.condition === 'New'))
+  const secondHandShops = filterAndSortShops(shops.filter(shop => shop.condition === 'Second Hand'))
+  
+  const totalShops = shops.length
+  const filteredCount = activeTab === "new" ? newShops.length : secondHandShops.length
+  const hasActiveFilters = searchTerm.trim() !== '' || sortBy !== 'none'
 
   if (isLoading) {
     return <LoadingSpinner message="Loading shops..." />
@@ -86,30 +112,111 @@ export default function ShopsPage() {
           Use code BACHATAAU at checkout — every purchase helps support and grow Bachata.au for the Australian dance community!
           </p>
         </div>
-        <div className="mb-4 sm:mb-8">
-          <StateFilter selectedState={selectedState} onChange={setSelectedState} />
-          <p className="text-center text-sm font-medium bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent mt-2">
-            Always Mention ❤️ BACHATAAU ❤️
-          </p>
-          <div className="text-center mt-4 space-y-2">
-            <div className="flex justify-center space-x-2">
-            <Button
-              onClick={() => setIsSubmissionFormOpen(true)}
-              className="bg-gradient-to-r from-primary to-secondary text-white px-6 py-2 rounded-full font-semibold hover:opacity-90 transition-all duration-200 shadow-lg"
-            >
-              Add Listing
-            </Button>
+        <div className="mb-6 sm:mb-8 space-y-4">
+          {/* Filters and Search */}
+          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
+            <div className="flex gap-2 w-full sm:w-auto">
+              <div className="relative flex-1 sm:w-[250px]">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                <Input
+                  type="text"
+                  placeholder="Search shops..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-10 pr-10 bg-white border-gray-200 focus:border-primary focus:ring-primary rounded-md"
+                />
+                {searchTerm && (
+                  <button
+                    onClick={() => setSearchTerm("")}
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
+                )}
+              </div>
+              <Select value={sortBy} onValueChange={(value: "name" | "location" | "none") => setSortBy(value)}>
+                <SelectTrigger className="w-full sm:w-[180px] bg-white border-gray-200 focus:border-primary focus:ring-primary rounded-md">
+                  <div className="flex items-center gap-2">
+                    <ArrowUpDown className="h-4 w-4 text-gray-400" />
+                    <SelectValue placeholder="Sort by" />
+                  </div>
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">No sorting</SelectItem>
+                  <SelectItem value="name">Name (A-Z)</SelectItem>
+                  <SelectItem value="location">Location</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          {/* Active Filters Display */}
+          {hasActiveFilters && (
+            <div className="flex flex-wrap items-center gap-2 px-4 py-2 bg-white rounded-lg border border-gray-200 shadow-sm">
+              <span className="text-sm text-gray-600 font-medium">Filters:</span>
+              {searchTerm && (
+                <Badge variant="secondary" className="flex items-center gap-1">
+                  Search: "{searchTerm}"
+                  <button
+                    onClick={() => setSearchTerm("")}
+                    className="ml-1 hover:text-red-500"
+                  >
+                    <X className="h-3 w-3" />
+                  </button>
+                </Badge>
+              )}
+              {sortBy !== 'none' && (
+                <Badge variant="secondary" className="flex items-center gap-1">
+                  Sort: {sortBy === 'name' ? 'Name' : 'Location'}
+                  <button
+                    onClick={() => setSortBy('none')}
+                    className="ml-1 hover:text-red-500"
+                  >
+                    <X className="h-3 w-3" />
+                  </button>
+                </Badge>
+              )}
+              <button
+                onClick={() => {
+                  setSearchTerm('')
+                  setSortBy('none')
+                }}
+                className="text-sm text-primary hover:underline ml-auto"
+              >
+                Clear all
+              </button>
+            </div>
+          )}
+
+          {/* Stats and Actions */}
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 bg-gradient-to-r from-primary/5 to-secondary/5 rounded-lg p-4 border border-primary/10">
+            <div className="text-center sm:text-left">
+              <p className="text-sm font-medium bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+                Always Mention ❤️ BACHATAAU ❤️
+              </p>
+              <p className="text-xs text-gray-600 mt-1">
+                Showing {filteredCount} of {totalShops} {activeTab === "new" ? "new" : "second hand"} items
+                {hasActiveFilters && ` (filtered)`}
+              </p>
+            </div>
+            <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+              <Button
+                onClick={() => setIsSubmissionFormOpen(true)}
+                className="bg-gradient-to-r from-primary to-secondary text-white px-6 py-2 rounded-full font-semibold hover:opacity-90 transition-all duration-200 shadow-lg w-full sm:w-auto"
+              >
+                Add Listing
+              </Button>
               <Button
                 onClick={fetchShops}
                 variant="outline"
-                className="px-4 py-2 rounded-full font-semibold hover:bg-gray-100 transition-all duration-200"
+                className="px-4 py-2 rounded-full font-semibold hover:bg-gray-100 transition-all duration-200 w-full sm:w-auto"
                 disabled={isLoading}
               >
                 <RefreshCw className={`w-4 h-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
                 Refresh
               </Button>
             </div>
-            <p className="text-xs text-gray-500">
+            <p className="text-xs text-gray-500 text-center sm:text-right">
               Last updated: {lastUpdated.toLocaleTimeString()}
             </p>
           </div>
@@ -125,31 +232,79 @@ export default function ShopsPage() {
           </TabsList>
 
           <TabsContent value="new" className="mt-0">
-            <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-4 md:gap-6">
-              {newShops.length === 0 ? (
-                <div className="col-span-full text-center py-6 sm:py-8 text-gray-500">
-                  No new items found
+            {newShops.length === 0 ? (
+              <div className="col-span-full text-center py-12 sm:py-16">
+                <div className="max-w-md mx-auto">
+                  <div className="mb-4">
+                    <Search className="h-16 w-16 mx-auto text-gray-300" />
+                  </div>
+                  <h3 className="text-xl font-semibold text-gray-700 mb-2">
+                    {hasActiveFilters ? "No items match your filters" : "No new items available"}
+                  </h3>
+                  <p className="text-gray-500 mb-6">
+                    {hasActiveFilters 
+                      ? "Try adjusting your filters or search terms to find more items."
+                      : "Check back soon for new listings!"}
+                  </p>
+                  {hasActiveFilters && (
+                    <Button
+                      onClick={() => {
+                        setSearchTerm('')
+                        setSortBy('none')
+                      }}
+                      variant="outline"
+                      className="rounded-full"
+                    >
+                      Clear Filters
+                    </Button>
+                  )}
                 </div>
-              ) : (
-                newShops.map((shop) => (
+              </div>
+            ) : (
+              <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-4 md:gap-6">
+                {newShops.map((shop) => (
                   <ShopCard key={shop.id} shop={shop} />
-                ))
-              )}
-            </div>
+                ))}
+              </div>
+            )}
           </TabsContent>
 
           <TabsContent value="second-hand" className="mt-0">
-            <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-4 md:gap-6">
-              {secondHandShops.length === 0 ? (
-                <div className="col-span-full text-center py-6 sm:py-8 text-gray-500">
-                  No second hand items found
+            {secondHandShops.length === 0 ? (
+              <div className="col-span-full text-center py-12 sm:py-16">
+                <div className="max-w-md mx-auto">
+                  <div className="mb-4">
+                    <Search className="h-16 w-16 mx-auto text-gray-300" />
+                  </div>
+                  <h3 className="text-xl font-semibold text-gray-700 mb-2">
+                    {hasActiveFilters ? "No items match your filters" : "No second hand items available"}
+                  </h3>
+                  <p className="text-gray-500 mb-6">
+                    {hasActiveFilters 
+                      ? "Try adjusting your filters or search terms to find more items."
+                      : "Check back soon for second hand listings!"}
+                  </p>
+                  {hasActiveFilters && (
+                    <Button
+                      onClick={() => {
+                        setSearchTerm('')
+                        setSortBy('none')
+                      }}
+                      variant="outline"
+                      className="rounded-full"
+                    >
+                      Clear Filters
+                    </Button>
+                  )}
                 </div>
-              ) : (
-                secondHandShops.map((shop) => (
+              </div>
+            ) : (
+              <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-4 md:gap-6">
+                {secondHandShops.map((shop) => (
                   <ShopCard key={shop.id} shop={shop} />
-                ))
-              )}
-            </div>
+                ))}
+              </div>
+            )}
           </TabsContent>
         </Tabs>
 
