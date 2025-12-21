@@ -13,7 +13,13 @@ interface ShopCardProps {
 
 export function ShopCard({ shop }: ShopCardProps) {
   // Debug log to see shop data
-  console.log('Shop data:', { name: shop.name, info: shop.info, infoLength: shop.info?.length })
+  console.log('Shop data:', { 
+    name: shop.name, 
+    discountCode: shop.discountCode, 
+    hasDiscountCode: !!shop.discountCode,
+    discountCodeType: typeof shop.discountCode,
+    discountCodeLength: shop.discountCode?.length 
+  })
 
   const handleImageClick = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -47,7 +53,7 @@ export function ShopCard({ shop }: ShopCardProps) {
                   <div className="absolute inset-0 bg-gradient-to-r from-white/40 to-transparent rounded-lg opacity-50"></div>
                 </div>
               )}
-              {shop.discountCode && (
+              {shop.discountCode && shop.discountCode.trim() !== '' && (
                 <div className="bg-gradient-to-r from-primary via-primary/90 to-secondary text-white px-2 py-1 rounded-full text-xs font-bold shadow-xl transform rotate-3 hover:rotate-0 hover:scale-110 transition-all duration-300 flex items-center gap-1 border-2 border-white/20 backdrop-blur-sm">
                   <Tag className="h-3 w-3 drop-shadow-sm" />
                   <span className="drop-shadow-sm">{shop.discountCode}</span>

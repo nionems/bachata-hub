@@ -5,7 +5,6 @@ import { Toaster } from "sonner"
 import Navbar from "@/components/navbar"
 import Footer from "@/components/footer"
 import { AIAssistant } from "@/components/AIAssistant"
-import { AddToHomeScreenModal } from "@/components/AddToHomeScreenModal"
 import { ServiceWorkerRegistration } from "@/components/ServiceWorkerRegistration"
 import { Analytics } from '@vercel/analytics/react'
 
@@ -134,7 +133,6 @@ export default function RootLayout({
         <Footer />
         {/* <AIAssistant /> */}
         <ServiceWorkerRegistration />
-        <AddToHomeScreenModal />
         <Toaster />
         <Analytics />
       </body>

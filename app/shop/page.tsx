@@ -33,10 +33,9 @@ export default function ShopsPage() {
       setIsLoading(true)
       setError(null)
       try {
-      // Use cache with revalidation for better performance
-      // Cache for 30 seconds to balance freshness and speed
-      const response = await fetch('/api/shops', {
-        next: { revalidate: 30 }
+      // Fetch with cache-busting timestamp to ensure fresh data while maintaining performance
+      const response = await fetch(`/api/shops?t=${Date.now()}`, {
+        cache: 'no-store'
       })
         if (!response.ok) {
           throw new Error('Failed to fetch shops')
