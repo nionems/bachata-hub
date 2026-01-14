@@ -15,6 +15,7 @@ interface ShopCardProps {
 
 export function ShopCard({ shop }: ShopCardProps) {
   const [isInfoOpen, setIsInfoOpen] = useState(false)
+  const [isImageOpen, setIsImageOpen] = useState(false)
 
   // Debug log to see shop data - especially for sasarosa
   if (shop.name?.toLowerCase().includes('sasarosa')) {
@@ -33,11 +34,16 @@ export function ShopCard({ shop }: ShopCardProps) {
   const handleImageClick = (e: React.MouseEvent) => {
     e.stopPropagation();
     if (shop.website) {
+      // If website exists, open website
       window.open(shop.website, '_blank', 'noopener,noreferrer');
+    } else {
+      // If no website, open image in modal
+      setIsImageOpen(true);
     }
   }
 
   const hasInfo = shop.info && shop.info.trim().length > 0
+  const hasWebsite = shop.website && shop.website.trim().length > 0
 
   return (
     <>
@@ -75,11 +81,19 @@ export function ShopCard({ shop }: ShopCardProps) {
           </div>
 
           {/* Middle section - Clickable area with subtle hint */}
-          {shop.website && (
+          {hasWebsite ? (
             <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200">
               <div className="bg-white/20 backdrop-blur-sm rounded-full p-2">
                 <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                </svg>
+              </div>
+            </div>
+          ) : (
+            <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+              <div className="bg-white/20 backdrop-blur-sm rounded-full p-2">
+                <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7" />
                 </svg>
               </div>
             </div>
@@ -192,6 +206,27 @@ export function ShopCard({ shop }: ShopCardProps) {
             <div className="mt-4">
               <h4 className="font-semibold mb-2 text-sm text-gray-700">Additional Information:</h4>
               <p className="text-sm text-gray-600 whitespace-pre-wrap">{shop.info}</p>
+            </div>
+          </DialogContent>
+        </Dialog>
+      )}
+
+      {/* Image Dialog - Only shown when there's no website */}
+      {!hasWebsite && (
+        <Dialog open={isImageOpen} onOpenChange={setIsImageOpen}>
+          <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto p-0">
+            <DialogHeader className="p-6 pb-4">
+              <DialogTitle>{shop.name}</DialogTitle>
+              <DialogDescription>
+                {shop.location}, {shop.state}
+              </DialogDescription>
+            </DialogHeader>
+            <div className="p-6 pt-0">
+              <img
+                src={shop.imageUrl}
+                alt={shop.name}
+                className="w-full h-auto rounded-lg object-contain max-h-[70vh]"
+              />
             </div>
           </DialogContent>
         </Dialog>

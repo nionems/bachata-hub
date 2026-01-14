@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { doc, getDoc, updateDoc } from 'firebase/firestore'
 import { db } from '@/lib/firebase'
 import { DANCE_STYLES, AUSTRALIAN_STATES } from '@/lib/constants'
+import { toast } from 'sonner'
 
 interface Shop {
   id: string
@@ -227,7 +228,9 @@ export default function EditShopPage({ params }: { params: Promise<{ id: string 
       }
 
       console.log('Shop updated successfully, redirecting...')
-      router.push('/admin/dashboard')
+      toast.success('Shop updated successfully')
+      // Force a full page reload and switch to shops tab to show updated shop
+      window.location.href = '/admin/dashboard?tab=shops&refresh=true'
     } catch (error) {
       console.error('Error updating shop:', error)
       setError(error instanceof Error ? error.message : 'Failed to update shop')

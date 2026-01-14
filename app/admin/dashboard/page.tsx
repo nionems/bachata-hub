@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { School } from '@/types/school'
 import { collection, getDocs, addDoc, doc, deleteDoc } from 'firebase/firestore'
 import { db } from '../../../firebase/config'
@@ -215,6 +215,20 @@ export default function AdminDashboard() {
   const [competitionStatusFilter, setCompetitionStatusFilter] = useState('all')
   const [djStatusFilter, setDJStatusFilter] = useState('all')
   const router = useRouter()
+  const searchParams = useSearchParams()
+
+  // Check for tab query parameter on mount and when searchParams change
+  useEffect(() => {
+    const tab = searchParams?.get('tab')
+    if (tab && ['schools', 'events', 'festivals', 'instructors', 'djs', 'competitions', 'shops', 'accommodations', 'media', 'users'].includes(tab)) {
+      setActiveTab(tab)
+      // If refresh parameter is present, force refresh the data
+      if (searchParams?.get('refresh') === 'true') {
+        // Remove the query parameters from URL without reloading
+        router.replace('/admin/dashboard')
+      }
+    }
+  }, [searchParams, router])
 
   // useEffect(() => {
   //   checkAuth()
