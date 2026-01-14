@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { School } from '@/types/school'
 import { collection, getDocs, addDoc, doc, deleteDoc } from 'firebase/firestore'
@@ -186,7 +186,7 @@ interface User {
   subscribedAt?: string
 }
 
-export default function AdminDashboard() {
+function AdminDashboardContent() {
   const [schools, setSchools] = useState<School[]>([])
   const [events, setEvents] = useState<Event[]>([])
   const [festivals, setFestivals] = useState<Festival[]>([])
@@ -3018,5 +3018,13 @@ export default function AdminDashboard() {
         />
       )}
     </div>
+  )
+}
+
+export default function AdminDashboard() {
+  return (
+    <Suspense fallback={<div className="container mx-auto px-4 py-8">Loading dashboard...</div>}>
+      <AdminDashboardContent />
+    </Suspense>
   )
 } 
