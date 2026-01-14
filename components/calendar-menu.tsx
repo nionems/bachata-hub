@@ -38,7 +38,7 @@ export default function CalendarMenu() {
       [calendarIds.darwinBachata]: "Darwin Bachata",
       [calendarIds.hobartBachata]: "Hobart Bachata",
       [calendarIds.festivals]: "Festivals",
-      [calendarIds.allDanceStyleSydney]: "All Dance Style Sydney"
+      [calendarIds.allDanceStyleSydney]: "Danse Adventure Squad Sydney"
     }
     return cityMap[selectedCalendar] || "Bachata"
   }
@@ -56,7 +56,7 @@ export default function CalendarMenu() {
       [calendarIds.darwinBachata]: "Darwin Bachata",
       [calendarIds.hobartBachata]: "Hobart Bachata",
       [calendarIds.festivals]: "Festivals",
-      [calendarIds.allDanceStyleSydney]: "All Dance Style Sydney"
+      [calendarIds.allDanceStyleSydney]: "Danse Adventure Squad Sydney"
     }
     return cityMap[calendarId] || "Bachata"
   }
@@ -105,7 +105,7 @@ export default function CalendarMenu() {
                   <Calendar className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
                   <h3 className="text-white font-bold text-sm sm:text-lg">
                     {getSelectedCityName() === "Festivals" ? "Festivals Calendar" : 
-                     getSelectedCityName() === "All Dance Style Sydney" ? "All Dance Style Sydney Calendar" :
+                     getSelectedCityName() === "Danse Adventure Squad Sydney" ? "Danse Adventure Squad Sydney Calendar" :
                      `${getSelectedCityName()} Bachata Events Calendar`}
                   </h3>
                 </div>
@@ -152,7 +152,7 @@ export default function CalendarMenu() {
                     <option value={calendarIds.darwinBachata}>Darwin Bachata</option>
                     <option value={calendarIds.hobartBachata}>Hobart Bachata</option>
                     <option value={calendarIds.festivals}>Festivals</option>
-                    <option value={calendarIds.allDanceStyleSydney}>All Dance Style Sydney</option>
+                    <option value={calendarIds.allDanceStyleSydney}>Danse Adventure Squad Sydney</option>
                   </select>
                 </div>
               </div>
@@ -194,7 +194,7 @@ export default function CalendarMenu() {
                   <Calendar className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
                   <h3 className="text-white font-bold text-sm sm:text-lg">
                     {getSelectedCityName() === "Festivals" ? "Festivals Calendar" : 
-                     getSelectedCityName() === "All Dance Style Sydney" ? "All Dance Style Sydney Calendar" :
+                     getSelectedCityName() === "Danse Adventure Squad Sydney" ? "Danse Adventure Squad Sydney Calendar" :
                      `${getSelectedCityName()} Bachata Events Calendar`}
                   </h3>
                 </div>
@@ -241,7 +241,7 @@ export default function CalendarMenu() {
                     <option value={calendarIds.darwinBachata}>Darwin Bachata</option>
                     <option value={calendarIds.hobartBachata}>Hobart Bachata</option>
                     <option value={calendarIds.festivals}>Festivals</option>
-                    <option value={calendarIds.allDanceStyleSydney}>All Dance Style Sydney</option>
+                    <option value={calendarIds.allDanceStyleSydney}>Danse Adventure Squad Sydney</option>
                   </select>
                 </div>
               </div>

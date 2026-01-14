@@ -211,7 +211,7 @@ export default function AdminDashboard() {
   const [showCurrentPassword, setShowCurrentPassword] = useState(false)
   const [showNewPassword, setShowNewPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
-  const [shopStatusFilter, setShopStatusFilter] = useState('all')
+  const [shopStatusFilter, setShopStatusFilter] = useState('pending')
   const [competitionStatusFilter, setCompetitionStatusFilter] = useState('all')
   const [djStatusFilter, setDJStatusFilter] = useState('all')
   const router = useRouter()
@@ -438,12 +438,30 @@ export default function AdminDashboard() {
     try {
       setIsLoading(true)
       console.log('Fetching shops from admin API...')
-      const response = await fetch('/api/admin/shops')
-      if (!response.ok) throw new Error('Failed to fetch shops')
+      // Add cache-busting to ensure fresh data
+      const response = await fetch(`/api/admin/shops?t=${Date.now()}`, {
+        cache: 'no-store',
+        headers: {
+          'Cache-Control': 'no-cache'
+        }
+      })
+      if (!response.ok) {
+        const errorText = await response.text()
+        console.error('Failed to fetch shops:', errorText)
+        throw new Error('Failed to fetch shops')
+      }
       const data = await response.json()
       console.log('Fetched shops data:', data)
       console.log('Number of shops fetched:', data.length)
+      console.log('Shops status breakdown:', {
+        all: data.length,
+        pending: data.filter((s: Shop) => s.status === 'pending').length,
+        approved: data.filter((s: Shop) => s.status === 'approved').length,
+        rejected: data.filter((s: Shop) => s.status === 'rejected').length,
+        noStatus: data.filter((s: Shop) => !s.status).length
+      })
       setShops(data)
+      setError(null)
     } catch (err) {
       console.error('Error fetching shops:', err)
       setError('Failed to load shops')
@@ -2304,6 +2322,13 @@ export default function AdminDashboard() {
                 </div>
               </div>
               <div className="flex gap-2">
+                <button
+                  onClick={() => fetchShops()}
+                  className="bg-gray-500 text-white px-3 py-1.5 rounded hover:bg-gray-600 text-sm"
+                  title="Refresh shops list"
+                >
+                  🔄 Refresh
+                </button>
                 <select
                   value={shopStatusFilter}
                   onChange={(e) => setShopStatusFilter(e.target.value)}
@@ -2351,7 +2376,9 @@ export default function AdminDashboard() {
                 {filteredShops
                   .filter(shop => {
                     if (shopStatusFilter === 'all') return true
-                    return shop.status === shopStatusFilter
+                    // Treat shops without status as pending
+                    const shopStatus = shop.status || 'pending'
+                    return shopStatus === shopStatusFilter
                   })
                   .map((shop) => (
                     <div
@@ -2390,11 +2417,11 @@ export default function AdminDashboard() {
                           <p className="text-gray-600">
                             <span className="font-medium">Status:</span> 
                             <span className={`ml-1 px-2 py-1 rounded text-xs font-medium ${
-                              shop.status === 'approved' ? 'bg-green-100 text-green-800' :
-                              shop.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
+                              (shop.status || 'pending') === 'approved' ? 'bg-green-100 text-green-800' :
+                              (shop.status || 'pending') === 'pending' ? 'bg-yellow-100 text-yellow-800' :
                               'bg-red-100 text-red-800'
                             }`}>
-                              {shop.status || 'No Status'}
+                              {shop.status || 'pending'}
                             </span>
                           </p>
                           <p className="text-gray-600">
@@ -2465,7 +2492,7 @@ export default function AdminDashboard() {
                           >
                             Delete
                           </button>
-                          {shop.status === 'pending' && (
+                          {(shop.status === 'pending' || !shop.status) && (
                             <>
                               <button
                                 onClick={() => handleApproveShop(shop.id)}

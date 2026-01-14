@@ -148,6 +148,11 @@ export default function NewShopPage() {
         imageUrl = uploadData.imageUrl
       }
 
+      // Validate that we have an image URL
+      if (!imageUrl || imageUrl.trim() === '') {
+        throw new Error('Please upload an image or provide an image URL')
+      }
+
       let danceStylesToSave = formData.danceStyles.includes('All')
         ? DANCE_STYLES.filter(style => style !== 'All')
         : formData.danceStyles
@@ -189,15 +194,31 @@ export default function NewShopPage() {
           router.replace('/admin/login')
           return
         }
-        throw new Error('Failed to create shop')
+        // Try to get error details from response
+        let errorMessage = 'Failed to create shop'
+        try {
+          const errorData = await response.json()
+          if (errorData.missingFields) {
+            errorMessage = `Missing required fields: ${errorData.missingFields.join(', ')}`
+          } else if (errorData.error) {
+            errorMessage = errorData.error
+          } else if (errorData.details) {
+            errorMessage = errorData.details
+          }
+        } catch (e) {
+          // If parsing fails, use default message
+        }
+        throw new Error(errorMessage)
       }
 
       toast.success('Shop created successfully')
-      router.push('/admin/dashboard')
+      // Redirect to dashboard and force refresh to show the new shop
+      window.location.href = '/admin/dashboard'
     } catch (err) {
       console.error('Error creating shop:', err)
-      setError('Failed to create shop')
-      toast.error('Failed to create shop')
+      const errorMessage = err instanceof Error ? err.message : 'Failed to create shop'
+      setError(errorMessage)
+      toast.error(errorMessage)
     } finally {
       setLoading(false)
     }
@@ -287,6 +308,7 @@ export default function NewShopPage() {
                 type="email"
                 value={formData.contactEmail}
                 onChange={handleChange}
+                required
                 placeholder="Enter contact email"
               />
             </div>
@@ -344,6 +366,7 @@ export default function NewShopPage() {
                 name="price"
                 value={formData.price}
                 onChange={handleChange}
+                required
                 placeholder="Enter price range (e.g., $10-50, Free, etc.)"
               />
             </div>
