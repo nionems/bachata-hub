@@ -214,7 +214,7 @@ export function ShopCard({ shop }: ShopCardProps) {
       {/* Image Dialog - Only shown when there's no website */}
       {!hasWebsite && (
         <Dialog open={isImageOpen} onOpenChange={setIsImageOpen}>
-          <DialogContent className="max-w-[95vw] sm:max-w-6xl max-h-[95vh] overflow-hidden p-0 bg-black/95">
+          <DialogContent className="max-w-[95vw] sm:max-w-6xl max-h-[95vh] overflow-hidden p-0 bg-black/95 border-none [&>button]:text-white [&>button]:hover:bg-white/20 [&>button]:hover:opacity-100">
             <DialogHeader className="p-4 sm:p-6 pb-2 bg-black/50">
               <DialogTitle className="text-white text-lg sm:text-xl">{shop.name}</DialogTitle>
               <DialogDescription className="text-gray-300">
@@ -225,7 +225,7 @@ export function ShopCard({ shop }: ShopCardProps) {
               <img
                 src={shop.imageUrl}
                 alt={shop.name}
-                className="max-w-full max-h-[85vh] w-auto h-auto object-contain rounded-lg shadow-2xl"
+                className="max-w-full max-h-[85vh] w-auto h-auto object-contain rounded-lg shadow-2xl cursor-default"
                 onClick={(e) => e.stopPropagation()}
               />
             </div>
