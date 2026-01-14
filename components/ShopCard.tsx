@@ -1,9 +1,11 @@
 'use client'
 
+import { useState } from "react"
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Instagram, Facebook, MapPin, Tag, ChevronDown, ChevronUp } from "lucide-react"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
+import { Instagram, Facebook, MapPin, Tag, Info } from "lucide-react"
 import { toast } from "@/components/ui/use-toast"
 import { Shop } from "@/types/shop"
 
@@ -12,6 +14,8 @@ interface ShopCardProps {
 }
 
 export function ShopCard({ shop }: ShopCardProps) {
+  const [isInfoOpen, setIsInfoOpen] = useState(false)
+
   // Debug log to see shop data - especially for sasarosa
   if (shop.name?.toLowerCase().includes('sasarosa')) {
     console.log('🔍 SARASOSA SHOP DEBUG:', { 
@@ -32,6 +36,8 @@ export function ShopCard({ shop }: ShopCardProps) {
       window.open(shop.website, '_blank', 'noopener,noreferrer');
     }
   }
+
+  const hasInfo = shop.info && shop.info.trim().length > 0
 
   return (
     <>
@@ -86,6 +92,18 @@ export function ShopCard({ shop }: ShopCardProps) {
             {/* Compact action buttons */}
             <div className="flex items-center justify-between gap-1">
               <div className="flex gap-1 items-center">
+                {hasInfo && (
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setIsInfoOpen(true);
+                    }}
+                    className="p-1.5 bg-primary/20 hover:bg-primary/30 text-primary rounded-full transition-colors duration-200"
+                    title="More Info"
+                  >
+                    <Info className="h-4 w-4" />
+                  </button>
+                )}
                 {shop.instagramUrl && (
                   <a
                     href={shop.instagramUrl}
@@ -160,6 +178,24 @@ export function ShopCard({ shop }: ShopCardProps) {
           </div>
         </div>
       </Card>
+
+      {/* Info Dialog */}
+      {hasInfo && (
+        <Dialog open={isInfoOpen} onOpenChange={setIsInfoOpen}>
+          <DialogContent className="max-w-md max-h-[80vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>{shop.name}</DialogTitle>
+              <DialogDescription>
+                {shop.location}, {shop.state}
+              </DialogDescription>
+            </DialogHeader>
+            <div className="mt-4">
+              <h4 className="font-semibold mb-2 text-sm text-gray-700">Additional Information:</h4>
+              <p className="text-sm text-gray-600 whitespace-pre-wrap">{shop.info}</p>
+            </div>
+          </DialogContent>
+        </Dialog>
+      )}
     </>
   )
 } 
