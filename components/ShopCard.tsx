@@ -214,18 +214,19 @@ export function ShopCard({ shop }: ShopCardProps) {
       {/* Image Dialog - Only shown when there's no website */}
       {!hasWebsite && (
         <Dialog open={isImageOpen} onOpenChange={setIsImageOpen}>
-          <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto p-0">
-            <DialogHeader className="p-6 pb-4">
-              <DialogTitle>{shop.name}</DialogTitle>
-              <DialogDescription>
+          <DialogContent className="max-w-[95vw] sm:max-w-6xl max-h-[95vh] overflow-hidden p-0 bg-black/95">
+            <DialogHeader className="p-4 sm:p-6 pb-2 bg-black/50">
+              <DialogTitle className="text-white text-lg sm:text-xl">{shop.name}</DialogTitle>
+              <DialogDescription className="text-gray-300">
                 {shop.location}, {shop.state}
               </DialogDescription>
             </DialogHeader>
-            <div className="p-6 pt-0">
+            <div className="flex items-center justify-center p-2 sm:p-4 overflow-auto max-h-[calc(95vh-100px)]">
               <img
                 src={shop.imageUrl}
                 alt={shop.name}
-                className="w-full h-auto rounded-lg object-contain max-h-[70vh]"
+                className="max-w-full max-h-[85vh] w-auto h-auto object-contain rounded-lg shadow-2xl"
+                onClick={(e) => e.stopPropagation()}
               />
             </div>
           </DialogContent>
