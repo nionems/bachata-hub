@@ -34,11 +34,15 @@ const nextConfig = {
       }
     ],
     domains: ['firebasestorage.googleapis.com'],
-    deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048],
-    imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
+    // Reduced from 7 to 4 device sizes to minimize variants
+    deviceSizes: [640, 828, 1200, 1920],
+    // Reduced from 8 to 4 image sizes to minimize variants
+    imageSizes: [16, 32, 96, 256],
     formats: ['image/webp'],
-    minimumCacheTTL: 60,
-    dangerouslyAllowSVG: true,
+    // Increased from 60 seconds to 1 year for better caching
+    minimumCacheTTL: 31536000,
+    // SVGs should not go through Image optimization - use regular img tags instead
+    dangerouslyAllowSVG: false,
     contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
   },
   async redirects() {

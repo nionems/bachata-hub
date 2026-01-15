@@ -26,23 +26,21 @@ export function CloudinaryImage({
   className,
   priority,
   sizes,
-  quality = 80,
+  quality = 75, // Standardized quality value
   format = 'auto',
   crop = 'fill',
   gravity = 'auto',
   onError,
   onLoad,
 }: CloudinaryImageProps) {
-  // If it's the placeholder, use it directly
-  if (src === '/images/placeholder.svg') {
+  // If it's the placeholder SVG, use regular img tag (SVGs shouldn't go through Image optimization)
+  if (src === '/images/placeholder.svg' || src === '/placeholder.svg') {
     return (
       <div className="absolute inset-0 flex items-center justify-center bg-gray-100">
-        <Image
+        <img
           src="/images/placeholder.svg"
           alt="No image available"
-          fill
-          className="object-contain p-8"
-          priority={priority}
+          className="object-contain p-8 w-full h-full"
         />
       </div>
     )
@@ -58,16 +56,14 @@ export function CloudinaryImage({
     .split('%3E')[0] // Take only the first part if URLs are joined with %3E
     .split('>')[0] // Take only the first part if URLs are joined with >
 
-  // If the URL is malformed or empty, use placeholder
+  // If the URL is malformed or empty, use placeholder SVG (use regular img tag)
   if (!cleanUrl || cleanUrl.length === 0) {
     return (
       <div className="absolute inset-0 flex items-center justify-center bg-gray-100">
-        <Image
+        <img
           src="/images/placeholder.svg"
           alt="No image available"
-          fill
-          className="object-contain p-8"
-          priority={priority}
+          className="object-contain p-8 w-full h-full"
         />
       </div>
     )
@@ -76,7 +72,8 @@ export function CloudinaryImage({
   // Check if the URL is a Cloudinary URL
   const isCloudinaryUrl = cleanUrl?.includes('res.cloudinary.com')
   
-  // If it's a Cloudinary URL, optimize it
+  // If it's a Cloudinary URL, use unoptimized since Cloudinary already optimizes
+  // Cloudinary handles optimization, so we don't need Next.js to optimize again
   if (isCloudinaryUrl) {
     const optimizedUrl = cleanUrl.replace('/upload/', `/upload/f_${format},q_${quality},c_${crop},g_${gravity}/`)
     return (
@@ -88,7 +85,8 @@ export function CloudinaryImage({
         fill={fill}
         className={className}
         priority={priority}
-        sizes={sizes || '(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw'}
+        sizes={sizes || (fill ? '(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw' : undefined)}
+        unoptimized={true} // Cloudinary already optimizes, skip Next.js optimization
         onError={(e) => {
           console.error('Error loading Cloudinary image:', optimizedUrl)
           if (onError) onError(e)
@@ -108,8 +106,8 @@ export function CloudinaryImage({
       fill={fill}
       className={className}
       priority={priority}
-      sizes={sizes || '(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw'}
-      quality={quality}
+      sizes={sizes || (fill ? '(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw' : undefined)}
+      quality={75} // Standardized quality value
       onError={(e) => {
         console.error('Error loading image:', cleanUrl)
         if (onError) onError(e)

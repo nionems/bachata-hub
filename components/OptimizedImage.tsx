@@ -9,7 +9,7 @@ interface OptimizedImageProps {
   height?: number
   className?: string
   priority?: boolean
-  sizes?: string
+  sizes?: string // Required when fill=true to prevent excessive variants
   onClick?: (e: React.MouseEvent) => void
   onLoad?: () => void
 }
@@ -93,12 +93,12 @@ export function OptimizedImage({
           imageLoaded ? 'opacity-100' : 'opacity-0'
         } ${onClick ? 'cursor-pointer' : ''}`}
         priority={priority}
-        sizes={sizes}
+        sizes={fill ? (sizes || '(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw') : sizes}
         loading={priority ? 'eager' : 'lazy'}
         onClick={onClick}
         onLoad={handleLoad}
         onError={handleError}
-        quality={85} // Optimize quality for better performance
+        quality={75} // Standardized quality value (reduced from 85)
         placeholder="blur"
         blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCdABmX/9k="
       />

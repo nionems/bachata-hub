@@ -497,7 +497,7 @@ export default function Home() {
                   alt="Bachata Australia Logo"
                   width={400}
                   height={400}
-                  quality={90}
+                  quality={90} // Keep high quality for hero/priority images
                   priority
                   fetchPriority="high"
                   className="w-40 h-40 sm:w-48 sm:h-48 md:w-80 md:h-80 relative z-10 -mt-2 sm:-mt-4 md:-mt-6"
@@ -809,6 +809,7 @@ export default function Home() {
                     width={120}
                     height={40}
                     className="h-8 w-auto object-contain rounded-full"
+                    unoptimized // Small logo doesn't need optimization
                   />
                 </Button>
               </div>

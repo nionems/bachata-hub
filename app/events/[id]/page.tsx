@@ -97,7 +97,7 @@ export default function EventDetailsPage() {
             className="object-cover"
             priority
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-            quality={90}
+            quality={75} // Standardized quality (reduced from 90)
             format="auto"
             crop="fill"
             gravity="auto"

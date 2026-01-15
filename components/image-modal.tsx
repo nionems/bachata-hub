@@ -30,7 +30,7 @@ export function ImageModal({ isOpen, onClose, imageUrl, title }: ImageModalProps
             className="object-contain"
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 70vw"
             priority
-            quality={90}
+            quality={75} // Standardized quality (reduced from 90 for modals)
             loading="eager"
           />
         </div>
