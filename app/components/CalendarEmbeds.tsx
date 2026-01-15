@@ -94,17 +94,6 @@ export default function CalendarEmbeds() {
         />
       </div>
 
-      <div className="calendar-embed">
-        <h3 className="text-xl font-semibold mb-4 text-primary">Bachata Events Calendar 2</h3>
-        <iframe 
-          src={`https://calendar.google.com/calendar/embed?src=6fd4c3996e34fed5839ec7fb4eb6d792c4c9fb788fca5aba169e05d8d385a205%40group.calendar.google.com${calendarParams}`}
-          style={{ border: 0, width: '100%', height: '600px' }} 
-          frameBorder="0" 
-          scrolling="no"
-          className="rounded-lg shadow-lg"
-        />
-      </div>
-
       <div className="mt-16 bg-gradient-to-r from-primary to-secondary rounded-xl shadow-xl overflow-hidden">
         <div className="p-8 md:p-12 flex flex-col md:flex-row items-center justify-between">
           <div className="text-white mb-6 md:mb-0 md:mr-8">

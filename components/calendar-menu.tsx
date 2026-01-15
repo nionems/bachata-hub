@@ -18,8 +18,7 @@ export default function CalendarMenu() {
     canberraBachata: "3a82a9f1ed5a4e865ed9f13b24a96004fe7c4b2deb07a422f068c70753f421eb@group.calendar.google.com",
     darwinBachata: "27319882e504521ffd07dca62fdf7a55f835bfb4233f4c096e787fa8e8fb881b@group.calendar.google.com",
     hobartBachata: "2f92a58bc97f58a3285a05a474f222d22aaed327af7431f21c2ad1a681c9607b@group.calendar.google.com",
-    festivals: "9b41c4eac569d26ccfeff3a9222cd9fb144d4d201bd04cbb2962944e7a9f5153@group.calendar.google.com",
-    allDanceStyleSydney: "6fd4c3996e34fed5839ec7fb4eb6d792c4c9fb788fca5aba169e05d8d385a205@group.calendar.google.com"
+    festivals: "9b41c4eac569d26ccfeff3a9222cd9fb144d4d201bd04cbb2962944e7a9f5153@group.calendar.google.com"
   }
 
   const [selectedCalendar, setSelectedCalendar] = useState(calendarIds.sydneyBachata)
@@ -37,8 +36,7 @@ export default function CalendarMenu() {
       [calendarIds.canberraBachata]: "Canberra Bachata",
       [calendarIds.darwinBachata]: "Darwin Bachata",
       [calendarIds.hobartBachata]: "Hobart Bachata",
-      [calendarIds.festivals]: "Festivals",
-      [calendarIds.allDanceStyleSydney]: "Danse Adventure Squad Sydney"
+      [calendarIds.festivals]: "Festivals"
     }
     return cityMap[selectedCalendar] || "Bachata"
   }
@@ -55,8 +53,7 @@ export default function CalendarMenu() {
       [calendarIds.canberraBachata]: "Canberra Bachata",
       [calendarIds.darwinBachata]: "Darwin Bachata",
       [calendarIds.hobartBachata]: "Hobart Bachata",
-      [calendarIds.festivals]: "Festivals",
-      [calendarIds.allDanceStyleSydney]: "Danse Adventure Squad Sydney"
+      [calendarIds.festivals]: "Festivals"
     }
     return cityMap[calendarId] || "Bachata"
   }
@@ -66,9 +63,9 @@ export default function CalendarMenu() {
     const viewParam = selectedView === "agenda" ? "&mode=AGENDA" : "&mode=MONTH"
 
     if (selectedCalendar === calendarIds.allCities) {
-      // Create a combined URL with all calendar IDs (excluding allDanceStyleSydney)
+      // Create a combined URL with all calendar IDs
       const allCalendarIds = Object.entries(calendarIds)
-        .filter(([key]) => key !== 'allCities' && key !== 'allDanceStyleSydney')
+        .filter(([key]) => key !== 'allCities')
         .map(([_, value]) => encodeURIComponent(value))
         .join('&src=');
       
@@ -105,7 +102,6 @@ export default function CalendarMenu() {
                   <Calendar className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
                   <h3 className="text-white font-bold text-sm sm:text-lg">
                     {getSelectedCityName() === "Festivals" ? "Festivals Calendar" : 
-                     getSelectedCityName() === "Danse Adventure Squad Sydney" ? "Danse Adventure Squad Sydney Calendar" :
                      `${getSelectedCityName()} Bachata Events Calendar`}
                   </h3>
                 </div>
@@ -152,7 +148,6 @@ export default function CalendarMenu() {
                     <option value={calendarIds.darwinBachata}>Darwin Bachata</option>
                     <option value={calendarIds.hobartBachata}>Hobart Bachata</option>
                     <option value={calendarIds.festivals}>Festivals</option>
-                    <option value={calendarIds.allDanceStyleSydney}>Danse Adventure Squad Sydney</option>
                   </select>
                 </div>
               </div>
@@ -194,7 +189,6 @@ export default function CalendarMenu() {
                   <Calendar className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
                   <h3 className="text-white font-bold text-sm sm:text-lg">
                     {getSelectedCityName() === "Festivals" ? "Festivals Calendar" : 
-                     getSelectedCityName() === "Danse Adventure Squad Sydney" ? "Danse Adventure Squad Sydney Calendar" :
                      `${getSelectedCityName()} Bachata Events Calendar`}
                   </h3>
                 </div>
@@ -241,7 +235,6 @@ export default function CalendarMenu() {
                     <option value={calendarIds.darwinBachata}>Darwin Bachata</option>
                     <option value={calendarIds.hobartBachata}>Hobart Bachata</option>
                     <option value={calendarIds.festivals}>Festivals</option>
-                    <option value={calendarIds.allDanceStyleSydney}>Danse Adventure Squad Sydney</option>
                   </select>
                 </div>
               </div>
