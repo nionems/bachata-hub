@@ -149,9 +149,9 @@ export function FestivalCard({ festival }: FestivalCardProps) {
             </div>
           )}
           {festival.ambassadorCode && (
-            <div className="flex gap-1 items-center">
-              <Badge variant="secondary" className="bg-green-500/20 text-green-700 text-xs">
-                🎫 {festival.ambassadorCode}
+            <div className="flex gap-1 items-center mb-2">
+              <Badge variant="secondary" className="bg-green-500/20 text-green-700 text-xs font-semibold border border-green-500/30">
+                🎫 Discount Code: {festival.ambassadorCode}
               </Badge>
             </div>
           )}

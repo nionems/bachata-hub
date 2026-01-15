@@ -165,8 +165,8 @@ const LazyFestivalCard = ({ festival, onImageClick, expandedDescriptions, toggle
         )}
         {festival.ambassadorCode && (
           <div className="mb-2">
-            <Badge variant="secondary" className="bg-green-500/20 text-green-700 hover:bg-green-500/30">
-              🎫 {festival.ambassadorCode}
+            <Badge variant="secondary" className="bg-green-500/20 text-green-700 hover:bg-green-500/30 font-semibold border border-green-500/30">
+              🎫 Discount Code: {festival.ambassadorCode}
             </Badge>
           </div>
         )}
