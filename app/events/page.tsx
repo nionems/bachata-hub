@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
-import { MapPin, ChevronDown, ChevronUp, X, Search, Clock, CalendarPlus, ExternalLink, Heart } from "lucide-react"
+import { MapPin, ChevronDown, ChevronUp, X, Search, Clock, CalendarPlus, ExternalLink, Heart, UserCheck } from "lucide-react"
 import Link from 'next/link'
 import { StateFilter } from '@/components/StateFilter'
 import { useStateFilter } from '@/hooks/useStateFilter'
@@ -40,6 +40,7 @@ interface Event {
   isWorkshop?: boolean
   published?: boolean
   likesCount?: number
+  goingCount?: number
   nextOccurrence?: Date | null
   nextOccurrenceConfirmed?: boolean // true = from Google Calendar, false = computed
   dayOfWeek?: string | null
@@ -67,6 +68,8 @@ export default function EventsPage() {
   const [expandedComments, setExpandedComments] = useState<Record<string, boolean>>({})
   const [likedEvents, setLikedEvents] = useState<Set<string>>(new Set())
   const [likeCounts, setLikeCounts] = useState<Record<string, number>>({})
+  const [goingEvents, setGoingEvents] = useState<Set<string>>(new Set())
+  const [goingCounts, setGoingCounts] = useState<Record<string, number>>({})
   const [searchTerm, setSearchTerm] = useState("")
   const [selectedDanceStyle, setSelectedDanceStyle] = useState("all")
   const [selectedDay, setSelectedDay] = useState("all")
@@ -176,11 +179,13 @@ export default function EventsPage() {
     setExpandedComments(prev => ({ ...prev, [eventId]: !prev[eventId] }))
   }
 
-  // Load liked events from localStorage on mount
+  // Load liked/going events from localStorage on mount
   useEffect(() => {
     try {
-      const stored = localStorage.getItem('likedEvents')
-      if (stored) setLikedEvents(new Set(JSON.parse(stored)))
+      const storedLikes = localStorage.getItem('likedEvents')
+      if (storedLikes) setLikedEvents(new Set(JSON.parse(storedLikes)))
+      const storedGoing = localStorage.getItem('goingEvents')
+      if (storedGoing) setGoingEvents(new Set(JSON.parse(storedGoing)))
     } catch {}
   }, [])
 
@@ -202,6 +207,28 @@ export default function EventsPage() {
     // Persist to Firestore
     try {
       await fetch(`/api/events/${eventId}/like`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action }),
+      })
+    } catch {}
+  }
+
+  const toggleGoing = async (e: React.MouseEvent, eventId: string, currentCount: number) => {
+    e.stopPropagation()
+    const isGoing = goingEvents.has(eventId)
+    const action = isGoing ? 'notgoing' : 'going'
+
+    const newGoing = new Set(goingEvents)
+    if (isGoing) newGoing.delete(eventId)
+    else newGoing.add(eventId)
+    setGoingEvents(newGoing)
+    setGoingCounts(prev => ({ ...prev, [eventId]: (prev[eventId] ?? currentCount) + (isGoing ? -1 : 1) }))
+
+    try { localStorage.setItem('goingEvents', JSON.stringify([...newGoing])) } catch {}
+
+    try {
+      await fetch(`/api/events/${eventId}/going`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ action }),
@@ -396,12 +423,23 @@ export default function EventsPage() {
                         onClick={(e) => toggleLike(e, event.id, event.likesCount ?? 0)}
                         title="Like this event"
                       >
-                        <Heart
-                          className={`h-3.5 w-3.5 transition-colors ${likedEvents.has(event.id) ? 'fill-red-500 text-red-500' : 'text-gray-400'}`}
-                        />
+                        <Heart className={`h-3.5 w-3.5 transition-colors ${likedEvents.has(event.id) ? 'fill-red-500 text-red-500' : 'text-gray-400'}`} />
                         {((likeCounts[event.id] ?? event.likesCount) || 0) > 0 && (
                           <span className={`text-[10px] font-semibold ${likedEvents.has(event.id) ? 'text-red-500' : 'text-gray-400'}`}>
                             {likeCounts[event.id] ?? event.likesCount}
+                          </span>
+                        )}
+                      </button>
+                      {/* I'm going button */}
+                      <button
+                        className="flex items-center gap-0.5 p-1.5 rounded-full transition-colors hover:bg-green-50"
+                        onClick={(e) => toggleGoing(e, event.id, event.goingCount ?? 0)}
+                        title="I'm going"
+                      >
+                        <UserCheck className={`h-3.5 w-3.5 transition-colors ${goingEvents.has(event.id) ? 'text-green-500' : 'text-gray-400'}`} />
+                        {((goingCounts[event.id] ?? event.goingCount) || 0) > 0 && (
+                          <span className={`text-[10px] font-semibold ${goingEvents.has(event.id) ? 'text-green-500' : 'text-gray-400'}`}>
+                            {goingCounts[event.id] ?? event.goingCount}
                           </span>
                         )}
                       </button>
