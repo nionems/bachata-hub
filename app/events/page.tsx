@@ -2,24 +2,19 @@
 
 import { useState, useEffect } from 'react'
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { MapPin, Calendar, Clock, Users, Info, Ticket, ExternalLink, ChevronDown, ChevronUp, X, Search } from "lucide-react"
-import { Calendar as UiCalendar } from '@/components/ui/calendar'
+import { Card } from "@/components/ui/card"
+import { MapPin, ChevronDown, ChevronUp, X, Search, Clock, CalendarPlus, ExternalLink } from "lucide-react"
 import Link from 'next/link'
 import { StateFilter } from '@/components/StateFilter'
-import { DanceStyleFilter } from '@/components/DanceStyleFilter'
 import { useStateFilter } from '@/hooks/useStateFilter'
-import { collection, getDocs } from 'firebase/firestore'
-import { db } from '../../firebase/config'
 import { format } from "date-fns";
 import { ContactForm } from "@/components/ContactForm"
 import { EventSubmissionForm } from "@/components/EventSubmissionForm"
 import CalendarMenu from "@/components/calendar-menu"
-import { EventCard } from '@/components/EventCard'
 import { LoadingSpinner } from '@/components/loading-spinner'
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { getNextOccurrence, getDayOfWeek, formatNextDate, formatTime, buildGoogleCalendarUrl } from '@/lib/recurrence'
 
 
 interface Event {
@@ -44,6 +39,8 @@ interface Event {
   recurrence?: string
   isWorkshop?: boolean
   published?: boolean
+  nextOccurrence?: Date | null
+  dayOfWeek?: string | null
 }
 
 export default function EventsPage() {
@@ -56,25 +53,23 @@ export default function EventsPage() {
   const [expandedComments, setExpandedComments] = useState<Record<string, boolean>>({})
   const [searchTerm, setSearchTerm] = useState("")
   const [selectedDanceStyle, setSelectedDanceStyle] = useState("all")
+  const [selectedDay, setSelectedDay] = useState("all")
   const [availableDanceStyles, setAvailableDanceStyles] = useState<string[]>([])
-  
+  const [availableDays, setAvailableDays] = useState<string[]>([])
+
   const { selectedState, setSelectedState, filteredItems: filteredEvents, isGeoLoading, error: geoError } = useStateFilter(events)
 
-  // Filter events based on search term and dance style
   const searchFilteredEvents = filteredEvents.filter(event => {
     const nameMatch = event.name.toLowerCase().includes(searchTerm.toLowerCase())
     const locationMatch = event.location.toLowerCase().includes(searchTerm.toLowerCase())
-    
-    // Handle dance styles - check if any dance style matches search term
-    const danceStylesMatch = Array.isArray(event.danceStyles) && event.danceStyles.some(style => 
+    const danceStylesMatch = Array.isArray(event.danceStyles) && event.danceStyles.some(style =>
       style.toLowerCase().includes(searchTerm.toLowerCase())
     )
-    
-    // Filter by selected dance style
-    const danceStyleMatch = selectedDanceStyle === "all" || 
+    const danceStyleMatch = selectedDanceStyle === "all" ||
       (Array.isArray(event.danceStyles) && event.danceStyles.includes(selectedDanceStyle))
-    
-    return (nameMatch || locationMatch || danceStylesMatch) && danceStyleMatch
+    const dayMatch = selectedDay === "all" || event.dayOfWeek === selectedDay
+
+    return (nameMatch || locationMatch || danceStylesMatch) && danceStyleMatch && dayMatch
   })
 
   useEffect(() => {
@@ -82,20 +77,25 @@ export default function EventsPage() {
       setIsLoading(true)
       setError(null)
       try {
-        // Use the public API route that filters for published events only
         const response = await fetch('/api/events?t=' + Date.now())
-        if (!response.ok) {
-          throw new Error('Failed to fetch events')
-        }
+        if (!response.ok) throw new Error('Failed to fetch events')
         const eventsList = await response.json() as Event[]
-        
-        // Sort events alphabetically by name
-        const sortedEvents = eventsList.sort((a, b) => 
-          a.name.localeCompare(b.name)
-        )
-        
-        console.log('Fetched published events from API:', sortedEvents)
-        setEvents(sortedEvents)
+
+        const eventsWithNext = eventsList.map(event => ({
+          ...event,
+          nextOccurrence: event.recurrence ? getNextOccurrence(event.recurrence) : null,
+          dayOfWeek: event.recurrence ? getDayOfWeek(event.recurrence) : null,
+        }))
+
+        // Sort by next occurrence date, then alphabetically for events without one
+        eventsWithNext.sort((a, b) => {
+          if (!a.nextOccurrence && !b.nextOccurrence) return a.name.localeCompare(b.name)
+          if (!a.nextOccurrence) return 1
+          if (!b.nextOccurrence) return -1
+          return a.nextOccurrence.getTime() - b.nextOccurrence.getTime()
+        })
+
+        setEvents(eventsWithNext)
       } catch (err) {
         console.error('Error fetching events:', err)
         setError('Failed to load events')
@@ -107,24 +107,25 @@ export default function EventsPage() {
     fetchEvents()
   }, [])
 
-  // Extract available dance styles from events in the selected state
   useEffect(() => {
     const styles = new Set<string>()
-    
-    // Filter events by selected state first
-    const stateFilteredEvents = selectedState === 'all' 
-      ? events 
+    const days = new Set<string>()
+    const stateFilteredEvents = selectedState === 'all'
+      ? events
       : events.filter(event => event.state === selectedState)
-    
+
     stateFilteredEvents.forEach(event => {
       if (event.danceStyles && Array.isArray(event.danceStyles)) {
         event.danceStyles.forEach(style => styles.add(style))
       }
+      if (event.dayOfWeek) days.add(event.dayOfWeek)
     })
     setAvailableDanceStyles(Array.from(styles).sort())
+
+    const dayOrder = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+    setAvailableDays(dayOrder.filter(d => days.has(d)))
   }, [events, selectedState])
 
-  // Auto-select Bachata if available, reset when state changes
   useEffect(() => {
     if (availableDanceStyles.includes('Bachata')) {
       setSelectedDanceStyle('Bachata')
@@ -134,10 +135,7 @@ export default function EventsPage() {
   }, [availableDanceStyles, selectedState])
 
   const toggleComment = (eventId: string) => {
-    setExpandedComments(prev => ({
-      ...prev,
-      [eventId]: !prev[eventId]
-    }))
+    setExpandedComments(prev => ({ ...prev, [eventId]: !prev[eventId] }))
   }
 
   if (isLoading) return <LoadingSpinner message="Loading events..." />
@@ -156,35 +154,46 @@ export default function EventsPage() {
         </div>
 
         <div className="mb-4 sm:mb-8">
-          <div className="flex flex-col gap-2 sm:flex-row sm:gap-4">
+          <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:gap-3">
             <StateFilter
               selectedState={selectedState}
               onChange={setSelectedState}
               isLoading={isGeoLoading}
               error={geoError}
             />
-            <div className="w-full sm:w-48">
+            <div className="w-full sm:w-44">
               <Select value={selectedDanceStyle} onValueChange={setSelectedDanceStyle}>
                 <SelectTrigger className="w-full bg-white/80 border-primary/30 shadow-lg rounded-xl text-base font-semibold transition-all focus:ring-2 focus:ring-primary focus:border-primary">
                   <SelectValue placeholder="Dance Style" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">All Dance Styles</SelectItem>
+                  <SelectItem value="all">All Styles</SelectItem>
                   {availableDanceStyles.map((style) => (
-                    <SelectItem key={style} value={style}>
-                      {style}
-                    </SelectItem>
+                    <SelectItem key={style} value={style}>{style}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>
             </div>
-            <div className="flex gap-2 w-full sm:w-auto">
+            <div className="w-full sm:w-44">
+              <Select value={selectedDay} onValueChange={setSelectedDay}>
+                <SelectTrigger className="w-full bg-white/80 border-primary/30 shadow-lg rounded-xl text-base font-semibold transition-all focus:ring-2 focus:ring-primary focus:border-primary">
+                  <SelectValue placeholder="Day of Week" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Days</SelectItem>
+                  {availableDays.map((day) => (
+                    <SelectItem key={day} value={day}>{day}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="flex gap-2 flex-1 min-w-0">
               <Input
                 type="text"
                 placeholder="Search events..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full sm:w-[200px] bg-white border-gray-200 focus:border-primary focus:ring-primary rounded-md"
+                className="w-full bg-white border-gray-200 focus:border-primary focus:ring-primary rounded-md"
               />
               <Button
                 variant="outline"
@@ -196,8 +205,7 @@ export default function EventsPage() {
               </Button>
             </div>
           </div>
-          
-          {/* Add Your Recurring Event Button */}
+
           <div className="mt-4 flex justify-center">
             <Button
               onClick={() => setIsFormOpen(true)}
@@ -211,9 +219,10 @@ export default function EventsPage() {
         <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-4 md:gap-6">
           {searchFilteredEvents.length === 0 ? (
             <div className="col-span-full text-center py-8 text-gray-500">
-              No events found 
+              No events found
               {selectedState !== 'all' && ` in ${selectedState}`}
               {selectedDanceStyle !== 'all' && ` for ${selectedDanceStyle}`}
+              {selectedDay !== 'all' && ` on ${selectedDay}s`}
             </div>
           ) : (
             searchFilteredEvents.map((event) => (
@@ -222,11 +231,11 @@ export default function EventsPage() {
                 className="relative overflow-hidden h-80 sm:h-96 text-white cursor-pointer"
                 onClick={() => event.imageUrl && setSelectedImage({ url: event.imageUrl, title: event.name })}
               >
-                {/* Dance Style Stickers */}
+                {/* Dance Style Badges */}
                 {event.danceStyles && Array.isArray(event.danceStyles) && event.danceStyles.length > 0 && (
                   <div className="absolute top-2 left-2 z-20 flex flex-wrap gap-1 max-w-[calc(100%-8rem)]">
                     {event.danceStyles.slice(0, 3).map((style, index) => (
-                      <div 
+                      <div
                         key={index}
                         className="bg-black/60 backdrop-blur-md border border-white/30 text-white text-xs font-medium px-2 py-1 rounded-full shadow-lg"
                       >
@@ -241,12 +250,23 @@ export default function EventsPage() {
                   </div>
                 )}
 
-                {/* Weekly Event Sticker */}
-                {event.isWeekly && (
-                  <div className="absolute top-2 right-2 z-20 bg-white/20 backdrop-blur-md border border-white/30 text-white text-xs font-medium px-3 py-1.5 rounded-full shadow-lg">
-                    {event.recurrence && event.recurrence.split(' ').map((word: string) => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
-                  </div>
-                )}
+                {/* Next date badge (top right) */}
+                <div className="absolute top-2 right-2 z-20 flex flex-col items-end gap-1">
+                  {event.nextOccurrence ? (
+                    <div className="bg-primary/80 backdrop-blur-md border border-primary/50 text-white text-xs font-semibold px-2.5 py-1.5 rounded-full shadow-lg leading-tight text-right">
+                      <div>{formatNextDate(event.nextOccurrence)}</div>
+                      {event.startTime && (
+                        <div className="text-white/80 font-normal">
+                          {formatTime(event.startTime)}{event.endTime ? ` – ${formatTime(event.endTime)}` : ''}
+                        </div>
+                      )}
+                    </div>
+                  ) : event.isWeekly && event.recurrence ? (
+                    <div className="bg-white/20 backdrop-blur-md border border-white/30 text-white text-xs font-medium px-3 py-1.5 rounded-full shadow-lg">
+                      {event.recurrence.split(' ').map((w: string) => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')}
+                    </div>
+                  ) : null}
+                </div>
 
                 {/* Workshop Sticker */}
                 {event.isWorkshop && (
@@ -255,7 +275,7 @@ export default function EventsPage() {
                   </div>
                 )}
 
-                {/* Price Badge - Bottom Right */}
+                {/* Price Badge */}
                 {event.price && (
                   <div className="absolute bottom-2 right-2 z-20 bg-gradient-to-r from-yellow-300 via-yellow-400 to-yellow-500 text-gray-800 px-2 py-1 rounded-lg text-xs font-bold shadow-xl transform -rotate-3 hover:rotate-0 hover:scale-110 transition-all duration-300 border-2 border-yellow-200 opacity-85 hover:opacity-100">
                     <div className="flex items-center gap-1 relative">
@@ -267,23 +287,30 @@ export default function EventsPage() {
 
                 {/* Full image background */}
                 <div className="absolute inset-0 w-full h-full">
-                <img
-                  src={event.imageUrl}
-                  alt={event.name}
+                  <img
+                    src={event.imageUrl}
+                    alt={event.name}
                     className="w-full h-full object-cover object-center transition-transform hover:scale-102"
-                />
+                  />
                 </div>
 
-                {/* Dark overlay for readability */}
+                {/* Dark overlay */}
                 <div className="absolute inset-0 bg-black bg-opacity-40 z-10" />
 
-                {/* Bottom compact content */}
+                {/* Bottom content */}
                 <div className="absolute bottom-0 left-0 right-0 z-20 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-3 sm:p-4">
                   <h3 className="text-base sm:text-lg font-semibold">{event.name}</h3>
                   <div className="flex items-center gap-2 text-[10px] text-gray-200 mt-1">
                     <MapPin className="h-3 w-3 flex-shrink-0" />
                     <span className="truncate">{event.location}</span>
                   </div>
+                  {/* Time row (shown when no nextOccurrence badge, or as reinforcement) */}
+                  {event.startTime && !event.nextOccurrence && (
+                    <div className="flex items-center gap-1 text-[10px] text-gray-300 mt-0.5">
+                      <Clock className="h-3 w-3 flex-shrink-0" />
+                      <span>{formatTime(event.startTime)}{event.endTime ? ` – ${formatTime(event.endTime)}` : ''}</span>
+                    </div>
+                  )}
                   {event.comment && (
                     <div className="mt-1">
                       <p className={`text-xs sm:text-sm text-gray-300 ${expandedComments[event.id] ? '' : 'line-clamp-1'}`}>
@@ -291,35 +318,30 @@ export default function EventsPage() {
                       </p>
                       {event.comment.length > 50 && (
                         <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            toggleComment(event.id);
-                          }}
+                          onClick={(e) => { e.stopPropagation(); toggleComment(event.id) }}
                           className="text-xs text-primary hover:text-primary/80 mt-1 flex items-center gap-1"
                         >
-                          {expandedComments[event.id] ? (
-                            <>
-                              Show Less
-                              <ChevronUp className="h-3 w-3" />
-                        </>
-                      ) : (
-                            <>
-                              Show More
-                              <ChevronDown className="h-3 w-3" />
-                            </>
-                          )}
+                          {expandedComments[event.id] ? (<>Show Less <ChevronUp className="h-3 w-3" /></>) : (<>Show More <ChevronDown className="h-3 w-3" /></>)}
                         </button>
                       )}
-                  </div>
+                    </div>
                   )}
                   <div className="flex gap-2 mt-2">
+                    {/* Add to Calendar */}
+                    <button
+                      className="p-1.5 bg-primary/20 hover:bg-primary/40 text-white rounded-full transition-colors duration-200"
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        window.open(buildGoogleCalendarUrl(event, event.nextOccurrence ?? null), '_blank')
+                      }}
+                      title="Add to Google Calendar"
+                    >
+                      <CalendarPlus className="h-4 w-4" />
+                    </button>
                     {event.eventLink && (
                       <button
                         className="p-1.5 bg-primary/20 hover:bg-primary/30 text-primary rounded-full transition-colors duration-200"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          window.open(event.eventLink, '_blank');
-                        }}
+                        onClick={(e) => { e.stopPropagation(); window.open(event.eventLink, '_blank') }}
                         title="Event Link"
                       >
                         <ExternalLink className="h-4 w-4" />
@@ -328,10 +350,7 @@ export default function EventsPage() {
                     {event.googleMapLink && (
                       <button
                         className="p-1.5 bg-primary/20 hover:bg-primary/30 text-primary rounded-full transition-colors duration-200"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          window.open(event.googleMapLink, '_blank');
-                        }}
+                        onClick={(e) => { e.stopPropagation(); window.open(event.googleMapLink, '_blank') }}
                         title="View on Map"
                       >
                         <MapPin className="h-4 w-4" />
@@ -346,7 +365,7 @@ export default function EventsPage() {
 
         {/* Image Modal */}
         {selectedImage && (
-          <div 
+          <div
             className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4"
             onClick={() => setSelectedImage(null)}
           >
@@ -365,38 +384,24 @@ export default function EventsPage() {
           </div>
         )}
 
-        {/* Calendar Section */}
         <CalendarMenu />
 
-        {/* Submit Your Event Card */}
         <div className="mt-8 sm:mt-16 bg-gradient-to-r from-primary to-secondary rounded-xl shadow-xl overflow-hidden">
           <div className="p-4 sm:p-8 md:p-12 flex flex-col md:flex-row items-center justify-between">
             <div className="text-white mb-4 sm:mb-6 md:mb-0 md:mr-8">
-              <h2 className="text-xl sm:text-3xl font-bold mb-2 sm:mb-4">
-                Submit Your Event
-              </h2>
+              <h2 className="text-xl sm:text-3xl font-bold mb-2 sm:mb-4">Submit Your Event</h2>
               <p className="text-white/90 text-sm sm:text-lg mb-3 sm:mb-6">
                 Are you organizing a Bachata event? Get featured in our directory and reach dancers across Australia!
               </p>
               <ul className="space-y-1 sm:space-y-3">
-                <li className="flex items-center">
-                  <svg className="w-6 h-6 mr-3" fill="currentColor" viewBox="0 0 20 20">
-                    <path d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/>
-                  </svg>
-                  Reach a wider audience of dance enthusiasts
-                </li>
-                <li className="flex items-center">
-                  <svg className="w-6 h-6 mr-3" fill="currentColor" viewBox="0 0 20 20">
-                    <path d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/>
-                  </svg>
-                  Promote your event to the dance community
-                </li>
-                <li className="flex items-center">
-                  <svg className="w-6 h-6 mr-3" fill="currentColor" viewBox="0 0 20 20">
-                    <path d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/>
-                  </svg>
-                  Connect with dancers across Australia
-                </li>
+                {['Reach a wider audience of dance enthusiasts', 'Promote your event to the dance community', 'Connect with dancers across Australia'].map((item) => (
+                  <li key={item} className="flex items-center">
+                    <svg className="w-6 h-6 mr-3" fill="currentColor" viewBox="0 0 20 20">
+                      <path d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" />
+                    </svg>
+                    {item}
+                  </li>
+                ))}
               </ul>
             </div>
             <div className="flex flex-col space-y-4">
@@ -416,15 +421,8 @@ export default function EventsPage() {
           </div>
         </div>
 
-        <ContactForm
-          isOpen={isContactFormOpen}
-          onClose={() => setIsContactFormOpen(false)}
-        />
-
-        <EventSubmissionForm
-          isOpen={isFormOpen}
-          onClose={() => setIsFormOpen(false)}
-        />
+        <ContactForm isOpen={isContactFormOpen} onClose={() => setIsContactFormOpen(false)} />
+        <EventSubmissionForm isOpen={isFormOpen} onClose={() => setIsFormOpen(false)} />
       </div>
     </div>
   )
