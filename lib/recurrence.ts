@@ -1,7 +1,7 @@
 const DAY_NAMES = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday']
 const DAY_ABBR = ['SU', 'MO', 'TU', 'WE', 'TH', 'FR', 'SA']
 
-export function getNextOccurrence(recurrence: string): Date | null {
+export function getNextOccurrence(recurrence: string, eventDate?: string): Date | null {
   const today = new Date()
   today.setHours(0, 0, 0, 0)
   const rec = recurrence.toLowerCase().trim()
@@ -24,7 +24,37 @@ export function getNextOccurrence(recurrence: string): Date | null {
     if (idx !== -1) return next2ndOr4th(today, idx)
   }
 
+  // For monthly/fortnightly, project forward from the last known eventDate
+  if (eventDate) {
+    if (rec === 'monthly') return nextMonthlyOccurrence(eventDate, today)
+    if (rec === 'fortnightly') return nextFortnightlyOccurrence(eventDate, today)
+  }
+
   return null
+}
+
+function nextMonthlyOccurrence(eventDate: string, today: Date): Date {
+  const base = new Date(eventDate + 'T00:00:00')
+  const dayOfMonth = base.getDate()
+  // Try current month first, then next month
+  for (let offset = 0; offset <= 2; offset++) {
+    const candidate = new Date(today.getFullYear(), today.getMonth() + offset, dayOfMonth)
+    // Handle months shorter than dayOfMonth (e.g. Feb 30 → Mar 1/2)
+    if (candidate.getDate() !== dayOfMonth) {
+      // Clamp to last day of that month
+      candidate.setDate(0)
+    }
+    if (candidate >= today) return candidate
+  }
+  return new Date(today.getFullYear(), today.getMonth() + 1, dayOfMonth)
+}
+
+function nextFortnightlyOccurrence(eventDate: string, today: Date): Date {
+  const result = new Date(eventDate + 'T00:00:00')
+  while (result < today) {
+    result.setDate(result.getDate() + 14)
+  }
+  return result
 }
 
 function nextWeekday(from: Date, targetDay: number): Date {
