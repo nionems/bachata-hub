@@ -7,7 +7,7 @@ import Footer from "@/components/footer"
 import { AIAssistant } from "@/components/AIAssistant"
 import { ServiceWorkerRegistration } from "@/components/ServiceWorkerRegistration"
 import { Analytics } from '@vercel/analytics/react'
-import { ThemeProvider } from "next-themes"
+import { ThemeProvider } from "@/components/ThemeProvider"
 
 const fredoka = Fredoka({
   weight: ['300', '400', '500', '600', '700'],
