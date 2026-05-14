@@ -40,7 +40,20 @@ interface Event {
   isWorkshop?: boolean
   published?: boolean
   nextOccurrence?: Date | null
+  nextOccurrenceConfirmed?: boolean // true = from Google Calendar, false = computed
   dayOfWeek?: string | null
+}
+
+// Match a Google Calendar event title to a Firestore event name
+function matchesEvent(calendarTitle: string, firestoreName: string): boolean {
+  const cal = calendarTitle.toLowerCase().replace(/[^a-z0-9\s]/g, '').trim()
+  const fb = firestoreName.toLowerCase().replace(/[^a-z0-9\s]/g, '').trim()
+  if (cal.includes(fb) || fb.includes(cal)) return true
+  // Words-in-common fallback: at least 2 significant words match
+  const calWords = new Set(cal.split(/\s+/).filter(w => w.length > 3))
+  const fbWords = fb.split(/\s+/).filter(w => w.length > 3)
+  const common = fbWords.filter(w => calWords.has(w)).length
+  return common >= 2
 }
 
 export default function EventsPage() {
@@ -77,21 +90,43 @@ export default function EventsPage() {
       setIsLoading(true)
       setError(null)
       try {
-        const response = await fetch('/api/events?t=' + Date.now())
-        if (!response.ok) throw new Error('Failed to fetch events')
-        const eventsList = await response.json() as Event[]
+        // Fetch Firestore events and upcoming calendar events in parallel
+        const [eventsRes, calendarRes] = await Promise.all([
+          fetch('/api/events?t=' + Date.now()),
+          fetch('/api/calendar/upcoming'),
+        ])
 
-        const eventsWithNext = eventsList.map(event => ({
-          ...event,
-          nextOccurrence: event.recurrence ? getNextOccurrence(event.recurrence) : null,
-          dayOfWeek: event.recurrence ? getDayOfWeek(event.recurrence) : null,
-        }))
+        const eventsList = eventsRes.ok ? (await eventsRes.json() as Event[]) : []
+        const calendarEvents: { title: string; start: string }[] = calendarRes.ok
+          ? await calendarRes.json()
+          : []
 
-        // Sort by next occurrence date, then alphabetically for events without one
+        const eventsWithNext = eventsList.map(event => {
+          // Try to find the earliest upcoming calendar event matching this Firestore event
+          const calendarMatch = calendarEvents.find(ce => matchesEvent(ce.title, event.name))
+          const confirmed = calendarMatch ? new Date(calendarMatch.start) : null
+          const computed = event.recurrence ? getNextOccurrence(event.recurrence) : null
+
+          // Calendar date takes priority over computed recurrence date
+          const nextOccurrence = confirmed ?? computed
+
+          return {
+            ...event,
+            nextOccurrence,
+            nextOccurrenceConfirmed: !!confirmed,
+            dayOfWeek: event.recurrence ? getDayOfWeek(event.recurrence) : null,
+          }
+        })
+
+        // Sort: confirmed calendar dates first (soonest), then computed dates, then no date
         eventsWithNext.sort((a, b) => {
           if (!a.nextOccurrence && !b.nextOccurrence) return a.name.localeCompare(b.name)
           if (!a.nextOccurrence) return 1
           if (!b.nextOccurrence) return -1
+          // Confirmed dates float to top within same date range
+          if (a.nextOccurrenceConfirmed !== b.nextOccurrenceConfirmed) {
+            return a.nextOccurrenceConfirmed ? -1 : 1
+          }
           return a.nextOccurrence.getTime() - b.nextOccurrence.getTime()
         })
 
@@ -253,7 +288,11 @@ export default function EventsPage() {
                 {/* Next date badge (top right) */}
                 <div className="absolute top-2 right-2 z-20 flex flex-col items-end gap-1">
                   {event.nextOccurrence ? (
-                    <div className="bg-primary/80 backdrop-blur-md border border-primary/50 text-white text-xs font-semibold px-2.5 py-1.5 rounded-full shadow-lg leading-tight text-right">
+                    <div className={`backdrop-blur-md text-white text-xs font-semibold px-2.5 py-1.5 rounded-full shadow-lg leading-tight text-right border ${
+                      event.nextOccurrenceConfirmed
+                        ? 'bg-green-600/80 border-green-400/50'
+                        : 'bg-primary/80 border-primary/50'
+                    }`}>
                       <div>{formatNextDate(event.nextOccurrence)}</div>
                       {event.startTime && (
                         <div className="text-white/80 font-normal">
