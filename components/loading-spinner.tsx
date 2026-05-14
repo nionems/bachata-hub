@@ -24,7 +24,7 @@ export function LoadingSpinner({
   }
 
   return (
-    <div className="min-h-[50vh] sm:min-h-screen flex items-center justify-center p-4 bg-background">
+    <div className="min-h-[50vh] sm:min-h-screen flex items-center justify-center p-4 bg-white dark:bg-gray-900">
       <div className="flex flex-col items-center gap-2 sm:gap-4">
         <div className={`${sizeClasses[size]} border-2 sm:border-4 rounded-full animate-spin ${colorClasses[color]}`}></div>
         <p className={`${colorClasses[color]} text-center text-xs sm:text-sm md:text-base`}>{message}</p>
