@@ -6,6 +6,7 @@ import { Menu, X, RefreshCw, Sun, Moon } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import Image from "next/image"
 import { useTheme } from "next-themes"
+import { PushNotificationButton } from "@/components/PushNotificationButton"
 
 export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
@@ -90,6 +91,8 @@ export default function Navbar() {
                 {theme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
               </button>
             )}
+            {/* Push notifications */}
+            <PushNotificationButton />
           </div>
 
           {/* Desktop Navigation */}
