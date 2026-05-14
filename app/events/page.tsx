@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
-import { MapPin, ChevronDown, ChevronUp, X, Search, Clock, CalendarPlus, ExternalLink } from "lucide-react"
+import { MapPin, ChevronDown, ChevronUp, X, Search, Clock, CalendarPlus, ExternalLink, Heart, UserCheck } from "lucide-react"
 import Link from 'next/link'
 import { StateFilter } from '@/components/StateFilter'
 import { useStateFilter } from '@/hooks/useStateFilter'
@@ -39,6 +39,8 @@ interface Event {
   recurrence?: string
   isWorkshop?: boolean
   published?: boolean
+  likesCount?: number
+  goingCount?: number
   nextOccurrence?: Date | null
   nextOccurrenceConfirmed?: boolean // true = from Google Calendar, false = computed
   dayOfWeek?: string | null
@@ -64,6 +66,10 @@ export default function EventsPage() {
   const [isContactFormOpen, setIsContactFormOpen] = useState(false)
   const [isFormOpen, setIsFormOpen] = useState(false)
   const [expandedComments, setExpandedComments] = useState<Record<string, boolean>>({})
+  const [likedEvents, setLikedEvents] = useState<Set<string>>(new Set())
+  const [likeCounts, setLikeCounts] = useState<Record<string, number>>({})
+  const [goingEvents, setGoingEvents] = useState<Set<string>>(new Set())
+  const [goingCounts, setGoingCounts] = useState<Record<string, number>>({})
   const [searchTerm, setSearchTerm] = useState("")
   const [selectedDanceStyle, setSelectedDanceStyle] = useState("all")
   const [selectedDay, setSelectedDay] = useState("all")
@@ -171,6 +177,63 @@ export default function EventsPage() {
 
   const toggleComment = (eventId: string) => {
     setExpandedComments(prev => ({ ...prev, [eventId]: !prev[eventId] }))
+  }
+
+  // Load liked/going events from localStorage on mount
+  useEffect(() => {
+    try {
+      const storedLikes = localStorage.getItem('likedEvents')
+      if (storedLikes) setLikedEvents(new Set(JSON.parse(storedLikes)))
+      const storedGoing = localStorage.getItem('goingEvents')
+      if (storedGoing) setGoingEvents(new Set(JSON.parse(storedGoing)))
+    } catch {}
+  }, [])
+
+  const toggleLike = async (e: React.MouseEvent, eventId: string, currentCount: number) => {
+    e.stopPropagation()
+    const isLiked = likedEvents.has(eventId)
+    const action = isLiked ? 'unlike' : 'like'
+
+    // Optimistic update
+    const newLiked = new Set(likedEvents)
+    if (isLiked) newLiked.delete(eventId)
+    else newLiked.add(eventId)
+    setLikedEvents(newLiked)
+    setLikeCounts(prev => ({ ...prev, [eventId]: (prev[eventId] ?? currentCount) + (isLiked ? -1 : 1) }))
+
+    // Persist to localStorage
+    try { localStorage.setItem('likedEvents', JSON.stringify([...newLiked])) } catch {}
+
+    // Persist to Firestore
+    try {
+      await fetch(`/api/events/${eventId}/like`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action }),
+      })
+    } catch {}
+  }
+
+  const toggleGoing = async (e: React.MouseEvent, eventId: string, currentCount: number) => {
+    e.stopPropagation()
+    const isGoing = goingEvents.has(eventId)
+    const action = isGoing ? 'notgoing' : 'going'
+
+    const newGoing = new Set(goingEvents)
+    if (isGoing) newGoing.delete(eventId)
+    else newGoing.add(eventId)
+    setGoingEvents(newGoing)
+    setGoingCounts(prev => ({ ...prev, [eventId]: (prev[eventId] ?? currentCount) + (isGoing ? -1 : 1) }))
+
+    try { localStorage.setItem('goingEvents', JSON.stringify([...newGoing])) } catch {}
+
+    try {
+      await fetch(`/api/events/${eventId}/going`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action }),
+      })
+    } catch {}
   }
 
   if (isLoading) return <LoadingSpinner message="Loading events..." />
@@ -353,7 +416,33 @@ export default function EventsPage() {
                         {event.price}
                       </span>
                     ) : <div />}
-                    <div className="flex gap-1">
+                    <div className="flex items-center gap-1">
+                      {/* Like button */}
+                      <button
+                        className="flex items-center gap-0.5 p-1.5 rounded-full transition-colors hover:bg-red-50"
+                        onClick={(e) => toggleLike(e, event.id, event.likesCount ?? 0)}
+                        title="Like this event"
+                      >
+                        <Heart className={`h-3.5 w-3.5 transition-colors ${likedEvents.has(event.id) ? 'fill-red-500 text-red-500' : 'text-gray-400'}`} />
+                        {((likeCounts[event.id] ?? event.likesCount) || 0) > 0 && (
+                          <span className={`text-[10px] font-semibold ${likedEvents.has(event.id) ? 'text-red-500' : 'text-gray-400'}`}>
+                            {likeCounts[event.id] ?? event.likesCount}
+                          </span>
+                        )}
+                      </button>
+                      {/* I'm going button */}
+                      <button
+                        className="flex items-center gap-0.5 p-1.5 rounded-full transition-colors hover:bg-green-50"
+                        onClick={(e) => toggleGoing(e, event.id, event.goingCount ?? 0)}
+                        title="I'm going"
+                      >
+                        <UserCheck className={`h-3.5 w-3.5 transition-colors ${goingEvents.has(event.id) ? 'text-green-500' : 'text-gray-400'}`} />
+                        {((goingCounts[event.id] ?? event.goingCount) || 0) > 0 && (
+                          <span className={`text-[10px] font-semibold ${goingEvents.has(event.id) ? 'text-green-500' : 'text-gray-400'}`}>
+                            {goingCounts[event.id] ?? event.goingCount}
+                          </span>
+                        )}
+                      </button>
                       <button
                         className="p-1.5 text-gray-400 hover:text-primary hover:bg-primary/10 rounded-full transition-colors"
                         onClick={(e) => { e.stopPropagation(); window.open(buildGoogleCalendarUrl(event, event.nextOccurrence ?? null), '_blank') }}
