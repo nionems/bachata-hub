@@ -241,14 +241,6 @@ export default function EventsPage() {
             </div>
           </div>
 
-          <div className="mt-4 flex justify-center">
-            <Button
-              onClick={() => setIsFormOpen(true)}
-              className="bg-gradient-to-r from-primary to-secondary text-white px-6 py-3 rounded-full font-semibold hover:from-primary/90 hover:to-secondary/90 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105"
-            >
-              Add Your Recurring Event
-            </Button>
-          </div>
         </div>
 
         <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 md:gap-6">
