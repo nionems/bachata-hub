@@ -240,7 +240,7 @@ export default function EventsPage() {
   if (error) return <div className="text-center py-8 text-red-500">{error}</div>
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-white">
       <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-8">
         <div className="text-center mb-4 sm:mb-12">
           <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent mb-2 sm:mb-4">
