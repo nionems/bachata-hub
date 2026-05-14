@@ -6,7 +6,7 @@ import dynamicImport from 'next/dynamic'
 
 // Force dynamic rendering to prevent caching
 export const dynamic = 'force-dynamic'
-import { Calendar, Users, Music, School, ShoppingBag, Trophy, MapPin, Clock, Video, Info, Headphones, Film, Building2, Lightbulb, ChevronRight, ChevronLeft, ExternalLink, ZoomIn } from "lucide-react"
+import { Calendar, Users, Music, School, ShoppingBag, Trophy, MapPin, Clock, Video, Info, Headphones, Film, Building2, Lightbulb, ChevronRight, ChevronLeft, ExternalLink, ZoomIn, Heart } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useState, useEffect, Suspense } from 'react'
 import { School as SchoolType } from '@/types/school'
@@ -128,6 +128,8 @@ export default function Home() {
   const [isCommunityPopupOpen, setIsCommunityPopupOpen] = useState(false)
   const [isEventSubmissionOpen, setIsEventSubmissionOpen] = useState(false)
   const [showAllEvents, setShowAllEvents] = useState(false)
+  const [likedCalendarEvents, setLikedCalendarEvents] = useState<Set<string>>(new Set())
+  const [calendarLikeCounts, setCalendarLikeCounts] = useState<Record<string, number>>({})
 
   // Show community popup only on first visit (per browser/device) - DISABLED
   // useEffect(() => {
@@ -220,6 +222,39 @@ export default function Home() {
 
     fetchEvents()
   }, [])
+
+  // Load calendar likes from localStorage + Firestore
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem('likedCalendarEvents')
+      if (stored) setLikedCalendarEvents(new Set(JSON.parse(stored)))
+    } catch {}
+    fetch('/api/calendar/likes')
+      .then(r => r.ok ? r.json() : {})
+      .then(counts => setCalendarLikeCounts(counts))
+      .catch(() => {})
+  }, [])
+
+  const toggleCalendarLike = async (e: React.MouseEvent, eventId: string) => {
+    e.stopPropagation()
+    const isLiked = likedCalendarEvents.has(eventId)
+    const action = isLiked ? 'unlike' : 'like'
+
+    const newLiked = new Set(likedCalendarEvents)
+    if (isLiked) newLiked.delete(eventId)
+    else newLiked.add(eventId)
+    setLikedCalendarEvents(newLiked)
+    setCalendarLikeCounts(prev => ({ ...prev, [eventId]: (prev[eventId] ?? 0) + (isLiked ? -1 : 1) }))
+
+    try { localStorage.setItem('likedCalendarEvents', JSON.stringify([...newLiked])) } catch {}
+    try {
+      await fetch('/api/calendar/likes', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ eventId, action }),
+      })
+    } catch {}
+  }
 
   const formatEventDateTime = (event: any) => {
     if (!event) return { date: "No upcoming events", time: "" }
@@ -600,8 +635,24 @@ export default function Home() {
                                 </div>
                                 {/* Location overlay */}
                                 <div className="absolute bottom-0 left-0 right-0 bg-black/70 text-white px-3 py-2">
-                                  <div className="font-semibold text-xs mb-1">{event.name}</div>
-                                  <div className="text-xs opacity-90">{event.location}</div>
+                                  <div className="flex items-start justify-between gap-2">
+                                    <div className="min-w-0">
+                                      <div className="font-semibold text-xs mb-1">{event.name}</div>
+                                      <div className="text-xs opacity-90">{event.location}</div>
+                                    </div>
+                                    <button
+                                      className="flex items-center gap-0.5 flex-shrink-0 p-1 rounded-full hover:bg-white/10 transition-colors"
+                                      onClick={(e) => toggleCalendarLike(e, event.id)}
+                                      title="Like this event"
+                                    >
+                                      <Heart className={`h-4 w-4 transition-colors ${likedCalendarEvents.has(event.id) ? 'fill-red-500 text-red-500' : 'text-white/70'}`} />
+                                      {(calendarLikeCounts[event.id] || 0) > 0 && (
+                                        <span className={`text-[10px] font-semibold ${likedCalendarEvents.has(event.id) ? 'text-red-400' : 'text-white/70'}`}>
+                                          {calendarLikeCounts[event.id]}
+                                        </span>
+                                      )}
+                                    </button>
+                                  </div>
                                 </div>
                                 {/* Event Link Button */}
                                 {getEventLink(event) && (
@@ -658,8 +709,24 @@ export default function Home() {
                                 </div>
                                 {/* Location overlay */}
                                 <div className="absolute bottom-0 left-0 right-0 bg-black/70 text-white px-3 py-2">
-                                  <div className="font-semibold text-xs mb-1">{event.name}</div>
-                                  <div className="text-xs opacity-90">{event.location}</div>
+                                  <div className="flex items-start justify-between gap-2">
+                                    <div className="min-w-0">
+                                      <div className="font-semibold text-xs mb-1">{event.name}</div>
+                                      <div className="text-xs opacity-90">{event.location}</div>
+                                    </div>
+                                    <button
+                                      className="flex items-center gap-0.5 flex-shrink-0 p-1 rounded-full hover:bg-white/10 transition-colors"
+                                      onClick={(e) => toggleCalendarLike(e, event.id)}
+                                      title="Like this event"
+                                    >
+                                      <Heart className={`h-4 w-4 transition-colors ${likedCalendarEvents.has(event.id) ? 'fill-red-500 text-red-500' : 'text-white/70'}`} />
+                                      {(calendarLikeCounts[event.id] || 0) > 0 && (
+                                        <span className={`text-[10px] font-semibold ${likedCalendarEvents.has(event.id) ? 'text-red-400' : 'text-white/70'}`}>
+                                          {calendarLikeCounts[event.id]}
+                                        </span>
+                                      )}
+                                    </button>
+                                  </div>
                                 </div>
                                 {/* Event Link Button */}
                                 {getEventLink(event) && (
