@@ -127,8 +127,8 @@ export default function RootLayout({
 
       </head>
       <body className={`${fredoka.className} antialiased min-h-screen flex flex-col`}>
-        <Navbar />
         <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false}>
+          <Navbar />
           <main className="flex-grow">
             {children}
           </main>
