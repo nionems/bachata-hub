@@ -409,40 +409,36 @@ export default function EventsPage() {
 
                   <div className="flex-1" />
 
-                  {/* Bottom row: price + action buttons */}
-                  <div className="flex items-center justify-between mt-2 pt-2 border-t border-gray-100">
+                  {/* Like + Going row */}
+                  <div className="flex gap-2 mt-2 pt-2 border-t border-gray-100">
+                    <button
+                      className={`flex items-center gap-1.5 flex-1 justify-center py-1.5 rounded-lg text-sm font-semibold transition-colors ${
+                        likedEvents.has(event.id) ? 'bg-red-50 text-red-500' : 'bg-gray-100 text-gray-500 hover:bg-red-50 hover:text-red-500'
+                      }`}
+                      onClick={(e) => toggleLike(e, event.id, event.likesCount ?? 0)}
+                    >
+                      <Heart className={`h-4 w-4 ${likedEvents.has(event.id) ? 'fill-red-500' : ''}`} />
+                      <span>{(likeCounts[event.id] ?? event.likesCount) ? `${likeCounts[event.id] ?? event.likesCount} ` : ''}Like</span>
+                    </button>
+                    <button
+                      className={`flex items-center gap-1.5 flex-1 justify-center py-1.5 rounded-lg text-sm font-semibold transition-colors ${
+                        goingEvents.has(event.id) ? 'bg-green-50 text-green-600' : 'bg-gray-100 text-gray-500 hover:bg-green-50 hover:text-green-600'
+                      }`}
+                      onClick={(e) => toggleGoing(e, event.id, event.goingCount ?? 0)}
+                    >
+                      <UserCheck className="h-4 w-4" />
+                      <span>{(goingCounts[event.id] ?? event.goingCount) ? `${goingCounts[event.id] ?? event.goingCount} ` : ''}Going</span>
+                    </button>
+                  </div>
+
+                  {/* Price + utility buttons row */}
+                  <div className="flex items-center justify-between mt-2">
                     {event.price ? (
                       <span className="text-xs font-bold text-gray-700 bg-yellow-50 px-2 py-0.5 rounded-full border border-yellow-200">
                         {event.price}
                       </span>
                     ) : <div />}
-                    <div className="flex items-center gap-1">
-                      {/* Like button */}
-                      <button
-                        className="flex items-center gap-0.5 p-1.5 rounded-full transition-colors hover:bg-red-50"
-                        onClick={(e) => toggleLike(e, event.id, event.likesCount ?? 0)}
-                        title="Like this event"
-                      >
-                        <Heart className={`h-3.5 w-3.5 transition-colors ${likedEvents.has(event.id) ? 'fill-red-500 text-red-500' : 'text-gray-400'}`} />
-                        {((likeCounts[event.id] ?? event.likesCount) || 0) > 0 && (
-                          <span className={`text-[10px] font-semibold ${likedEvents.has(event.id) ? 'text-red-500' : 'text-gray-400'}`}>
-                            {likeCounts[event.id] ?? event.likesCount}
-                          </span>
-                        )}
-                      </button>
-                      {/* I'm going button */}
-                      <button
-                        className="flex items-center gap-0.5 p-1.5 rounded-full transition-colors hover:bg-green-50"
-                        onClick={(e) => toggleGoing(e, event.id, event.goingCount ?? 0)}
-                        title="I'm going"
-                      >
-                        <UserCheck className={`h-3.5 w-3.5 transition-colors ${goingEvents.has(event.id) ? 'text-green-500' : 'text-gray-400'}`} />
-                        {((goingCounts[event.id] ?? event.goingCount) || 0) > 0 && (
-                          <span className={`text-[10px] font-semibold ${goingEvents.has(event.id) ? 'text-green-500' : 'text-gray-400'}`}>
-                            {goingCounts[event.id] ?? event.goingCount}
-                          </span>
-                        )}
-                      </button>
+                    <div className="flex gap-1">
                       <button
                         className="p-1.5 text-gray-400 hover:text-primary hover:bg-primary/10 rounded-full transition-colors"
                         onClick={(e) => { e.stopPropagation(); window.open(buildGoogleCalendarUrl(event, event.nextOccurrence ?? null), '_blank') }}
