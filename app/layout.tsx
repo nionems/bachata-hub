@@ -7,6 +7,7 @@ import Footer from "@/components/footer"
 import { AIAssistant } from "@/components/AIAssistant"
 import { ServiceWorkerRegistration } from "@/components/ServiceWorkerRegistration"
 import { Analytics } from '@vercel/analytics/react'
+import { ThemeProvider } from "next-themes"
 
 const fredoka = Fredoka({
   weight: ['300', '400', '500', '600', '700'],
@@ -103,7 +104,7 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en" className={fredoka.variable}>
+    <html lang="en" className={fredoka.variable} suppressHydrationWarning>
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
@@ -127,14 +128,15 @@ export default function RootLayout({
       </head>
       <body className={`${fredoka.className} antialiased min-h-screen flex flex-col`}>
         <Navbar />
-        <main className="flex-grow">
-          {children}
-        </main>
-        <Footer />
-        {/* <AIAssistant /> */}
-        <ServiceWorkerRegistration />
-        <Toaster />
-        <Analytics />
+        <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false}>
+          <main className="flex-grow">
+            {children}
+          </main>
+          <Footer />
+          <ServiceWorkerRegistration />
+          <Toaster />
+          <Analytics />
+        </ThemeProvider>
       </body>
     </html>
   )
