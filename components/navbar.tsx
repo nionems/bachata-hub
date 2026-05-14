@@ -2,13 +2,17 @@
 
 import { useState, useEffect } from "react"
 import Link from "next/link"
-import { Menu, X, RefreshCw } from "lucide-react"
+import { Menu, X, RefreshCw, Sun, Moon } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import Image from "next/image"
+import { useTheme } from "next-themes"
 
 export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [isIPad, setIsIPad] = useState(false)
+  const { theme, setTheme } = useTheme()
+  const [mounted, setMounted] = useState(false)
+  useEffect(() => setMounted(true), [])
 
   // Detect iPad and Android tablets
   useEffect(() => {
@@ -76,6 +80,16 @@ export default function Navbar() {
             >
               <RefreshCw className="h-4 w-4" />
             </button>
+            {/* Dark mode toggle */}
+            {mounted && (
+              <button
+                onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+                className="inline-flex items-center justify-center p-2 rounded-full text-gray-500 hover:text-primary hover:bg-primary/10 transition-colors duration-200"
+                title="Toggle dark mode"
+              >
+                {theme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+              </button>
+            )}
           </div>
 
           {/* Desktop Navigation */}

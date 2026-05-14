@@ -3,6 +3,41 @@
 @tailwind utilities;
 
 @layer base {
+  .dark {
+    --background: 222 47% 8%;
+    --foreground: 210 40% 96%;
+    --card: 222 47% 11%;
+    --card-foreground: 210 40% 96%;
+    --popover: 222 47% 11%;
+    --popover-foreground: 210 40% 96%;
+    --muted: 222 47% 16%;
+    --muted-foreground: 215 20% 65%;
+    --accent: 222 47% 16%;
+    --accent-foreground: 210 40% 96%;
+    --border: 222 47% 18%;
+    --input: 222 47% 18%;
+    --ring: 160 84% 39%;
+  }
+
+  /* Dark mode overrides for hardcoded Tailwind classes */
+  .dark .bg-white { background-color: hsl(222, 47%, 11%) !important; }
+  .dark .bg-gray-50 { background-color: hsl(222, 47%, 9%) !important; }
+  .dark .bg-gray-100 { background-color: hsl(222, 47%, 14%) !important; }
+  .dark .text-gray-900 { color: hsl(210, 40%, 94%) !important; }
+  .dark .text-gray-800 { color: hsl(210, 40%, 88%) !important; }
+  .dark .text-gray-700 { color: hsl(210, 40%, 80%) !important; }
+  .dark .text-gray-600 { color: hsl(210, 20%, 65%) !important; }
+  .dark .text-gray-500 { color: hsl(210, 15%, 55%) !important; }
+  .dark .text-gray-400 { color: hsl(210, 15%, 50%) !important; }
+  .dark .border-gray-100 { border-color: hsl(222, 47%, 18%) !important; }
+  .dark .border-gray-200 { border-color: hsl(222, 47%, 20%) !important; }
+  .dark .shadow-sm { box-shadow: 0 1px 2px 0 rgba(0,0,0,0.4) !important; }
+  .dark .shadow-md { box-shadow: 0 4px 6px -1px rgba(0,0,0,0.4) !important; }
+
+  /* Navbar dark mode */
+  .dark header.bg-white\/90 { background-color: hsla(222, 47%, 11%, 0.95) !important; }
+  .dark .text-gray-700 { color: hsl(210, 40%, 80%) !important; }
+
   :root {
     --background: 0 0% 100%;
     --foreground: 222.2 84% 4.9%;
