@@ -251,7 +251,7 @@ export default function EventsPage() {
           </div>
         </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-4 md:gap-6">
+        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 md:gap-6">
           {searchFilteredEvents.length === 0 ? (
             <div className="col-span-full text-center py-8 text-gray-500">
               No events found
@@ -261,140 +261,132 @@ export default function EventsPage() {
             </div>
           ) : (
             searchFilteredEvents.map((event) => (
-              <Card
-                key={event.id}
-                className="relative overflow-hidden h-80 sm:h-96 text-white cursor-pointer"
-                onClick={() => event.imageUrl && setSelectedImage({ url: event.imageUrl, title: event.name })}
-              >
-                {/* Dance Style Badges */}
-                {event.danceStyles && Array.isArray(event.danceStyles) && event.danceStyles.length > 0 && (
-                  <div className="absolute top-2 left-2 z-20 flex flex-wrap gap-1 max-w-[calc(100%-8rem)]">
-                    {event.danceStyles.slice(0, 3).map((style, index) => (
-                      <div
-                        key={index}
-                        className="bg-black/60 backdrop-blur-md border border-white/30 text-white text-xs font-medium px-2 py-1 rounded-full shadow-lg"
-                      >
-                        {style}
-                      </div>
-                    ))}
-                    {event.danceStyles.length > 3 && (
-                      <div className="bg-black/60 backdrop-blur-md border border-white/30 text-white text-xs font-medium px-2 py-1 rounded-full shadow-lg">
-                        +{event.danceStyles.length - 3}
-                      </div>
-                    )}
-                  </div>
-                )}
+              <Card key={event.id} className="overflow-hidden rounded-xl shadow-sm hover:shadow-md transition-shadow duration-200 bg-white flex flex-col">
 
-                {/* Next date badge (top right) */}
-                <div className="absolute top-2 right-2 z-20 flex flex-col items-end gap-1">
-                  {event.nextOccurrence ? (
-                    <div className={`backdrop-blur-md text-white text-xs font-semibold px-2.5 py-1.5 rounded-full shadow-lg leading-tight text-right border ${
-                      event.nextOccurrenceConfirmed
-                        ? 'bg-green-600/80 border-green-400/50'
-                        : 'bg-primary/80 border-primary/50'
-                    }`}>
-                      <div>{formatNextDate(event.nextOccurrence)}</div>
-                      {event.startTime && (
-                        <div className="text-white/80 font-normal">
-                          {formatTime(event.startTime)}{event.endTime ? ` – ${formatTime(event.endTime)}` : ''}
-                        </div>
+                {/* Image */}
+                <div
+                  className="relative h-36 sm:h-44 overflow-hidden cursor-pointer flex-shrink-0"
+                  onClick={() => event.imageUrl && setSelectedImage({ url: event.imageUrl, title: event.name })}
+                >
+                  <img
+                    src={event.imageUrl || '/images/placeholder.svg'}
+                    alt={event.name}
+                    className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                  />
+                  {/* Dance style badges */}
+                  {event.danceStyles && Array.isArray(event.danceStyles) && event.danceStyles.length > 0 && (
+                    <div className="absolute top-2 left-2 flex flex-wrap gap-1">
+                      {event.danceStyles.slice(0, 2).map((style, i) => (
+                        <span key={i} className="bg-black/60 backdrop-blur-sm text-white text-[10px] font-medium px-2 py-0.5 rounded-full">
+                          {style}
+                        </span>
+                      ))}
+                      {event.danceStyles.length > 2 && (
+                        <span className="bg-black/60 backdrop-blur-sm text-white text-[10px] font-medium px-2 py-0.5 rounded-full">
+                          +{event.danceStyles.length - 2}
+                        </span>
                       )}
                     </div>
-                  ) : event.isWeekly && event.recurrence ? (
-                    <div className="bg-white/20 backdrop-blur-md border border-white/30 text-white text-xs font-medium px-3 py-1.5 rounded-full shadow-lg">
-                      {event.recurrence.split(' ').map((w: string) => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')}
-                    </div>
-                  ) : null}
-                </div>
-
-                {/* Workshop Sticker */}
-                {event.isWorkshop && (
-                  <div className="absolute top-12 right-2 z-20 bg-primary/80 backdrop-blur-md border border-primary/50 text-white text-xs font-medium px-3 py-1.5 rounded-full shadow-lg">
-                    + Workshop
-                  </div>
-                )}
-
-                {/* Price Badge */}
-                {event.price && (
-                  <div className="absolute bottom-2 right-2 z-20 bg-gradient-to-r from-yellow-300 via-yellow-400 to-yellow-500 text-gray-800 px-2 py-1 rounded-lg text-xs font-bold shadow-xl transform -rotate-3 hover:rotate-0 hover:scale-110 transition-all duration-300 border-2 border-yellow-200 opacity-85 hover:opacity-100">
-                    <div className="flex items-center gap-1 relative">
-                      <span className="drop-shadow-sm">{event.price}</span>
-                    </div>
-                    <div className="absolute inset-0 bg-gradient-to-r from-white/40 to-transparent rounded-lg opacity-50"></div>
-                  </div>
-                )}
-
-                {/* Full image background */}
-                <div className="absolute inset-0 w-full h-full">
-                  <img
-                    src={event.imageUrl}
-                    alt={event.name}
-                    className="w-full h-full object-cover object-center transition-transform hover:scale-102"
-                  />
-                </div>
-
-                {/* Dark overlay */}
-                <div className="absolute inset-0 bg-black bg-opacity-40 z-10" />
-
-                {/* Bottom content */}
-                <div className="absolute bottom-0 left-0 right-0 z-20 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-3 sm:p-4">
-                  <h3 className="text-base sm:text-lg font-semibold">{event.name}</h3>
-                  <div className="flex items-center gap-2 text-[10px] text-gray-200 mt-1">
-                    <MapPin className="h-3 w-3 flex-shrink-0" />
-                    <span className="truncate">{event.location}</span>
-                  </div>
-                  {/* Time row (shown when no nextOccurrence badge, or as reinforcement) */}
-                  {event.startTime && !event.nextOccurrence && (
-                    <div className="flex items-center gap-1 text-[10px] text-gray-300 mt-0.5">
-                      <Clock className="h-3 w-3 flex-shrink-0" />
-                      <span>{formatTime(event.startTime)}{event.endTime ? ` – ${formatTime(event.endTime)}` : ''}</span>
+                  )}
+                  {/* Workshop badge */}
+                  {event.isWorkshop && (
+                    <div className="absolute top-2 right-2 bg-primary text-white text-[10px] font-semibold px-2 py-0.5 rounded-full shadow">
+                      + Workshop
                     </div>
                   )}
+                </div>
+
+                {/* Content */}
+                <div className="flex flex-col flex-1 p-3 sm:p-4">
+
+                  {/* Next date — most prominent info */}
+                  {event.nextOccurrence && (
+                    <div className={`flex items-start gap-2 mb-2.5 px-2.5 py-2 rounded-lg ${
+                      event.nextOccurrenceConfirmed
+                        ? 'bg-green-50 text-green-700'
+                        : 'bg-primary/8 text-primary'
+                    }`}>
+                      <Clock className="h-3.5 w-3.5 flex-shrink-0 mt-0.5" />
+                      <div className="min-w-0 flex-1">
+                        <div className="text-xs font-bold leading-tight">{formatNextDate(event.nextOccurrence)}</div>
+                        {event.startTime && (
+                          <div className="text-[10px] opacity-70 leading-tight mt-0.5">
+                            {formatTime(event.startTime)}{event.endTime ? ` – ${formatTime(event.endTime)}` : ''}
+                          </div>
+                        )}
+                      </div>
+                      {event.nextOccurrenceConfirmed && (
+                        <span className="text-[9px] font-semibold bg-green-100 text-green-700 px-1.5 py-0.5 rounded-full flex-shrink-0 self-center">✓</span>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Event name */}
+                  <h3 className="font-bold text-gray-900 text-sm sm:text-base leading-tight mb-1">{event.name}</h3>
+
+                  {/* Location */}
+                  {event.location && (
+                    <div className="flex items-center gap-1 text-[11px] text-gray-400 mb-2">
+                      <MapPin className="h-3 w-3 flex-shrink-0" />
+                      <span className="truncate">{event.location}</span>
+                    </div>
+                  )}
+
+                  {/* Comment */}
                   {event.comment && (
-                    <div className="mt-1">
-                      <p className={`text-xs sm:text-sm text-gray-300 ${expandedComments[event.id] ? '' : 'line-clamp-1'}`}>
+                    <div className="mb-2">
+                      <p className={`text-[11px] text-gray-500 leading-relaxed ${expandedComments[event.id] ? '' : 'line-clamp-2'}`}>
                         {event.comment}
                       </p>
-                      {event.comment.length > 50 && (
+                      {event.comment.length > 80 && (
                         <button
                           onClick={(e) => { e.stopPropagation(); toggleComment(event.id) }}
-                          className="text-xs text-primary hover:text-primary/80 mt-1 flex items-center gap-1"
+                          className="text-[10px] text-primary hover:text-primary/80 mt-0.5 flex items-center gap-0.5"
                         >
-                          {expandedComments[event.id] ? (<>Show Less <ChevronUp className="h-3 w-3" /></>) : (<>Show More <ChevronDown className="h-3 w-3" /></>)}
+                          {expandedComments[event.id]
+                            ? (<>Less <ChevronUp className="h-2.5 w-2.5" /></>)
+                            : (<>More <ChevronDown className="h-2.5 w-2.5" /></>)}
                         </button>
                       )}
                     </div>
                   )}
-                  <div className="flex gap-2 mt-2">
-                    {/* Add to Calendar */}
-                    <button
-                      className="p-1.5 bg-primary/20 hover:bg-primary/40 text-white rounded-full transition-colors duration-200"
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        window.open(buildGoogleCalendarUrl(event, event.nextOccurrence ?? null), '_blank')
-                      }}
-                      title="Add to Google Calendar"
-                    >
-                      <CalendarPlus className="h-4 w-4" />
-                    </button>
-                    {event.eventLink && (
+
+                  <div className="flex-1" />
+
+                  {/* Bottom row: price + action buttons */}
+                  <div className="flex items-center justify-between mt-2 pt-2 border-t border-gray-100">
+                    {event.price ? (
+                      <span className="text-xs font-bold text-gray-700 bg-yellow-50 px-2 py-0.5 rounded-full border border-yellow-200">
+                        {event.price}
+                      </span>
+                    ) : <div />}
+                    <div className="flex gap-1">
                       <button
-                        className="p-1.5 bg-primary/20 hover:bg-primary/30 text-primary rounded-full transition-colors duration-200"
-                        onClick={(e) => { e.stopPropagation(); window.open(event.eventLink, '_blank') }}
-                        title="Event Link"
+                        className="p-1.5 text-gray-400 hover:text-primary hover:bg-primary/10 rounded-full transition-colors"
+                        onClick={(e) => { e.stopPropagation(); window.open(buildGoogleCalendarUrl(event, event.nextOccurrence ?? null), '_blank') }}
+                        title="Add to Google Calendar"
                       >
-                        <ExternalLink className="h-4 w-4" />
+                        <CalendarPlus className="h-3.5 w-3.5" />
                       </button>
-                    )}
-                    {event.googleMapLink && (
-                      <button
-                        className="p-1.5 bg-primary/20 hover:bg-primary/30 text-primary rounded-full transition-colors duration-200"
-                        onClick={(e) => { e.stopPropagation(); window.open(event.googleMapLink, '_blank') }}
-                        title="View on Map"
-                      >
-                        <MapPin className="h-4 w-4" />
-                      </button>
-                    )}
+                      {event.eventLink && (
+                        <button
+                          className="p-1.5 text-gray-400 hover:text-primary hover:bg-primary/10 rounded-full transition-colors"
+                          onClick={(e) => { e.stopPropagation(); window.open(event.eventLink, '_blank') }}
+                          title="Event Link"
+                        >
+                          <ExternalLink className="h-3.5 w-3.5" />
+                        </button>
+                      )}
+                      {event.googleMapLink && (
+                        <button
+                          className="p-1.5 text-gray-400 hover:text-primary hover:bg-primary/10 rounded-full transition-colors"
+                          onClick={(e) => { e.stopPropagation(); window.open(event.googleMapLink, '_blank') }}
+                          title="View on Map"
+                        >
+                          <MapPin className="h-3.5 w-3.5" />
+                        </button>
+                      )}
+                    </div>
                   </div>
                 </div>
               </Card>
