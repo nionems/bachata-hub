@@ -105,7 +105,7 @@ export default function EventsPage() {
           // Try to find the earliest upcoming calendar event matching this Firestore event
           const calendarMatch = calendarEvents.find(ce => matchesEvent(ce.title, event.name))
           const confirmed = calendarMatch ? new Date(calendarMatch.start) : null
-          const computed = event.recurrence ? getNextOccurrence(event.recurrence, event.eventDate) : null
+          const computed = event.recurrence ? getNextOccurrence(event.recurrence, event.eventDate || event.date) : null
 
           // Calendar date takes priority over computed recurrence date
           const nextOccurrence = confirmed ?? computed
