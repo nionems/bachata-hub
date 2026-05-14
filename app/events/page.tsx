@@ -263,6 +263,7 @@ export default function EventsPage() {
                   <img
                     src={event.imageUrl || '/images/placeholder.svg'}
                     alt={event.name}
+                    loading="lazy"
                     className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
                   />
                   {/* Dance style badges */}
