@@ -403,6 +403,8 @@ export default function Home() {
     slidesToScroll: 1,
     autoplay: true,
     autoplaySpeed: 3000,
+    swipeToSlide: true,
+    touchThreshold: 10,
     nextArrow: <CustomNextArrow />,
     prevArrow: <CustomPrevArrow />,
     responsive: [
