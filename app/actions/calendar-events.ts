@@ -160,7 +160,7 @@ export async function getLocalCalendarId(): Promise<string> {
 // Add caching for calendar events - reduced to 1 minute for faster updates
 let weekEventsCache: any[] | null = null
 let weekEventsCacheTimestamp: number = 0
-const WEEK_EVENTS_CACHE_DURATION = 1 * 60 * 1000 // 1 minute - allows new events to show up quickly
+const WEEK_EVENTS_CACHE_DURATION = 10 * 60 * 1000 // 10 minutes
 
 // Get events for the current week
 export async function getWeekEvents(calendarId?: string, state?: string) {
