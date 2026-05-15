@@ -223,15 +223,39 @@ export default function Home() {
     fetchEvents()
   }, [])
 
-  // Load calendar likes from localStorage + Firestore
+  // Load calendar likes — backend is source of truth, localStorage is cache
   useEffect(() => {
+    const getOrCreateUserId = (): string => {
+      try {
+        let id = localStorage.getItem('bachataUserId')
+        if (!id) {
+          id = crypto.randomUUID()
+          localStorage.setItem('bachataUserId', id)
+        }
+        return id
+      } catch {
+        return crypto.randomUUID()
+      }
+    }
+
+    const userId = getOrCreateUserId()
+
+    // Seed from localStorage immediately so UI isn't empty while fetching
     try {
       const stored = localStorage.getItem('likedCalendarEvents')
       if (stored) setLikedCalendarEvents(new Set(JSON.parse(stored)))
     } catch {}
-    fetch('/api/calendar/likes')
-      .then(r => r.ok ? r.json() : {})
-      .then(counts => setCalendarLikeCounts(counts))
+
+    // Fetch authoritative state from backend
+    fetch(`/api/calendar/likes?userId=${encodeURIComponent(userId)}`)
+      .then(r => r.ok ? r.json() : null)
+      .then(data => {
+        if (!data) return
+        setCalendarLikeCounts(data.counts ?? {})
+        const liked = new Set<string>(data.likedByUser ?? [])
+        setLikedCalendarEvents(liked)
+        try { localStorage.setItem('likedCalendarEvents', JSON.stringify([...liked])) } catch {}
+      })
       .catch(() => {})
   }, [])
 
@@ -248,10 +272,11 @@ export default function Home() {
 
     try { localStorage.setItem('likedCalendarEvents', JSON.stringify([...newLiked])) } catch {}
     try {
+      const userId = localStorage.getItem('bachataUserId') ?? ''
       await fetch('/api/calendar/likes', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ eventId, action }),
+        body: JSON.stringify({ eventId, action, userId }),
       })
     } catch {}
   }
