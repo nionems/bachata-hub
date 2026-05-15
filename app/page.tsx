@@ -668,13 +668,13 @@ export default function Home() {
                                       <div className="text-xs opacity-90">{event.location}</div>
                                     </div>
                                     <button
-                                      className="flex items-center gap-0.5 flex-shrink-0 p-1 rounded-full hover:bg-white/10 transition-colors"
+                                      className="flex items-center gap-1 flex-shrink-0 px-2 py-1 rounded-full bg-black/40 hover:bg-black/60 transition-colors"
                                       onClick={(e) => toggleCalendarLike(e, event.id)}
                                       title="Like this event"
                                     >
-                                      <Heart className={`h-4 w-4 transition-colors ${likedCalendarEvents.has(event.id) ? 'fill-red-500 text-red-500' : 'text-white/70'}`} />
+                                      <Heart className={`h-5 w-5 transition-colors drop-shadow ${likedCalendarEvents.has(event.id) ? 'fill-red-500 text-red-500' : 'text-white'}`} />
                                       {(calendarLikeCounts[event.id] || 0) > 0 && (
-                                        <span className={`text-[10px] font-semibold ${likedCalendarEvents.has(event.id) ? 'text-red-400' : 'text-white/70'}`}>
+                                        <span className={`text-xs font-bold ${likedCalendarEvents.has(event.id) ? 'text-red-400' : 'text-white'}`}>
                                           {calendarLikeCounts[event.id]}
                                         </span>
                                       )}
@@ -742,13 +742,13 @@ export default function Home() {
                                       <div className="text-xs opacity-90">{event.location}</div>
                                     </div>
                                     <button
-                                      className="flex items-center gap-0.5 flex-shrink-0 p-1 rounded-full hover:bg-white/10 transition-colors"
+                                      className="flex items-center gap-1 flex-shrink-0 px-2 py-1 rounded-full bg-black/40 hover:bg-black/60 transition-colors"
                                       onClick={(e) => toggleCalendarLike(e, event.id)}
                                       title="Like this event"
                                     >
-                                      <Heart className={`h-4 w-4 transition-colors ${likedCalendarEvents.has(event.id) ? 'fill-red-500 text-red-500' : 'text-white/70'}`} />
+                                      <Heart className={`h-5 w-5 transition-colors drop-shadow ${likedCalendarEvents.has(event.id) ? 'fill-red-500 text-red-500' : 'text-white'}`} />
                                       {(calendarLikeCounts[event.id] || 0) > 0 && (
-                                        <span className={`text-[10px] font-semibold ${likedCalendarEvents.has(event.id) ? 'text-red-400' : 'text-white/70'}`}>
+                                        <span className={`text-xs font-bold ${likedCalendarEvents.has(event.id) ? 'text-red-400' : 'text-white'}`}>
                                           {calendarLikeCounts[event.id]}
                                         </span>
                                       )}
