@@ -89,7 +89,7 @@ async function fetchPlaylistTracks(token: string, playlistId: string): Promise<S
     `https://api.spotify.com/v1/playlists/${playlistId}/tracks?limit=50&fields=next,items(track(id,name,artists,album,popularity,preview_url,external_urls,duration_ms))`
 
   while (url) {
-    const res = await fetch(url, { headers: { Authorization: `Bearer ${token}` } })
+    const res: Response = await fetch(url, { headers: { Authorization: `Bearer ${token}` } })
     if (!res.ok) break
     const data = await res.json()
 
