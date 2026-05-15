@@ -33,7 +33,7 @@ export async function GET() {
     return NextResponse.json({ tracks, updatedAt })
   } catch (error) {
     console.error('Error fetching top bachata:', error)
-    return NextResponse.json({ error: 'Failed to fetch top songs' }, { status: 500 })
+    return NextResponse.json({ error: String(error), tracks: [] }, { status: 500 })
   }
 }
 
