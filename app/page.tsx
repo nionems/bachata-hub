@@ -517,9 +517,8 @@ export default function Home() {
 
   // Add this function to handle event clicks
   const handleEventClick = (event: Event) => {
-    if (event.eventLink) {
-      window.open(event.eventLink, '_blank')
-    }
+    const link = getEventLink(event) || event.eventLink
+    if (link) window.open(link, '_blank')
   }
 
   // Add this function to handle image clicks
@@ -622,9 +621,9 @@ export default function Home() {
                       >
                         <div className="relative w-full h-full bg-white">
                           {event.imageUrl && event.imageUrl !== '/images/placeholder.svg' ? (
-                            <div 
+                            <div
                               className="relative w-full h-full bg-gradient-to-r from-emerald-400 to-violet-500 overflow-hidden flex items-start justify-center cursor-pointer"
-                              onClick={(e) => handleImageClick(event, e)}
+                              onClick={() => handleEventClick(event)}
                             >
                               <div className="relative w-full h-full">
                                 <Image
@@ -697,7 +696,7 @@ export default function Home() {
                               </div>
                             </div>
                           ) : (
-                            <div className="w-full h-full bg-gradient-to-r from-emerald-400 to-violet-500 flex items-center justify-center">
+                            <div className="w-full h-full bg-gradient-to-r from-emerald-400 to-violet-500 flex items-center justify-center cursor-pointer" onClick={() => handleEventClick(event)}>
                               <div className="text-center text-white p-4">
                                 <div className="text-2xl font-bold mb-2">{event.name}</div>
                                 <div className="text-sm opacity-90 mb-2">{event.location}</div>
@@ -791,9 +790,9 @@ export default function Home() {
                         >
                           <div className="relative w-full h-full bg-white">
                             {event.imageUrl && event.imageUrl !== '/images/placeholder.svg' ? (
-                              <div 
+                              <div
                                 className="relative w-full h-full bg-gradient-to-r from-emerald-400 to-violet-500 overflow-hidden flex items-start justify-center cursor-pointer"
-                                onClick={(e) => handleImageClick(event, e)}
+                                onClick={() => handleEventClick(event)}
                               >
                                 <div className="relative w-full h-full">
                                   <Image
@@ -834,7 +833,7 @@ export default function Home() {
                                 </div>
                               </div>
                             ) : (
-                              <div className="w-full h-full bg-gradient-to-r from-emerald-400 to-violet-500 flex items-center justify-center">
+                              <div className="w-full h-full bg-gradient-to-r from-emerald-400 to-violet-500 flex items-center justify-center cursor-pointer" onClick={() => handleEventClick(event)}>
                                 <div className="text-center text-white p-4">
                                   <div className="text-2xl font-bold mb-2">{event.name}</div>
                                   <div className="text-sm opacity-90 mb-2">{event.location}</div>
