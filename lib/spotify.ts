@@ -41,13 +41,42 @@ export interface SpotifyTrack {
   durationMs: number
 }
 
-// Spotify's official editorial Bachata playlists (stable IDs maintained by Spotify)
-// These are curated by Spotify's editorial team and reflect what's actually popular
-const SPOTIFY_BACHATA_PLAYLISTS = [
-  '37i9dQZF1DX9pIn6tM2ADM', // Bachata Hits (Spotify Editorial)
-  '37i9dQZF1DZ06evO4ZbNyO', // This Is Bachata (Spotify Editorial)
+// Seed list of known Spotify editorial Bachata playlists.
+// The fetch function also discovers more via search and merges them.
+const SEED_PLAYLIST_IDS = [
+  '37i9dQZF1DX9pIn6tM2ADM', // Bachata Hits
+  '37i9dQZF1DZ06evO4ZbNyO', // This Is Bachata
   '37i9dQZF1DWY3MFYA5XfEd', // Bachata Romántica
+  '37i9dQZF1DX0HRj9P7NxeE', // Bachata Sensual
+  '37i9dQZF1DXaym5ohD2SxG', // Éxitos Bachata
+  '37i9dQZF1DX1Mv9USgbXV2', // Baila Bachata
+  '37i9dQZF1DX4OzrY981I1W', // Latin Hits
+  '37i9dQZF1DWVzZlRWgqAGH', // Hot Latin
 ]
+
+// Search Spotify for the most-followed public bachata playlists
+async function discoverBachataPlaylistIds(token: string): Promise<string[]> {
+  const queries = ['bachata hits', 'bachata romántica', 'bachata sensual', 'top bachata', 'best bachata']
+  const ids = new Set<string>(SEED_PLAYLIST_IDS)
+
+  await Promise.all(
+    queries.map(async (q) => {
+      try {
+        const url = `https://api.spotify.com/v1/search?q=${encodeURIComponent(q)}&type=playlist&limit=10`
+        const res = await fetch(url, { headers: { Authorization: `Bearer ${token}` } })
+        if (!res.ok) return
+        const data = await res.json()
+        for (const pl of data.playlists?.items ?? []) {
+          if (pl?.id && pl.tracks?.total > 20) ids.add(pl.id)
+        }
+      } catch {
+        // ignore
+      }
+    })
+  )
+
+  return Array.from(ids)
+}
 
 async function fetchPlaylistTracks(token: string, playlistId: string): Promise<SpotifyTrack[]> {
   const tracks: SpotifyTrack[] = []
@@ -61,7 +90,7 @@ async function fetchPlaylistTracks(token: string, playlistId: string): Promise<S
 
     for (const item of data.items ?? []) {
       const t = item?.track
-      if (!t || !t.id) continue
+      if (!t?.id) continue
       tracks.push({
         id: t.id,
         name: t.name,
@@ -82,12 +111,14 @@ async function fetchPlaylistTracks(token: string, playlistId: string): Promise<S
 }
 
 export async function fetchTopBachataTrack(token: string): Promise<SpotifyTrack[]> {
+  // Discover playlists (seed list + search results)
+  const playlistIds = await discoverBachataPlaylistIds(token)
+
   const seen = new Set<string>()
   const all: SpotifyTrack[] = []
 
-  // Fetch all tracks from Spotify's official bachata playlists
   await Promise.all(
-    SPOTIFY_BACHATA_PLAYLISTS.map(async (id) => {
+    playlistIds.map(async (id) => {
       try {
         const tracks = await fetchPlaylistTracks(token, id)
         for (const t of tracks) {
@@ -101,7 +132,6 @@ export async function fetchTopBachataTrack(token: string): Promise<SpotifyTrack[
     })
   )
 
-  // Sort by Spotify popularity (0–100) — this reflects actual global stream counts
   return all
     .filter(t => t.popularity > 0)
     .sort((a, b) => b.popularity - a.popularity)
