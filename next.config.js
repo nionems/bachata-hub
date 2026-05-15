@@ -31,7 +31,17 @@ const nextConfig = {
         protocol: 'https',
         hostname: 'res.cloudinary.com',
         pathname: '/**',
-      }
+      },
+      {
+        protocol: 'https',
+        hostname: 'i.scdn.co',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'mosaic.scdn.co',
+        pathname: '/**',
+      },
     ],
     domains: ['firebasestorage.googleapis.com'],
     // Reduced from 7 to 4 device sizes to minimize variants

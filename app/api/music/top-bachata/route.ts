@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import { getDb } from '@/lib/firebase-admin'
-import { getSpotifyToken, fetchTopBachataTrack, SpotifyTrack } from '@/lib/spotify'
+import { getSpotifyToken, fetchTopBachataTrack } from '@/lib/spotify'
 import { cookies } from 'next/headers'
 
 const CACHE_DOC = 'topBachata'
