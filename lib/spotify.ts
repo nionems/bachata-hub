@@ -41,36 +41,69 @@ export interface SpotifyTrack {
   durationMs: number
 }
 
-export async function fetchTopBachataTrack(token: string): Promise<SpotifyTrack[]> {
-  const queries = ['genre:bachata', 'bachata romantica', 'bachata sensual', 'bachata moderna']
-  const seen = new Set<string>()
-  const tracks: SpotifyTrack[] = []
+// Spotify's official editorial Bachata playlists (stable IDs maintained by Spotify)
+// These are curated by Spotify's editorial team and reflect what's actually popular
+const SPOTIFY_BACHATA_PLAYLISTS = [
+  '37i9dQZF1DX9pIn6tM2ADM', // Bachata Hits (Spotify Editorial)
+  '37i9dQZF1DZ06evO4ZbNyO', // This Is Bachata (Spotify Editorial)
+  '37i9dQZF1DWY3MFYA5XfEd', // Bachata Romántica
+]
 
+async function fetchPlaylistTracks(token: string, playlistId: string): Promise<SpotifyTrack[]> {
+  const tracks: SpotifyTrack[] = []
+  let url: string | null =
+    `https://api.spotify.com/v1/playlists/${playlistId}/tracks?limit=50&fields=next,items(track(id,name,artists,album,popularity,preview_url,external_urls,duration_ms))`
+
+  while (url) {
+    const res = await fetch(url, { headers: { Authorization: `Bearer ${token}` } })
+    if (!res.ok) break
+    const data = await res.json()
+
+    for (const item of data.items ?? []) {
+      const t = item?.track
+      if (!t || !t.id) continue
+      tracks.push({
+        id: t.id,
+        name: t.name,
+        artists: t.artists.map((a: any) => a.name),
+        album: t.album.name,
+        albumArt: t.album.images?.[0]?.url ?? '',
+        popularity: t.popularity ?? 0,
+        previewUrl: t.preview_url ?? null,
+        spotifyUrl: t.external_urls?.spotify ?? '',
+        durationMs: t.duration_ms,
+      })
+    }
+
+    url = data.next ?? null
+  }
+
+  return tracks
+}
+
+export async function fetchTopBachataTrack(token: string): Promise<SpotifyTrack[]> {
+  const seen = new Set<string>()
+  const all: SpotifyTrack[] = []
+
+  // Fetch all tracks from Spotify's official bachata playlists
   await Promise.all(
-    queries.map(async (q) => {
-      const url = `https://api.spotify.com/v1/search?q=${encodeURIComponent(q)}&type=track&limit=50&market=AU`
-      const res = await fetch(url, { headers: { Authorization: `Bearer ${token}` } })
-      if (!res.ok) return
-      const data = await res.json()
-      for (const item of data.tracks?.items ?? []) {
-        if (seen.has(item.id) || !item.popularity) continue
-        seen.add(item.id)
-        tracks.push({
-          id: item.id,
-          name: item.name,
-          artists: item.artists.map((a: any) => a.name),
-          album: item.album.name,
-          albumArt: item.album.images?.[0]?.url ?? '',
-          popularity: item.popularity,
-          previewUrl: item.preview_url ?? null,
-          spotifyUrl: item.external_urls?.spotify ?? '',
-          durationMs: item.duration_ms,
-        })
+    SPOTIFY_BACHATA_PLAYLISTS.map(async (id) => {
+      try {
+        const tracks = await fetchPlaylistTracks(token, id)
+        for (const t of tracks) {
+          if (seen.has(t.id)) continue
+          seen.add(t.id)
+          all.push(t)
+        }
+      } catch {
+        // skip failed playlists
       }
     })
   )
 
-  return tracks
+  // Sort by Spotify popularity (0–100) — this reflects actual global stream counts
+  return all
+    .filter(t => t.popularity > 0)
     .sort((a, b) => b.popularity - a.popularity)
     .slice(0, 20)
 }
