@@ -31,8 +31,31 @@
   .dark .text-gray-400 { color: hsl(210, 15%, 50%) !important; }
   .dark .border-gray-100 { border-color: hsl(222, 47%, 18%) !important; }
   .dark .border-gray-200 { border-color: hsl(222, 47%, 20%) !important; }
+  .dark .border-gray-300 { border-color: hsl(222, 47%, 24%) !important; }
   .dark .shadow-sm { box-shadow: 0 1px 2px 0 rgba(0,0,0,0.4) !important; }
   .dark .shadow-md { box-shadow: 0 4px 6px -1px rgba(0,0,0,0.4) !important; }
+
+  /* Light-tinted backgrounds with dark text — invert in dark mode */
+  .dark .bg-green-50  { background-color: hsl(142, 40%, 14%) !important; }
+  .dark .bg-green-100 { background-color: hsl(142, 40%, 18%) !important; }
+  .dark .bg-red-50    { background-color: hsl(0,   40%, 14%) !important; }
+  .dark .bg-red-100   { background-color: hsl(0,   40%, 18%) !important; }
+  .dark .bg-blue-50   { background-color: hsl(213, 40%, 14%) !important; }
+  .dark .bg-blue-100  { background-color: hsl(213, 40%, 18%) !important; }
+  .dark .bg-yellow-50 { background-color: hsl(45,  40%, 14%) !important; }
+  .dark .bg-orange-50 { background-color: hsl(25,  40%, 14%) !important; }
+  .dark .bg-purple-50 { background-color: hsl(270, 40%, 14%) !important; }
+
+  /* Semantic text colours on those tinted backgrounds */
+  .dark .text-green-700 { color: hsl(142, 65%, 62%) !important; }
+  .dark .text-green-600 { color: hsl(142, 60%, 55%) !important; }
+  .dark .text-red-700   { color: hsl(0,   75%, 68%) !important; }
+  .dark .text-red-600   { color: hsl(0,   70%, 62%) !important; }
+  .dark .text-blue-700  { color: hsl(213, 80%, 68%) !important; }
+  .dark .text-blue-600  { color: hsl(213, 75%, 62%) !important; }
+
+  /* Pure black text — always flip to near-white */
+  .dark .text-black { color: hsl(210, 40%, 94%) !important; }
 
   /* Navbar dark mode */
   .dark header.bg-white\/90 { background-color: hsla(222, 47%, 11%, 0.95) !important; }
