@@ -6,8 +6,9 @@ export async function getSpotifyToken(): Promise<string> {
     return cachedToken.token
   }
 
-  const clientId = process.env.SPOTIFY_CLIENT_ID!
-  const clientSecret = process.env.SPOTIFY_CLIENT_SECRET!
+  const clientId = process.env.SPOTIFY_CLIENT_ID
+  const clientSecret = process.env.SPOTIFY_CLIENT_SECRET
+  if (!clientId || !clientSecret) throw new Error('Spotify credentials not set')
   const credentials = Buffer.from(`${clientId}:${clientSecret}`).toString('base64')
 
   const res = await fetch('https://accounts.spotify.com/api/token', {

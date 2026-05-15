@@ -8,6 +8,10 @@ const CACHE_TTL_MS = 24 * 60 * 60 * 1000 // 24 hours
 
 // GET /api/music/top-bachata — returns cached top 20, refreshes if stale
 export async function GET() {
+  if (!process.env.SPOTIFY_CLIENT_ID || !process.env.SPOTIFY_CLIENT_SECRET) {
+    return NextResponse.json({ tracks: [], updatedAt: null, error: 'Spotify not configured' })
+  }
+
   try {
     const db = getDb()
     const ref = db.collection('musicCache').doc(CACHE_DOC)
