@@ -179,14 +179,46 @@ export default function EventsPage() {
     setExpandedComments(prev => ({ ...prev, [eventId]: !prev[eventId] }))
   }
 
-  // Load liked/going events from localStorage on mount
+  // Load liked/going events — backend is source of truth, localStorage is cache
   useEffect(() => {
+    const getOrCreateUserId = (): string => {
+      try {
+        let id = localStorage.getItem('bachataUserId')
+        if (!id) {
+          id = crypto.randomUUID()
+          localStorage.setItem('bachataUserId', id)
+        }
+        return id
+      } catch {
+        return crypto.randomUUID()
+      }
+    }
+
+    const userId = getOrCreateUserId()
+
+    // Seed from localStorage immediately so UI isn't empty while fetching
     try {
       const storedLikes = localStorage.getItem('likedEvents')
       if (storedLikes) setLikedEvents(new Set(JSON.parse(storedLikes)))
       const storedGoing = localStorage.getItem('goingEvents')
       if (storedGoing) setGoingEvents(new Set(JSON.parse(storedGoing)))
     } catch {}
+
+    // Fetch authoritative state from backend
+    fetch(`/api/user/interactions?userId=${encodeURIComponent(userId)}`)
+      .then(r => r.ok ? r.json() : null)
+      .then(data => {
+        if (!data) return
+        const liked = new Set<string>(data.likedEvents)
+        const going = new Set<string>(data.goingEvents)
+        setLikedEvents(liked)
+        setGoingEvents(going)
+        try {
+          localStorage.setItem('likedEvents', JSON.stringify([...liked]))
+          localStorage.setItem('goingEvents', JSON.stringify([...going]))
+        } catch {}
+      })
+      .catch(() => {})
   }, [])
 
   const toggleLike = async (e: React.MouseEvent, eventId: string, currentCount: number) => {
@@ -201,15 +233,14 @@ export default function EventsPage() {
     setLikedEvents(newLiked)
     setLikeCounts(prev => ({ ...prev, [eventId]: (prev[eventId] ?? currentCount) + (isLiked ? -1 : 1) }))
 
-    // Persist to localStorage
     try { localStorage.setItem('likedEvents', JSON.stringify([...newLiked])) } catch {}
 
-    // Persist to Firestore
     try {
+      const userId = localStorage.getItem('bachataUserId') ?? ''
       await fetch(`/api/events/${eventId}/like`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action }),
+        body: JSON.stringify({ action, userId }),
       })
     } catch {}
   }
@@ -228,10 +259,11 @@ export default function EventsPage() {
     try { localStorage.setItem('goingEvents', JSON.stringify([...newGoing])) } catch {}
 
     try {
+      const userId = localStorage.getItem('bachataUserId') ?? ''
       await fetch(`/api/events/${eventId}/going`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action }),
+        body: JSON.stringify({ action, userId }),
       })
     } catch {}
   }

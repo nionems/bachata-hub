@@ -7,14 +7,35 @@ export async function POST(
   { params }: { params: { id: string } }
 ) {
   try {
-    const { action } = await request.json()
+    const { action, userId } = await request.json()
     if (action !== 'going' && action !== 'notgoing') {
       return NextResponse.json({ error: 'Invalid action' }, { status: 400 })
     }
+    if (!userId) {
+      return NextResponse.json({ error: 'userId required' }, { status: 400 })
+    }
 
     const db = getDb()
-    await db.collection('events').doc(params.id).update({
-      goingCount: FieldValue.increment(action === 'going' ? 1 : -1),
+    const eventRef = db.collection('events').doc(params.id)
+
+    await db.runTransaction(async (transaction) => {
+      const eventDoc = await transaction.get(eventRef)
+      if (!eventDoc.exists) throw new Error('Event not found')
+
+      const goingBy: string[] = eventDoc.data()?.goingBy ?? []
+      const alreadyGoing = goingBy.includes(userId)
+
+      if (action === 'going' && !alreadyGoing) {
+        transaction.update(eventRef, {
+          goingBy: FieldValue.arrayUnion(userId),
+          goingCount: FieldValue.increment(1),
+        })
+      } else if (action === 'notgoing' && alreadyGoing) {
+        transaction.update(eventRef, {
+          goingBy: FieldValue.arrayRemove(userId),
+          goingCount: FieldValue.increment(-1),
+        })
+      }
     })
 
     return NextResponse.json({ success: true })
