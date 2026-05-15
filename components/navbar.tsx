@@ -50,6 +50,7 @@ export default function Navbar() {
     { name: "Schools", href: "/schools" },
     { name: "Instructors", href: "/instructors" },
     { name: "DJs", href: "/djs" },
+    { name: "Top 20", href: "/music" },
     { name: "Media", href: "/media" },
     { name: "Competitions", href: "/competitions" },
     { name: "Marketplace", href: "/shop" },

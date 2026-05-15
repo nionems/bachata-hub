@@ -937,6 +937,12 @@ export default function Home() {
                 link="/media"
               />
               <FeatureCard
+                icon={<Music className="h-6 w-6 sm:h-8 sm:w-8 text-emerald-500" />}
+                title="Top 20"
+                description="Most popular Bachata songs"
+                link="/music"
+              />
+              <FeatureCard
                 icon={<Headphones className="h-6 w-6 sm:h-8 sm:w-8 text-red-500" />}
                 title="DJs"
                 description="Find Bachata DJs"
