@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { getDb } from '@/lib/firebase-admin'
+import { cookies } from 'next/headers'
 import webpush from 'web-push'
 
 webpush.setVapidDetails(
@@ -8,9 +9,34 @@ webpush.setVapidDetails(
   process.env.VAPID_PRIVATE_KEY!
 )
 
+async function sendToAllSubscribers(title: string, body: string, url: string) {
+  const db = getDb()
+  const subsSnapshot = await db.collection('pushSubscriptions').get()
+  if (subsSnapshot.empty) return { sent: 0, stale: 0 }
+
+  let sent = 0
+  const stale: string[] = []
+
+  await Promise.allSettled(
+    subsSnapshot.docs.map(async (doc) => {
+      const { subscription } = doc.data()
+      try {
+        await webpush.sendNotification(subscription, JSON.stringify({ title, body, url }))
+        sent++
+      } catch (err: any) {
+        if (err.statusCode === 410 || err.statusCode === 404) {
+          stale.push(doc.id)
+        }
+      }
+    })
+  )
+
+  await Promise.all(stale.map(id => db.collection('pushSubscriptions').doc(id).delete()))
+  return { sent, stale: stale.length }
+}
+
 // Called by Vercel Cron daily — sends notifications for events happening in next 48h
 export async function GET(request: Request) {
-  // Verify cron secret to prevent unauthorized calls
   const authHeader = request.headers.get('authorization')
   if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
@@ -18,17 +44,9 @@ export async function GET(request: Request) {
 
   try {
     const db = getDb()
-
-    // Get all push subscriptions
-    const subsSnapshot = await db.collection('pushSubscriptions').get()
-    if (subsSnapshot.empty) return NextResponse.json({ sent: 0 })
-
-    // Get upcoming events in next 48 hours
     const now = new Date()
     const in48h = new Date(now.getTime() + 48 * 60 * 60 * 1000)
-    const eventsSnapshot = await db.collection('events')
-      .where('published', '==', true)
-      .get()
+    const eventsSnapshot = await db.collection('events').where('published', '==', true).get()
 
     const upcomingEvents = eventsSnapshot.docs
       .map(doc => ({ id: doc.id, ...doc.data() } as any))
@@ -41,42 +59,38 @@ export async function GET(request: Request) {
 
     if (upcomingEvents.length === 0) return NextResponse.json({ sent: 0 })
 
-    // Build notification message
     const eventNames = upcomingEvents.slice(0, 3).map((e: any) => e.name).join(', ')
     const title = '🎶 Bachata Hub — Events coming up!'
     const body = upcomingEvents.length === 1
       ? `${upcomingEvents[0].name} is happening soon — don't miss it!`
       : `${eventNames}${upcomingEvents.length > 3 ? ` +${upcomingEvents.length - 3} more` : ''} coming up!`
 
-    // Send to all subscribers
-    let sent = 0
-    const stale: string[] = []
-
-    await Promise.allSettled(
-      subsSnapshot.docs.map(async (doc) => {
-        const { subscription } = doc.data()
-        try {
-          await webpush.sendNotification(subscription, JSON.stringify({
-            title,
-            body,
-            url: '/events',
-          }))
-          sent++
-        } catch (err: any) {
-          // 410 Gone = subscription expired, clean it up
-          if (err.statusCode === 410 || err.statusCode === 404) {
-            stale.push(doc.id)
-          }
-        }
-      })
-    )
-
-    // Remove stale subscriptions
-    await Promise.all(stale.map(id => db.collection('pushSubscriptions').doc(id).delete()))
-
-    return NextResponse.json({ sent, stale: stale.length })
+    const result = await sendToAllSubscribers(title, body, '/events')
+    return NextResponse.json(result)
   } catch (error) {
     console.error('Error sending push notifications:', error)
     return NextResponse.json({ error: 'Failed to send notifications' }, { status: 500 })
+  }
+}
+
+// Called manually from admin dashboard — admin cookie required
+export async function POST(request: Request) {
+  const cookieStore = cookies()
+  const adminSession = cookieStore.get('admin_session')
+  if (!adminSession || adminSession.value !== 'true') {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+
+  try {
+    const { title, body, url } = await request.json()
+    if (!title || !body) {
+      return NextResponse.json({ error: 'title and body are required' }, { status: 400 })
+    }
+
+    const result = await sendToAllSubscribers(title, body, url || '/')
+    return NextResponse.json(result)
+  } catch (error) {
+    console.error('Error sending push notification:', error)
+    return NextResponse.json({ error: 'Failed to send notification' }, { status: 500 })
   }
 }

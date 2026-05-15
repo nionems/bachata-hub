@@ -1345,7 +1345,8 @@ function AdminDashboardContent() {
     { id: 'media', label: 'Media' },
     { id: 'pending-items', label: 'Pending Items' },
     { id: 'submissions', label: 'Email Submissions' },
-    { id: 'users', label: 'Community Users' }
+    { id: 'users', label: 'Community Users' },
+    { id: 'notifications', label: 'Notifications' }
   ]
 
   const EventCard = ({ event }: { event: Event }) => (
@@ -2843,6 +2844,9 @@ function AdminDashboardContent() {
             )}
           </div>
         )}
+        {activeTab === 'notifications' && (
+          <NotificationsTab />
+        )}
       </div>
 
       {/* Mobile-friendly floating action button */}
@@ -3017,6 +3021,99 @@ function AdminDashboardContent() {
           cancelText={config.cancelText}
         />
       )}
+    </div>
+  )
+}
+
+function NotificationsTab() {
+  const [subscriberCount, setSubscriberCount] = useState<number | null>(null)
+  const [title, setTitle] = useState('🎶 Bachata Hub')
+  const [body, setBody] = useState('')
+  const [url, setUrl] = useState('/events')
+  const [sending, setSending] = useState(false)
+  const [result, setResult] = useState<{ sent: number; stale: number } | null>(null)
+
+  useEffect(() => {
+    fetch('/api/push/subscribers')
+      .then(r => r.ok ? r.json() : null)
+      .then(data => { if (data) setSubscriberCount(data.count) })
+      .catch(() => {})
+  }, [])
+
+  const sendNotification = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setSending(true)
+    setResult(null)
+    try {
+      const res = await fetch('/api/push/send', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ title, body, url }),
+      })
+      const data = await res.json()
+      if (res.ok) setResult(data)
+      else toast.error(data.error ?? 'Failed to send')
+    } catch {
+      toast.error('Failed to send notification')
+    } finally {
+      setSending(false)
+    }
+  }
+
+  return (
+    <div className="max-w-xl">
+      <div className="flex justify-between items-center mb-6">
+        <h2 className="text-xl font-semibold">Push Notifications</h2>
+        <span className="text-sm text-gray-500">
+          {subscriberCount === null ? 'Loading…' : `${subscriberCount} subscriber${subscriberCount !== 1 ? 's' : ''}`}
+        </span>
+      </div>
+
+      <form onSubmit={sendNotification} className="space-y-4 bg-gray-50 p-5 rounded-lg border">
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Title</label>
+          <input
+            type="text"
+            value={title}
+            onChange={e => setTitle(e.target.value)}
+            required
+            className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Message</label>
+          <textarea
+            value={body}
+            onChange={e => setBody(e.target.value)}
+            required
+            rows={3}
+            placeholder="e.g. Salsa Social tonight at 8pm — come dance with us!"
+            className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Link (optional)</label>
+          <input
+            type="text"
+            value={url}
+            onChange={e => setUrl(e.target.value)}
+            className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+        </div>
+        <button
+          type="submit"
+          disabled={sending || !body.trim()}
+          className="w-full bg-blue-500 text-white py-2 rounded-md text-sm font-medium hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          {sending ? 'Sending…' : 'Send Notification'}
+        </button>
+        {result && (
+          <p className="text-sm text-green-600 text-center">
+            Sent to {result.sent} subscriber{result.sent !== 1 ? 's' : ''}
+            {result.stale > 0 ? ` (${result.stale} expired removed)` : ''}
+          </p>
+        )}
+      </form>
     </div>
   )
 }
