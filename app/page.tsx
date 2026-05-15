@@ -1047,20 +1047,20 @@ function FeatureCard({ icon, title, description, link, onClick, isButton }: { ic
       <button
         type="button"
         onClick={onClick}
-        className="bg-white p-4 sm:p-6 rounded-lg shadow-sm hover:shadow-md transition-shadow cursor-pointer text-center w-full h-full"
+        className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-lg shadow-sm hover:shadow-md transition-shadow cursor-pointer text-center w-full h-full"
       >
         <div className="mb-2 sm:mb-4 flex justify-center">{icon}</div>
-        <h3 className="text-sm sm:text-lg font-semibold mb-1 sm:mb-2">{title}</h3>
-        <p className="text-gray-600 hidden sm:block text-xs sm:text-sm">{description}</p>
+        <h3 className="text-sm sm:text-lg font-semibold mb-1 sm:mb-2 text-gray-900 dark:text-gray-100">{title}</h3>
+        <p className="text-gray-600 dark:text-gray-400 hidden sm:block text-xs sm:text-sm">{description}</p>
       </button>
     )
   }
   return (
     <Link href={link || '#'} className="w-full h-full">
-      <div className="bg-white p-4 sm:p-6 rounded-lg shadow-sm hover:shadow-md transition-shadow cursor-pointer text-center w-full h-full">
+      <div className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-lg shadow-sm hover:shadow-md transition-shadow cursor-pointer text-center w-full h-full">
         <div className="mb-2 sm:mb-4 flex justify-center">{icon}</div>
-        <h3 className="text-sm sm:text-lg font-semibold mb-1 sm:mb-2">{title}</h3>
-        <p className="text-gray-600 hidden sm:block text-xs sm:text-sm">{description}</p>
+        <h3 className="text-sm sm:text-lg font-semibold mb-1 sm:mb-2 text-gray-900 dark:text-gray-100">{title}</h3>
+        <p className="text-gray-600 dark:text-gray-400 hidden sm:block text-xs sm:text-sm">{description}</p>
       </div>
     </Link>
   )
