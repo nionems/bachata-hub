@@ -188,16 +188,23 @@ export default function EventsPage() {
 
   // Load liked/going events — backend is source of truth, localStorage is cache
   useEffect(() => {
+    const generateUserId = (): string => {
+      if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+        return crypto.randomUUID()
+      }
+      return Math.random().toString(36).slice(2) + Date.now().toString(36)
+    }
+
     const getOrCreateUserId = (): string => {
       try {
         let id = localStorage.getItem('bachataUserId')
         if (!id) {
-          id = crypto.randomUUID()
+          id = generateUserId()
           localStorage.setItem('bachataUserId', id)
         }
         return id
       } catch {
-        return crypto.randomUUID()
+        return generateUserId()
       }
     }
 
