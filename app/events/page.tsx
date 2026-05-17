@@ -138,22 +138,14 @@ export default function EventsPage() {
           }
         })
 
-        // Hide one-time events whose date has already passed and aren't in the calendar
-        const activeEvents = eventsWithNext.filter(event => {
-          if (event.nextOccurrence) return true  // upcoming calendar date — keep
-          if (event.recurrence) return true       // recurring — keep regardless
-          const d = new Date(event.eventDate || event.date || '')
-          return !isNaN(d.getTime()) && d >= now  // one-time: only keep if date is today or future
-        })
-
-        activeEvents.sort((a, b) => {
+        eventsWithNext.sort((a, b) => {
           if (!a.nextOccurrence && !b.nextOccurrence) return a.name.localeCompare(b.name)
           if (!a.nextOccurrence) return 1
           if (!b.nextOccurrence) return -1
           return (a.nextOccurrence as Date).getTime() - (b.nextOccurrence as Date).getTime()
         })
 
-        setEvents(activeEvents)
+        setEvents(eventsWithNext)
       } catch (err) {
         console.error('Error fetching events:', err)
         setError('Failed to load events')
@@ -410,7 +402,12 @@ export default function EventsPage() {
                         </span>
                       )}
                     </div>
-                  ) : null}
+                  ) : (
+                    <div className="inline-flex items-center gap-1.5 self-start bg-gray-100 text-gray-400 px-3 py-1 rounded-full">
+                      <Clock className="h-3.5 w-3.5 flex-shrink-0" />
+                      <span className="text-xs font-medium whitespace-nowrap">Coming soon</span>
+                    </div>
+                  )}
 
                   {/* Event name */}
                   <h3 className="font-extrabold text-gray-900 text-base sm:text-lg leading-snug">{event.name}</h3>
