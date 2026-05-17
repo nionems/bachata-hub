@@ -14,7 +14,8 @@ import CalendarMenu from "@/components/calendar-menu"
 import { LoadingSpinner } from '@/components/loading-spinner'
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { getDayOfWeek, formatNextDate, formatTime, buildGoogleCalendarUrl } from '@/lib/recurrence'
+import { getNextOccurrence, getDayOfWeek, formatNextDate, formatTime, buildGoogleCalendarUrl } from '@/lib/recurrence'
+
 
 interface Event {
   id: string
@@ -41,14 +42,14 @@ interface Event {
   likesCount?: number
   goingCount?: number
   nextOccurrence?: Date | null
-  nextOccurrenceConfirmed?: boolean // true = from Google Calendar, false = computed
+  nextOccurrenceConfirmed?: boolean
   dayOfWeek?: string | null
 }
 
 // Match a Google Calendar event title to a Firestore event name for confirmed date detection
 function matchesEvent(calendarTitle: string, firestoreName: string): boolean {
-  const cal = (calendarTitle ?? '').toLowerCase().replace(/[^a-z0-9\s]/g, '').trim()
-  const fb = (firestoreName ?? '').toLowerCase().replace(/[^a-z0-9\s]/g, '').trim()
+  const cal = calendarTitle.toLowerCase().replace(/[^a-z0-9\s]/g, '').trim()
+  const fb = firestoreName.toLowerCase().replace(/[^a-z0-9\s]/g, '').trim()
   if (!cal || !fb) return false
   if (fb.length >= 4 && cal.includes(fb)) return true
   if (cal.length >= 4 && fb.includes(cal)) return true
@@ -69,7 +70,6 @@ function extractTicketLink(event: Event): string | undefined {
   const urlMatch = event.description?.match(/https?:\/\/[^\s\])"]+/)
   if (!urlMatch) return undefined
   const url = urlMatch[0]
-  // Ignore Google Drive / Docs / Photos links — not ticket pages
   if (/drive\.google\.com|docs\.google\.com|photos\.google\.com/i.test(url)) return undefined
   return url
 }
@@ -96,13 +96,13 @@ export default function EventsPage() {
   const { selectedState, setSelectedState, filteredItems: filteredEvents, isGeoLoading, error: geoError } = useStateFilter(events)
 
   const searchFilteredEvents = filteredEvents.filter(event => {
-    const nameMatch = (event.name ?? '').toLowerCase().includes(searchTerm.toLowerCase())
-    const locationMatch = (event.location ?? '').toLowerCase().includes(searchTerm.toLowerCase())
+    const nameMatch = event.name.toLowerCase().includes(searchTerm.toLowerCase())
+    const locationMatch = event.location.toLowerCase().includes(searchTerm.toLowerCase())
     const danceStylesMatch = Array.isArray(event.danceStyles) && event.danceStyles.some(style =>
-      (style ?? '').toLowerCase().includes(searchTerm.toLowerCase())
+      style.toLowerCase().includes(searchTerm.toLowerCase())
     )
     const danceStyleMatch = selectedDanceStyle === "all" ||
-      (Array.isArray(event.danceStyles) && event.danceStyles.some(s => s === selectedDanceStyle))
+      (Array.isArray(event.danceStyles) && event.danceStyles.includes(selectedDanceStyle))
     const dayMatch = selectedDay === "all" || event.dayOfWeek === selectedDay
 
     return (nameMatch || locationMatch || danceStylesMatch) && danceStyleMatch && dayMatch
@@ -123,14 +123,13 @@ export default function EventsPage() {
           ? await calendarRes.json()
           : []
 
-        const now = new Date()
-        const todayStart = new Date(now)
+        // Use start-of-today so today's events show even if their start time passed
+        const todayStart = new Date()
         todayStart.setHours(0, 0, 0, 0)
 
         const eventsWithNext = eventsList.map(event => {
           const calendarMatch = calendarEvents.find(ce => matchesEvent(ce.title, event.name))
           const confirmed = calendarMatch ? new Date(calendarMatch.start) : null
-          // Keep today's events even if their start time has already passed
           const nextOccurrence = confirmed && !isNaN(confirmed.getTime()) && confirmed >= todayStart ? confirmed : null
           return {
             ...event,
@@ -141,7 +140,7 @@ export default function EventsPage() {
         })
 
         eventsWithNext.sort((a, b) => {
-          if (!a.nextOccurrence && !b.nextOccurrence) return (a.name ?? '').localeCompare(b.name ?? '')
+          if (!a.nextOccurrence && !b.nextOccurrence) return a.name.localeCompare(b.name)
           if (!a.nextOccurrence) return 1
           if (!b.nextOccurrence) return -1
           return (a.nextOccurrence as Date).getTime() - (b.nextOccurrence as Date).getTime()
@@ -189,10 +188,11 @@ export default function EventsPage() {
   // Load liked/going events — backend is source of truth, localStorage is cache
   useEffect(() => {
     const generateUserId = (): string => {
-      if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+      try {
         return crypto.randomUUID()
+      } catch {
+        return Math.random().toString(36).slice(2) + Date.now().toString(36)
       }
-      return Math.random().toString(36).slice(2) + Date.now().toString(36)
     }
 
     const getOrCreateUserId = (): string => {
@@ -240,7 +240,6 @@ export default function EventsPage() {
     const isLiked = likedEvents.has(eventId)
     const action = isLiked ? 'unlike' : 'like'
 
-    // Optimistic update
     const newLiked = new Set(likedEvents)
     if (isLiked) newLiked.delete(eventId)
     else newLiked.add(eventId)
