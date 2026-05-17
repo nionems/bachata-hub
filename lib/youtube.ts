@@ -32,6 +32,8 @@ const SEARCH_QUERIES = [
   `sebas garreta bachata 2025`,
   `esme bachata 2025`,
   `akai rojas bachata 2025`,
+  `kewin cosmos bachata 2025`,
+  `montelier bachata 2025`,
 ]
 
 async function searchVideos(apiKey: string, query: string): Promise<string[]> {
