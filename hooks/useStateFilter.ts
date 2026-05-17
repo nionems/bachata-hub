@@ -29,11 +29,9 @@ export function useStateFilter<T extends HasState>(items: T[], options?: StateFi
     }
   }, [geoState, isGeoLoading, shouldUseGeolocation])
 
-  const filteredItems = isGeoLoading && shouldUseGeolocation
-    ? []
-    : selectedState === 'all'
-      ? items
-      : items.filter(item => item.state === selectedState)
+  const filteredItems = selectedState === 'all'
+    ? items
+    : items.filter(item => item.state === selectedState)
 
   return {
     selectedState,

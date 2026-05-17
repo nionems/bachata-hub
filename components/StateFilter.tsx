@@ -37,7 +37,7 @@ export function StateFilter({ selectedState, onChange, isLoading = false, error 
   }
 
   return (
-    <div className="mb-6 sm:mb-8">
+    <div>
       <Select value={selectedState} onValueChange={onChange} disabled={isLoading}>
         <SelectTrigger className="w-full sm:w-64 bg-white/80 border-primary/30 shadow-lg rounded-xl text-base font-semibold transition-all focus:ring-2 focus:ring-primary focus:border-primary">
           <SelectValue placeholder={isLoading ? "Detecting your location..." : "Filter by State"} />
