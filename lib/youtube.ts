@@ -75,8 +75,19 @@ async function getVideoDetails(apiKey: string, videoIds: string[]): Promise<Vide
   }))
 }
 
+function normalizeTitle(title: string): string {
+  return title
+    .toLowerCase()
+    .replace(/\(.*?\)/g, '')   // remove (Official Video), (Lyrics), etc.
+    .replace(/\[.*?\]/g, '')   // remove [Official Audio], etc.
+    .replace(/official|video|audio|lyrics|lyric|ft\.?|feat\.?/gi, '')
+    .replace(/[^a-z0-9\s]/g, '')
+    .replace(/\s+/g, ' ')
+    .trim()
+}
+
 export async function fetchTopBachataVideos(apiKey: string): Promise<VideoTrack[]> {
-  const seen = new Set<string>()
+  const seenIds = new Set<string>()
   const allIds: string[] = []
 
   await Promise.all(
@@ -84,8 +95,8 @@ export async function fetchTopBachataVideos(apiKey: string): Promise<VideoTrack[
       try {
         const ids = await searchVideos(apiKey, q)
         for (const id of ids) {
-          if (!seen.has(id)) {
-            seen.add(id)
+          if (!seenIds.has(id)) {
+            seenIds.add(id)
             allIds.push(id)
           }
         }
@@ -107,11 +118,18 @@ export async function fetchTopBachataVideos(apiKey: string): Promise<VideoTrack[
 
   const excludeRegex = new RegExp(EXCLUDE_GENRES.join('|'), 'i')
   const now = Date.now()
+  const seenTitles = new Set<string>()
 
   // Score by views-per-day so recently uploaded songs that are trending
   // rank higher than older videos that merely have more total views
   const scored = tracks
-    .filter(t => !excludeRegex.test(t.name))
+    .filter(t => {
+      if (excludeRegex.test(t.name)) return false
+      const norm = normalizeTitle(t.name)
+      if (seenTitles.has(norm)) return false
+      seenTitles.add(norm)
+      return true
+    })
     .map(t => {
       const ageMs = now - (t.publishedAt ? new Date(t.publishedAt).getTime() : now)
       const ageDays = Math.max(ageMs / (1000 * 60 * 60 * 24), 1)
