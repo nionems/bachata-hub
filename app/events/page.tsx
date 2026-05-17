@@ -128,14 +128,12 @@ export default function EventsPage() {
         const eventsWithNext = eventsList.map(event => {
           const calendarMatch = calendarEvents.find(ce => matchesEvent(ce.title, event.name))
           const confirmed = calendarMatch ? new Date(calendarMatch.start) : null
-          const computed = event.recurrence ? getNextOccurrence(event.recurrence, event.eventDate || event.date) : null
-          const raw = confirmed ?? computed
-          // Discard invalid or past dates — show "Coming soon" and sort to bottom
-          const nextOccurrence = raw && !isNaN(raw.getTime()) && raw >= now ? raw : null
+          // Only show date if confirmed from Google Calendar; no computed fallback
+          const nextOccurrence = confirmed && !isNaN(confirmed.getTime()) && confirmed >= now ? confirmed : null
           return {
             ...event,
             nextOccurrence,
-            nextOccurrenceConfirmed: !!confirmed,
+            nextOccurrenceConfirmed: true,
             dayOfWeek: event.recurrence ? getDayOfWeek(event.recurrence) : null,
           }
         })
