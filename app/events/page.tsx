@@ -16,7 +16,6 @@ import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { getDayOfWeek, formatNextDate, formatTime, buildGoogleCalendarUrl } from '@/lib/recurrence'
 
-
 interface Event {
   id: string
   name: string
@@ -48,8 +47,8 @@ interface Event {
 
 // Match a Google Calendar event title to a Firestore event name for confirmed date detection
 function matchesEvent(calendarTitle: string, firestoreName: string): boolean {
-  const cal = calendarTitle.toLowerCase().replace(/[^a-z0-9\s]/g, '').trim()
-  const fb = firestoreName.toLowerCase().replace(/[^a-z0-9\s]/g, '').trim()
+  const cal = (calendarTitle ?? '').toLowerCase().replace(/[^a-z0-9\s]/g, '').trim()
+  const fb = (firestoreName ?? '').toLowerCase().replace(/[^a-z0-9\s]/g, '').trim()
   if (!cal || !fb) return false
   if (fb.length >= 4 && cal.includes(fb)) return true
   if (cal.length >= 4 && fb.includes(cal)) return true
@@ -100,10 +99,10 @@ export default function EventsPage() {
     const nameMatch = (event.name ?? '').toLowerCase().includes(searchTerm.toLowerCase())
     const locationMatch = (event.location ?? '').toLowerCase().includes(searchTerm.toLowerCase())
     const danceStylesMatch = Array.isArray(event.danceStyles) && event.danceStyles.some(style =>
-      style.toLowerCase().includes(searchTerm.toLowerCase())
+      (style ?? '').toLowerCase().includes(searchTerm.toLowerCase())
     )
     const danceStyleMatch = selectedDanceStyle === "all" ||
-      (Array.isArray(event.danceStyles) && event.danceStyles.includes(selectedDanceStyle))
+      (Array.isArray(event.danceStyles) && event.danceStyles.some(s => s === selectedDanceStyle))
     const dayMatch = selectedDay === "all" || event.dayOfWeek === selectedDay
 
     return (nameMatch || locationMatch || danceStylesMatch) && danceStyleMatch && dayMatch
