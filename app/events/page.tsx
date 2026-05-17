@@ -391,9 +391,9 @@ export default function EventsPage() {
 
         </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 md:gap-6">
+        <div className="flex flex-col gap-3">
           {searchFilteredEvents.length === 0 ? (
-            <div className="col-span-full text-center py-8 text-gray-500">
+            <div className="text-center py-8 text-gray-500">
               No events found
               {selectedState !== 'all' && ` in ${selectedState}`}
               {selectedDanceStyle !== 'all' && ` for ${selectedDanceStyle}`}
@@ -401,71 +401,62 @@ export default function EventsPage() {
             </div>
           ) : (
             searchFilteredEvents.map((event) => (
-              <Card key={event.id} className="overflow-hidden rounded-xl shadow-sm hover:shadow-md transition-shadow duration-200 bg-white flex flex-col">
+              <Card key={event.id} className="overflow-hidden rounded-xl shadow-sm hover:shadow-md transition-shadow duration-200 bg-white flex flex-row">
 
-                {/* Image */}
+                {/* Image — fixed width, full card height */}
                 <div
-                  className="relative h-36 sm:h-44 overflow-hidden cursor-pointer flex-shrink-0"
+                  className="relative w-28 sm:w-40 flex-shrink-0 overflow-hidden cursor-pointer"
                   onClick={() => event.imageUrl && setSelectedImage({ url: event.imageUrl, title: event.name })}
                 >
                   <img
                     src={event.imageUrl || '/images/BACHATA.AU (13).png'}
                     alt={event.name}
                     loading="lazy"
-                    className={`w-full h-full ${event.imageUrl ? 'object-cover hover:scale-105 transition-transform duration-300' : 'object-contain p-4 bg-gray-50'}`}
+                    className={`absolute inset-0 w-full h-full ${event.imageUrl ? 'object-cover hover:scale-105 transition-transform duration-300' : 'object-contain p-3 bg-gray-50'}`}
                   />
                   {/* Dance style badges */}
                   {event.danceStyles && Array.isArray(event.danceStyles) && event.danceStyles.length > 0 && (
-                    <div className="absolute top-2 left-2 flex flex-wrap gap-1">
-                      {event.danceStyles.slice(0, 2).map((style, i) => (
-                        <span key={i} className="bg-black/60 backdrop-blur-sm text-white text-[10px] font-medium px-2 py-0.5 rounded-full">
+                    <div className="absolute top-2 left-1 flex flex-wrap gap-1">
+                      {event.danceStyles.slice(0, 1).map((style, i) => (
+                        <span key={i} className="bg-black/60 backdrop-blur-sm text-white text-[9px] font-medium px-1.5 py-0.5 rounded-full">
                           {style}
                         </span>
                       ))}
-                      {event.danceStyles.length > 2 && (
-                        <span className="bg-black/60 backdrop-blur-sm text-white text-[10px] font-medium px-2 py-0.5 rounded-full">
-                          +{event.danceStyles.length - 2}
-                        </span>
-                      )}
                     </div>
                   )}
                   {/* Workshop badge */}
                   {event.isWorkshop && (
-                    <div className="absolute top-2 right-2 bg-primary text-white text-[10px] font-semibold px-2 py-0.5 rounded-full shadow">
+                    <div className="absolute bottom-2 left-1 bg-primary text-white text-[9px] font-semibold px-1.5 py-0.5 rounded-full shadow">
                       + Workshop
                     </div>
                   )}
                 </div>
 
                 {/* Content */}
-                <div className="flex flex-col flex-1 p-3 sm:p-4">
+                <div className="flex flex-col flex-1 p-3 min-w-0">
 
-                  {/* Next date */}
-                  {event.nextOccurrence ? (
-                    <div className={`flex items-start gap-2 mb-2.5 px-2.5 py-2 rounded-lg ${event.nextOccurrenceConfirmed ? 'bg-green-50 text-green-700' : 'bg-blue-50 text-blue-700'}`}>
-                      <Clock className="h-3.5 w-3.5 flex-shrink-0 mt-0.5" />
-                      <div className="min-w-0 flex-1">
-                        <div className="text-xs font-bold leading-tight">{formatNextDate(event.nextOccurrence)}</div>
-                        {event.startTime && (
-                          <div className="text-[10px] opacity-70 leading-tight mt-0.5">
-                            {formatTime(event.startTime)}{event.endTime ? ` – ${formatTime(event.endTime)}` : ''}
-                          </div>
-                        )}
+                  {/* Date + name row */}
+                  <div className="flex items-start gap-2 mb-1.5">
+                    {event.nextOccurrence ? (
+                      <div className={`flex items-center gap-1 px-2 py-1 rounded-lg flex-shrink-0 ${event.nextOccurrenceConfirmed ? 'bg-green-50 text-green-700' : 'bg-blue-50 text-blue-700'}`}>
+                        <Clock className="h-3 w-3 flex-shrink-0" />
+                        <div>
+                          <div className="text-[11px] font-bold leading-tight whitespace-nowrap">{formatNextDate(event.nextOccurrence)}</div>
+                          {event.startTime && (
+                            <div className="text-[9px] opacity-70 leading-tight">{formatTime(event.startTime)}{event.endTime ? ` – ${formatTime(event.endTime)}` : ''}</div>
+                          )}
+                        </div>
                       </div>
-                      {event.nextOccurrenceConfirmed
-                        ? <span className="text-[9px] font-semibold bg-green-100 text-green-700 px-1.5 py-0.5 rounded-full flex-shrink-0 self-center">✓</span>
-                        : <span className="text-[9px] font-semibold bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded-full flex-shrink-0 self-center">~</span>
-                      }
-                    </div>
-                  ) : (
-                    <div className="flex items-center gap-2 mb-2.5 px-2.5 py-2 rounded-lg bg-gray-50 text-gray-400">
-                      <Clock className="h-3.5 w-3.5 flex-shrink-0" />
-                      <span className="text-xs font-medium">Date coming soon</span>
-                    </div>
-                  )}
+                    ) : (
+                      <div className="flex items-center gap-1 px-2 py-1 rounded-lg bg-gray-50 text-gray-400 flex-shrink-0">
+                        <Clock className="h-3 w-3 flex-shrink-0" />
+                        <span className="text-[10px] font-medium whitespace-nowrap">Coming soon</span>
+                      </div>
+                    )}
+                  </div>
 
                   {/* Event name */}
-                  <h3 className="font-bold text-gray-900 text-sm sm:text-base leading-tight mb-1">{event.name}</h3>
+                  <h3 className="font-bold text-gray-900 text-sm sm:text-base leading-tight mb-1 truncate">{event.name}</h3>
 
                   {/* Location */}
                   {event.location && (
@@ -478,10 +469,10 @@ export default function EventsPage() {
                   {/* Comment */}
                   {event.comment && (
                     <div className="mb-2">
-                      <p className={`text-[11px] text-gray-500 leading-relaxed ${expandedComments[event.id] ? '' : 'line-clamp-2'}`}>
+                      <p className={`text-[11px] text-gray-500 leading-relaxed ${expandedComments[event.id] ? '' : 'line-clamp-1'}`}>
                         {event.comment}
                       </p>
-                      {event.comment.length > 80 && (
+                      {event.comment.length > 60 && (
                         <button
                           onClick={(e) => { e.stopPropagation(); toggleComment(event.id) }}
                           className="text-[10px] text-primary hover:text-primary/80 mt-0.5 flex items-center gap-0.5"
@@ -496,36 +487,31 @@ export default function EventsPage() {
 
                   <div className="flex-1" />
 
-                  {/* I'm Going + I'm Here row */}
-                  <div className="flex gap-2 mt-2 pt-2 border-t border-gray-100">
+                  {/* Bottom row: I'm Going, I'm Here, Ticket, icons */}
+                  <div className="flex items-center gap-1.5 mt-2 pt-2 border-t border-gray-100 flex-wrap">
                     <button
-                      className={`flex items-center gap-1.5 flex-1 justify-center py-2 rounded-xl text-xs font-semibold transition-colors ${
+                      className={`flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-xs font-semibold transition-colors ${
                         likedEvents.has(event.id) ? 'bg-red-50 text-red-500' : 'bg-gray-100 text-gray-500 hover:bg-red-50 hover:text-red-500'
                       }`}
                       onClick={(e) => toggleLike(e, event.id, event.likesCount ?? 0)}
                     >
-                      <Heart className={`h-4 w-4 flex-shrink-0 ${likedEvents.has(event.id) ? 'fill-red-500' : ''}`} />
-                      <span className="hidden sm:inline">{(likeCounts[event.id] ?? event.likesCount) ? `${likeCounts[event.id] ?? event.likesCount} ` : ''}I'm Going</span>
-                      {(likeCounts[event.id] ?? event.likesCount) ? <span className="sm:hidden">{likeCounts[event.id] ?? event.likesCount}</span> : null}
+                      <Heart className={`h-3.5 w-3.5 flex-shrink-0 ${likedEvents.has(event.id) ? 'fill-red-500' : ''}`} />
+                      <span>{(likeCounts[event.id] ?? event.likesCount) ? `${likeCounts[event.id] ?? event.likesCount} ` : ''}I'm Going</span>
                     </button>
                     <button
-                      className={`flex items-center gap-1.5 flex-1 justify-center py-2 rounded-xl text-xs font-semibold transition-colors ${
+                      className={`flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-xs font-semibold transition-colors ${
                         goingEvents.has(event.id) ? 'bg-green-50 text-green-600' : 'bg-gray-100 text-gray-500 hover:bg-green-50 hover:text-green-600'
                       }`}
                       onClick={(e) => handleGoingClick(e, event.id, event.goingCount ?? 0)}
                     >
-                      <UserCheck className="h-4 w-4 flex-shrink-0" />
-                      <span className="hidden sm:inline">{(goingCounts[event.id] ?? event.goingCount) ? `${goingCounts[event.id] ?? event.goingCount} ` : ''}I'm Here</span>
-                      {(goingCounts[event.id] ?? event.goingCount) ? <span className="sm:hidden">{goingCounts[event.id] ?? event.goingCount}</span> : null}
+                      <UserCheck className="h-3.5 w-3.5 flex-shrink-0" />
+                      <span>{(goingCounts[event.id] ?? event.goingCount) ? `${goingCounts[event.id] ?? event.goingCount} ` : ''}I'm Here</span>
                     </button>
-                  </div>
 
-                  {/* Ticket + utility buttons row */}
-                  <div className="flex items-center justify-between mt-2">
                     {isAtTheDoor(event) ? (
-                      <span className="inline-flex items-center gap-1 text-xs font-semibold text-amber-700 bg-amber-50 border border-amber-200 px-2.5 py-1 rounded-full">
+                      <span className="inline-flex items-center gap-1 text-xs font-semibold text-amber-700 bg-amber-50 border border-amber-200 px-2 py-1 rounded-full">
                         <Ticket className="h-3 w-3" />
-                        Ticket at the Door
+                        <span className="hidden sm:inline">Ticket at the Door</span>
                       </span>
                     ) : extractTicketLink(event) ? (
                       <a
@@ -533,7 +519,7 @@ export default function EventsPage() {
                         target="_blank"
                         rel="noopener noreferrer"
                         onClick={e => e.stopPropagation()}
-                        className="inline-flex items-center gap-1.5 text-xs font-bold text-white bg-gradient-to-r from-primary to-secondary hover:opacity-90 px-3 py-1.5 rounded-full shadow-sm transition-opacity"
+                        className="inline-flex items-center gap-1 text-xs font-bold text-white bg-gradient-to-r from-primary to-secondary hover:opacity-90 px-2.5 py-1.5 rounded-full shadow-sm transition-opacity"
                       >
                         <Ticket className="h-3 w-3" />
                         Get Ticket
@@ -544,13 +530,14 @@ export default function EventsPage() {
                         target="_blank"
                         rel="noopener noreferrer"
                         onClick={e => e.stopPropagation()}
-                        className="inline-flex items-center gap-1.5 text-xs font-semibold text-gray-600 dark:text-gray-300 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 px-3 py-1.5 rounded-full transition-colors"
+                        className="inline-flex items-center gap-1 text-xs font-semibold text-gray-600 bg-gray-100 hover:bg-gray-200 px-2.5 py-1.5 rounded-full transition-colors"
                       >
                         <ExternalLink className="h-3 w-3" />
                         More Info
                       </a>
-                    ) : <div />}
-                    <div className="flex gap-1">
+                    ) : null}
+
+                    <div className="flex gap-0.5 ml-auto">
                       <button
                         className="p-1.5 text-gray-400 hover:text-primary hover:bg-primary/10 rounded-full transition-colors"
                         onClick={(e) => { e.stopPropagation(); window.open(buildGoogleCalendarUrl(event, event.nextOccurrence ?? null), '_blank') }}
@@ -558,15 +545,6 @@ export default function EventsPage() {
                       >
                         <CalendarPlus className="h-3.5 w-3.5" />
                       </button>
-                      {event.eventLink && (
-                        <button
-                          className="p-1.5 text-gray-400 hover:text-primary hover:bg-primary/10 rounded-full transition-colors"
-                          onClick={(e) => { e.stopPropagation(); window.open(event.eventLink, '_blank') }}
-                          title="Event Link"
-                        >
-                          <ExternalLink className="h-3.5 w-3.5" />
-                        </button>
-                      )}
                       {event.googleMapLink && (
                         <button
                           className="p-1.5 text-gray-400 hover:text-primary hover:bg-primary/10 rounded-full transition-colors"
