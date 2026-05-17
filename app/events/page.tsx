@@ -50,7 +50,10 @@ interface Event {
 function matchesEvent(calendarTitle: string, firestoreName: string): boolean {
   const cal = calendarTitle.toLowerCase().replace(/[^a-z0-9\s]/g, '').trim()
   const fb = firestoreName.toLowerCase().replace(/[^a-z0-9\s]/g, '').trim()
-  if (cal.includes(fb) || fb.includes(cal)) return true
+  if (!cal || !fb) return false // guard against empty strings matching everything
+  // Require at least 4 chars to use the includes check (prevents "sol" matching "salsachata")
+  if (fb.length >= 4 && cal.includes(fb)) return true
+  if (cal.length >= 4 && fb.includes(cal)) return true
   // Words-in-common fallback: at least 2 significant words match
   const calWords = new Set(cal.split(/\s+/).filter(w => w.length > 3))
   const fbWords = fb.split(/\s+/).filter(w => w.length > 3)
@@ -121,6 +124,8 @@ export default function EventsPage() {
           ? await calendarRes.json()
           : []
 
+        console.log('[Events] Firestore events:', eventsList.length, '| Calendar events:', calendarEvents.length, calendarEvents.map(c => c.title))
+
         // Track which calendar events matched a Firestore event
         const matchedCalendarTitles = new Set<string>()
 
@@ -139,6 +144,7 @@ export default function EventsPage() {
         })
 
         // Add calendar-only events (not matched to any Firestore event) as synthetic cards
+        console.log('[Events] Matched calendar titles:', [...matchedCalendarTitles])
         const calendarOnlyEvents: Event[] = calendarEvents
           .filter(ce => !matchedCalendarTitles.has(ce.title))
           .map((ce, i) => ({
