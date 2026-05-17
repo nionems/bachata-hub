@@ -441,7 +441,7 @@ export default function EventsPage() {
 
                   <div className="flex-1" />
 
-                  {/* Like + Going row */}
+                  {/* I'm Going + I'm Here row */}
                   <div className="flex gap-2 mt-2 pt-2 border-t border-gray-100">
                     <button
                       className={`flex items-center gap-1.5 flex-1 justify-center py-1.5 rounded-lg text-sm font-semibold transition-colors ${
@@ -450,7 +450,7 @@ export default function EventsPage() {
                       onClick={(e) => toggleLike(e, event.id, event.likesCount ?? 0)}
                     >
                       <Heart className={`h-4 w-4 ${likedEvents.has(event.id) ? 'fill-red-500' : ''}`} />
-                      <span>{(likeCounts[event.id] ?? event.likesCount) ? `${likeCounts[event.id] ?? event.likesCount} ` : ''}Like</span>
+                      <span>{(likeCounts[event.id] ?? event.likesCount) ? `${likeCounts[event.id] ?? event.likesCount} ` : ''}I'm Going</span>
                     </button>
                     <button
                       className={`flex items-center gap-1.5 flex-1 justify-center py-1.5 rounded-lg text-sm font-semibold transition-colors ${
@@ -459,16 +459,22 @@ export default function EventsPage() {
                       onClick={(e) => toggleGoing(e, event.id, event.goingCount ?? 0)}
                     >
                       <UserCheck className="h-4 w-4" />
-                      <span>{(goingCounts[event.id] ?? event.goingCount) ? `${goingCounts[event.id] ?? event.goingCount} ` : ''}Going</span>
+                      <span>{(goingCounts[event.id] ?? event.goingCount) ? `${goingCounts[event.id] ?? event.goingCount} ` : ''}I'm Here</span>
                     </button>
                   </div>
 
-                  {/* Price + utility buttons row */}
+                  {/* Ticket + utility buttons row */}
                   <div className="flex items-center justify-between mt-2">
-                    {event.price ? (
-                      <span className="text-xs font-bold text-gray-700 bg-yellow-50 px-2 py-0.5 rounded-full border border-yellow-200">
-                        {event.price}
-                      </span>
+                    {event.ticketLink ? (
+                      <a
+                        href={event.ticketLink}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        onClick={e => e.stopPropagation()}
+                        className="text-xs font-bold text-white bg-primary hover:bg-primary/90 px-3 py-1 rounded-full transition-colors"
+                      >
+                        Get Ticket
+                      </a>
                     ) : <div />}
                     <div className="flex gap-1">
                       <button
