@@ -87,6 +87,7 @@ export default function EventsPage() {
   const [goingEvents, setGoingEvents] = useState<Set<string>>(new Set())
   const [goingCounts, setGoingCounts] = useState<Record<string, number>>({})
   const [goingConfirmEventId, setGoingConfirmEventId] = useState<string | null>(null)
+  const [notTodayEventId, setNotTodayEventId] = useState<string | null>(null)
   const [searchTerm, setSearchTerm] = useState("")
   const [selectedDanceStyle, setSelectedDanceStyle] = useState("all")
   const [selectedDay, setSelectedDay] = useState("all")
@@ -280,13 +281,25 @@ export default function EventsPage() {
     } catch {}
   }
 
-  const handleGoingClick = (e: React.MouseEvent, eventId: string, currentCount: number) => {
+  const isEventToday = (nextOccurrence: Date | null | undefined): boolean => {
+    if (!nextOccurrence) return false
+    const today = new Date()
+    return nextOccurrence.getFullYear() === today.getFullYear() &&
+      nextOccurrence.getMonth() === today.getMonth() &&
+      nextOccurrence.getDate() === today.getDate()
+  }
+
+  const handleGoingClick = (e: React.MouseEvent, eventId: string, currentCount: number, nextOccurrence: Date | null | undefined) => {
     e.stopPropagation()
     if (goingEvents.has(eventId)) {
       performGoing(eventId, currentCount)
-    } else {
-      setGoingConfirmEventId(eventId)
+      return
     }
+    if (!isEventToday(nextOccurrence)) {
+      setNotTodayEventId(eventId)
+      return
+    }
+    setGoingConfirmEventId(eventId)
   }
 
   const confirmGoing = () => {
@@ -480,7 +493,7 @@ export default function EventsPage() {
                           ? 'bg-green-500 text-white border-green-500'
                           : 'bg-white text-gray-500 border-gray-200 hover:border-green-400 hover:bg-green-50 hover:text-green-600'
                       }`}
-                      onClick={(e) => handleGoingClick(e, event.id, event.goingCount ?? 0)}
+                      onClick={(e) => handleGoingClick(e, event.id, event.goingCount ?? 0, event.nextOccurrence)}
                     >
                       <UserCheck className="h-3.5 w-3.5" />
                       <span>{(goingCounts[event.id] ?? event.goingCount) ? `${goingCounts[event.id] ?? event.goingCount} ` : ''}I'm Here</span>
@@ -539,6 +552,42 @@ export default function EventsPage() {
             ))
           )}
         </div>
+
+        {/* Not today modal */}
+        {notTodayEventId && (() => {
+          const notTodayEvent = events.find(ev => ev.id === notTodayEventId)
+          return (
+            <div
+              className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4"
+              onClick={() => setNotTodayEventId(null)}
+            >
+              <div
+                className="bg-white rounded-2xl shadow-xl max-w-sm w-full p-6 flex flex-col items-center gap-4"
+                onClick={e => e.stopPropagation()}
+              >
+                <div className="w-12 h-12 rounded-full bg-amber-100 flex items-center justify-center">
+                  <Clock className="h-6 w-6 text-amber-500" />
+                </div>
+                <h2 className="text-lg font-bold text-gray-900 text-center">Not happening today</h2>
+                {notTodayEvent && (
+                  <p className="text-sm text-gray-500 text-center">
+                    <span className="font-semibold text-gray-700">{notTodayEvent.name}</span>
+                    {notTodayEvent.nextOccurrence
+                      ? <> is next on <span className="font-semibold text-gray-700">{formatNextDate(notTodayEvent.nextOccurrence)}</span>. Come back on the day!</>
+                      : <> doesn't have a confirmed date yet. Come back when it's scheduled!</>
+                    }
+                  </p>
+                )}
+                <button
+                  className="w-full py-2.5 rounded-xl bg-gray-100 text-gray-600 font-semibold text-sm hover:bg-gray-200 transition-colors"
+                  onClick={() => setNotTodayEventId(null)}
+                >
+                  Got it
+                </button>
+              </div>
+            </div>
+          )
+        })()}
 
         {/* I'm Here confirmation modal */}
         {goingConfirmEventId && (() => {
