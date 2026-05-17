@@ -4,7 +4,7 @@ import { getSpotifyToken, fetchTopBachataTrack } from '@/lib/spotify'
 import { cookies } from 'next/headers'
 
 const CACHE_DOC = 'topBachata'
-const CACHE_TTL_MS = 24 * 60 * 60 * 1000 // 24 hours
+const CACHE_TTL_MS = 7 * 24 * 60 * 60 * 1000 // 7 days
 
 // GET /api/music/top-bachata — returns cached top 20, refreshes if stale
 export async function GET() {
