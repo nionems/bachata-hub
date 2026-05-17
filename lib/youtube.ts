@@ -5,6 +5,7 @@ export interface VideoTrack {
   albumArt: string
   youtubeUrl: string
   viewCount: number
+  publishedAt: string
 }
 
 const EXCLUDE_GENRES = ['merengue', 'salsa', 'cumbia', 'reggaeton', 'dembow', 'vallenato']
@@ -53,6 +54,7 @@ async function getVideoDetails(apiKey: string, videoIds: string[]): Promise<Vide
     albumArt: item.snippet?.thumbnails?.high?.url ?? item.snippet?.thumbnails?.default?.url ?? '',
     youtubeUrl: `https://www.youtube.com/watch?v=${item.id}`,
     viewCount: parseInt(item.statistics?.viewCount ?? '0', 10),
+    publishedAt: item.snippet?.publishedAt ?? '',
   }))
 }
 
@@ -87,9 +89,20 @@ export async function fetchTopBachataVideos(apiKey: string): Promise<VideoTrack[
   }
 
   const excludeRegex = new RegExp(EXCLUDE_GENRES.join('|'), 'i')
+  const now = Date.now()
 
-  return tracks
+  // Score by views-per-day so recently uploaded songs that are trending
+  // rank higher than older videos that merely have more total views
+  const scored = tracks
     .filter(t => !excludeRegex.test(t.name))
-    .sort((a, b) => b.viewCount - a.viewCount)
+    .map(t => {
+      const ageMs = now - (t.publishedAt ? new Date(t.publishedAt).getTime() : now)
+      const ageDays = Math.max(ageMs / (1000 * 60 * 60 * 24), 1)
+      return { track: t, score: t.viewCount / ageDays }
+    })
+
+  return scored
+    .sort((a, b) => b.score - a.score)
     .slice(0, 20)
+    .map(s => s.track)
 }
