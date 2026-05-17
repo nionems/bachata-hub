@@ -1017,7 +1017,7 @@ export default function Home() {
 
         {/* iOS / Android install instructions modal */}
         {showIOSInstall && (
-          <div className="fixed inset-0 z-50 flex items-end justify-center p-4 bg-black/50" onClick={() => setShowIOSInstall(false)}>
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50" onClick={() => setShowIOSInstall(false)}>
             <div className="bg-white dark:bg-gray-900 rounded-2xl p-6 w-full max-w-sm shadow-2xl" onClick={e => e.stopPropagation()}>
               <div className="flex items-center justify-between mb-4">
                 <h3 className="font-bold text-gray-900 dark:text-gray-100 text-lg">Add to Home Screen</h3>
