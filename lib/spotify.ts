@@ -46,10 +46,6 @@ export interface SpotifyTrack {
 const SEED_PLAYLIST_IDS = [
   '37i9dQZF1DX9pIn6tM2ADM', // Bachata Hits (Spotify Editorial)
   '37i9dQZF1DZ06evO4ZbNyO', // This Is Bachata (Spotify Editorial)
-  '37i9dQZF1DWY3MFYA5XfEd', // Bachata Romántica
-  '37i9dQZF1DX0HRj9P7NxeE', // Bachata Sensual
-  '37i9dQZF1DXaym5ohD2SxG', // Éxitos Bachata
-  '37i9dQZF1DX1Mv9USgbXV2', // Baila Bachata
   '37i9dQZF1EIY1iYw3s6uQb', // User-provided playlist
 ]
 
@@ -87,7 +83,7 @@ async function discoverBachataPlaylistIds(token: string): Promise<string[]> {
 async function fetchPlaylistTracks(token: string, playlistId: string): Promise<SpotifyTrack[]> {
   const tracks: SpotifyTrack[] = []
   let url: string | null =
-    `https://api.spotify.com/v1/playlists/${playlistId}/tracks?limit=50&fields=next,items(track(id,name,artists,album,popularity,preview_url,external_urls,duration_ms))`
+    `https://api.spotify.com/v1/playlists/${playlistId}/tracks?limit=50`
 
   while (url) {
     const res: Response = await fetch(url, { headers: { Authorization: `Bearer ${token}` } })

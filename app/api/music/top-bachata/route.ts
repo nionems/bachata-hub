@@ -19,7 +19,8 @@ export async function GET() {
 
     if (snap.exists) {
       const { tracks, updatedAt } = snap.data()!
-      if (Date.now() - updatedAt < CACHE_TTL_MS) {
+      // Only serve cache if it has tracks and isn't stale
+      if (tracks?.length > 0 && Date.now() - updatedAt < CACHE_TTL_MS) {
         return NextResponse.json({ tracks, updatedAt })
       }
     }
