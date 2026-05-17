@@ -8,6 +8,7 @@ import { AIAssistant } from "@/components/AIAssistant"
 import { ServiceWorkerRegistration } from "@/components/ServiceWorkerRegistration"
 import { Analytics } from '@vercel/analytics/react'
 import { ThemeProvider } from "@/components/ThemeProvider"
+import InstallPrompt from "@/components/install-prompt"
 
 const fredoka = Fredoka({
   weight: ['300', '400', '500', '600', '700'],
@@ -134,6 +135,7 @@ export default function RootLayout({
           </main>
           <Footer />
           <ServiceWorkerRegistration />
+          <InstallPrompt />
           <Toaster />
           <Analytics />
         </ThemeProvider>
