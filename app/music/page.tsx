@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react'
 import { Music, Youtube } from 'lucide-react'
-import Image from 'next/image'
 
 interface Track {
   id: string
@@ -94,17 +93,6 @@ export default function TopBachataPage() {
                   }`}>
                     {index + 1}
                   </span>
-
-                  {/* Thumbnail */}
-                  <div className="relative h-12 w-12 flex-shrink-0 rounded-lg overflow-hidden bg-gray-200 dark:bg-gray-700">
-                    {track.albumArt ? (
-                      <Image src={track.albumArt} alt={track.name} fill className="object-cover" sizes="48px" />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center">
-                        <Music className="h-5 w-5 text-gray-400" />
-                      </div>
-                    )}
-                  </div>
 
                   {/* Info */}
                   <div className="flex-1 min-w-0">
