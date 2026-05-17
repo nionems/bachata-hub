@@ -75,7 +75,8 @@ function extractTicketLink(event: Event): string | undefined {
 }
 
 export default function EventsPage() {
-  const [events, setEvents] = useState<Event[]>([])
+  const [events, setEvents] = useState<Event[]>([]) // Firestore events only
+  const [calendarOnlyEvents, setCalendarOnlyEvents] = useState<Event[]>([]) // always shown regardless of state
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [selectedImage, setSelectedImage] = useState<{ url: string; title: string } | null>(null)
@@ -95,7 +96,18 @@ export default function EventsPage() {
 
   const { selectedState, setSelectedState, filteredItems: filteredEvents, isGeoLoading, error: geoError } = useStateFilter(events)
 
-  const searchFilteredEvents = filteredEvents.filter(event => {
+  // Combine state-filtered Firestore events + calendar-only events (always shown), then sort
+  const combinedEvents = [
+    ...filteredEvents,
+    ...calendarOnlyEvents,
+  ].sort((a, b) => {
+    if (!a.nextOccurrence && !b.nextOccurrence) return a.name.localeCompare(b.name)
+    if (!a.nextOccurrence) return 1
+    if (!b.nextOccurrence) return -1
+    return (a.nextOccurrence as Date).getTime() - (b.nextOccurrence as Date).getTime()
+  })
+
+  const searchFilteredEvents = combinedEvents.filter(event => {
     const nameMatch = event.name.toLowerCase().includes(searchTerm.toLowerCase())
     const locationMatch = event.location.toLowerCase().includes(searchTerm.toLowerCase())
     const danceStylesMatch = Array.isArray(event.danceStyles) && event.danceStyles.some(style =>
@@ -165,16 +177,8 @@ export default function EventsPage() {
             dayOfWeek: null,
           } as Event & { nextOccurrence: Date; nextOccurrenceConfirmed: boolean; dayOfWeek: null }))
 
-        // Merge Firestore events + calendar-only events, sort chronologically
-        const allEvents = [...eventsWithNext, ...calendarOnlyEvents]
-        allEvents.sort((a, b) => {
-          if (!a.nextOccurrence && !b.nextOccurrence) return a.name.localeCompare(b.name)
-          if (!a.nextOccurrence) return 1
-          if (!b.nextOccurrence) return -1
-          return a.nextOccurrence.getTime() - b.nextOccurrence.getTime()
-        })
-
-        setEvents(allEvents)
+        setEvents(eventsWithNext)
+        setCalendarOnlyEvents(calendarOnlyEvents)
       } catch (err) {
         console.error('Error fetching events:', err)
         setError('Failed to load events')
@@ -189,9 +193,10 @@ export default function EventsPage() {
   useEffect(() => {
     const styles = new Set<string>()
     const days = new Set<string>()
-    const stateFilteredEvents = selectedState === 'all'
-      ? events
-      : events.filter(event => event.state === selectedState)
+    const stateFilteredEvents = [
+      ...(selectedState === 'all' ? events : events.filter(e => e.state === selectedState)),
+      ...calendarOnlyEvents,
+    ]
 
     stateFilteredEvents.forEach(event => {
       if (event.danceStyles && Array.isArray(event.danceStyles)) {
@@ -203,7 +208,7 @@ export default function EventsPage() {
 
     const dayOrder = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
     setAvailableDays(dayOrder.filter(d => days.has(d)))
-  }, [events, selectedState])
+  }, [events, calendarOnlyEvents, selectedState])
 
   useEffect(() => {
     if (availableDanceStyles.includes('Bachata')) {
