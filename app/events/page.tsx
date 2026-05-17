@@ -46,32 +46,16 @@ interface Event {
   dayOfWeek?: string | null
 }
 
-function detectStateFromLocation(location: string): string {
-  const loc = location.toLowerCase()
-  if (/sydney|nsw|new south wales|bondi|manly|parramatta|newtown|surry hills|glebe/.test(loc)) return 'NSW'
-  if (/melbourne|vic\b|victoria|richmond|fitzroy|st kilda|collingwood/.test(loc)) return 'VIC'
-  if (/brisbane|qld|queensland|gold coast|sunshine coast|ipswich/.test(loc)) return 'QLD'
-  if (/perth|\bwa\b|western australia|fremantle/.test(loc)) return 'WA'
-  if (/adelaide|\bsa\b|south australia/.test(loc)) return 'SA'
-  if (/hobart|\btas\b|tasmania|launceston/.test(loc)) return 'TAS'
-  if (/canberra|\bact\b|australian capital territory/.test(loc)) return 'ACT'
-  if (/darwin|\bnt\b|northern territory/.test(loc)) return 'NT'
-  return ''
-}
-
-// Match a Google Calendar event title to a Firestore event name
+// Match a Google Calendar event title to a Firestore event name for confirmed date detection
 function matchesEvent(calendarTitle: string, firestoreName: string): boolean {
   const cal = calendarTitle.toLowerCase().replace(/[^a-z0-9\s]/g, '').trim()
   const fb = firestoreName.toLowerCase().replace(/[^a-z0-9\s]/g, '').trim()
-  if (!cal || !fb) return false // guard against empty strings matching everything
-  // Require at least 4 chars to use the includes check (prevents "sol" matching "salsachata")
+  if (!cal || !fb) return false
   if (fb.length >= 4 && cal.includes(fb)) return true
   if (cal.length >= 4 && fb.includes(cal)) return true
-  // Words-in-common fallback: at least 2 significant words match
   const calWords = new Set(cal.split(/\s+/).filter(w => w.length > 3))
   const fbWords = fb.split(/\s+/).filter(w => w.length > 3)
-  const common = fbWords.filter(w => calWords.has(w)).length
-  return common >= 2
+  return fbWords.filter(w => calWords.has(w)).length >= 2
 }
 
 const AT_THE_DOOR_EVENTS = ['bachateame', 'salsachata']
@@ -92,8 +76,7 @@ function extractTicketLink(event: Event): string | undefined {
 }
 
 export default function EventsPage() {
-  const [events, setEvents] = useState<Event[]>([]) // Firestore events only
-  const [calendarOnlyEvents, setCalendarOnlyEvents] = useState<Event[]>([]) // always shown regardless of state
+  const [events, setEvents] = useState<Event[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [selectedImage, setSelectedImage] = useState<{ url: string; title: string } | null>(null)
@@ -113,22 +96,7 @@ export default function EventsPage() {
 
   const { selectedState, setSelectedState, filteredItems: filteredEvents, isGeoLoading, error: geoError } = useStateFilter(events)
 
-  // Calendar-only events: filter by detected state, or show all if state unknown
-  const filteredCalendarOnly = selectedState === 'all'
-    ? calendarOnlyEvents
-    : calendarOnlyEvents.filter(e => !e.state || e.state === selectedState)
-
-  const combinedEvents = [
-    ...filteredEvents,
-    ...filteredCalendarOnly,
-  ].sort((a, b) => {
-    if (!a.nextOccurrence && !b.nextOccurrence) return a.name.localeCompare(b.name)
-    if (!a.nextOccurrence) return 1
-    if (!b.nextOccurrence) return -1
-    return (a.nextOccurrence as Date).getTime() - (b.nextOccurrence as Date).getTime()
-  })
-
-  const searchFilteredEvents = combinedEvents.filter(event => {
+  const searchFilteredEvents = filteredEvents.filter(event => {
     const nameMatch = event.name.toLowerCase().includes(searchTerm.toLowerCase())
     const locationMatch = event.location.toLowerCase().includes(searchTerm.toLowerCase())
     const danceStylesMatch = Array.isArray(event.danceStyles) && event.danceStyles.some(style =>
@@ -146,7 +114,6 @@ export default function EventsPage() {
       setIsLoading(true)
       setError(null)
       try {
-        // Fetch Firestore events and upcoming calendar events in parallel
         const [eventsRes, calendarRes] = await Promise.all([
           fetch('/api/events?t=' + Date.now()),
           fetch('/api/calendar/upcoming'),
@@ -157,14 +124,8 @@ export default function EventsPage() {
           ? await calendarRes.json()
           : []
 
-        console.log('[Events] Firestore events:', eventsList.length, '| Calendar events:', calendarEvents.length, calendarEvents.map(c => c.title))
-
-        // Track which calendar events matched a Firestore event
-        const matchedCalendarTitles = new Set<string>()
-
         const eventsWithNext = eventsList.map(event => {
           const calendarMatch = calendarEvents.find(ce => matchesEvent(ce.title, event.name))
-          if (calendarMatch) matchedCalendarTitles.add(calendarMatch.title)
           const confirmed = calendarMatch ? new Date(calendarMatch.start) : null
           const computed = event.recurrence ? getNextOccurrence(event.recurrence, event.eventDate || event.date) : null
           const nextOccurrence = confirmed ?? computed
@@ -176,30 +137,14 @@ export default function EventsPage() {
           }
         })
 
-        // Add calendar-only events (not matched to any Firestore event) as synthetic cards
-        console.log('[Events] Matched calendar titles:', [...matchedCalendarTitles])
-        const calendarOnlyEvents: Event[] = calendarEvents
-          .filter(ce => !matchedCalendarTitles.has(ce.title))
-          .map((ce, i) => ({
-            id: `cal-only-${i}-${ce.start}`,
-            name: ce.title,
-            eventDate: ce.start,
-            startTime: ce.start.includes('T') ? ce.start.split('T')[1].slice(0, 5) : '',
-            endTime: ce.end?.includes('T') ? ce.end.split('T')[1].slice(0, 5) : '',
-            location: ce.location ?? '',
-            city: '',
-            state: detectStateFromLocation(ce.location ?? ''),
-            description: ce.description ?? '',
-            danceStyles: ['Bachata'],
-            imageUrl: '',
-            eventLink: ce.htmlLink ?? '',
-            nextOccurrence: new Date(ce.start),
-            nextOccurrenceConfirmed: true,
-            dayOfWeek: null,
-          } as Event & { nextOccurrence: Date; nextOccurrenceConfirmed: boolean; dayOfWeek: null }))
+        eventsWithNext.sort((a, b) => {
+          if (!a.nextOccurrence && !b.nextOccurrence) return a.name.localeCompare(b.name)
+          if (!a.nextOccurrence) return 1
+          if (!b.nextOccurrence) return -1
+          return (a.nextOccurrence as Date).getTime() - (b.nextOccurrence as Date).getTime()
+        })
 
         setEvents(eventsWithNext)
-        setCalendarOnlyEvents(calendarOnlyEvents)
       } catch (err) {
         console.error('Error fetching events:', err)
         setError('Failed to load events')
@@ -214,12 +159,7 @@ export default function EventsPage() {
   useEffect(() => {
     const styles = new Set<string>()
     const days = new Set<string>()
-    const stateFilteredEvents = [
-      ...(selectedState === 'all' ? events : events.filter(e => e.state === selectedState)),
-      ...(selectedState === 'all' ? calendarOnlyEvents : calendarOnlyEvents.filter(e => !e.state || e.state === selectedState)),
-    ]
-
-    stateFilteredEvents.forEach(event => {
+    filteredEvents.forEach(event => {
       if (event.danceStyles && Array.isArray(event.danceStyles)) {
         event.danceStyles.forEach(style => styles.add(style))
       }
@@ -229,7 +169,7 @@ export default function EventsPage() {
 
     const dayOrder = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
     setAvailableDays(dayOrder.filter(d => days.has(d)))
-  }, [events, calendarOnlyEvents, selectedState])
+  }, [filteredEvents])
 
   useEffect(() => {
     if (availableDanceStyles.includes('Bachata')) {
