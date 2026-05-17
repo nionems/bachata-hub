@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { fetchAllCalendarEvents, UpcomingCalendarEvent } from '@/lib/calendar-events'
 
-export { UpcomingCalendarEvent }
+export type { UpcomingCalendarEvent }
 
 let cache: UpcomingCalendarEvent[] | null = null
 let cacheTimestamp = 0
