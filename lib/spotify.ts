@@ -171,14 +171,11 @@ export async function fetchTopBachataTrack(token: string): Promise<SpotifyTrack[
     }),
   ])
 
-  const result = all
-    .filter(t => t.popularity > 0)
-    .sort((a, b) => b.popularity - a.popularity)
-    .slice(0, 20)
-
-  if (result.length === 0) {
-    throw new Error(`No tracks returned. Errors: ${errors.join('; ') || 'none (all silent)'}`)
+  if (all.length === 0) {
+    throw new Error(`No tracks collected. Errors: ${errors.join('; ') || 'all fetches returned empty'}`)
   }
 
-  return result
+  return all
+    .sort((a, b) => b.popularity - a.popularity)
+    .slice(0, 20)
 }
