@@ -136,8 +136,17 @@ export async function fetchTopBachataVideos(apiKey: string): Promise<VideoTrack[
       return { track: t, score: t.viewCount / ageDays }
     })
 
+  const artistCount = new Map<string, number>()
+
   return scored
     .sort((a, b) => b.score - a.score)
+    .filter(({ track }) => {
+      const artist = track.artists[0].toLowerCase()
+      const count = artistCount.get(artist) ?? 0
+      if (count >= 2) return false
+      artistCount.set(artist, count + 1)
+      return true
+    })
     .slice(0, 20)
     .map(s => s.track)
 }
