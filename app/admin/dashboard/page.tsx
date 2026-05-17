@@ -1882,18 +1882,18 @@ function AdminDashboardContent() {
               <div className="flex gap-2">
                 <button
                   onClick={async () => {
-                    if (!confirm('Import all calendar-only events into Firestore? This will create new event entries for events found in Google Calendar but not yet in the database.')) return
+                    if (!window.confirm('Import all calendar-only events into Firestore? This will create new event entries for events found in Google Calendar but not yet in the database.')) return
                     try {
                       const res = await fetch('/api/admin/import-calendar-events', { method: 'POST' })
                       const data = await res.json()
                       if (res.ok) {
-                        alert(`✅ ${data.message}\n\n${data.events?.join('\n') || ''}`)
+                        window.alert(`✅ ${data.message}\n\n${data.events?.join('\n') || ''}`)
                         window.location.reload()
                       } else {
-                        alert(`❌ Error: ${data.error}`)
+                        window.alert(`❌ Error: ${data.error}`)
                       }
                     } catch (e) {
-                      alert('❌ Import failed')
+                      window.alert('❌ Import failed')
                     }
                   }}
                   className="bg-green-500 text-white px-3 py-1.5 rounded hover:bg-green-600 text-sm"
