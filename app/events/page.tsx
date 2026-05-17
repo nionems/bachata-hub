@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
-import { MapPin, ChevronDown, ChevronUp, X, Search, Clock, CalendarPlus, ExternalLink, Heart, UserCheck } from "lucide-react"
+import { MapPin, ChevronDown, ChevronUp, X, Search, Clock, CalendarPlus, ExternalLink, Heart, UserCheck, Ticket } from "lucide-react"
 import Link from 'next/link'
 import { StateFilter } from '@/components/StateFilter'
 import { useStateFilter } from '@/hooks/useStateFilter'
@@ -56,6 +56,13 @@ function matchesEvent(calendarTitle: string, firestoreName: string): boolean {
   const fbWords = fb.split(/\s+/).filter(w => w.length > 3)
   const common = fbWords.filter(w => calWords.has(w)).length
   return common >= 2
+}
+
+const AT_THE_DOOR_EVENTS = ['bachateame', 'salsachata']
+
+function isAtTheDoor(event: Event): boolean {
+  const title = (event.title ?? '').toLowerCase()
+  return AT_THE_DOOR_EVENTS.some(name => title.includes(name))
 }
 
 function extractTicketLink(event: Event): string | undefined {
@@ -471,14 +478,20 @@ export default function EventsPage() {
 
                   {/* Ticket + utility buttons row */}
                   <div className="flex items-center justify-between mt-2">
-                    {extractTicketLink(event) ? (
+                    {isAtTheDoor(event) ? (
+                      <span className="inline-flex items-center gap-1 text-xs font-semibold text-amber-700 bg-amber-50 border border-amber-200 px-2.5 py-1 rounded-full">
+                        <Ticket className="h-3 w-3" />
+                        Ticket at the Door
+                      </span>
+                    ) : extractTicketLink(event) ? (
                       <a
                         href={extractTicketLink(event)}
                         target="_blank"
                         rel="noopener noreferrer"
                         onClick={e => e.stopPropagation()}
-                        className="text-xs font-bold text-white bg-primary hover:bg-primary/90 px-3 py-1 rounded-full transition-colors"
+                        className="inline-flex items-center gap-1.5 text-xs font-bold text-white bg-gradient-to-r from-primary to-secondary hover:opacity-90 px-3 py-1.5 rounded-full shadow-sm transition-opacity"
                       >
+                        <Ticket className="h-3 w-3" />
                         Get Ticket
                       </a>
                     ) : <div />}
