@@ -457,22 +457,24 @@ export default function EventsPage() {
                   {/* I'm Going + I'm Here row */}
                   <div className="flex gap-2 mt-2 pt-2 border-t border-gray-100">
                     <button
-                      className={`flex items-center gap-1.5 flex-1 justify-center py-1.5 rounded-lg text-sm font-semibold transition-colors ${
+                      className={`flex items-center gap-1.5 flex-1 justify-center py-2 rounded-xl text-xs font-semibold transition-colors ${
                         likedEvents.has(event.id) ? 'bg-red-50 text-red-500' : 'bg-gray-100 text-gray-500 hover:bg-red-50 hover:text-red-500'
                       }`}
                       onClick={(e) => toggleLike(e, event.id, event.likesCount ?? 0)}
                     >
-                      <Heart className={`h-4 w-4 ${likedEvents.has(event.id) ? 'fill-red-500' : ''}`} />
-                      <span>{(likeCounts[event.id] ?? event.likesCount) ? `${likeCounts[event.id] ?? event.likesCount} ` : ''}I'm Going</span>
+                      <Heart className={`h-4 w-4 flex-shrink-0 ${likedEvents.has(event.id) ? 'fill-red-500' : ''}`} />
+                      <span className="hidden sm:inline">{(likeCounts[event.id] ?? event.likesCount) ? `${likeCounts[event.id] ?? event.likesCount} ` : ''}I'm Going</span>
+                      {(likeCounts[event.id] ?? event.likesCount) ? <span className="sm:hidden">{likeCounts[event.id] ?? event.likesCount}</span> : null}
                     </button>
                     <button
-                      className={`flex items-center gap-1.5 flex-1 justify-center py-1.5 rounded-lg text-sm font-semibold transition-colors ${
+                      className={`flex items-center gap-1.5 flex-1 justify-center py-2 rounded-xl text-xs font-semibold transition-colors ${
                         goingEvents.has(event.id) ? 'bg-green-50 text-green-600' : 'bg-gray-100 text-gray-500 hover:bg-green-50 hover:text-green-600'
                       }`}
                       onClick={(e) => toggleGoing(e, event.id, event.goingCount ?? 0)}
                     >
-                      <UserCheck className="h-4 w-4" />
-                      <span>{(goingCounts[event.id] ?? event.goingCount) ? `${goingCounts[event.id] ?? event.goingCount} ` : ''}I'm Here</span>
+                      <UserCheck className="h-4 w-4 flex-shrink-0" />
+                      <span className="hidden sm:inline">{(goingCounts[event.id] ?? event.goingCount) ? `${goingCounts[event.id] ?? event.goingCount} ` : ''}I'm Here</span>
+                      {(goingCounts[event.id] ?? event.goingCount) ? <span className="sm:hidden">{goingCounts[event.id] ?? event.goingCount}</span> : null}
                     </button>
                   </div>
 
