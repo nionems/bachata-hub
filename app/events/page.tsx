@@ -138,14 +138,22 @@ export default function EventsPage() {
           }
         })
 
-        eventsWithNext.sort((a, b) => {
+        // Hide one-time events whose date has already passed and aren't in the calendar
+        const activeEvents = eventsWithNext.filter(event => {
+          if (event.nextOccurrence) return true  // upcoming calendar date — keep
+          if (event.recurrence) return true       // recurring — keep regardless
+          const d = new Date(event.eventDate || event.date || '')
+          return !isNaN(d.getTime()) && d >= now  // one-time: only keep if date is today or future
+        })
+
+        activeEvents.sort((a, b) => {
           if (!a.nextOccurrence && !b.nextOccurrence) return a.name.localeCompare(b.name)
           if (!a.nextOccurrence) return 1
           if (!b.nextOccurrence) return -1
           return (a.nextOccurrence as Date).getTime() - (b.nextOccurrence as Date).getTime()
         })
 
-        setEvents(eventsWithNext)
+        setEvents(activeEvents)
       } catch (err) {
         console.error('Error fetching events:', err)
         setError('Failed to load events')
