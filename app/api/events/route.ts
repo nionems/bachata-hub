@@ -104,13 +104,15 @@ export async function POST(request: Request) {
 // Enhanced in-memory cache for events
 let eventsCache: any[] | null = null
 let eventsCacheTimestamp: number = 0
+let eventsCacheDate: string = ''
 const EVENTS_CACHE_DURATION = 5 * 60 * 1000 // 5 minutes
 
 export async function GET() {
   const startTime = Date.now()
   try {
-    // Check cache
-    if (eventsCache && Date.now() - eventsCacheTimestamp < EVENTS_CACHE_DURATION) {
+    const todayKey = new Date().toLocaleDateString('en-CA', { timeZone: 'Australia/Sydney' })
+    // Check cache — also bust if calendar day changed so goingCount resets are reflected
+    if (eventsCache && eventsCacheDate === todayKey && Date.now() - eventsCacheTimestamp < EVENTS_CACHE_DURATION) {
       console.log('API Route (GET /api/events): Returning cached events. Time:', Date.now() - startTime, 'ms')
       return NextResponse.json(eventsCache)
     }
@@ -122,13 +124,15 @@ export async function GET() {
       .where('published', '==', true)
       .get()
     
+    const today = new Date().toLocaleDateString('en-CA', { timeZone: 'Australia/Sydney' })
     const events = eventsSnapshot.docs.map(doc => {
       const data = doc.data()
+      const goingCountReset = data.goingResetDate !== today
       return {
         id: doc.id,
         ...data,
-        // Clean dance styles to remove old string values
-        danceStyles: cleanDanceStyles(data.danceStyles)
+        danceStyles: cleanDanceStyles(data.danceStyles),
+        goingCount: goingCountReset ? 0 : (data.goingCount ?? 0),
       }
     })
 
@@ -142,6 +146,7 @@ export async function GET() {
     // Update cache
     eventsCache = events
     eventsCacheTimestamp = Date.now()
+    eventsCacheDate = todayKey
 
     console.log(`API Route (GET /api/events): Returning ${events.length} published events. Total time: ${Date.now() - startTime}ms`)
 

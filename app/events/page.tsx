@@ -83,6 +83,7 @@ export default function EventsPage() {
   const [likeCounts, setLikeCounts] = useState<Record<string, number>>({})
   const [goingEvents, setGoingEvents] = useState<Set<string>>(new Set())
   const [goingCounts, setGoingCounts] = useState<Record<string, number>>({})
+  const [goingConfirmEventId, setGoingConfirmEventId] = useState<string | null>(null)
   const [searchTerm, setSearchTerm] = useState("")
   const [selectedDanceStyle, setSelectedDanceStyle] = useState("all")
   const [selectedDay, setSelectedDay] = useState("all")
@@ -144,8 +145,8 @@ export default function EventsPage() {
             id: `cal-only-${i}-${ce.start}`,
             name: ce.title,
             eventDate: ce.start,
-            startTime: ce.start,
-            endTime: ce.end ?? '',
+            startTime: ce.start.includes('T') ? ce.start.split('T')[1].slice(0, 5) : '',
+            endTime: ce.end?.includes('T') ? ce.end.split('T')[1].slice(0, 5) : '',
             location: ce.location ?? '',
             city: '',
             state: '',
@@ -279,8 +280,7 @@ export default function EventsPage() {
     } catch {}
   }
 
-  const toggleGoing = async (e: React.MouseEvent, eventId: string, currentCount: number) => {
-    e.stopPropagation()
+  const performGoing = async (eventId: string, currentCount: number) => {
     const isGoing = goingEvents.has(eventId)
     const action = isGoing ? 'notgoing' : 'going'
 
@@ -300,6 +300,22 @@ export default function EventsPage() {
         body: JSON.stringify({ action, userId }),
       })
     } catch {}
+  }
+
+  const handleGoingClick = (e: React.MouseEvent, eventId: string, currentCount: number) => {
+    e.stopPropagation()
+    if (goingEvents.has(eventId)) {
+      performGoing(eventId, currentCount)
+    } else {
+      setGoingConfirmEventId(eventId)
+    }
+  }
+
+  const confirmGoing = () => {
+    if (!goingConfirmEventId) return
+    const event = events.find(ev => ev.id === goingConfirmEventId)
+    performGoing(goingConfirmEventId, event?.goingCount ?? 0)
+    setGoingConfirmEventId(null)
   }
 
   if (isLoading) return <LoadingSpinner message="Loading events..." />
@@ -490,7 +506,7 @@ export default function EventsPage() {
                       className={`flex items-center gap-1.5 flex-1 justify-center py-2 rounded-xl text-xs font-semibold transition-colors ${
                         goingEvents.has(event.id) ? 'bg-green-50 text-green-600' : 'bg-gray-100 text-gray-500 hover:bg-green-50 hover:text-green-600'
                       }`}
-                      onClick={(e) => toggleGoing(e, event.id, event.goingCount ?? 0)}
+                      onClick={(e) => handleGoingClick(e, event.id, event.goingCount ?? 0)}
                     >
                       <UserCheck className="h-4 w-4 flex-shrink-0" />
                       <span className="hidden sm:inline">{(goingCounts[event.id] ?? event.goingCount) ? `${goingCounts[event.id] ?? event.goingCount} ` : ''}I'm Here</span>
@@ -561,6 +577,42 @@ export default function EventsPage() {
             ))
           )}
         </div>
+
+        {/* I'm Here confirmation modal */}
+        {goingConfirmEventId && (() => {
+          const confirmEvent = events.find(ev => ev.id === goingConfirmEventId)
+          return (
+            <div
+              className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4"
+              onClick={() => setGoingConfirmEventId(null)}
+            >
+              <div
+                className="bg-white rounded-2xl shadow-xl max-w-sm w-full p-6 flex flex-col items-center gap-4"
+                onClick={e => e.stopPropagation()}
+              >
+                <UserCheck className="h-10 w-10 text-green-500" />
+                <h2 className="text-lg font-bold text-gray-900 text-center">Are you at the venue?</h2>
+                {confirmEvent && (
+                  <p className="text-sm text-gray-500 text-center">Confirm you're currently at <span className="font-semibold text-gray-700">{confirmEvent.name}</span></p>
+                )}
+                <div className="flex gap-3 w-full mt-1">
+                  <button
+                    className="flex-1 py-2.5 rounded-xl bg-gray-100 text-gray-600 font-semibold text-sm hover:bg-gray-200 transition-colors"
+                    onClick={() => setGoingConfirmEventId(null)}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    className="flex-1 py-2.5 rounded-xl bg-green-500 text-white font-semibold text-sm hover:bg-green-600 transition-colors"
+                    onClick={confirmGoing}
+                  >
+                    Yes, I'm here!
+                  </button>
+                </div>
+              </div>
+            </div>
+          )
+        })()}
 
         {/* Image Modal */}
         {selectedImage && (
