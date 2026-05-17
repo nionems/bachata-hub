@@ -150,6 +150,7 @@ export default function EventsPage() {
             city: '',
             state: '',
             description: ce.description ?? '',
+            danceStyles: ['Bachata'],
             imageUrl: '',
             eventLink: ce.htmlLink ?? '',
             nextOccurrence: new Date(ce.start),

@@ -33,7 +33,7 @@ export function useStateFilter<T extends HasState>(items: T[], options?: StateFi
     ? [] // Show no items while loading if using geolocation
     : selectedState === 'all'
       ? items
-      : items.filter(item => item.state === selectedState)
+      : items.filter(item => !item.state || item.state === selectedState)
 
   return {
     selectedState,
