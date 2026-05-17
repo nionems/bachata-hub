@@ -17,6 +17,10 @@ const SEARCH_QUERIES = [
   `bachata romantica 2024 2025 ${EXCLUDE_SUFFIX}`,
   `nueva bachata 2025 ${EXCLUDE_SUFFIX}`,
   `bachata sensual 2024 2025 ${EXCLUDE_SUFFIX}`,
+  `dj husky bachata 2025`,
+  `charles luis bachata 2025`,
+  `bachata rising 2025`,
+  `dimelo cupido bachata 2025`,
 ]
 
 async function searchVideos(apiKey: string, query: string): Promise<string[]> {
