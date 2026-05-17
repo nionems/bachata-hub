@@ -58,6 +58,12 @@ function matchesEvent(calendarTitle: string, firestoreName: string): boolean {
   return common >= 2
 }
 
+function extractTicketLink(event: Event): string | undefined {
+  if (event.ticketLink) return event.ticketLink
+  const urlMatch = event.description?.match(/https?:\/\/[^\s\])"]+/)
+  return urlMatch?.[0]
+}
+
 export default function EventsPage() {
   const [events, setEvents] = useState<Event[]>([])
   const [isLoading, setIsLoading] = useState(true)
@@ -465,9 +471,9 @@ export default function EventsPage() {
 
                   {/* Ticket + utility buttons row */}
                   <div className="flex items-center justify-between mt-2">
-                    {event.ticketLink ? (
+                    {extractTicketLink(event) ? (
                       <a
-                        href={event.ticketLink}
+                        href={extractTicketLink(event)}
                         target="_blank"
                         rel="noopener noreferrer"
                         onClick={e => e.stopPropagation()}
