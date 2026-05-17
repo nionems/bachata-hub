@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { useGeolocation } from './useGeolocation'
 
 interface HasState {
@@ -29,9 +29,10 @@ export function useStateFilter<T extends HasState>(items: T[], options?: StateFi
     }
   }, [geoState, isGeoLoading, shouldUseGeolocation])
 
-  const filteredItems = selectedState === 'all'
-    ? items
-    : items.filter(item => item.state === selectedState)
+  const filteredItems = useMemo(
+    () => selectedState === 'all' ? items : items.filter(item => item.state === selectedState),
+    [items, selectedState]
+  )
 
   return {
     selectedState,
