@@ -141,7 +141,8 @@ export async function fetchTopBachataVideos(apiKey: string): Promise<VideoTrack[
     })
     .sort((a, b) => b.score - a.score)
 
-  // 1 song per artist — best velocity wins
+  // 1 song per artist — best velocity wins their slot
+  // then re-sort by total view count so rank 1 = most viewed
   return scored
     .filter(({ track }) => {
       const artist = track.artists[0].toLowerCase()
@@ -150,5 +151,6 @@ export async function fetchTopBachataVideos(apiKey: string): Promise<VideoTrack[
       return true
     })
     .slice(0, 20)
+    .sort((a, b) => b.track.viewCount - a.track.viewCount)
     .map(s => s.track)
 }
