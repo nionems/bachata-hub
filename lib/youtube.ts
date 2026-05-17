@@ -7,12 +7,15 @@ export interface VideoTrack {
   viewCount: number
 }
 
+const EXCLUDE_GENRES = ['merengue', 'salsa', 'cumbia', 'reggaeton', 'dembow', 'vallenato']
+const EXCLUDE_SUFFIX = EXCLUDE_GENRES.map(g => `-${g}`).join(' ')
+
 const SEARCH_QUERIES = [
-  'bachata 2025',
-  'bachata hits 2025',
-  'bachata romantica 2024 2025',
-  'nueva bachata 2025',
-  'bachata sensual 2024 2025',
+  `bachata 2025 ${EXCLUDE_SUFFIX}`,
+  `bachata hits 2025 ${EXCLUDE_SUFFIX}`,
+  `bachata romantica 2024 2025 ${EXCLUDE_SUFFIX}`,
+  `nueva bachata 2025 ${EXCLUDE_SUFFIX}`,
+  `bachata sensual 2024 2025 ${EXCLUDE_SUFFIX}`,
 ]
 
 async function searchVideos(apiKey: string, query: string): Promise<string[]> {
@@ -83,7 +86,10 @@ export async function fetchTopBachataVideos(apiKey: string): Promise<VideoTrack[
     throw new Error('Could not fetch video details from YouTube')
   }
 
+  const excludeRegex = new RegExp(EXCLUDE_GENRES.join('|'), 'i')
+
   return tracks
+    .filter(t => !excludeRegex.test(t.name))
     .sort((a, b) => b.viewCount - a.viewCount)
     .slice(0, 20)
 }
