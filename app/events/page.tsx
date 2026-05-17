@@ -61,7 +61,7 @@ function matchesEvent(calendarTitle: string, firestoreName: string): boolean {
 const AT_THE_DOOR_EVENTS = ['bachateame', 'salsachata']
 
 function isAtTheDoor(event: Event): boolean {
-  const title = (event.title ?? '').toLowerCase()
+  const title = (event.name ?? '').toLowerCase()
   return AT_THE_DOOR_EVENTS.some(name => title.includes(name))
 }
 
