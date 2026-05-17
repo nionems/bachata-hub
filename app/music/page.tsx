@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect, useRef } from 'react'
-import { Music, Play, Pause, ExternalLink, RefreshCw } from 'lucide-react'
+import { Music, Play, Pause, ExternalLink, Youtube } from 'lucide-react'
 import Image from 'next/image'
 
 interface Track {
@@ -154,6 +154,18 @@ export default function TopBachataPage() {
                     }
                   </button>
                 )}
+
+                {/* YouTube link */}
+                <a
+                  href={`https://www.youtube.com/results?search_query=${encodeURIComponent(`${track.name} ${track.artists[0]}`)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex-shrink-0 p-2 rounded-full text-gray-400 hover:text-[#FF0000] transition-colors"
+                  title="Search on YouTube"
+                  onClick={e => e.stopPropagation()}
+                >
+                  <Youtube className="h-4 w-4" />
+                </a>
 
                 {/* Spotify link */}
                 <a
