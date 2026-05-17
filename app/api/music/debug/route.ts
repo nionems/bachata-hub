@@ -19,13 +19,10 @@ export async function GET() {
       'https://api.spotify.com/v1/artists/7KpJV35QbeZ1ZCn34bnypL/top-tracks?market=AU',
       { headers: { Authorization: `Bearer ${token}` } }
     )
-    const data = await res.json()
-    results.artistTracks = {
-      status: res.status,
-      count: data.tracks?.length ?? 0,
-      first: data.tracks?.[0]?.name ?? null,
-      error: data.error ?? null,
-    }
+    const text = await res.text()
+    let data: any
+    try { data = JSON.parse(text) } catch { data = text }
+    results.artistTracks = { status: res.status, response: data }
   } catch (e) {
     results.artistTracks = String(e)
   }
@@ -33,16 +30,13 @@ export async function GET() {
   // Step 3: Playlist tracks
   try {
     const res = await fetch(
-      'https://api.spotify.com/v1/playlists/37i9dQZF1DX9pIn6tM2ADM/tracks?limit=5',
+      'https://api.spotify.com/v1/playlists/37i9dQZF1DX9pIn6tM2ADM/tracks?limit=3',
       { headers: { Authorization: `Bearer ${token}` } }
     )
-    const data = await res.json()
-    results.playlistTracks = {
-      status: res.status,
-      count: data.items?.length ?? 0,
-      first: data.items?.[0]?.track?.name ?? null,
-      error: data.error ?? null,
-    }
+    const text = await res.text()
+    let data: any
+    try { data = JSON.parse(text) } catch { data = text }
+    results.playlistTracks = { status: res.status, response: typeof data === 'object' ? { count: data.items?.length, first: data.items?.[0]?.track?.name, error: data.error } : data }
   } catch (e) {
     results.playlistTracks = String(e)
   }
@@ -53,13 +47,10 @@ export async function GET() {
       'https://api.spotify.com/v1/search?q=bachata&type=track&limit=3',
       { headers: { Authorization: `Bearer ${token}` } }
     )
-    const data = await res.json()
-    results.search = {
-      status: res.status,
-      count: data.tracks?.items?.length ?? 0,
-      first: data.tracks?.items?.[0]?.name ?? null,
-      error: data.error ?? null,
-    }
+    const text = await res.text()
+    let data: any
+    try { data = JSON.parse(text) } catch { data = text }
+    results.search = { status: res.status, response: typeof data === 'object' ? { count: data.tracks?.items?.length, first: data.tracks?.items?.[0]?.name, error: data.error } : data }
   } catch (e) {
     results.search = String(e)
   }
