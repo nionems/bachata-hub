@@ -6,7 +6,7 @@ import dynamicImport from 'next/dynamic'
 
 // Force dynamic rendering to prevent caching
 export const dynamic = 'force-dynamic'
-import { Calendar, Users, Music, School, ShoppingBag, Trophy, MapPin, Clock, Video, Info, Headphones, Film, Building2, Lightbulb, ChevronRight, ChevronLeft, ExternalLink, ZoomIn, Heart } from "lucide-react"
+import { Calendar, Users, Music, School, ShoppingBag, Trophy, MapPin, Clock, Video, Info, Headphones, Film, Building2, Lightbulb, ChevronRight, ChevronLeft, ExternalLink, ZoomIn, Heart, Smartphone, Share2, X } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useState, useEffect, Suspense } from 'react'
 import { School as SchoolType } from '@/types/school'
@@ -128,6 +128,7 @@ export default function Home() {
   const [isCommunityPopupOpen, setIsCommunityPopupOpen] = useState(false)
   const [isEventSubmissionOpen, setIsEventSubmissionOpen] = useState(false)
   const [showAllEvents, setShowAllEvents] = useState(false)
+  const [showIOSInstall, setShowIOSInstall] = useState(false)
   const [likedCalendarEvents, setLikedCalendarEvents] = useState<Set<string>>(new Set())
   const [calendarLikeCounts, setCalendarLikeCounts] = useState<Record<string, number>>({})
 
@@ -997,6 +998,13 @@ export default function Home() {
                 onClick={() => setIsIdeaBoxOpen(true)}
                 isButton
               />
+              <FeatureCard
+                icon={<Smartphone className="h-6 w-6 sm:h-8 sm:w-8 text-sky-500" />}
+                title="Get the App"
+                description="Add to your home screen"
+                onClick={() => setShowIOSInstall(true)}
+                isButton
+              />
             </div>
           </div>
         </section>
@@ -1006,6 +1014,37 @@ export default function Home() {
           isOpen={isIdeaBoxOpen}
           onClose={() => setIsIdeaBoxOpen(false)}
         />
+
+        {/* iOS / Android install instructions modal */}
+        {showIOSInstall && (
+          <div className="fixed inset-0 z-50 flex items-end justify-center p-4 bg-black/50" onClick={() => setShowIOSInstall(false)}>
+            <div className="bg-white dark:bg-gray-900 rounded-2xl p-6 w-full max-w-sm shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="font-bold text-gray-900 dark:text-gray-100 text-lg">Add to Home Screen</h3>
+                <button onClick={() => setShowIOSInstall(false)} className="text-gray-400 hover:text-gray-600">
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
+              <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">Use Bachata Hub like a native app — no App Store needed.</p>
+              <div className="space-y-3">
+                <div className="flex items-start gap-3">
+                  <span className="flex-shrink-0 w-6 h-6 bg-sky-500 text-white rounded-full flex items-center justify-center text-xs font-bold">1</span>
+                  <p className="text-sm text-gray-700 dark:text-gray-300">
+                    Tap the <Share2 className="h-4 w-4 inline text-blue-500 mx-0.5" /> <strong>Share</strong> button at the bottom of your browser
+                  </p>
+                </div>
+                <div className="flex items-start gap-3">
+                  <span className="flex-shrink-0 w-6 h-6 bg-sky-500 text-white rounded-full flex items-center justify-center text-xs font-bold">2</span>
+                  <p className="text-sm text-gray-700 dark:text-gray-300">Scroll down and tap <strong>"Add to Home Screen"</strong></p>
+                </div>
+                <div className="flex items-start gap-3">
+                  <span className="flex-shrink-0 w-6 h-6 bg-sky-500 text-white rounded-full flex items-center justify-center text-xs font-bold">3</span>
+                  <p className="text-sm text-gray-700 dark:text-gray-300">Tap <strong>"Add"</strong> — done! Open it from your home screen anytime.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Add the ImageModal component */}
         <ImageModal
