@@ -8,18 +8,21 @@ export interface VideoTrack {
 }
 
 const SEARCH_QUERIES = [
-  'bachata hits 2024',
-  'bachata romantica popular',
-  'top bachata songs',
-  'bachata sensual hits',
-  'best bachata music',
+  'bachata 2025',
+  'bachata hits 2025',
+  'bachata romantica 2024 2025',
+  'nueva bachata 2025',
+  'bachata sensual 2024 2025',
 ]
 
 async function searchVideos(apiKey: string, query: string): Promise<string[]> {
+  // Only videos published in the last 12 months
+  const publishedAfter = new Date(Date.now() - 365 * 24 * 60 * 60 * 1000).toISOString()
   const url =
     `https://www.googleapis.com/youtube/v3/search` +
     `?part=id&type=video&videoCategoryId=10&order=viewCount` +
-    `&maxResults=10&q=${encodeURIComponent(query)}&key=${apiKey}`
+    `&maxResults=10&publishedAfter=${publishedAfter}` +
+    `&q=${encodeURIComponent(query)}&key=${apiKey}`
   const res = await fetch(url)
   if (!res.ok) {
     const text = await res.text()

@@ -5,6 +5,7 @@ import { cookies } from 'next/headers'
 
 const CACHE_DOC = 'topBachata'
 const CACHE_TTL_MS = 7 * 24 * 60 * 60 * 1000 // 7 days
+const CACHE_VERSION = 2 // bump to force refresh when query logic changes
 
 export async function GET() {
   if (!process.env.YOUTUBE_API_KEY) {
@@ -17,8 +18,8 @@ export async function GET() {
     const snap = await ref.get()
 
     if (snap.exists) {
-      const { tracks, updatedAt } = snap.data()!
-      if (tracks?.length > 0 && Date.now() - updatedAt < CACHE_TTL_MS) {
+      const { tracks, updatedAt, version } = snap.data()!
+      if (tracks?.length > 0 && version === CACHE_VERSION && Date.now() - updatedAt < CACHE_TTL_MS) {
         return NextResponse.json({ tracks, updatedAt })
       }
     }
@@ -27,7 +28,7 @@ export async function GET() {
     const updatedAt = Date.now()
 
     if (tracks.length > 0) {
-      await ref.set({ tracks, updatedAt })
+      await ref.set({ tracks, updatedAt, version: CACHE_VERSION })
     }
     return NextResponse.json({ tracks, updatedAt })
   } catch (error) {
