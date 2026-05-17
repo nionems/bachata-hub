@@ -124,11 +124,14 @@ export default function EventsPage() {
           ? await calendarRes.json()
           : []
 
+        const now = new Date()
         const eventsWithNext = eventsList.map(event => {
           const calendarMatch = calendarEvents.find(ce => matchesEvent(ce.title, event.name))
           const confirmed = calendarMatch ? new Date(calendarMatch.start) : null
           const computed = event.recurrence ? getNextOccurrence(event.recurrence, event.eventDate || event.date) : null
-          const nextOccurrence = confirmed ?? computed
+          const raw = confirmed ?? computed
+          // Discard invalid or past dates — show "Coming soon" and sort to bottom
+          const nextOccurrence = raw && !isNaN(raw.getTime()) && raw >= now ? raw : null
           return {
             ...event,
             nextOccurrence,
