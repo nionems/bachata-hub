@@ -400,13 +400,9 @@ export default function EventsPage() {
                 {/* Content */}
                 <div className="flex flex-col flex-1 p-3 sm:p-4">
 
-                  {/* Next date — only show when confirmed from Google Calendar */}
-                  {event.nextOccurrence && event.nextOccurrenceConfirmed && (
-                    <div className={`flex items-start gap-2 mb-2.5 px-2.5 py-2 rounded-lg ${
-                      event.nextOccurrenceConfirmed
-                        ? 'bg-green-50 text-green-700'
-                        : 'bg-primary/8 text-primary'
-                    }`}>
+                  {/* Next date — confirmed from Google Calendar, or Coming Soon */}
+                  {event.nextOccurrence && event.nextOccurrenceConfirmed ? (
+                    <div className="flex items-start gap-2 mb-2.5 px-2.5 py-2 rounded-lg bg-green-50 text-green-700">
                       <Clock className="h-3.5 w-3.5 flex-shrink-0 mt-0.5" />
                       <div className="min-w-0 flex-1">
                         <div className="text-xs font-bold leading-tight">{formatNextDate(event.nextOccurrence)}</div>
@@ -416,9 +412,12 @@ export default function EventsPage() {
                           </div>
                         )}
                       </div>
-                      {event.nextOccurrenceConfirmed && (
-                        <span className="text-[9px] font-semibold bg-green-100 text-green-700 px-1.5 py-0.5 rounded-full flex-shrink-0 self-center">✓</span>
-                      )}
+                      <span className="text-[9px] font-semibold bg-green-100 text-green-700 px-1.5 py-0.5 rounded-full flex-shrink-0 self-center">✓</span>
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-2 mb-2.5 px-2.5 py-2 rounded-lg bg-gray-50 text-gray-400">
+                      <Clock className="h-3.5 w-3.5 flex-shrink-0" />
+                      <span className="text-xs font-medium">Date coming soon</span>
                     </div>
                   )}
 
