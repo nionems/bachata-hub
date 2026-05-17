@@ -330,7 +330,7 @@ export default function EventsPage() {
     setGoingConfirmEventId(null)
   }
 
-  if (isLoading) return <LoadingSpinner message="Loading events..." />
+  if (isLoading || isGeoLoading) return <LoadingSpinner message="Loading events..." />
   if (error) return <div className="text-center py-8 text-red-500">{error}</div>
 
   return (
