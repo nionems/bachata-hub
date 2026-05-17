@@ -16,8 +16,8 @@ const SEARCH_QUERIES = [
 ]
 
 async function searchVideos(apiKey: string, query: string): Promise<string[]> {
-  // Only videos published in the last 12 months
-  const publishedAfter = new Date(Date.now() - 365 * 24 * 60 * 60 * 1000).toISOString()
+  // Only videos published in the last 30 days
+  const publishedAfter = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString()
   const url =
     `https://www.googleapis.com/youtube/v3/search` +
     `?part=id&type=video&videoCategoryId=10&order=viewCount` +
