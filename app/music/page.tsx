@@ -32,8 +32,9 @@ export default function TopBachataPage() {
 
   useEffect(() => {
     fetch('/api/music/top-bachata')
-      .then(r => r.ok ? r.json() : Promise.reject('Failed'))
+      .then(r => r.json())
       .then(data => {
+        if (data.error) setError(data.error)
         setTracks(data.tracks ?? [])
         setUpdatedAt(data.updatedAt)
       })

@@ -137,6 +137,7 @@ export async function fetchTopBachataTrack(token: string): Promise<SpotifyTrack[
   const playlistIds = await discoverBachataPlaylistIds(token)
   const seen = new Set<string>()
   const all: SpotifyTrack[] = []
+  const errors: string[] = []
 
   const addTrack = (t: SpotifyTrack) => {
     if (seen.has(t.id)) return
@@ -150,18 +151,28 @@ export async function fetchTopBachataTrack(token: string): Promise<SpotifyTrack[
       try {
         const tracks = await fetchPlaylistTracks(token, id)
         tracks.forEach(addTrack)
-      } catch { }
+      } catch (e) {
+        errors.push(`playlist ${id}: ${String(e)}`)
+      }
     }),
     ...ARTIST_IDS.map(async (id) => {
       try {
         const tracks = await fetchArtistTopTracks(token, id)
         tracks.forEach(addTrack)
-      } catch { }
+      } catch (e) {
+        errors.push(`artist ${id}: ${String(e)}`)
+      }
     }),
   ])
 
-  return all
+  const result = all
     .filter(t => t.popularity > 0)
     .sort((a, b) => b.popularity - a.popularity)
     .slice(0, 20)
+
+  if (result.length === 0) {
+    throw new Error(`No tracks returned. Errors: ${errors.join('; ') || 'none (all silent)'}`)
+  }
+
+  return result
 }

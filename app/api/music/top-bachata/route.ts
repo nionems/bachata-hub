@@ -30,7 +30,10 @@ export async function GET() {
     const tracks = await fetchTopBachataTrack(token)
     const updatedAt = Date.now()
 
-    await ref.set({ tracks, updatedAt })
+    // Only cache if we got real tracks
+    if (tracks.length > 0) {
+      await ref.set({ tracks, updatedAt })
+    }
     return NextResponse.json({ tracks, updatedAt })
   } catch (error) {
     console.error('Error fetching top bachata:', error)
