@@ -23,23 +23,17 @@ export function useStateFilter<T extends HasState>(items: T[], options?: StateFi
   const { state: geoState, isLoading: isGeoLoading, error: geoError } = useGeolocation()
   const [selectedState, setSelectedState] = useState<string>('all')
 
-  useEffect(() => {
-    if (shouldUseGeolocation && !isGeoLoading) {
-      setSelectedState(geoState)
-    }
-  }, [geoState, isGeoLoading, shouldUseGeolocation])
+  // Do not auto-filter — show all states by default so users see every event
 
-  const filteredItems = isGeoLoading && shouldUseGeolocation
-    ? [] // Show no items while loading if using geolocation
-    : selectedState === 'all'
-      ? items
-      : items.filter(item => !item.state || item.state === selectedState)
+  const filteredItems = selectedState === 'all'
+    ? items
+    : items.filter(item => !item.state || item.state === selectedState)
 
   return {
     selectedState,
     setSelectedState,
     filteredItems,
-    isGeoLoading: shouldUseGeolocation ? isGeoLoading : false,
+    isGeoLoading: false,
     error: shouldUseGeolocation ? geoError : null
   }
 }
