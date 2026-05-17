@@ -46,6 +46,19 @@ interface Event {
   dayOfWeek?: string | null
 }
 
+function detectStateFromLocation(location: string): string {
+  const loc = location.toLowerCase()
+  if (/sydney|nsw|new south wales|bondi|manly|parramatta|newtown|surry hills|glebe/.test(loc)) return 'NSW'
+  if (/melbourne|vic\b|victoria|richmond|fitzroy|st kilda|collingwood/.test(loc)) return 'VIC'
+  if (/brisbane|qld|queensland|gold coast|sunshine coast|ipswich/.test(loc)) return 'QLD'
+  if (/perth|\bwa\b|western australia|fremantle/.test(loc)) return 'WA'
+  if (/adelaide|\bsa\b|south australia/.test(loc)) return 'SA'
+  if (/hobart|\btas\b|tasmania|launceston/.test(loc)) return 'TAS'
+  if (/canberra|\bact\b|australian capital territory/.test(loc)) return 'ACT'
+  if (/darwin|\bnt\b|northern territory/.test(loc)) return 'NT'
+  return ''
+}
+
 // Match a Google Calendar event title to a Firestore event name
 function matchesEvent(calendarTitle: string, firestoreName: string): boolean {
   const cal = calendarTitle.toLowerCase().replace(/[^a-z0-9\s]/g, '').trim()
@@ -100,10 +113,14 @@ export default function EventsPage() {
 
   const { selectedState, setSelectedState, filteredItems: filteredEvents, isGeoLoading, error: geoError } = useStateFilter(events)
 
-  // Combine state-filtered Firestore events + calendar-only events (always shown), then sort
+  // Calendar-only events: filter by detected state, or show all if state unknown
+  const filteredCalendarOnly = selectedState === 'all'
+    ? calendarOnlyEvents
+    : calendarOnlyEvents.filter(e => !e.state || e.state === selectedState)
+
   const combinedEvents = [
     ...filteredEvents,
-    ...calendarOnlyEvents,
+    ...filteredCalendarOnly,
   ].sort((a, b) => {
     if (!a.nextOccurrence && !b.nextOccurrence) return a.name.localeCompare(b.name)
     if (!a.nextOccurrence) return 1
@@ -171,7 +188,7 @@ export default function EventsPage() {
             endTime: ce.end?.includes('T') ? ce.end.split('T')[1].slice(0, 5) : '',
             location: ce.location ?? '',
             city: '',
-            state: '',
+            state: detectStateFromLocation(ce.location ?? ''),
             description: ce.description ?? '',
             danceStyles: ['Bachata'],
             imageUrl: '',
@@ -199,7 +216,7 @@ export default function EventsPage() {
     const days = new Set<string>()
     const stateFilteredEvents = [
       ...(selectedState === 'all' ? events : events.filter(e => e.state === selectedState)),
-      ...calendarOnlyEvents,
+      ...(selectedState === 'all' ? calendarOnlyEvents : calendarOnlyEvents.filter(e => !e.state || e.state === selectedState)),
     ]
 
     stateFilteredEvents.forEach(event => {
