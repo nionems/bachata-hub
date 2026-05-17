@@ -15,6 +15,10 @@ const CITY_CALENDAR_IDS = [
 export interface UpcomingCalendarEvent {
   title: string
   start: string // ISO date or dateTime string
+  end?: string
+  description?: string
+  location?: string
+  htmlLink?: string
 }
 
 let cache: UpcomingCalendarEvent[] | null = null
@@ -93,7 +97,14 @@ async function fetchCalendar(
       })
       return (response.data.items || [])
         .filter((e: any) => e.summary && (e.start?.dateTime || e.start?.date))
-        .map((e: any) => ({ title: e.summary, start: e.start.dateTime || e.start.date }))
+        .map((e: any) => ({
+          title: e.summary,
+          start: e.start.dateTime || e.start.date,
+          end: e.end?.dateTime || e.end?.date,
+          description: e.description,
+          location: e.location,
+          htmlLink: e.htmlLink,
+        }))
     }
 
     const url =
@@ -105,7 +116,14 @@ async function fetchCalendar(
     const data = await res.json()
     return (data.items || [])
       .filter((e: any) => e.summary && (e.start?.dateTime || e.start?.date))
-      .map((e: any) => ({ title: e.summary, start: e.start.dateTime || e.start.date }))
+      .map((e: any) => ({
+        title: e.summary,
+        start: e.start.dateTime || e.start.date,
+        end: e.end?.dateTime || e.end?.date,
+        description: e.description,
+        location: e.location,
+        htmlLink: e.htmlLink,
+      }))
   } catch {
     return []
   }

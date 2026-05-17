@@ -116,19 +116,19 @@ export default function EventsPage() {
         ])
 
         const eventsList = eventsRes.ok ? (await eventsRes.json() as Event[]) : []
-        const calendarEvents: { title: string; start: string }[] = calendarRes.ok
+        const calendarEvents: { title: string; start: string; end?: string; description?: string; location?: string; htmlLink?: string }[] = calendarRes.ok
           ? await calendarRes.json()
           : []
 
+        // Track which calendar events matched a Firestore event
+        const matchedCalendarTitles = new Set<string>()
+
         const eventsWithNext = eventsList.map(event => {
-          // Try to find the earliest upcoming calendar event matching this Firestore event
           const calendarMatch = calendarEvents.find(ce => matchesEvent(ce.title, event.name))
+          if (calendarMatch) matchedCalendarTitles.add(calendarMatch.title)
           const confirmed = calendarMatch ? new Date(calendarMatch.start) : null
           const computed = event.recurrence ? getNextOccurrence(event.recurrence, event.eventDate || event.date) : null
-
-          // Calendar date takes priority over computed recurrence date
           const nextOccurrence = confirmed ?? computed
-
           return {
             ...event,
             nextOccurrence,
@@ -137,19 +137,39 @@ export default function EventsPage() {
           }
         })
 
-        // Sort: confirmed calendar dates first (soonest), then computed dates, then no date
-        eventsWithNext.sort((a, b) => {
+        // Add calendar-only events (not matched to any Firestore event) as synthetic cards
+        const calendarOnlyEvents: Event[] = calendarEvents
+          .filter(ce => !matchedCalendarTitles.has(ce.title))
+          .map((ce, i) => ({
+            id: `cal-only-${i}-${ce.start}`,
+            name: ce.title,
+            eventDate: ce.start,
+            startTime: ce.start,
+            endTime: ce.end ?? '',
+            location: ce.location ?? '',
+            city: '',
+            state: '',
+            description: ce.description ?? '',
+            imageUrl: '',
+            eventLink: ce.htmlLink ?? '',
+            nextOccurrence: new Date(ce.start),
+            nextOccurrenceConfirmed: true,
+            dayOfWeek: null,
+          } as Event & { nextOccurrence: Date; nextOccurrenceConfirmed: boolean; dayOfWeek: null }))
+
+        // Merge Firestore events + calendar-only events, sort by date
+        const allEvents = [...eventsWithNext, ...calendarOnlyEvents]
+        allEvents.sort((a, b) => {
           if (!a.nextOccurrence && !b.nextOccurrence) return a.name.localeCompare(b.name)
           if (!a.nextOccurrence) return 1
           if (!b.nextOccurrence) return -1
-          // Confirmed dates float to top within same date range
           if (a.nextOccurrenceConfirmed !== b.nextOccurrenceConfirmed) {
             return a.nextOccurrenceConfirmed ? -1 : 1
           }
           return a.nextOccurrence.getTime() - b.nextOccurrence.getTime()
         })
 
-        setEvents(eventsWithNext)
+        setEvents(allEvents)
       } catch (err) {
         console.error('Error fetching events:', err)
         setError('Failed to load events')
@@ -369,10 +389,10 @@ export default function EventsPage() {
                   onClick={() => event.imageUrl && setSelectedImage({ url: event.imageUrl, title: event.name })}
                 >
                   <img
-                    src={event.imageUrl || '/images/placeholder.svg'}
+                    src={event.imageUrl || '/images/BACHATA.AU (13).png'}
                     alt={event.name}
                     loading="lazy"
-                    className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                    className={`w-full h-full ${event.imageUrl ? 'object-cover hover:scale-105 transition-transform duration-300' : 'object-contain p-4 bg-gray-50'}`}
                   />
                   {/* Dance style badges */}
                   {event.danceStyles && Array.isArray(event.danceStyles) && event.danceStyles.length > 0 && (
