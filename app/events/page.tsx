@@ -125,11 +125,14 @@ export default function EventsPage() {
           : []
 
         const now = new Date()
+        const todayStart = new Date(now)
+        todayStart.setHours(0, 0, 0, 0)
+
         const eventsWithNext = eventsList.map(event => {
           const calendarMatch = calendarEvents.find(ce => matchesEvent(ce.title, event.name))
           const confirmed = calendarMatch ? new Date(calendarMatch.start) : null
-          // Only show date if confirmed from Google Calendar; no computed fallback
-          const nextOccurrence = confirmed && !isNaN(confirmed.getTime()) && confirmed >= now ? confirmed : null
+          // Keep today's events even if their start time has already passed
+          const nextOccurrence = confirmed && !isNaN(confirmed.getTime()) && confirmed >= todayStart ? confirmed : null
           return {
             ...event,
             nextOccurrence,
