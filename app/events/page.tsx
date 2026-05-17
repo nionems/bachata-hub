@@ -368,11 +368,11 @@ export default function EventsPage() {
             </div>
           ) : (
             searchFilteredEvents.map((event) => (
-              <Card key={event.id} className="overflow-hidden rounded-xl shadow-sm hover:shadow-md transition-shadow duration-200 bg-white flex flex-row">
+              <Card key={event.id} className="overflow-hidden rounded-2xl shadow-md hover:shadow-lg transition-all duration-200 bg-white flex flex-row border border-gray-100">
 
-                {/* Image — fixed width, full card height */}
+                {/* Image */}
                 <div
-                  className="relative w-28 sm:w-40 flex-shrink-0 overflow-hidden cursor-pointer"
+                  className="relative w-32 sm:w-44 flex-shrink-0 overflow-hidden cursor-pointer"
                   onClick={() => event.imageUrl && setSelectedImage({ url: event.imageUrl, title: event.name })}
                 >
                   <img
@@ -381,7 +381,6 @@ export default function EventsPage() {
                     loading="lazy"
                     className={`absolute inset-0 w-full h-full ${event.imageUrl ? 'object-cover hover:scale-105 transition-transform duration-300' : 'object-contain p-3 bg-gray-50'}`}
                   />
-                  {/* Workshop badge */}
                   {event.isWorkshop && (
                     <div className="absolute bottom-2 left-1 bg-primary text-white text-[9px] font-semibold px-1.5 py-0.5 rounded-full shadow">
                       + Workshop
@@ -390,42 +389,35 @@ export default function EventsPage() {
                 </div>
 
                 {/* Content */}
-                <div className="flex flex-col flex-1 p-3 min-w-0">
+                <div className="flex flex-col flex-1 p-3 sm:p-4 min-w-0 gap-2">
 
-                  {/* Date + name row */}
-                  <div className="flex items-start gap-2 mb-1.5">
-                    {event.nextOccurrence ? (
-                      <div className={`flex items-center gap-1 px-2 py-1 rounded-lg flex-shrink-0 ${event.nextOccurrenceConfirmed ? 'bg-green-50 text-green-700' : 'bg-blue-50 text-blue-700'}`}>
-                        <Clock className="h-3 w-3 flex-shrink-0" />
-                        <div>
-                          <div className="text-[11px] font-bold leading-tight whitespace-nowrap">{formatNextDate(event.nextOccurrence)}</div>
-                          {event.startTime && (
-                            <div className="text-[9px] opacity-70 leading-tight">{formatTime(event.startTime)}{event.endTime ? ` – ${formatTime(event.endTime)}` : ''}</div>
-                          )}
-                        </div>
-                      </div>
-                    ) : (
-                      <div className="flex items-center gap-1 px-2 py-1 rounded-lg bg-gray-50 text-gray-400 flex-shrink-0">
-                        <Clock className="h-3 w-3 flex-shrink-0" />
-                        <span className="text-[10px] font-medium whitespace-nowrap">Coming soon</span>
-                      </div>
-                    )}
-                  </div>
+                  {/* Date pill */}
+                  {event.nextOccurrence ? (
+                    <div className="inline-flex items-center gap-1.5 self-start bg-green-100 text-green-800 px-3 py-1 rounded-full">
+                      <Clock className="h-3.5 w-3.5 flex-shrink-0" />
+                      <span className="text-xs font-bold whitespace-nowrap">{formatNextDate(event.nextOccurrence)}</span>
+                      {event.startTime && (
+                        <span className="text-[10px] font-medium opacity-70 border-l border-green-300 pl-1.5 whitespace-nowrap">
+                          {formatTime(event.startTime)}{event.endTime ? ` – ${formatTime(event.endTime)}` : ''}
+                        </span>
+                      )}
+                    </div>
+                  ) : null}
 
                   {/* Event name */}
-                  <h3 className="font-bold text-gray-900 text-sm sm:text-base leading-tight mb-1 truncate">{event.name}</h3>
+                  <h3 className="font-extrabold text-gray-900 text-base sm:text-lg leading-snug">{event.name}</h3>
 
                   {/* Location */}
                   {event.location && (
-                    <div className="flex items-center gap-1 text-[11px] text-gray-400 mb-1.5">
-                      <MapPin className="h-3 w-3 flex-shrink-0" />
+                    <div className="flex items-center gap-1 text-xs text-gray-500">
+                      <MapPin className="h-3.5 w-3.5 flex-shrink-0 text-gray-400" />
                       <span className="truncate">{event.location}</span>
                     </div>
                   )}
 
                   {/* Dance style badges */}
                   {event.danceStyles && Array.isArray(event.danceStyles) && event.danceStyles.length > 0 && (
-                    <div className="flex flex-wrap gap-1 mb-1.5">
+                    <div className="flex flex-wrap gap-1">
                       {event.danceStyles.map((style, i) => (
                         <span key={i} className="bg-primary/10 text-primary text-[10px] font-semibold px-2 py-0.5 rounded-full">
                           {style}
@@ -436,11 +428,11 @@ export default function EventsPage() {
 
                   {/* Comment */}
                   {event.comment && (
-                    <div className="mb-2">
-                      <p className={`text-[11px] text-gray-500 leading-relaxed ${expandedComments[event.id] ? '' : 'line-clamp-1'}`}>
+                    <div>
+                      <p className={`text-xs text-gray-500 leading-relaxed ${expandedComments[event.id] ? '' : 'line-clamp-2'}`}>
                         {event.comment}
                       </p>
-                      {event.comment.length > 60 && (
+                      {event.comment.length > 80 && (
                         <button
                           onClick={(e) => { e.stopPropagation(); toggleComment(event.id) }}
                           className="text-[10px] text-primary hover:text-primary/80 mt-0.5 flex items-center gap-0.5"
@@ -455,31 +447,36 @@ export default function EventsPage() {
 
                   <div className="flex-1" />
 
-                  {/* Bottom row: I'm Going, I'm Here, Ticket, icons */}
-                  <div className="flex items-center gap-1.5 mt-2 pt-2 border-t border-gray-100 flex-wrap">
+                  {/* Actions */}
+                  <div className="flex items-center gap-2 pt-2 border-t border-gray-100 flex-wrap">
                     <button
-                      className={`flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-xs font-semibold transition-colors ${
-                        likedEvents.has(event.id) ? 'bg-red-50 text-red-500' : 'bg-gray-100 text-gray-500 hover:bg-red-50 hover:text-red-500'
+                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold transition-colors border ${
+                        likedEvents.has(event.id)
+                          ? 'bg-red-50 text-red-500 border-red-200'
+                          : 'bg-white text-gray-500 border-gray-200 hover:border-red-200 hover:bg-red-50 hover:text-red-500'
                       }`}
                       onClick={(e) => toggleLike(e, event.id, event.likesCount ?? 0)}
                     >
-                      <Heart className={`h-3.5 w-3.5 flex-shrink-0 ${likedEvents.has(event.id) ? 'fill-red-500' : ''}`} />
+                      <Heart className={`h-3.5 w-3.5 ${likedEvents.has(event.id) ? 'fill-red-500' : ''}`} />
                       <span>{(likeCounts[event.id] ?? event.likesCount) ? `${likeCounts[event.id] ?? event.likesCount} ` : ''}I'm Going</span>
                     </button>
+
                     <button
-                      className={`flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-xs font-semibold transition-colors ${
-                        goingEvents.has(event.id) ? 'bg-green-50 text-green-600' : 'bg-gray-100 text-gray-500 hover:bg-green-50 hover:text-green-600'
+                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold transition-colors border ${
+                        goingEvents.has(event.id)
+                          ? 'bg-green-500 text-white border-green-500'
+                          : 'bg-white text-gray-500 border-gray-200 hover:border-green-400 hover:bg-green-50 hover:text-green-600'
                       }`}
                       onClick={(e) => handleGoingClick(e, event.id, event.goingCount ?? 0)}
                     >
-                      <UserCheck className="h-3.5 w-3.5 flex-shrink-0" />
+                      <UserCheck className="h-3.5 w-3.5" />
                       <span>{(goingCounts[event.id] ?? event.goingCount) ? `${goingCounts[event.id] ?? event.goingCount} ` : ''}I'm Here</span>
                     </button>
 
                     {isAtTheDoor(event) ? (
-                      <span className="inline-flex items-center gap-1 text-xs font-semibold text-amber-700 bg-amber-50 border border-amber-200 px-2 py-1 rounded-full">
-                        <Ticket className="h-3 w-3" />
-                        <span className="hidden sm:inline">Ticket at the Door</span>
+                      <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-amber-700 bg-amber-50 border border-amber-200 px-3 py-1.5 rounded-full">
+                        <Ticket className="h-3.5 w-3.5" />
+                        At the Door
                       </span>
                     ) : extractTicketLink(event) ? (
                       <a
@@ -487,9 +484,9 @@ export default function EventsPage() {
                         target="_blank"
                         rel="noopener noreferrer"
                         onClick={e => e.stopPropagation()}
-                        className="inline-flex items-center gap-1 text-xs font-bold text-white bg-gradient-to-r from-primary to-secondary hover:opacity-90 px-2.5 py-1.5 rounded-full shadow-sm transition-opacity"
+                        className="inline-flex items-center gap-1.5 text-xs font-bold text-white bg-gradient-to-r from-primary to-secondary hover:opacity-90 px-3 py-1.5 rounded-full shadow-sm transition-opacity"
                       >
-                        <Ticket className="h-3 w-3" />
+                        <Ticket className="h-3.5 w-3.5" />
                         Get Ticket
                       </a>
                     ) : event.eventLink ? (
@@ -498,20 +495,20 @@ export default function EventsPage() {
                         target="_blank"
                         rel="noopener noreferrer"
                         onClick={e => e.stopPropagation()}
-                        className="inline-flex items-center gap-1 text-xs font-semibold text-gray-600 bg-gray-100 hover:bg-gray-200 px-2.5 py-1.5 rounded-full transition-colors"
+                        className="inline-flex items-center gap-1.5 text-xs font-semibold text-primary bg-primary/10 hover:bg-primary/20 px-3 py-1.5 rounded-full transition-colors"
                       >
-                        <ExternalLink className="h-3 w-3" />
+                        <ExternalLink className="h-3.5 w-3.5" />
                         More Info
                       </a>
                     ) : null}
 
-                    <div className="flex gap-0.5 ml-auto">
+                    <div className="flex gap-1 ml-auto">
                       <button
                         className="p-1.5 text-gray-400 hover:text-primary hover:bg-primary/10 rounded-full transition-colors"
                         onClick={(e) => { e.stopPropagation(); window.open(buildGoogleCalendarUrl(event, event.nextOccurrence ?? null), '_blank') }}
                         title="Add to Google Calendar"
                       >
-                        <CalendarPlus className="h-3.5 w-3.5" />
+                        <CalendarPlus className="h-4 w-4" />
                       </button>
                       {event.googleMapLink && (
                         <button
@@ -519,7 +516,7 @@ export default function EventsPage() {
                           onClick={(e) => { e.stopPropagation(); window.open(event.googleMapLink, '_blank') }}
                           title="View on Map"
                         >
-                          <MapPin className="h-3.5 w-3.5" />
+                          <MapPin className="h-4 w-4" />
                         </button>
                       )}
                     </div>
