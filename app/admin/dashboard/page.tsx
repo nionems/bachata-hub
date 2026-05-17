@@ -1879,12 +1879,34 @@ function AdminDashboardContent() {
                   {searchTerm ? `${filteredEvents.length} of ${events.length} events` : `${events.length} total events`}
                 </div>
               </div>
-              <button
-                onClick={() => router.push('/admin/events/new')}
-                className="bg-blue-500 text-white px-3 py-1.5 rounded hover:bg-blue-600 text-sm"
-              >
-                Add New Event
-              </button>
+              <div className="flex gap-2">
+                <button
+                  onClick={async () => {
+                    if (!confirm('Import all calendar-only events into Firestore? This will create new event entries for events found in Google Calendar but not yet in the database.')) return
+                    try {
+                      const res = await fetch('/api/admin/import-calendar-events', { method: 'POST' })
+                      const data = await res.json()
+                      if (res.ok) {
+                        alert(`✅ ${data.message}\n\n${data.events?.join('\n') || ''}`)
+                        window.location.reload()
+                      } else {
+                        alert(`❌ Error: ${data.error}`)
+                      }
+                    } catch (e) {
+                      alert('❌ Import failed')
+                    }
+                  }}
+                  className="bg-green-500 text-white px-3 py-1.5 rounded hover:bg-green-600 text-sm"
+                >
+                  Import from Calendar
+                </button>
+                <button
+                  onClick={() => router.push('/admin/events/new')}
+                  className="bg-blue-500 text-white px-3 py-1.5 rounded hover:bg-blue-600 text-sm"
+                >
+                  Add New Event
+                </button>
+              </div>
             </div>
 
             {isLoading ? (
