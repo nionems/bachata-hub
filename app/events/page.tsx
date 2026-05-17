@@ -400,8 +400,8 @@ export default function EventsPage() {
                 {/* Content */}
                 <div className="flex flex-col flex-1 p-3 sm:p-4">
 
-                  {/* Next date — most prominent info */}
-                  {event.nextOccurrence && (
+                  {/* Next date — only show when confirmed from Google Calendar */}
+                  {event.nextOccurrence && event.nextOccurrenceConfirmed && (
                     <div className={`flex items-start gap-2 mb-2.5 px-2.5 py-2 rounded-lg ${
                       event.nextOccurrenceConfirmed
                         ? 'bg-green-50 text-green-700'
