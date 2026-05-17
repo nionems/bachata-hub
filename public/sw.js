@@ -1,6 +1,6 @@
-const CACHE_NAME = 'bachata-hub-v2'
+const CACHE_NAME = 'bachata-hub-v3'
 const FESTIVAL_CACHE_NAME = 'festivals-cache-v1'
-const STATIC_CACHE_NAME = 'static-assets-v2'
+const STATIC_CACHE_NAME = 'static-assets-v3'
 
 // Files to cache immediately - critical for initial load
 const urlsToCache = [
@@ -159,7 +159,12 @@ self.addEventListener('fetch', (event) => {
         .catch(() => {
           // Return cached response if network fails (only for non-calendar APIs)
           if (!request.url.includes('calendar')) {
-            return caches.match(request)
+            return caches.match(request).then(cached =>
+              cached || new Response(JSON.stringify({ error: 'Service unavailable' }), {
+                status: 503,
+                headers: { 'Content-Type': 'application/json' }
+              })
+            )
           }
           throw new Error('API request failed')
         })
@@ -187,11 +192,10 @@ self.addEventListener('fetch', (event) => {
           // Return cached page if network fails
           return caches.match(request)
             .then((cachedPage) => {
-              if (cachedPage) {
-                return cachedPage
-              }
-              // Fallback to home page if specific page not cached
-              return caches.match('/')
+              if (cachedPage) return cachedPage
+              return caches.match('/').then(home =>
+                home || new Response('Page not available', { status: 503 })
+              )
             })
         })
     )
@@ -214,7 +218,9 @@ self.addEventListener('fetch', (event) => {
         return response
       })
       .catch(() => {
-        return caches.match(request)
+        return caches.match(request).then(cached =>
+          cached || new Response('Not available', { status: 503 })
+        )
       })
   )
 })

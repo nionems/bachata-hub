@@ -87,7 +87,10 @@ async function fetchPlaylistTracks(token: string, playlistId: string): Promise<S
 
   while (url) {
     const res: Response = await fetch(url, { headers: { Authorization: `Bearer ${token}` } })
-    if (!res.ok) break
+    if (!res.ok) {
+      const text = await res.text()
+      throw new Error(`Spotify ${res.status}: ${text.slice(0, 200)}`)
+    }
     const data = await res.json()
 
     for (const item of data.items ?? []) {
@@ -117,7 +120,10 @@ async function fetchArtistTopTracks(token: string, artistId: string): Promise<Sp
     `https://api.spotify.com/v1/artists/${artistId}/top-tracks?market=AU`,
     { headers: { Authorization: `Bearer ${token}` } }
   )
-  if (!res.ok) return []
+  if (!res.ok) {
+    const text = await res.text()
+    throw new Error(`Spotify ${res.status}: ${text.slice(0, 200)}`)
+  }
   const data = await res.json()
 
   return (data.tracks ?? []).map((t: any) => ({
