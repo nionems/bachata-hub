@@ -414,16 +414,6 @@ export default function EventsPage() {
                     loading="lazy"
                     className={`absolute inset-0 w-full h-full ${event.imageUrl ? 'object-cover hover:scale-105 transition-transform duration-300' : 'object-contain p-3 bg-gray-50'}`}
                   />
-                  {/* Dance style badges */}
-                  {event.danceStyles && Array.isArray(event.danceStyles) && event.danceStyles.length > 0 && (
-                    <div className="absolute top-2 left-1 flex flex-wrap gap-1">
-                      {event.danceStyles.slice(0, 1).map((style, i) => (
-                        <span key={i} className="bg-black/60 backdrop-blur-sm text-white text-[9px] font-medium px-1.5 py-0.5 rounded-full">
-                          {style}
-                        </span>
-                      ))}
-                    </div>
-                  )}
                   {/* Workshop badge */}
                   {event.isWorkshop && (
                     <div className="absolute bottom-2 left-1 bg-primary text-white text-[9px] font-semibold px-1.5 py-0.5 rounded-full shadow">
@@ -460,9 +450,20 @@ export default function EventsPage() {
 
                   {/* Location */}
                   {event.location && (
-                    <div className="flex items-center gap-1 text-[11px] text-gray-400 mb-2">
+                    <div className="flex items-center gap-1 text-[11px] text-gray-400 mb-1.5">
                       <MapPin className="h-3 w-3 flex-shrink-0" />
                       <span className="truncate">{event.location}</span>
+                    </div>
+                  )}
+
+                  {/* Dance style badges */}
+                  {event.danceStyles && Array.isArray(event.danceStyles) && event.danceStyles.length > 0 && (
+                    <div className="flex flex-wrap gap-1 mb-1.5">
+                      {event.danceStyles.map((style, i) => (
+                        <span key={i} className="bg-primary/10 text-primary text-[10px] font-semibold px-2 py-0.5 rounded-full">
+                          {style}
+                        </span>
+                      ))}
                     </div>
                   )}
 
