@@ -494,6 +494,17 @@ export default function EventsPage() {
                         <Ticket className="h-3 w-3" />
                         Get Ticket
                       </a>
+                    ) : event.eventLink ? (
+                      <a
+                        href={event.eventLink}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        onClick={e => e.stopPropagation()}
+                        className="inline-flex items-center gap-1.5 text-xs font-semibold text-gray-600 dark:text-gray-300 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 px-3 py-1.5 rounded-full transition-colors"
+                      >
+                        <ExternalLink className="h-3 w-3" />
+                        More Info
+                      </a>
                     ) : <div />}
                     <div className="flex gap-1">
                       <button
