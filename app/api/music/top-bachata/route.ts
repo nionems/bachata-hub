@@ -1,15 +1,14 @@
 import { NextResponse } from 'next/server'
 import { getDb } from '@/lib/firebase-admin'
-import { getSpotifyToken, fetchTopBachataTrack } from '@/lib/spotify'
+import { fetchTopBachataVideos } from '@/lib/youtube'
 import { cookies } from 'next/headers'
 
 const CACHE_DOC = 'topBachata'
 const CACHE_TTL_MS = 7 * 24 * 60 * 60 * 1000 // 7 days
 
-// GET /api/music/top-bachata — returns cached top 20, refreshes if stale
 export async function GET() {
-  if (!process.env.SPOTIFY_CLIENT_ID || !process.env.SPOTIFY_CLIENT_SECRET) {
-    return NextResponse.json({ tracks: [], updatedAt: null, error: 'Spotify not configured' })
+  if (!process.env.YOUTUBE_API_KEY) {
+    return NextResponse.json({ tracks: [], updatedAt: null, error: 'YouTube API not configured' })
   }
 
   try {
@@ -19,24 +18,31 @@ export async function GET() {
 
     if (snap.exists) {
       const { tracks, updatedAt } = snap.data()!
-      // Only serve cache if it has tracks and isn't stale
       if (tracks?.length > 0 && Date.now() - updatedAt < CACHE_TTL_MS) {
         return NextResponse.json({ tracks, updatedAt })
       }
     }
 
-    // Cache stale or missing — fetch fresh from Spotify
-    const token = await getSpotifyToken()
-    const tracks = await fetchTopBachataTrack(token)
+    const tracks = await fetchTopBachataVideos(process.env.YOUTUBE_API_KEY)
     const updatedAt = Date.now()
 
-    // Only cache if we got real tracks
     if (tracks.length > 0) {
       await ref.set({ tracks, updatedAt })
     }
     return NextResponse.json({ tracks, updatedAt })
   } catch (error) {
-    console.error('Error fetching top bachata:', error)
+    // Fall back to stale cache if Spotify/YouTube fails
+    try {
+      const db = getDb()
+      const snap = await db.collection('musicCache').doc(CACHE_DOC).get()
+      if (snap.exists) {
+        const { tracks, updatedAt } = snap.data()!
+        if (tracks?.length > 0) {
+          return NextResponse.json({ tracks, updatedAt, stale: true })
+        }
+      }
+    } catch { }
+
     return NextResponse.json({ error: String(error), tracks: [] }, { status: 500 })
   }
 }
@@ -49,16 +55,18 @@ export async function POST() {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
+  if (!process.env.YOUTUBE_API_KEY) {
+    return NextResponse.json({ error: 'YouTube API not configured' }, { status: 500 })
+  }
+
   try {
-    const token = await getSpotifyToken()
-    const tracks = await fetchTopBachataTrack(token)
+    const tracks = await fetchTopBachataVideos(process.env.YOUTUBE_API_KEY)
     const updatedAt = Date.now()
 
     const db = getDb()
     await db.collection('musicCache').doc(CACHE_DOC).set({ tracks, updatedAt })
     return NextResponse.json({ tracks, updatedAt })
   } catch (error) {
-    console.error('Error refreshing top bachata:', error)
-    return NextResponse.json({ error: 'Failed to refresh' }, { status: 500 })
+    return NextResponse.json({ error: String(error) }, { status: 500 })
   }
 }
