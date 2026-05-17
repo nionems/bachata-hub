@@ -74,6 +74,21 @@ function extractTicketLink(event: Event): string | undefined {
   return url
 }
 
+function extractDriveImageUrl(description?: string): string | undefined {
+  if (!description) return undefined
+  // Check for [image:URL] tag (our own calendar export format)
+  const tagMatch = description.match(/\[image:(https?:\/\/[^\]]+)\]/)
+  if (tagMatch) return tagMatch[1]
+  // Extract Google Drive file ID from any Drive share link
+  const driveMatch = description.match(
+    /https?:\/\/drive\.google\.com\/(?:file\/d\/([^/\s?#]+)|open\?[^&\s]*id=([^&\s#]+)|uc\?[^&\s]*id=([^&\s#]+))/
+  )
+  if (!driveMatch) return undefined
+  const fileId = driveMatch[1] || driveMatch[2] || driveMatch[3]
+  if (!fileId) return undefined
+  return `https://drive.google.com/thumbnail?id=${fileId}&sz=w400`
+}
+
 export default function EventsPage() {
   const [events, setEvents] = useState<Event[]>([])
   const [isLoading, setIsLoading] = useState(true)
@@ -132,8 +147,10 @@ export default function EventsPage() {
           const calendarMatch = calendarEvents.find(ce => matchesEvent(ce.title, event.name))
           const confirmed = calendarMatch ? new Date(calendarMatch.start) : null
           const nextOccurrence = confirmed && !isNaN(confirmed.getTime()) && confirmed >= todayStart ? confirmed : null
+          const imageUrl = event.imageUrl || extractDriveImageUrl(event.description) || ''
           return {
             ...event,
+            imageUrl,
             nextOccurrence,
             nextOccurrenceConfirmed: true,
             dayOfWeek: event.recurrence ? getDayOfWeek(event.recurrence) : null,
