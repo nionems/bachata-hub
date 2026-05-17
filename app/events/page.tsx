@@ -165,15 +165,12 @@ export default function EventsPage() {
             dayOfWeek: null,
           } as Event & { nextOccurrence: Date; nextOccurrenceConfirmed: boolean; dayOfWeek: null }))
 
-        // Merge Firestore events + calendar-only events, sort by date
+        // Merge Firestore events + calendar-only events, sort chronologically
         const allEvents = [...eventsWithNext, ...calendarOnlyEvents]
         allEvents.sort((a, b) => {
           if (!a.nextOccurrence && !b.nextOccurrence) return a.name.localeCompare(b.name)
           if (!a.nextOccurrence) return 1
           if (!b.nextOccurrence) return -1
-          if (a.nextOccurrenceConfirmed !== b.nextOccurrenceConfirmed) {
-            return a.nextOccurrenceConfirmed ? -1 : 1
-          }
           return a.nextOccurrence.getTime() - b.nextOccurrence.getTime()
         })
 
