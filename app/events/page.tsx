@@ -71,7 +71,11 @@ function isAtTheDoor(event: Event): boolean {
 function extractTicketLink(event: Event): string | undefined {
   if (event.ticketLink) return event.ticketLink
   const urlMatch = event.description?.match(/https?:\/\/[^\s\])"]+/)
-  return urlMatch?.[0]
+  if (!urlMatch) return undefined
+  const url = urlMatch[0]
+  // Ignore Google Drive / Docs / Photos links — not ticket pages
+  if (/drive\.google\.com|docs\.google\.com|photos\.google\.com/i.test(url)) return undefined
+  return url
 }
 
 export default function EventsPage() {
