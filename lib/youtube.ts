@@ -11,38 +11,42 @@ export interface VideoTrack {
 const EXCLUDE_GENRES = ['merengue', 'salsa', 'cumbia', 'reggaeton', 'dembow', 'vallenato']
 const EXCLUDE_SUFFIX = EXCLUDE_GENRES.map(g => `-${g}`).join(' ')
 
-const SEARCH_QUERIES = [
+// General trending queries — 30 day window
+const GENERAL_QUERIES = [
   `bachata 2025 ${EXCLUDE_SUFFIX}`,
   `bachata hits 2025 ${EXCLUDE_SUFFIX}`,
-  `bachata romantica 2024 2025 ${EXCLUDE_SUFFIX}`,
+  `bachata romantica 2025 ${EXCLUDE_SUFFIX}`,
   `nueva bachata 2025 ${EXCLUDE_SUFFIX}`,
-  `bachata sensual 2024 2025 ${EXCLUDE_SUFFIX}`,
-  `dj husky bachata 2025`,
-  `charles luis bachata 2025`,
-  `bachata rising 2025`,
-  `dimelo cupido bachata 2025`,
-  `prince royce bachata 2025`,
-  `pinto picasso bachata 2025`,
-  `shama bachata 2025`,
-  `dj cat bachata 2025`,
-  `dj tronky bachata 2025`,
-  `sebas gareta bachata 2025`,
-  `dani j bachata 2025`,
-  `johnny sky bachata 2025`,
-  `sebas garreta bachata 2025`,
-  `esme bachata 2025`,
-  `akai rojas bachata 2025`,
-  `kewin cosmos bachata 2025`,
-  `montelier bachata 2025`,
+  `bachata sensual 2025 ${EXCLUDE_SUFFIX}`,
 ]
 
-async function searchVideos(apiKey: string, query: string): Promise<string[]> {
-  // Only videos published in the last 30 days
-  const publishedAfter = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString()
+// Artist queries — 90 day window so they always appear even without recent uploads
+const ARTIST_QUERIES = [
+  'dj husky bachata',
+  'charles luis bachata',
+  'bachata rising',
+  'dimelo cupido bachata',
+  'prince royce bachata',
+  'pinto picasso bachata',
+  'shama bachata',
+  'dj cat bachata',
+  'dj tronky bachata',
+  'sebas gareta bachata',
+  'sebas garreta bachata',
+  'dani j bachata',
+  'johnny sky bachata',
+  'esme bachata',
+  'akai rojas bachata',
+  'kewin cosmos bachata',
+  'montelier bachata',
+]
+
+async function searchVideos(apiKey: string, query: string, daysBack: number): Promise<string[]> {
+  const publishedAfter = new Date(Date.now() - daysBack * 24 * 60 * 60 * 1000).toISOString()
   const url =
     `https://www.googleapis.com/youtube/v3/search` +
     `?part=id&type=video&videoCategoryId=10&order=viewCount` +
-    `&maxResults=10&publishedAfter=${publishedAfter}` +
+    `&maxResults=5&publishedAfter=${publishedAfter}` +
     `&q=${encodeURIComponent(query)}&key=${apiKey}`
   const res = await fetch(url)
   if (!res.ok) {
@@ -55,31 +59,38 @@ async function searchVideos(apiKey: string, query: string): Promise<string[]> {
 
 async function getVideoDetails(apiKey: string, videoIds: string[]): Promise<VideoTrack[]> {
   if (videoIds.length === 0) return []
-  const url =
-    `https://www.googleapis.com/youtube/v3/videos` +
-    `?part=snippet,statistics&id=${videoIds.join(',')}&key=${apiKey}`
-  const res = await fetch(url)
-  if (!res.ok) {
-    const text = await res.text()
-    throw new Error(`YouTube videos fetch failed (${res.status}): ${text.slice(0, 200)}`)
+  // YouTube videos.list accepts max 50 IDs at once
+  const chunks: string[][] = []
+  for (let i = 0; i < videoIds.length; i += 50) chunks.push(videoIds.slice(i, i + 50))
+
+  const results: VideoTrack[] = []
+  for (const chunk of chunks) {
+    const url =
+      `https://www.googleapis.com/youtube/v3/videos` +
+      `?part=snippet,statistics&id=${chunk.join(',')}&key=${apiKey}`
+    const res = await fetch(url)
+    if (!res.ok) continue
+    const data = await res.json()
+    for (const item of data.items ?? []) {
+      results.push({
+        id: item.id,
+        name: item.snippet?.title ?? 'Unknown',
+        artists: [item.snippet?.channelTitle ?? 'Unknown'],
+        albumArt: item.snippet?.thumbnails?.high?.url ?? item.snippet?.thumbnails?.default?.url ?? '',
+        youtubeUrl: `https://www.youtube.com/watch?v=${item.id}`,
+        viewCount: parseInt(item.statistics?.viewCount ?? '0', 10),
+        publishedAt: item.snippet?.publishedAt ?? '',
+      })
+    }
   }
-  const data = await res.json()
-  return (data.items ?? []).map((item: any) => ({
-    id: item.id,
-    name: item.snippet?.title ?? 'Unknown',
-    artists: [item.snippet?.channelTitle ?? 'Unknown'],
-    albumArt: item.snippet?.thumbnails?.high?.url ?? item.snippet?.thumbnails?.default?.url ?? '',
-    youtubeUrl: `https://www.youtube.com/watch?v=${item.id}`,
-    viewCount: parseInt(item.statistics?.viewCount ?? '0', 10),
-    publishedAt: item.snippet?.publishedAt ?? '',
-  }))
+  return results
 }
 
 function normalizeTitle(title: string): string {
   return title
     .toLowerCase()
-    .replace(/\(.*?\)/g, '')   // remove (Official Video), (Lyrics), etc.
-    .replace(/\[.*?\]/g, '')   // remove [Official Audio], etc.
+    .replace(/\(.*?\)/g, '')
+    .replace(/\[.*?\]/g, '')
     .replace(/official|video|audio|lyrics|lyric|ft\.?|feat\.?/gi, '')
     .replace(/[^a-z0-9\s]/g, '')
     .replace(/\s+/g, ' ')
@@ -90,38 +101,31 @@ export async function fetchTopBachataVideos(apiKey: string): Promise<VideoTrack[
   const seenIds = new Set<string>()
   const allIds: string[] = []
 
-  await Promise.all(
-    SEARCH_QUERIES.map(async (q) => {
-      try {
-        const ids = await searchVideos(apiKey, q)
-        for (const id of ids) {
-          if (!seenIds.has(id)) {
-            seenIds.add(id)
-            allIds.push(id)
-          }
-        }
-      } catch {
-        // ignore individual query failures
-      }
-    })
-  )
-
-  if (allIds.length === 0) {
-    throw new Error('No videos found from YouTube')
+  const collect = (ids: string[]) => {
+    for (const id of ids) {
+      if (!seenIds.has(id)) { seenIds.add(id); allIds.push(id) }
+    }
   }
+
+  await Promise.all([
+    ...GENERAL_QUERIES.map(async (q) => {
+      try { collect(await searchVideos(apiKey, q, 30)) } catch { }
+    }),
+    ...ARTIST_QUERIES.map(async (q) => {
+      try { collect(await searchVideos(apiKey, q, 90)) } catch { }
+    }),
+  ])
+
+  if (allIds.length === 0) throw new Error('No videos found from YouTube')
 
   const tracks = await getVideoDetails(apiKey, allIds)
-
-  if (tracks.length === 0) {
-    throw new Error('Could not fetch video details from YouTube')
-  }
+  if (tracks.length === 0) throw new Error('Could not fetch video details from YouTube')
 
   const excludeRegex = new RegExp(EXCLUDE_GENRES.join('|'), 'i')
   const now = Date.now()
   const seenTitles = new Set<string>()
+  const artistCount = new Map<string, number>()
 
-  // Score by views-per-day so recently uploaded songs that are trending
-  // rank higher than older videos that merely have more total views
   const scored = tracks
     .filter(t => {
       if (excludeRegex.test(t.name)) return false
@@ -135,16 +139,14 @@ export async function fetchTopBachataVideos(apiKey: string): Promise<VideoTrack[
       const ageDays = Math.max(ageMs / (1000 * 60 * 60 * 24), 1)
       return { track: t, score: t.viewCount / ageDays }
     })
-
-  const artistCount = new Map<string, number>()
-
-  return scored
     .sort((a, b) => b.score - a.score)
+
+  // 1 song per artist — best velocity wins
+  return scored
     .filter(({ track }) => {
       const artist = track.artists[0].toLowerCase()
-      const count = artistCount.get(artist) ?? 0
-      if (count >= 2) return false
-      artistCount.set(artist, count + 1)
+      if ((artistCount.get(artist) ?? 0) >= 1) return false
+      artistCount.set(artist, 1)
       return true
     })
     .slice(0, 20)

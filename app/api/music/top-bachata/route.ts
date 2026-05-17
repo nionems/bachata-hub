@@ -5,7 +5,7 @@ import { cookies } from 'next/headers'
 
 const CACHE_DOC = 'topBachata'
 const CACHE_TTL_MS = 7 * 24 * 60 * 60 * 1000 // 7 days
-const CACHE_VERSION = 12 // bump to force refresh when query logic changes
+const CACHE_VERSION = 13 // bump to force refresh when query logic changes
 
 export async function GET() {
   if (!process.env.YOUTUBE_API_KEY) {
