@@ -14,7 +14,7 @@ import CalendarMenu from "@/components/calendar-menu"
 import { LoadingSpinner } from '@/components/loading-spinner'
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { getNextOccurrence, getDayOfWeek, formatNextDate, formatTime, buildGoogleCalendarUrl } from '@/lib/recurrence'
+import { getDayOfWeek, formatNextDate, formatTime, buildGoogleCalendarUrl } from '@/lib/recurrence'
 
 
 interface Event {
@@ -97,8 +97,8 @@ export default function EventsPage() {
   const { selectedState, setSelectedState, filteredItems: filteredEvents, isGeoLoading, error: geoError } = useStateFilter(events)
 
   const searchFilteredEvents = filteredEvents.filter(event => {
-    const nameMatch = event.name.toLowerCase().includes(searchTerm.toLowerCase())
-    const locationMatch = event.location.toLowerCase().includes(searchTerm.toLowerCase())
+    const nameMatch = (event.name ?? '').toLowerCase().includes(searchTerm.toLowerCase())
+    const locationMatch = (event.location ?? '').toLowerCase().includes(searchTerm.toLowerCase())
     const danceStylesMatch = Array.isArray(event.danceStyles) && event.danceStyles.some(style =>
       style.toLowerCase().includes(searchTerm.toLowerCase())
     )
@@ -142,7 +142,7 @@ export default function EventsPage() {
         })
 
         eventsWithNext.sort((a, b) => {
-          if (!a.nextOccurrence && !b.nextOccurrence) return a.name.localeCompare(b.name)
+          if (!a.nextOccurrence && !b.nextOccurrence) return (a.name ?? '').localeCompare(b.name ?? '')
           if (!a.nextOccurrence) return 1
           if (!b.nextOccurrence) return -1
           return (a.nextOccurrence as Date).getTime() - (b.nextOccurrence as Date).getTime()
