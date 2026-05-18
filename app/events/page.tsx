@@ -175,10 +175,18 @@ export default function EventsPage() {
         })
 
         eventsWithNext.sort((a, b) => {
+          // Events with a confirmed date first, sorted chronologically
+          if (a.nextOccurrence && b.nextOccurrence) {
+            const diff = (a.nextOccurrence as Date).getTime() - (b.nextOccurrence as Date).getTime()
+            if (diff !== 0) return diff
+            return (a.startTime || '').localeCompare(b.startTime || '')
+          }
+          if (a.nextOccurrence) return -1
+          if (b.nextOccurrence) return 1
+          // Both without a date: sort by day of week then alphabetically
           const dayA = a.dayOfWeek ? DAY_ORDER.indexOf(a.dayOfWeek) : 99
           const dayB = b.dayOfWeek ? DAY_ORDER.indexOf(b.dayOfWeek) : 99
           if (dayA !== dayB) return dayA - dayB
-          if (a.startTime && b.startTime) return a.startTime.localeCompare(b.startTime)
           return (a.name || '').localeCompare(b.name || '')
         })
 
