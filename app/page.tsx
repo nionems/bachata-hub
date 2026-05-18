@@ -30,7 +30,6 @@ import { CommunityJoinPopup } from '@/components/CommunityJoinPopup'
 import { EventSubmissionForm } from '@/components/EventSubmissionForm'
 import { doc, getDoc } from 'firebase/firestore'
 import { db } from '@/lib/firebase'
-import DancerSilhouette from '@/components/DancerSilhouette'
 
 // Add this interface at the top of your file
 interface Event {
@@ -545,8 +544,12 @@ export default function Home() {
           style={{ clipPath: 'polygon(0 0, 100% 0, 100% 78%, 0 100%)' }}>
           {/* Background gradient overlay */}
           <div className="absolute inset-0 bg-gradient-to-br from-primary to-secondary"></div>
-          {/* Dancer silhouette */}
-          <DancerSilhouette className="absolute right-4 sm:right-12 md:right-24 bottom-0 h-[90%] opacity-10 pointer-events-none" />
+          {/* Decorative shapes */}
+          <div className="absolute -top-16 -right-16 w-64 h-64 rounded-full bg-white/10" />
+          <div className="absolute -bottom-10 -left-10 w-52 h-52 rounded-full bg-white/10" />
+          <div className="absolute top-1/2 right-1/4 w-32 h-32 rounded-full bg-white/5" />
+          <div className="absolute top-4 left-1/3 w-20 h-20 rounded-full bg-white/10" />
+          <div className="absolute bottom-4 right-1/3 w-14 h-14 rotate-45 bg-white/10" />
           <div className="container mx-auto px-0 relative z-10 h-full flex flex-col items-center justify-center">
             <div className="w-full flex flex-col items-center justify-center">
               <p className="text-xs sm:text-base md:text-lg lg:text-xl text-white/90 text-center comic-neue px-4 mt-2 sm:mt-4 md:mt-6 lg:mt-8">
