@@ -153,25 +153,33 @@ export default function EventsPage() {
         const todayStart = new Date()
         todayStart.setHours(0, 0, 0, 0)
 
+        const DAY_ORDER = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+
         const eventsWithNext = eventsList.map(event => {
           const calendarMatch = calendarEvents.find(ce => matchesEvent(ce.title, event.name))
           const confirmed = calendarMatch ? new Date(calendarMatch.start) : null
           const nextOccurrence = confirmed && !isNaN(confirmed.getTime()) && confirmed >= todayStart ? confirmed : null
           const imageUrl = event.imageUrl || extractDriveImageUrl(event.description) || ''
+          // Derive day of week from nextOccurrence date, or fall back to recurrence field
+          const occurrenceDay = nextOccurrence
+            ? DAY_ORDER[(new Date(nextOccurrence).getDay() + 6) % 7]
+            : null
+          const dayOfWeek = occurrenceDay || (event.recurrence ? getDayOfWeek(event.recurrence) : null)
           return {
             ...event,
             imageUrl,
             nextOccurrence,
             nextOccurrenceConfirmed: true,
-            dayOfWeek: event.recurrence ? getDayOfWeek(event.recurrence) : null,
+            dayOfWeek,
           }
         })
 
         eventsWithNext.sort((a, b) => {
-          if (!a.nextOccurrence && !b.nextOccurrence) return a.name.localeCompare(b.name)
-          if (!a.nextOccurrence) return 1
-          if (!b.nextOccurrence) return -1
-          return (a.nextOccurrence as Date).getTime() - (b.nextOccurrence as Date).getTime()
+          const dayA = a.dayOfWeek ? DAY_ORDER.indexOf(a.dayOfWeek) : 99
+          const dayB = b.dayOfWeek ? DAY_ORDER.indexOf(b.dayOfWeek) : 99
+          if (dayA !== dayB) return dayA - dayB
+          if (a.startTime && b.startTime) return a.startTime.localeCompare(b.startTime)
+          return (a.name || '').localeCompare(b.name || '')
         })
 
         setEvents(eventsWithNext)
@@ -414,9 +422,17 @@ export default function EventsPage() {
               {selectedDanceStyle !== 'all' && ` for ${selectedDanceStyle}`}
               {selectedDay !== 'all' && ` on ${selectedDay}s`}
             </div>
-          ) : (
-            searchFilteredEvents.map((event) => (
-              <Card key={event.id} className="overflow-hidden rounded-2xl shadow-md hover:shadow-lg transition-all duration-200 bg-white flex flex-row border border-gray-100">
+          ) : searchFilteredEvents.map((event, i, arr) => {
+              const header = i === 0 || event.dayOfWeek !== arr[i - 1].dayOfWeek ? event.dayOfWeek : null
+              return (
+                <div key={event.id}>
+                  {header && (
+                    <div className="flex items-center gap-3 mt-4 mb-2 first:mt-0">
+                      <span className="text-sm font-bold text-primary uppercase tracking-widest">{header === 'no-day' ? 'Coming Soon' : header}</span>
+                      <div className="flex-1 h-px bg-primary/20" />
+                    </div>
+                  )}
+                  <Card className="overflow-hidden rounded-2xl shadow-md hover:shadow-lg transition-all duration-200 bg-white flex flex-row border border-gray-100">
 
                 {/* Image */}
                 <div
@@ -576,8 +592,9 @@ export default function EventsPage() {
                   </div>
                 </div>
               </Card>
-            ))
-          )}
+                </div>
+              )
+            })}
         </div>
 
         {/* Not today modal */}
