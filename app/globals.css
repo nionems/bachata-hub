@@ -2,6 +2,21 @@
 @tailwind components;
 @tailwind utilities;
 
+@keyframes wiggle {
+  0%, 100% { transform: rotate(0deg); }
+  15%       { transform: rotate(-6deg); }
+  30%       { transform: rotate(6deg); }
+  45%       { transform: rotate(-4deg); }
+  60%       { transform: rotate(4deg); }
+  75%       { transform: rotate(-2deg); }
+  90%       { transform: rotate(2deg); }
+}
+
+.animate-wiggle {
+  animation: wiggle 1s ease-in-out infinite;
+  transform-origin: center;
+}
+
 @layer base {
   .dark {
     --background: 222 47% 8%;

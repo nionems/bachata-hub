@@ -549,9 +549,8 @@ export default function Home() {
                 Your Bachata Guide in Australia & more...
               </p>
               <div className="flex items-center justify-center gap-1 sm:gap-2 md:gap-4 relative w-full px-2 sm:px-4 md:px-8">
-                <Link href="/events" className="relative w-24 sm:w-28 md:w-36 ml-4 sm:ml-12 md:ml-24">
-                  <span className="absolute inset-0 rounded-md bg-white/60 animate-ping" style={{ animationDuration: '2s' }} />
-                  <Button size="sm" className="relative w-full bg-white text-primary hover:bg-gray-100 text-xs sm:text-sm whitespace-nowrap font-semibold shadow-md">
+                <Link href="/events" className="w-24 sm:w-28 md:w-36 ml-4 sm:ml-12 md:ml-24">
+                  <Button size="sm" className="w-full bg-white text-primary hover:bg-gray-100 text-xs sm:text-sm whitespace-nowrap font-semibold shadow-md animate-wiggle">
                     Explore Events
                   </Button>
                 </Link>
