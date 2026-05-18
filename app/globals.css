@@ -3,17 +3,18 @@
 @tailwind utilities;
 
 @keyframes wiggle {
-  0%, 100% { transform: rotate(0deg); }
-  15%       { transform: rotate(-6deg); }
-  30%       { transform: rotate(6deg); }
-  45%       { transform: rotate(-4deg); }
-  60%       { transform: rotate(4deg); }
-  75%       { transform: rotate(-2deg); }
-  90%       { transform: rotate(2deg); }
+  0%, 100%  { transform: rotate(0deg); }
+  10%       { transform: rotate(-6deg); }
+  20%       { transform: rotate(6deg); }
+  30%       { transform: rotate(-4deg); }
+  40%       { transform: rotate(4deg); }
+  50%       { transform: rotate(-2deg); }
+  60%       { transform: rotate(2deg); }
+  65%, 99%  { transform: rotate(0deg); }
 }
 
 .animate-wiggle {
-  animation: wiggle 1s ease-in-out infinite;
+  animation: wiggle 2.5s ease-in-out infinite;
   transform-origin: center;
 }
 
