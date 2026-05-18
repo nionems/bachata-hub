@@ -37,8 +37,20 @@ function matchesEvent(calTitle: string, fbName: string): boolean {
   return fbWords.filter(w => calWords.has(w)).length >= 2
 }
 
+function extractDriveImageUrl(description?: string): string {
+  if (!description) return ''
+  const tagMatch = description.match(/\[image:(https?:\/\/[^\]]+)\]/)
+  if (tagMatch) return tagMatch[1]
+  const driveMatch = description.match(
+    /https?:\/\/drive\.google\.com\/(?:file\/d\/([^/\s?#]+)|open\?[^&\s]*id=([^&\s#]+)|uc\?[^&\s]*id=([^&\s#]+))/
+  )
+  if (!driveMatch) return ''
+  const fileId = driveMatch[1] || driveMatch[2] || driveMatch[3]
+  if (!fileId) return ''
+  return `https://drive.google.com/thumbnail?id=${fileId}&sz=w400`
+}
+
 export async function GET(request: Request) {
-  // Accept Vercel cron secret header or admin session cookie for manual testing
   const authHeader = request.headers.get('authorization')
   const cronSecret = process.env.CRON_SECRET
   const adminSession = cookies().get('admin_session')
@@ -57,75 +69,89 @@ export async function GET(request: Request) {
 
     const [calendarEvents, snapshot] = await Promise.all([
       fetchAllCalendarEvents(apiKey, 90),
-      db.collection('events').select('name').get(),
+      db.collection('events').get(),
     ])
 
     if (calendarEvents.length === 0) {
-      return NextResponse.json({ imported: 0, message: 'No calendar events found' })
+      return NextResponse.json({ imported: 0, updated: 0, message: 'No calendar events found' })
     }
 
-    const firestoreNames: string[] = snapshot.docs.map(d => (d.data().name as string) || '')
-
-    // Deduplicate calendar events by title, skip ones already in Firestore
+    // Deduplicate calendar events by title
     const byTitle = new Map<string, any>()
     for (const ce of calendarEvents) {
       if (ce.title && !byTitle.has(ce.title)) byTitle.set(ce.title, ce)
     }
 
-    const toImport = [...byTitle.values()].filter(
-      ce => !firestoreNames.some(name => matchesEvent(ce.title, name))
-    )
+    const firestoreDocs = snapshot.docs.map(d => ({ id: d.id, ...d.data() } as any))
 
-    if (toImport.length === 0) {
-      return NextResponse.json({ imported: 0, message: 'No new events to import' })
+    const toImport: any[] = []
+    const toUpdate: { id: string; imageUrl: string }[] = []
+
+    for (const ce of byTitle.values()) {
+      const match = firestoreDocs.find(doc => matchesEvent(ce.title, doc.name || ''))
+      if (!match) {
+        toImport.push(ce)
+      } else if (!match.imageUrl) {
+        // Event exists but has no image — check if calendar description now has one
+        const imageUrl = extractDriveImageUrl(ce.description)
+        if (imageUrl) toUpdate.push({ id: match.id, imageUrl })
+      }
     }
 
     const now = new Date().toISOString()
 
-    const results = await Promise.allSettled(
-      toImport.map(async (ce) => {
-        const startDate = ce.start?.includes('T') ? ce.start.split('T')[0] : (ce.start || '')
-        const startTime = ce.start?.includes('T') ? ce.start.split('T')[1].slice(0, 5) : ''
-        const endTime = ce.end?.includes('T') ? ce.end.split('T')[1].slice(0, 5) : ''
-
-        await db.collection('events').add({
-          name: ce.title,
-          eventDate: startDate,
-          startTime,
-          endTime,
-          location: ce.location || '',
-          city: '',
-          state: detectState(ce.location || ''),
-          description: ce.description || '',
-          imageUrl: '',
-          eventLink: ce.htmlLink || '',
-          ticketLink: '',
-          danceStyles: ['Bachata'],
-          recurrence: '',
-          isWeekly: false,
-          isWorkshop: false,
-          published: true,
-          likesCount: 0,
-          goingCount: 0,
-          createdAt: now,
-          updatedAt: now,
+    const [importResults, updateResults] = await Promise.all([
+      Promise.allSettled(
+        toImport.map(async (ce) => {
+          const startDate = ce.start?.includes('T') ? ce.start.split('T')[0] : (ce.start || '')
+          const startTime = ce.start?.includes('T') ? ce.start.split('T')[1].slice(0, 5) : ''
+          const endTime = ce.end?.includes('T') ? ce.end.split('T')[1].slice(0, 5) : ''
+          const imageUrl = extractDriveImageUrl(ce.description)
+          await db.collection('events').add({
+            name: ce.title,
+            eventDate: startDate,
+            startTime,
+            endTime,
+            location: ce.location || '',
+            city: '',
+            state: detectState(ce.location || ''),
+            description: ce.description || '',
+            imageUrl,
+            eventLink: ce.htmlLink || '',
+            ticketLink: '',
+            danceStyles: ['Bachata'],
+            recurrence: '',
+            isWeekly: false,
+            isWorkshop: false,
+            published: true,
+            likesCount: 0,
+            goingCount: 0,
+            createdAt: now,
+            updatedAt: now,
+          })
+          return ce.title
         })
-        return ce.title
-      })
-    )
+      ),
+      Promise.allSettled(
+        toUpdate.map(async ({ id, imageUrl }) => {
+          await db.collection('events').doc(id).update({ imageUrl, updatedAt: now })
+          return id
+        })
+      ),
+    ])
 
-    const created = results
-      .filter(r => r.status === 'fulfilled')
-      .map(r => (r as PromiseFulfilledResult<string>).value)
-    const failed = results.filter(r => r.status === 'rejected').length
+    const created = importResults.filter(r => r.status === 'fulfilled').map(r => (r as PromiseFulfilledResult<string>).value)
+    const updated = updateResults.filter(r => r.status === 'fulfilled').length
+    const failed = importResults.filter(r => r.status === 'rejected').length + updateResults.filter(r => r.status === 'rejected').length
 
-    console.log(`[cron/sync-calendar] Imported ${created.length} events, ${failed} failed:`, created)
+    console.log(`[cron/sync-calendar] Imported ${created.length}, updated images for ${updated}, ${failed} failed`)
 
     return NextResponse.json({
       imported: created.length,
+      updated,
       failed,
       events: created,
-      message: `Imported ${created.length} new event${created.length !== 1 ? 's' : ''}${failed ? `, ${failed} failed` : ''}`,
+      message: `Imported ${created.length} new event${created.length !== 1 ? 's' : ''}, updated image for ${updated} existing event${updated !== 1 ? 's' : ''}${failed ? `, ${failed} failed` : ''}`,
     })
   } catch (error) {
     console.error('[cron/sync-calendar] Error:', error)
