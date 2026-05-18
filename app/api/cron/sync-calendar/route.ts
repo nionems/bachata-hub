@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+import { cookies } from 'next/headers'
 import { getDb } from '@/lib/firebase-admin'
 import { fetchAllCalendarEvents } from '@/lib/calendar-events'
 
@@ -37,10 +38,12 @@ function matchesEvent(calTitle: string, fbName: string): boolean {
 }
 
 export async function GET(request: Request) {
-  // Accept either the Vercel cron secret or the admin token for manual testing
+  // Accept Vercel cron secret header or admin session cookie for manual testing
   const authHeader = request.headers.get('authorization')
   const cronSecret = process.env.CRON_SECRET
-  if (!cronSecret || authHeader !== `Bearer ${cronSecret}`) {
+  const adminSession = cookies().get('admin_session')
+  const isAuthed = (cronSecret && authHeader === `Bearer ${cronSecret}`) || adminSession?.value === 'true'
+  if (!isAuthed) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
