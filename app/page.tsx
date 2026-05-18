@@ -540,9 +540,10 @@ export default function Home() {
       <main className="min-h-screen">
         
         {/* Hero Section - Full height on mobile */}
-        <section className="relative h-[25vh] sm:h-[35vh] md:h-[28vh] lg:h-[35vh]">
+        <section className="relative h-[28vh] sm:h-[38vh] md:h-[32vh] lg:h-[38vh] overflow-hidden"
+          style={{ clipPath: 'polygon(0 0, 100% 0, 100% 78%, 0 100%)' }}>
           {/* Background gradient overlay */}
-          <div className="absolute inset-0 bg-gradient-to-r from-primary to-secondary"></div>
+          <div className="absolute inset-0 bg-gradient-to-br from-primary to-secondary"></div>
           <div className="container mx-auto px-0 relative z-10 h-full flex flex-col items-center justify-center">
             <div className="w-full flex flex-col items-center justify-center">
               <p className="text-xs sm:text-base md:text-lg lg:text-xl text-white/90 text-center comic-neue px-4 mt-2 sm:mt-4 md:mt-6 lg:mt-8">
