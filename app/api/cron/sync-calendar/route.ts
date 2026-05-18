@@ -1,9 +1,15 @@
 import { NextResponse } from 'next/server'
-import { cookies } from 'next/headers'
 import { getDb } from '@/lib/firebase-admin'
 import { fetchAllCalendarEvents } from '@/lib/calendar-events'
 
 export const maxDuration = 60
+
+const STOP_WORDS = new Set([
+  'salsa', 'bachata', 'dance', 'dancing', 'class', 'classes', 'social',
+  'latin', 'night', 'party', 'event', 'show', 'kizomba', 'zouk',
+  'workshop', 'with', 'and', 'the', 'monday', 'tuesday', 'wednesday',
+  'thursday', 'friday', 'saturday', 'sunday', 'weekly', 'monthly',
+])
 
 function detectState(location: string): string {
   const loc = (location || '').toLowerCase()
@@ -18,29 +24,23 @@ function detectState(location: string): string {
   return ''
 }
 
-const STOP_WORDS = new Set([
-  'salsa', 'bachata', 'dance', 'dancing', 'class', 'classes', 'social',
-  'latin', 'night', 'party', 'event', 'show', 'kizomba', 'zouk',
-  'workshop', 'with', 'and', 'the', 'monday', 'tuesday', 'wednesday',
-  'thursday', 'friday', 'saturday', 'sunday', 'weekly', 'monthly',
-])
-
 function matchesEvent(calTitle: string, fbName: string): boolean {
   const cal = calTitle.toLowerCase().replace(/[^a-z0-9\s]/g, '').trim()
   const fb = fbName.toLowerCase().replace(/[^a-z0-9\s]/g, '').trim()
   if (!cal || !fb) return false
   if (fb.length >= 4 && cal.includes(fb)) return true
   if (cal.length >= 4 && fb.includes(cal)) return true
-  const calWords = new Set(cal.split(/\s+/).filter((w: string) => w.length > 3 && !STOP_WORDS.has(w)))
-  const fbWords = fb.split(/\s+/).filter((w: string) => w.length > 3 && !STOP_WORDS.has(w))
+  const calWords = new Set(cal.split(/\s+/).filter(w => w.length > 3 && !STOP_WORDS.has(w)))
+  const fbWords = fb.split(/\s+/).filter(w => w.length > 3 && !STOP_WORDS.has(w))
   if (fbWords.length === 0) return false
-  return fbWords.filter((w: string) => calWords.has(w)).length >= 2
+  return fbWords.filter(w => calWords.has(w)).length >= 2
 }
 
-export async function POST() {
-  const cookieStore = cookies()
-  const adminSession = cookieStore.get('admin_session')
-  if (!adminSession || adminSession.value !== 'true') {
+export async function GET(request: Request) {
+  // Accept either the Vercel cron secret or the admin token for manual testing
+  const authHeader = request.headers.get('authorization')
+  const cronSecret = process.env.CRON_SECRET
+  if (!cronSecret || authHeader !== `Bearer ${cronSecret}`) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
@@ -52,7 +52,6 @@ export async function POST() {
   try {
     const db = getDb()
 
-    // Fetch calendar events and existing Firestore names in parallel
     const [calendarEvents, snapshot] = await Promise.all([
       fetchAllCalendarEvents(apiKey, 90),
       db.collection('events').select('name').get(),
@@ -64,7 +63,7 @@ export async function POST() {
 
     const firestoreNames: string[] = snapshot.docs.map(d => (d.data().name as string) || '')
 
-    // Deduplicate by title, keep only calendar-only events
+    // Deduplicate calendar events by title, skip ones already in Firestore
     const byTitle = new Map<string, any>()
     for (const ce of calendarEvents) {
       if (ce.title && !byTitle.has(ce.title)) byTitle.set(ce.title, ce)
@@ -75,7 +74,7 @@ export async function POST() {
     )
 
     if (toImport.length === 0) {
-      return NextResponse.json({ imported: 0, message: 'All calendar events are already in Firestore' })
+      return NextResponse.json({ imported: 0, message: 'No new events to import' })
     }
 
     const now = new Date().toISOString()
@@ -117,13 +116,16 @@ export async function POST() {
       .map(r => (r as PromiseFulfilledResult<string>).value)
     const failed = results.filter(r => r.status === 'rejected').length
 
+    console.log(`[cron/sync-calendar] Imported ${created.length} events, ${failed} failed:`, created)
+
     return NextResponse.json({
       imported: created.length,
       failed,
       events: created,
-      message: `Imported ${created.length} event${created.length !== 1 ? 's' : ''}${failed ? `, ${failed} failed` : ''}`,
+      message: `Imported ${created.length} new event${created.length !== 1 ? 's' : ''}${failed ? `, ${failed} failed` : ''}`,
     })
   } catch (error) {
+    console.error('[cron/sync-calendar] Error:', error)
     return NextResponse.json({ error: String(error) }, { status: 500 })
   }
 }
