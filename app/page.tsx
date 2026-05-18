@@ -539,13 +539,9 @@ export default function Home() {
     return (
       <main className="min-h-screen">
         
-        {/* Hero Section - Full height on mobile */}
-        <section
-          className="relative h-[30vh] sm:h-[40vh] md:h-[34vh] lg:h-[40vh] overflow-hidden"
-          style={{
-            clipPath: 'polygon(0% 10%, 6% 4%, 14% 9%, 22% 2%, 32% 8%, 42% 1%, 52% 7%, 62% 2%, 72% 8%, 82% 3%, 91% 7%, 100% 3%, 100% 88%, 93% 95%, 84% 90%, 74% 97%, 64% 91%, 54% 98%, 43% 92%, 33% 97%, 23% 91%, 13% 96%, 5% 90%, 0% 94%)'
-          }}
-        >          {/* Background gradient overlay */}
+        {/* Hero Section */}
+        <section className="relative h-[28vh] sm:h-[38vh] md:h-[32vh] lg:h-[38vh] overflow-hidden">
+          {/* Background gradient */}
           <div className="absolute inset-0 bg-gradient-to-br from-primary to-secondary"></div>
           {/* Decorative shapes */}
           <div className="absolute -top-16 -right-16 w-64 h-64 rounded-full bg-white/10" />
@@ -553,6 +549,10 @@ export default function Home() {
           <div className="absolute top-1/2 right-1/4 w-32 h-32 rounded-full bg-white/5" />
           <div className="absolute top-4 left-1/3 w-20 h-20 rounded-full bg-white/10" />
           <div className="absolute bottom-4 right-1/3 w-14 h-14 rotate-45 bg-white/10" />
+          {/* Wave bottom edge */}
+          <svg className="absolute bottom-0 w-full" viewBox="0 0 1440 64" preserveAspectRatio="none">
+            <path fill="white" d="M0,32 C180,64 360,0 540,32 C720,64 900,0 1080,32 C1260,64 1380,20 1440,32 L1440,64 L0,64 Z" />
+          </svg>
           <div className="container mx-auto px-0 relative z-10 h-full flex flex-col items-center justify-center">
             <div className="w-full flex flex-col items-center justify-center">
               <p className="text-xs sm:text-base md:text-lg lg:text-xl text-white/90 text-center comic-neue px-4 mt-2 sm:mt-4 md:mt-6 lg:mt-8">
