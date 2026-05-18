@@ -46,6 +46,14 @@ interface Event {
   dayOfWeek?: string | null
 }
 
+// Generic dance/event words that shouldn't count as distinctive match signals
+const MATCH_STOP_WORDS = new Set([
+  'salsa', 'bachata', 'dance', 'dancing', 'class', 'classes', 'social',
+  'latin', 'night', 'party', 'event', 'show', 'kizomba', 'zouk',
+  'workshop', 'with', 'and', 'the', 'monday', 'tuesday', 'wednesday',
+  'thursday', 'friday', 'saturday', 'sunday', 'weekly', 'monthly',
+])
+
 // Match a Google Calendar event title to a Firestore event name for confirmed date detection
 function matchesEvent(calendarTitle: string, firestoreName: string): boolean {
   const cal = calendarTitle.toLowerCase().replace(/[^a-z0-9\s]/g, '').trim()
@@ -53,8 +61,10 @@ function matchesEvent(calendarTitle: string, firestoreName: string): boolean {
   if (!cal || !fb) return false
   if (fb.length >= 4 && cal.includes(fb)) return true
   if (cal.length >= 4 && fb.includes(cal)) return true
-  const calWords = new Set(cal.split(/\s+/).filter(w => w.length > 3))
-  const fbWords = fb.split(/\s+/).filter(w => w.length > 3)
+  // Only use distinctive (non-generic) words for overlap matching
+  const calWords = new Set(cal.split(/\s+/).filter(w => w.length > 3 && !MATCH_STOP_WORDS.has(w)))
+  const fbWords = fb.split(/\s+/).filter(w => w.length > 3 && !MATCH_STOP_WORDS.has(w))
+  if (fbWords.length === 0) return false
   return fbWords.filter(w => calWords.has(w)).length >= 2
 }
 
