@@ -928,12 +928,11 @@ export default function Home() {
         <section className="py-8 sm:py-12">
           <div className="container mx-auto px-4">
             <div className="grid grid-cols-3 sm:grid-cols-3 md:grid-cols-4 gap-4 sm:gap-6">
-              {/* Feature cards for different sections */}
               <FeatureCard
-                icon={<Trophy className="h-6 w-6 sm:h-8 sm:w-8 text-blue-500" />}
-                title="Competitions"
-                description="Show off your skills"
-                link="/competitions"
+                icon={<Calendar className="h-6 w-6 sm:h-8 sm:w-8 text-green-600" />}
+                title="Events"
+                description="Find Bachata events"
+                link="/events"
               />
               <FeatureCard
                 icon={<MapPin className="h-6 w-6 sm:h-8 sm:w-8 text-purple-500" />}
@@ -942,22 +941,10 @@ export default function Home() {
                 link="/festivals"
               />
               <FeatureCard
-                icon={<Film className="h-6 w-6 sm:h-8 sm:w-8 text-purple-500" />}
-                title="Media"
-                description="Watch Bachata videos"
-                link="/media"
-              />
-              <FeatureCard
                 icon={<Music className="h-6 w-6 sm:h-8 sm:w-8 text-emerald-500" />}
                 title="Top 20"
                 description="Most popular Bachata songs"
                 link="/music"
-              />
-              <FeatureCard
-                icon={<Headphones className="h-6 w-6 sm:h-8 sm:w-8 text-red-500" />}
-                title="DJs"
-                description="Find Bachata DJs"
-                link="/djs"
               />
               <FeatureCard
                 icon={<Users className="h-6 w-6 sm:h-8 sm:w-8 text-green-600" />}
@@ -966,10 +953,10 @@ export default function Home() {
                 link="/instructors"
               />
               <FeatureCard
-                icon={<Calendar className="h-6 w-6 sm:h-8 sm:w-8 text-green-600" />}
-                title="Events"
-                description="Find Bachata events"
-                link="/events"
+                icon={<ShoppingBag className="h-6 w-6 sm:h-8 sm:w-8 text-yellow-500" />}
+                title="Marketplace"
+                description="Find dance shoes,clothing..."
+                link="/shop"
               />
               <FeatureCard
                 icon={<School className="h-6 w-6 sm:h-8 sm:w-8 text-yellow-500" />}
@@ -978,16 +965,22 @@ export default function Home() {
                 link="/schools"
               />
               <FeatureCard
-                icon={<ShoppingBag className="h-6 w-6 sm:h-8 sm:w-8 text-yellow-500" />}
-                title="Marketplace"
-                description="Find dance shoes,clothing..."
-                link="/shop"
+                icon={<Headphones className="h-6 w-6 sm:h-8 sm:w-8 text-red-500" />}
+                title="DJs"
+                description="Find Bachata DJs"
+                link="/djs"
               />
               <FeatureCard
                 icon={<Calendar className="h-6 w-6 sm:h-8 sm:w-8 text-yellow-500" />}
                 title="Calendar"
                 description="Find all events"
                 link="/calendar"
+              />
+              <FeatureCard
+                icon={<Trophy className="h-6 w-6 sm:h-8 sm:w-8 text-blue-500" />}
+                title="Competitions"
+                description="Show off your skills"
+                link="/competitions"
               />
               <FeatureCard
                 icon={<Building2 className="h-6 w-6 sm:h-8 sm:w-8 text-indigo-500" />}
@@ -1014,6 +1007,12 @@ export default function Home() {
                 description="Add to your home screen"
                 onClick={() => setShowIOSInstall(true)}
                 isButton
+              />
+              <FeatureCard
+                icon={<Film className="h-6 w-6 sm:h-8 sm:w-8 text-purple-500" />}
+                title="Media"
+                description="Watch Bachata videos"
+                link="/media"
               />
             </div>
           </div>
