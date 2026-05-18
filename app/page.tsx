@@ -1014,7 +1014,7 @@ export default function Home() {
               />
               <FeatureCard
                 icon={<Film className="h-6 w-6 sm:h-8 sm:w-8 text-purple-500" />}
-                title="Media"
+                title="Videographer"
                 description="Watch Bachata videos"
                 link="/media"
               />
