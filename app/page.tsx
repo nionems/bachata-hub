@@ -26,6 +26,7 @@ import { useStateFilter } from '@/hooks/useStateFilter'
 import { LoadingSpinner } from "@/components/loading-spinner"
 import { IdeaBoxForm } from '@/components/IdeaBoxForm'
 import { StickyEventBar } from '@/components/StickyEventBar'
+import { StateSkyline } from '@/components/StateSkyline'
 import { CommunityJoinPopup } from '@/components/CommunityJoinPopup'
 import { EventSubmissionForm } from '@/components/EventSubmissionForm'
 import { doc, getDoc } from 'firebase/firestore'
@@ -549,6 +550,8 @@ export default function Home() {
           <div className="absolute top-1/2 right-1/4 w-32 h-32 rounded-full bg-white/5" />
           <div className="absolute top-4 left-1/3 w-20 h-20 rounded-full bg-white/10" />
           <div className="absolute bottom-4 right-1/3 w-14 h-14 rotate-45 bg-white/10" />
+          {/* City skyline silhouette — changes by detected state */}
+          <StateSkyline state={selectedState} />
           {/* Wave top edge */}
           <svg className="absolute top-0 w-full" viewBox="0 0 1440 64" preserveAspectRatio="none">
             <path fill="white" d="M0,32 C180,64 360,0 540,32 C720,64 900,0 1080,32 C1260,64 1380,20 1440,32 L1440,0 L0,0 Z" />
