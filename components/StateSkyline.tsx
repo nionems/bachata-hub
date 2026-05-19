@@ -144,9 +144,9 @@ export function StateSkyline({ state }: StateSkylineProps) {
     <svg
       className="absolute bottom-0 w-full pointer-events-none select-none"
       viewBox="0 0 1440 160"
-      preserveAspectRatio="xMidYMax meet"
+      preserveAspectRatio="none"
       aria-hidden="true"
-      style={{ height: '50%', opacity: 0.22 }}
+      style={{ height: '40%', opacity: 0.22 }}
     >
       {isNSW ? (
         // evenodd punches the sail + arch cutouts through the white silhouette
