@@ -1,27 +1,46 @@
 'use client'
 
 // viewBox: "0 0 1440 160", ground at y=160
-// Simplified city skyline silhouettes for each Australian state
-const SKYLINES: Record<string, string> = {
-  // Sydney: Centrepoint Tower spire + CBD + Opera House sails + Harbour Bridge arch
-  NSW: [
-    'M0,160 L0,130 L80,130 L80,120 L120,120 L120,110 L158,110 L158,100',
-    'L190,100 L190,118 L205,118 L205,80 L222,80',
-    'L222,28 L225,28 L225,12 L227,4 L229,12 L229,28 L232,28 L232,80',
-    'L250,80 L250,118 L265,118 L265,90 L285,90 L285,78 L308,78',
-    'L308,62 L335,62 L335,50 L362,50 L362,38 L388,38',
-    'L388,50 L412,50 L412,62 L435,62 L435,50 L458,50',
-    'L458,62 L480,62 L480,75 L500,75 L500,62 L520,62',
-    'Q536,30 552,58 Q566,22 580,52 Q594,18 608,46',
-    'L622,46 L622,56 L636,56',
-    'C712,6 854,6 930,56',
-    'L944,56 L944,46 L970,46 L970,36 L998,36 L998,50',
-    'L1025,50 L1025,65 L1054,65 L1054,80 L1086,80 L1086,95',
-    'L1130,95 L1130,108 L1200,108 L1200,118 L1320,118 L1320,126 L1440,126',
-    'L1440,160 Z',
-  ].join(' '),
+// NSW uses fill-rule="evenodd" so the Opera House sails and Harbour Bridge arch
+// opening are actual cutouts that show the gradient through the white silhouette.
+// Other states use simple filled profiles.
 
-  // Melbourne: Eureka Tower stepped profile + Arts Centre triangular spire
+// NSW outer silhouette + inner cutout sub-paths (all in one "d" attribute)
+const NSW_PATH = [
+  // ── Outer silhouette ──────────────────────────────────────────────────────
+  'M0,160',
+  'L0,140 L80,140 L80,130 L115,130 L115,120 L148,120 L148,112',
+  'L178,112 L178,130 L196,130 L196,108',
+  // Centrepoint Tower: base → disc → shaft → spire tip at y=2
+  'L206,108 L206,78 L218,78 L218,58 L228,58',
+  'L228,32 L233,32 L233,18 L235,8 L237,2 L239,8 L241,18 L241,32 L246,32',
+  'L246,58 L256,58 L256,78 L268,78 L268,108 L282,108',
+  // CBD buildings
+  'L282,130 L296,130 L296,114 L312,114 L312,102 L335,102 L335,90',
+  'L360,90 L360,79 L385,79 L385,68 L410,68 L410,79 L432,79',
+  'L432,68 L455,68 L455,79 L478,79 L478,90 L488,90 L488,102 L488,128',
+  // Opera House: solid block (y=55 → y=128) — sails are punched out below
+  'L488,55 L640,55 L640,128',
+  // Harbour Bridge: arch hump peaks at y≈5, base at y=128
+  'C720,5 980,5 1080,128',
+  // North Shore buildings
+  'L1092,115 L1118,115 L1118,102 L1145,102 L1145,115 L1170,115',
+  'L1170,126 L1200,126 L1200,134 L1242,134 L1242,142 L1310,142',
+  'L1310,148 L1440,152 L1440,160 Z',
+
+  // ── Opera House sail cutouts (evenodd → show gradient through) ────────────
+  // Each sail: closed arch shape inside the Opera House block
+  'M498,124 Q525,18 552,120 Z',   // sail 1 (tallest)
+  'M554,120 Q582,16 608,116 Z',   // sail 2
+  'M610,116 Q626,22 636,112 Z',   // sail 3 (smallest, nearest bridge)
+
+  // ── Harbour Bridge arch opening (the big cutout inside the arch hump) ─────
+  // Inner arch peaks at y≈32; outer arch peaks at y≈5 → 27-unit arch structure
+  'M652,128 C730,32 988,32 1068,128 Z',
+].join(' ')
+
+const SKYLINES: Record<string, string> = {
+  // Victoria: Eureka Tower stepped profile + Arts Centre triangular spire
   VIC: [
     'M0,160 L0,124 L78,124 L78,114 L118,114 L118,104 L152,104 L152,94',
     'L182,94 L182,82 L208,82 L208,67 L228,67 L228,54 L243,54 L243,42',
@@ -39,7 +58,7 @@ const SKYLINES: Record<string, string> = {
     'L1440,160 Z',
   ].join(' '),
 
-  // Brisbane: CBD skyline + Story Bridge cable silhouette
+  // Queensland: CBD skyline + Story Bridge cable silhouette
   QLD: [
     'M0,160 L0,124 L80,124 L80,114 L118,114 L118,104 L152,104 L152,94',
     'L180,94 L180,82 L208,82 L208,70 L232,70 L232,57 L255,57',
@@ -53,7 +72,7 @@ const SKYLINES: Record<string, string> = {
     'L1440,160 Z',
   ].join(' '),
 
-  // Perth: Bell Tower sail shape + CBD
+  // Western Australia: Bell Tower twin-sail shape + Perth CBD
   WA: [
     'M0,160 L0,126 L74,126 L74,116 L112,116 L112,106 L145,106 L145,96',
     'L172,96 L172,86 L196,86 L196,120 L210,120',
@@ -67,7 +86,7 @@ const SKYLINES: Record<string, string> = {
     'L1440,160 Z',
   ].join(' '),
 
-  // Adelaide: St Peter's Cathedral twin gothic spires + lower CBD
+  // South Australia: St Peter's Cathedral twin gothic spires + Adelaide CBD
   SA: [
     'M0,160 L0,124 L78,124 L78,114 L112,114 L112,104 L142,104 L142,94',
     'L168,94 L168,120 L182,120',
@@ -81,7 +100,7 @@ const SKYLINES: Record<string, string> = {
     'L1440,160 Z',
   ].join(' '),
 
-  // Hobart: Mount Wellington mountain silhouette behind simple waterfront
+  // Tasmania: Mount Wellington mountain silhouette
   TAS: [
     'M0,160 L0,78',
     'C100,62 220,48 360,52 C500,56 640,44 780,50 C920,56 1060,48 1200,58',
@@ -89,7 +108,7 @@ const SKYLINES: Record<string, string> = {
     'L1440,160 Z',
   ].join(' '),
 
-  // Canberra: Parliament House hill with flagpole + Black Mountain Tower
+  // ACT: Parliament House hill + Black Mountain Tower spire
   ACT: [
     'M0,160 L0,124 L100,124 L100,118 L150,118 L150,112 L200,112 L200,106',
     'L260,106 L290,98 L360,88 L440,80 L510,74 L570,68 L608,64',
@@ -101,7 +120,7 @@ const SKYLINES: Record<string, string> = {
     'L1440,160 Z',
   ].join(' '),
 
-  // Darwin: Simple low tropical skyline
+  // Northern Territory: Simple low tropical Darwin skyline
   NT: [
     'M0,160 L0,122 L80,122 L80,114 L120,114 L120,108 L155,108 L155,102',
     'L185,102 L185,96 L210,96 L210,90 L235,90 L235,82 L258,82',
@@ -119,7 +138,7 @@ interface StateSkylineProps {
 }
 
 export function StateSkyline({ state }: StateSkylineProps) {
-  const path = SKYLINES[state] ?? SKYLINES['NSW']
+  const isNSW = state === 'NSW' || !SKYLINES[state]
 
   return (
     <svg
@@ -127,9 +146,14 @@ export function StateSkyline({ state }: StateSkylineProps) {
       viewBox="0 0 1440 160"
       preserveAspectRatio="none"
       aria-hidden="true"
-      style={{ height: '38%', opacity: 0.18 }}
+      style={{ height: '55%', opacity: 0.22 }}
     >
-      <path fill="white" d={path} />
+      {isNSW ? (
+        // evenodd punches the sail + arch cutouts through the white silhouette
+        <path fill="white" fillRule="evenodd" d={NSW_PATH} />
+      ) : (
+        <path fill="white" d={SKYLINES[state]!} />
+      )}
     </svg>
   )
 }
