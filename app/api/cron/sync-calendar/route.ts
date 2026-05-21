@@ -73,17 +73,19 @@ export async function GET(request: Request) {
     ])
 
     if (calendarEvents.length === 0) {
-      return NextResponse.json({ imported: 0, updated: 0, message: 'No calendar events found' })
+      return NextResponse.json({ imported: 0, updated: 0, unpublished: 0, flagged: 0, message: 'No calendar events found' })
     }
 
-    // Deduplicate calendar events by title
+    // Deduplicate calendar events by title (keep earliest occurrence)
     const byTitle = new Map<string, any>()
     for (const ce of calendarEvents) {
       if (ce.title && !byTitle.has(ce.title)) byTitle.set(ce.title, ce)
     }
 
     const firestoreDocs = snapshot.docs.map(d => ({ id: d.id, ...d.data() } as any))
+    const now = new Date().toISOString()
 
+    // ── 1. Import new events + backfill images ─────────────────────────────
     const toImport: any[] = []
     const toUpdate: { id: string; imageUrl: string }[] = []
 
@@ -92,13 +94,10 @@ export async function GET(request: Request) {
       if (!match) {
         toImport.push(ce)
       } else if (!match.imageUrl) {
-        // Event exists but has no image — check if calendar description now has one
         const imageUrl = extractDriveImageUrl(ce.description)
         if (imageUrl) toUpdate.push({ id: match.id, imageUrl })
       }
     }
-
-    const now = new Date().toISOString()
 
     const [importResults, updateResults] = await Promise.all([
       Promise.allSettled(
@@ -124,6 +123,7 @@ export async function GET(request: Request) {
             isWeekly: false,
             isWorkshop: false,
             published: true,
+            calendarSynced: true,   // mark as auto-imported so cross-check can manage it
             likesCount: 0,
             goingCount: 0,
             createdAt: now,
@@ -141,17 +141,79 @@ export async function GET(request: Request) {
     ])
 
     const created = importResults.filter(r => r.status === 'fulfilled').map(r => (r as PromiseFulfilledResult<string>).value)
-    const updated = updateResults.filter(r => r.status === 'fulfilled').length
-    const failed = importResults.filter(r => r.status === 'rejected').length + updateResults.filter(r => r.status === 'rejected').length
+    const updatedImages = updateResults.filter(r => r.status === 'fulfilled').length
 
-    console.log(`[cron/sync-calendar] Imported ${created.length}, updated images for ${updated}, ${failed} failed`)
+    // ── 2. Cross-check: detect cancelled events ────────────────────────────
+    // For each published Firestore event, check whether ANY upcoming calendar
+    // event still matches it. If the user cancelled it in Google Calendar the
+    // event will simply disappear from the upcoming list.
+    //
+    // • calendarSynced events  → auto-unpublish (safe: they were created by the cron)
+    // • Manually-entered events → flag with noCalendarMatch:true but leave published
+    //   so admins can review without data loss
+    const toUnpublish: { id: string; name: string }[] = []
+    const toFlag: { id: string; name: string }[] = []
+
+    for (const doc of firestoreDocs) {
+      if (!doc.published) continue
+
+      const hasCalendarMatch = calendarEvents.some(ce => matchesEvent(ce.title, doc.name || ''))
+
+      if (!hasCalendarMatch) {
+        if (doc.calendarSynced === true) {
+          toUnpublish.push({ id: doc.id, name: doc.name })
+        } else {
+          // Don't auto-remove manually entered events — just flag for admin review
+          toFlag.push({ id: doc.id, name: doc.name })
+        }
+      } else if (doc.noCalendarMatch) {
+        // Previously flagged but now matched — clear the flag
+        await db.collection('events').doc(doc.id).update({ noCalendarMatch: false, updatedAt: now })
+      }
+    }
+
+    const crossCheckResults = await Promise.allSettled([
+      ...toUnpublish.map(({ id }) =>
+        db.collection('events').doc(id).update({
+          published: false,
+          cancelledAt: now,
+          cancellationNote: 'Auto-unpublished: no upcoming occurrence found in Google Calendar',
+          updatedAt: now,
+        })
+      ),
+      ...toFlag.map(({ id }) =>
+        db.collection('events').doc(id).update({
+          noCalendarMatch: true,
+          updatedAt: now,
+        })
+      ),
+    ])
+
+    const unpublished = crossCheckResults.slice(0, toUnpublish.length).filter(r => r.status === 'fulfilled').length
+    const flagged = crossCheckResults.slice(toUnpublish.length).filter(r => r.status === 'fulfilled').length
+    const failed =
+      importResults.filter(r => r.status === 'rejected').length +
+      updateResults.filter(r => r.status === 'rejected').length +
+      crossCheckResults.filter(r => r.status === 'rejected').length
+
+    console.log(`[cron/sync-calendar] imported=${created.length} images=${updatedImages} unpublished=${unpublished} flagged=${flagged} failed=${failed}`)
 
     return NextResponse.json({
       imported: created.length,
-      updated,
+      updatedImages,
+      unpublished,
+      flagged,
       failed,
-      events: created,
-      message: `Imported ${created.length} new event${created.length !== 1 ? 's' : ''}, updated image for ${updated} existing event${updated !== 1 ? 's' : ''}${failed ? `, ${failed} failed` : ''}`,
+      unpublishedEvents: toUnpublish.map(e => e.name),
+      flaggedEvents: toFlag.map(e => e.name),
+      newEvents: created,
+      message: [
+        `Imported ${created.length} new event${created.length !== 1 ? 's' : ''}`,
+        `updated image for ${updatedImages}`,
+        `unpublished ${unpublished} cancelled event${unpublished !== 1 ? 's' : ''}`,
+        `flagged ${flagged} for review`,
+        failed ? `${failed} failed` : '',
+      ].filter(Boolean).join(', '),
     })
   } catch (error) {
     console.error('[cron/sync-calendar] Error:', error)
