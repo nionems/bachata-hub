@@ -135,77 +135,93 @@ export default function EventsPage() {
   })
 
   useEffect(() => {
+    const DAY_ORDER = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+
+    function buildEventList(
+      eventsList: Event[],
+      calendarEvents: { title: string; start: string; end?: string; description?: string; location?: string; htmlLink?: string }[]
+    ) {
+      const todayStart = new Date()
+      todayStart.setHours(0, 0, 0, 0)
+
+      const enriched = eventsList.map(event => {
+        const calendarMatch = calendarEvents.find(ce => matchesEvent(ce.title, event.name))
+        const confirmed = calendarMatch ? new Date(calendarMatch.start) : null
+        const nextOccurrence = confirmed && !isNaN(confirmed.getTime()) && confirmed >= todayStart ? confirmed : null
+        const imageUrl = event.imageUrl || extractDriveImageUrl(event.description) || ''
+        const occurrenceDay = nextOccurrence
+          ? DAY_ORDER[(new Date(nextOccurrence).getDay() + 6) % 7]
+          : null
+        const dayOfWeek = occurrenceDay || (event.recurrence ? getDayOfWeek(event.recurrence) : null)
+        return { ...event, imageUrl, nextOccurrence, nextOccurrenceConfirmed: true, dayOfWeek }
+      })
+
+      enriched.sort((a, b) => {
+        if (a.nextOccurrence && b.nextOccurrence) {
+          const diff = (a.nextOccurrence as Date).getTime() - (b.nextOccurrence as Date).getTime()
+          if (diff !== 0) return diff
+          return (a.startTime || '').localeCompare(b.startTime || '')
+        }
+        if (a.nextOccurrence) return -1
+        if (b.nextOccurrence) return 1
+        const dayA = a.dayOfWeek ? DAY_ORDER.indexOf(a.dayOfWeek) : 99
+        const dayB = b.dayOfWeek ? DAY_ORDER.indexOf(b.dayOfWeek) : 99
+        if (dayA !== dayB) return dayA - dayB
+        return (a.name || '').localeCompare(b.name || '')
+      })
+
+      // Deduplicate by name — sorted so dated entry always wins
+      const seen = new Set<string>()
+      return enriched.filter(event => {
+        const key = (event.name || '').toLowerCase().trim()
+        if (seen.has(key)) return false
+        seen.add(key)
+        return true
+      })
+    }
+
     const fetchEvents = async () => {
-      setIsLoading(true)
       setError(null)
+
+      // ── Phase 1: show stale localStorage cache instantly (repeat visitors) ──
       try {
-        const [eventsRes, calendarRes] = await Promise.all([
-          fetch('/api/events?t=' + Date.now()),
-          fetch('/api/calendar/upcoming'),
-        ])
-
-        const eventsList = eventsRes.ok ? (await eventsRes.json() as Event[]) : []
-        const calendarEvents: { title: string; start: string; end?: string; description?: string; location?: string; htmlLink?: string }[] = calendarRes.ok
-          ? await calendarRes.json()
-          : []
-
-        // Use start-of-today so today's events show even if their start time passed
-        const todayStart = new Date()
-        todayStart.setHours(0, 0, 0, 0)
-
-        const DAY_ORDER = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
-
-        const eventsWithNext = eventsList.map(event => {
-          const calendarMatch = calendarEvents.find(ce => matchesEvent(ce.title, event.name))
-          const confirmed = calendarMatch ? new Date(calendarMatch.start) : null
-          const nextOccurrence = confirmed && !isNaN(confirmed.getTime()) && confirmed >= todayStart ? confirmed : null
-          const imageUrl = event.imageUrl || extractDriveImageUrl(event.description) || ''
-          // Derive day of week from nextOccurrence date, or fall back to recurrence field
-          const occurrenceDay = nextOccurrence
-            ? DAY_ORDER[(new Date(nextOccurrence).getDay() + 6) % 7]
-            : null
-          const dayOfWeek = occurrenceDay || (event.recurrence ? getDayOfWeek(event.recurrence) : null)
-          return {
-            ...event,
-            imageUrl,
-            nextOccurrence,
-            nextOccurrenceConfirmed: true,
-            dayOfWeek,
+        const raw = localStorage.getItem('bachata_events_v1')
+        if (raw) {
+          const { data, ts } = JSON.parse(raw)
+          if (Date.now() - ts < 10 * 60 * 1000) {
+            // Re-hydrate Date objects lost during JSON serialisation
+            const hydrated = data.map((e: any) => ({
+              ...e,
+              nextOccurrence: e.nextOccurrence ? new Date(e.nextOccurrence) : null,
+            }))
+            setEvents(hydrated)
+            setIsLoading(false)
           }
-        })
+        }
+      } catch {}
 
-        eventsWithNext.sort((a, b) => {
-          // Events with a confirmed date first, sorted chronologically
-          if (a.nextOccurrence && b.nextOccurrence) {
-            const diff = (a.nextOccurrence as Date).getTime() - (b.nextOccurrence as Date).getTime()
-            if (diff !== 0) return diff
-            return (a.startTime || '').localeCompare(b.startTime || '')
-          }
-          if (a.nextOccurrence) return -1
-          if (b.nextOccurrence) return 1
-          // Both without a date: sort by day of week then alphabetically
-          const dayA = a.dayOfWeek ? DAY_ORDER.indexOf(a.dayOfWeek) : 99
-          const dayB = b.dayOfWeek ? DAY_ORDER.indexOf(b.dayOfWeek) : 99
-          if (dayA !== dayB) return dayA - dayB
-          return (a.name || '').localeCompare(b.name || '')
-        })
+      try {
+        // ── Phase 2: fetch Firestore events and show immediately (no calendar wait) ──
+        const eventsRes = await fetch('/api/events')
+        const eventsList: Event[] = eventsRes.ok ? await eventsRes.json() : []
 
-        // Deduplicate events sharing the same name.
-        // The array is already sorted (dated first), so the first occurrence
-        // of each name is always the best: nearest date, or the only undated entry.
-        const seen = new Set<string>()
-        const dedupedEvents = eventsWithNext.filter(event => {
-          const key = (event.name || '').toLowerCase().trim()
-          if (seen.has(key)) return false
-          seen.add(key)
-          return true
-        })
+        setEvents(buildEventList(eventsList, []))
+        setIsLoading(false)
 
-        setEvents(dedupedEvents)
+        // ── Phase 3: fetch calendar in the background and enrich with dates ──
+        const calendarRes = await fetch('/api/calendar/upcoming')
+        const calendarEvents = calendarRes.ok ? await calendarRes.json() : []
+
+        const final = buildEventList(eventsList, calendarEvents)
+        setEvents(final)
+
+        // Cache for next visit
+        try {
+          localStorage.setItem('bachata_events_v1', JSON.stringify({ data: final, ts: Date.now() }))
+        } catch {}
       } catch (err) {
         console.error('Error fetching events:', err)
-        setError('Failed to load events')
-      } finally {
+        if (events.length === 0) setError('Failed to load events')
         setIsLoading(false)
       }
     }
@@ -363,7 +379,7 @@ export default function EventsPage() {
     setGoingConfirmEventId(null)
   }
 
-  if (isLoading || isGeoLoading) return <LoadingSpinner message="Loading events..." />
+  if (isLoading && events.length === 0) return <LoadingSpinner message="Loading events..." />
   if (error) return <div className="text-center py-8 text-red-500">{error}</div>
 
   return (

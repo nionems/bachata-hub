@@ -105,7 +105,7 @@ export async function POST(request: Request) {
 let eventsCache: any[] | null = null
 let eventsCacheTimestamp: number = 0
 let eventsCacheDate: string = ''
-const EVENTS_CACHE_DURATION = 5 * 60 * 1000 // 5 minutes
+const EVENTS_CACHE_DURATION = 30 * 60 * 1000 // 30 minutes
 
 export async function GET() {
   const startTime = Date.now()
