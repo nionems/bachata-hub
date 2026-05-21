@@ -190,7 +190,18 @@ export default function EventsPage() {
           return (a.name || '').localeCompare(b.name || '')
         })
 
-        setEvents(eventsWithNext)
+        // Deduplicate events sharing the same name.
+        // The array is already sorted (dated first), so the first occurrence
+        // of each name is always the best: nearest date, or the only undated entry.
+        const seen = new Set<string>()
+        const dedupedEvents = eventsWithNext.filter(event => {
+          const key = (event.name || '').toLowerCase().trim()
+          if (seen.has(key)) return false
+          seen.add(key)
+          return true
+        })
+
+        setEvents(dedupedEvents)
       } catch (err) {
         console.error('Error fetching events:', err)
         setError('Failed to load events')
