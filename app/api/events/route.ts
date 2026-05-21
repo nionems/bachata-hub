@@ -125,7 +125,12 @@ export async function GET() {
       .get()
     
     const today = new Date().toLocaleDateString('en-CA', { timeZone: 'Australia/Sydney' })
-    const events = eventsSnapshot.docs.map(doc => {
+    const events = eventsSnapshot.docs
+      .filter(doc => {
+        const name = (doc.data().name || '').toLowerCase()
+        return !name.includes('sound garden')
+      })
+      .map(doc => {
       const data = doc.data()
       const goingCountReset = data.goingResetDate !== today
       return {
