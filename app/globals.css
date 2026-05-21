@@ -2,6 +2,30 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Dancing couple loader */
+@keyframes dance-sway {
+  0%, 100% { transform: rotate(-4deg) translateX(-3px); }
+  50%      { transform: rotate(4deg)  translateX(3px);  }
+}
+@keyframes dance-bob {
+  0%, 100% { transform: translateY(0px);  }
+  50%      { transform: translateY(-6px); }
+}
+@keyframes skirt-flair {
+  0%, 100% { transform: skewX(-4deg) scaleX(0.97); }
+  50%      { transform: skewX(4deg)  scaleX(1.04); }
+}
+@keyframes note-float {
+  0%   { transform: translateY(0)   rotate(0deg);   opacity: 0.8; }
+  100% { transform: translateY(-40px) rotate(15deg); opacity: 0;   }
+}
+.dance-couple   { animation: dance-sway 1.4s ease-in-out infinite; transform-origin: 70px 130px; }
+.dance-bob      { animation: dance-bob  1.4s ease-in-out infinite; }
+.dance-skirt    { animation: skirt-flair 1.4s ease-in-out infinite; transform-origin: 48px 100px; }
+.note-1 { animation: note-float 1.8s ease-out infinite;       }
+.note-2 { animation: note-float 1.8s ease-out 0.6s infinite;  }
+.note-3 { animation: note-float 1.8s ease-out 1.2s infinite;  }
+
 @keyframes wiggle {
   0%, 100%  { transform: rotate(0deg); }
   10%       { transform: rotate(-6deg); }
