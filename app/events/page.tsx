@@ -59,13 +59,14 @@ function matchesEvent(calendarTitle: string, firestoreName: string): boolean {
   const cal = calendarTitle.toLowerCase().replace(/[^a-z0-9\s]/g, '').trim()
   const fb = firestoreName.toLowerCase().replace(/[^a-z0-9\s]/g, '').trim()
   if (!cal || !fb) return false
-  if (fb.length >= 4 && cal.includes(fb)) return true
-  if (cal.length >= 4 && fb.includes(cal)) return true
+  // Use word boundaries so "bam" doesn't match "bamboo"
+  if (fb.length >= 3 && new RegExp(`\\b${fb}\\b`).test(cal)) return true
+  if (cal.length >= 3 && new RegExp(`\\b${cal}\\b`).test(fb)) return true
   // Only use distinctive (non-generic) words for overlap matching
-  const calWords = new Set(cal.split(/\s+/).filter(w => w.length > 3 && !MATCH_STOP_WORDS.has(w)))
-  const fbWords = fb.split(/\s+/).filter(w => w.length > 3 && !MATCH_STOP_WORDS.has(w))
+  const calWords = new Set(cal.split(/\s+/).filter(w => w.length >= 3 && !MATCH_STOP_WORDS.has(w)))
+  const fbWords = fb.split(/\s+/).filter(w => w.length >= 3 && !MATCH_STOP_WORDS.has(w))
   if (fbWords.length === 0) return false
-  return fbWords.filter(w => calWords.has(w)).length >= 2
+  return fbWords.filter(w => calWords.has(w)).length >= Math.min(fbWords.length, 2)
 }
 
 const AT_THE_DOOR_EVENTS = ['bachateame', 'salsachata']

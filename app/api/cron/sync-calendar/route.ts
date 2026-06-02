@@ -29,12 +29,13 @@ function matchesEvent(calTitle: string, fbName: string): boolean {
   const cal = calTitle.toLowerCase().replace(/[^a-z0-9\s]/g, '').trim()
   const fb = fbName.toLowerCase().replace(/[^a-z0-9\s]/g, '').trim()
   if (!cal || !fb) return false
-  if (fb.length >= 4 && cal.includes(fb)) return true
-  if (cal.length >= 4 && fb.includes(cal)) return true
-  const calWords = new Set(cal.split(/\s+/).filter(w => w.length > 3 && !STOP_WORDS.has(w)))
-  const fbWords = fb.split(/\s+/).filter(w => w.length > 3 && !STOP_WORDS.has(w))
+  // Use word boundaries so "bam" doesn't match "bamboo"
+  if (fb.length >= 3 && new RegExp(`\\b${fb}\\b`).test(cal)) return true
+  if (cal.length >= 3 && new RegExp(`\\b${cal}\\b`).test(fb)) return true
+  const calWords = new Set(cal.split(/\s+/).filter(w => w.length >= 3 && !STOP_WORDS.has(w)))
+  const fbWords = fb.split(/\s+/).filter(w => w.length >= 3 && !STOP_WORDS.has(w))
   if (fbWords.length === 0) return false
-  return fbWords.filter(w => calWords.has(w)).length >= 2
+  return fbWords.filter(w => calWords.has(w)).length >= Math.min(fbWords.length, 2)
 }
 
 function extractDriveImageUrl(description?: string): string {
