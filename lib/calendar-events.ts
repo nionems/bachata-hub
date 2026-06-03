@@ -92,6 +92,8 @@ export async function fetchAllCalendarEvents(
   const calendarIds = [
     ...CITY_CALENDAR_IDS,
     ...(process.env.GOOGLE_CALENDAR_ID ? [process.env.GOOGLE_CALENDAR_ID] : []),
+    // Include private calendar (same source the home-page carousel uses)
+    ...(process.env.GOOGLE_CLIENT_EMAIL ? [process.env.GOOGLE_CLIENT_EMAIL] : []),
   ]
 
   const results = await Promise.allSettled(
