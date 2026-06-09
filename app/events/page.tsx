@@ -10,6 +10,7 @@ import CalendarMenu from "@/components/calendar-menu"
 import { LoadingSpinner } from '@/components/loading-spinner'
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { useGeolocation } from '@/hooks/useGeolocation'
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
@@ -46,6 +47,24 @@ const CITY_OPTIONS = [
   { value: 'darwin',     label: 'Darwin' },
   { value: 'hobart',     label: 'Hobart' },
 ]
+
+// Map detected city name → city calendar value (try specific city first, then state)
+const CITY_NAME_TO_CALENDAR: Record<string, string> = {
+  'Sydney': 'sydney', 'Newcastle': 'sydney', 'Wollongong': 'sydney',
+  'Melbourne': 'melbourne', 'Geelong': 'melbourne', 'Ballarat': 'melbourne',
+  'Brisbane': 'brisbane', 'Sunshine Coast': 'brisbane', 'Townsville': 'brisbane',
+  'Gold Coast': 'gold-coast',
+  'Perth': 'perth', 'Fremantle': 'perth', 'Bunbury': 'perth',
+  'Adelaide': 'adelaide', 'Mount Gambier': 'adelaide',
+  'Hobart': 'hobart', 'Launceston': 'hobart',
+  'Canberra': 'canberra',
+  'Darwin': 'darwin', 'Alice Springs': 'darwin',
+}
+
+const STATE_TO_CALENDAR: Record<string, string> = {
+  NSW: 'sydney', VIC: 'melbourne', QLD: 'brisbane',
+  WA: 'perth', SA: 'adelaide', TAS: 'hobart', ACT: 'canberra', NT: 'darwin',
+}
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -166,6 +185,17 @@ export default function EventsPage() {
   const [searchTerm, setSearchTerm] = useState("")
   const [selectedCity, setSelectedCity] = useState("all")
   const [selectedDanceStyle, setSelectedDanceStyle] = useState("all")
+  const [geoApplied, setGeoApplied] = useState(false)
+
+  // ── Auto-select city calendar based on user's detected location ───────────
+  const { city: geoCity, state: geoState, isLoading: isGeoLoading } = useGeolocation()
+
+  useEffect(() => {
+    if (isGeoLoading || geoApplied) return
+    const calCity = CITY_NAME_TO_CALENDAR[geoCity] || STATE_TO_CALENDAR[geoState]
+    if (calCity) setSelectedCity(calCity)
+    setGeoApplied(true)
+  }, [isGeoLoading, geoCity, geoState, geoApplied])
 
   // ── Fetch calendar events ─────────────────────────────────────────────────
 
@@ -363,9 +393,9 @@ export default function EventsPage() {
 
             {/* City / Calendar picker */}
             <div className="w-full sm:w-48">
-              <Select value={selectedCity} onValueChange={setSelectedCity}>
+              <Select value={selectedCity} onValueChange={v => { setSelectedCity(v); setGeoApplied(true) }}>
                 <SelectTrigger className="w-full bg-white/80 border-primary/30 shadow-lg rounded-xl text-base font-semibold transition-all focus:ring-2 focus:ring-primary focus:border-primary">
-                  <SelectValue placeholder="City Calendar" />
+                  <SelectValue placeholder={isGeoLoading && !geoApplied ? 'Detecting...' : 'City Calendar'} />
                 </SelectTrigger>
                 <SelectContent>
                   {CITY_OPTIONS.map(opt => (
