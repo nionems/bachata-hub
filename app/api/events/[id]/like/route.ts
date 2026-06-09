@@ -20,16 +20,19 @@ export async function POST(
 
     await db.runTransaction(async (transaction) => {
       const eventDoc = await transaction.get(eventRef)
-      if (!eventDoc.exists) throw new Error('Event not found')
-
-      const likedBy: string[] = eventDoc.data()?.likedBy ?? []
+      const likedBy: string[] = eventDoc.exists ? (eventDoc.data()?.likedBy ?? []) : []
       const alreadyLiked = likedBy.includes(userId)
 
       if (action === 'like' && !alreadyLiked) {
-        transaction.update(eventRef, {
-          likedBy: FieldValue.arrayUnion(userId),
-          likesCount: FieldValue.increment(1),
-        })
+        if (eventDoc.exists) {
+          transaction.update(eventRef, {
+            likedBy: FieldValue.arrayUnion(userId),
+            likesCount: FieldValue.increment(1),
+          })
+        } else {
+          // Calendar event — create interaction doc on first like
+          transaction.set(eventRef, { likedBy: [userId], likesCount: 1 }, { merge: true })
+        }
       } else if (action === 'unlike' && alreadyLiked) {
         transaction.update(eventRef, {
           likedBy: FieldValue.arrayRemove(userId),

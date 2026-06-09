@@ -21,7 +21,14 @@ export async function POST(
 
     await db.runTransaction(async (transaction) => {
       const eventDoc = await transaction.get(eventRef)
-      if (!eventDoc.exists) throw new Error('Event not found')
+
+      if (!eventDoc.exists) {
+        // Calendar event — create interaction doc on first going
+        if (action === 'going') {
+          transaction.set(eventRef, { goingBy: [userId], goingCount: 1, goingResetDate: today }, { merge: true })
+        }
+        return
+      }
 
       const data = eventDoc.data()!
       const needsReset = data.goingResetDate !== today

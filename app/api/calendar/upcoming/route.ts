@@ -15,7 +15,7 @@ export async function GET() {
   const apiKey = process.env.GOOGLE_API_KEY
   if (!apiKey) return NextResponse.json([])
 
-  const events = await fetchAllCalendarEvents(apiKey, 30)
+  const events = await fetchAllCalendarEvents(apiKey, 90)
 
   cache = events
   cacheTimestamp = Date.now()

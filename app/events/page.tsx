@@ -1,228 +1,197 @@
 "use client"
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { MapPin, ChevronDown, ChevronUp, X, Search, Clock, CalendarPlus, ExternalLink, Heart, UserCheck, Ticket } from "lucide-react"
-import Link from 'next/link'
-import { StateFilter } from '@/components/StateFilter'
-import { useStateFilter } from '@/hooks/useStateFilter'
-import { format } from "date-fns";
 import { ContactForm } from "@/components/ContactForm"
 import { EventSubmissionForm } from "@/components/EventSubmissionForm"
 import CalendarMenu from "@/components/calendar-menu"
 import { LoadingSpinner } from '@/components/loading-spinner'
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { getNextOccurrence, getDayOfWeek, formatNextDate, formatTime, buildGoogleCalendarUrl } from '@/lib/recurrence'
 
+// ── Types ────────────────────────────────────────────────────────────────────
 
-interface Event {
+interface CalEvent {
   id: string
   name: string
-  eventDate: string
-  startTime: string
-  endTime: string
-  location: string
-  city: string
-  state: string
+  start: string        // ISO datetime or YYYY-MM-DD
+  end?: string
   description: string
-  price?: string
-  danceStyles?: string[] | string
-  imageUrl?: string
-  eventLink?: string
+  location: string
+  htmlLink?: string
+  imageUrl: string
+  calendarCity: string
+  state: string
+  danceStyles: string[]
   ticketLink?: string
-  comment?: string
-  date?: string
-  googleMapLink?: string
-  isWeekly?: boolean
-  recurrence?: string
-  isWorkshop?: boolean
-  published?: boolean
-  likesCount?: number
-  goingCount?: number
-  nextOccurrence?: Date | null
-  nextOccurrenceConfirmed?: boolean
-  dayOfWeek?: string | null
+  likesCount: number
+  goingCount: number
+  startTime: string    // HH:MM or ''
+  endTime: string      // HH:MM or ''
 }
 
-// Generic dance/event words that shouldn't count as distinctive match signals
-const MATCH_STOP_WORDS = new Set([
-  'salsa', 'bachata', 'dance', 'dancing', 'class', 'classes', 'social',
-  'latin', 'night', 'party', 'event', 'show', 'kizomba', 'zouk',
-  'workshop', 'with', 'and', 'the', 'monday', 'tuesday', 'wednesday',
-  'thursday', 'friday', 'saturday', 'sunday', 'weekly', 'monthly',
-])
+// ── City / calendar picker options ───────────────────────────────────────────
 
-// Match a Google Calendar event title to a Firestore event name for confirmed date detection
-function matchesEvent(calendarTitle: string, firestoreName: string): boolean {
-  const cal = calendarTitle.toLowerCase().replace(/[^a-z0-9\s]/g, '').trim()
-  const fb = firestoreName.toLowerCase().replace(/[^a-z0-9\s]/g, '').trim()
-  if (!cal || !fb) return false
-  // Use word boundaries so "bam" doesn't match "bamboo"
-  if (fb.length >= 3 && new RegExp(`\\b${fb}\\b`).test(cal)) return true
-  if (cal.length >= 3 && new RegExp(`\\b${cal}\\b`).test(fb)) return true
-  // Only use distinctive (non-generic) words for overlap matching
-  const calWords = new Set(cal.split(/\s+/).filter(w => w.length >= 3 && !MATCH_STOP_WORDS.has(w)))
-  const fbWords = fb.split(/\s+/).filter(w => w.length >= 3 && !MATCH_STOP_WORDS.has(w))
-  if (fbWords.length === 0) return false
-  return fbWords.filter(w => calWords.has(w)).length >= Math.min(fbWords.length, 2)
-}
+const CITY_OPTIONS = [
+  { value: 'all',        label: 'All Cities' },
+  { value: 'sydney',     label: 'Sydney' },
+  { value: 'melbourne',  label: 'Melbourne' },
+  { value: 'brisbane',   label: 'Brisbane' },
+  { value: 'gold-coast', label: 'Gold Coast' },
+  { value: 'adelaide',   label: 'Adelaide' },
+  { value: 'perth',      label: 'Perth' },
+  { value: 'canberra',   label: 'Canberra' },
+  { value: 'darwin',     label: 'Darwin' },
+  { value: 'hobart',     label: 'Hobart' },
+]
 
-const AT_THE_DOOR_EVENTS = ['bachateame', 'salsachata']
+// ── Helpers ──────────────────────────────────────────────────────────────────
 
-function isAtTheDoor(event: Event): boolean {
-  const title = (event.name ?? '').toLowerCase()
-  return AT_THE_DOOR_EVENTS.some(name => title.includes(name))
-}
-
-function extractTicketLink(event: Event): string | undefined {
-  if (event.ticketLink) return event.ticketLink
-  const urlMatch = event.description?.match(/https?:\/\/[^\s\])"]+/)
-  if (!urlMatch) return undefined
-  const url = urlMatch[0]
-  if (/drive\.google\.com|docs\.google\.com|photos\.google\.com/i.test(url)) return undefined
-  return url
-}
-
-function extractDriveImageUrl(description?: string): string | undefined {
-  if (!description) return undefined
-  // Check for [image:URL] tag (our own calendar export format)
+function extractDriveImageUrl(description?: string): string {
+  if (!description) return ''
   const tagMatch = description.match(/\[image:(https?:\/\/[^\]]+)\]/)
   if (tagMatch) return tagMatch[1]
-  // Extract Google Drive file ID from any Drive share link
   const driveMatch = description.match(
     /https?:\/\/drive\.google\.com\/(?:file\/d\/([^/\s?#]+)|open\?[^&\s]*id=([^&\s#]+)|uc\?[^&\s]*id=([^&\s#]+))/
   )
-  if (!driveMatch) return undefined
+  if (!driveMatch) return ''
   const fileId = driveMatch[1] || driveMatch[2] || driveMatch[3]
-  if (!fileId) return undefined
-  return `https://drive.google.com/thumbnail?id=${fileId}&sz=w400`
+  return fileId ? `https://drive.google.com/thumbnail?id=${fileId}&sz=w400` : ''
 }
 
+function extractTicketUrl(description?: string, htmlLink?: string): string | undefined {
+  if (description) {
+    const urlMatch = description.match(/https?:\/\/[^\s\])"]+/)
+    if (urlMatch) {
+      const url = urlMatch[0]
+      if (!/drive\.google\.com|docs\.google\.com|photos\.google\.com|calendar\.google/i.test(url)) {
+        return url
+      }
+    }
+  }
+  return undefined
+}
+
+function detectDanceStyles(title: string, description: string): string[] {
+  const text = `${title} ${description}`.toLowerCase()
+  const styles: string[] = []
+  if (/bachata/.test(text)) styles.push('Bachata')
+  if (/salsa/.test(text)) styles.push('Salsa')
+  if (/kizomba/.test(text)) styles.push('Kizomba')
+  if (/zouk/.test(text)) styles.push('Zouk')
+  if (/heels/.test(text)) styles.push('Heels')
+  if (/reggaeton|reaggeaton/.test(text)) styles.push('Reaggeaton')
+  return styles.length > 0 ? styles : ['Bachata']
+}
+
+function formatTime(iso: string): string {
+  if (!iso || !iso.includes('T')) return ''
+  const d = new Date(iso)
+  return d.toLocaleTimeString('en-AU', { hour: '2-digit', minute: '2-digit', hour12: true })
+}
+
+function formatDateHeader(dateStr: string): string {
+  const d = new Date(dateStr + (dateStr.length === 10 ? 'T00:00:00' : ''))
+  return d.toLocaleDateString('en-AU', { weekday: 'long', day: 'numeric', month: 'long' })
+}
+
+function formatDatePill(iso: string): string {
+  const d = new Date(iso.includes('T') ? iso : iso + 'T00:00:00')
+  return d.toLocaleDateString('en-AU', { weekday: 'short', day: 'numeric', month: 'short' })
+}
+
+function buildCalUrl(event: CalEvent): string {
+  const fmtDt = (iso: string) => iso.replace(/[-:]/g, '').replace(/\.\d+/, '').slice(0, 15) + 'Z'
+  const start = event.start.includes('T') ? event.start : event.start + 'T00:00:00Z'
+  const end = event.end
+    ? (event.end.includes('T') ? event.end : event.end + 'T00:00:00Z')
+    : (event.start.includes('T') ? event.start.replace(/T\d{2}/, m => `T${String(parseInt(m.slice(1)) + 2).padStart(2, '0')}`) : event.start + 'T02:00:00Z')
+  let url = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(event.name)}`
+  url += `&dates=${fmtDt(start)}/${fmtDt(end)}`
+  if (event.location) url += `&location=${encodeURIComponent(event.location)}`
+  return url
+}
+
+function mapRawToCalEvent(raw: any): CalEvent {
+  const desc = raw.description || ''
+  const imageUrl = extractDriveImageUrl(desc)
+  const startTime = raw.start?.includes('T') ? formatTime(raw.start) : ''
+  const endTime = raw.end?.includes('T') ? formatTime(raw.end) : ''
+  return {
+    id: raw.id || `cal_${raw.title?.slice(0, 20)}_${raw.start?.slice(0, 10)}`,
+    name: raw.title || 'Untitled',
+    start: raw.start || '',
+    end: raw.end,
+    description: desc.replace(/\[image:[^\]]+\]/g, '').trim(),
+    location: raw.location || '',
+    htmlLink: raw.htmlLink,
+    imageUrl,
+    calendarCity: raw.calendarCity || 'main',
+    state: raw.state || '',
+    danceStyles: detectDanceStyles(raw.title || '', desc),
+    ticketLink: extractTicketUrl(desc),
+    likesCount: 0,
+    goingCount: 0,
+    startTime,
+    endTime,
+  }
+}
+
+const AT_THE_DOOR = ['bachateame', 'salsachata']
+
+// ── Component ────────────────────────────────────────────────────────────────
+
 export default function EventsPage() {
-  const [events, setEvents] = useState<Event[]>([])
+  const [rawEvents, setRawEvents] = useState<CalEvent[]>([])
+  const [likeCounts, setLikeCounts] = useState<Record<string, number>>({})
+  const [goingCounts, setGoingCounts] = useState<Record<string, number>>({})
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [selectedImage, setSelectedImage] = useState<{ url: string; title: string } | null>(null)
   const [isContactFormOpen, setIsContactFormOpen] = useState(false)
   const [isFormOpen, setIsFormOpen] = useState(false)
-  const [expandedComments, setExpandedComments] = useState<Record<string, boolean>>({})
+  const [expandedDescriptions, setExpandedDescriptions] = useState<Record<string, boolean>>({})
   const [likedEvents, setLikedEvents] = useState<Set<string>>(new Set())
-  const [likeCounts, setLikeCounts] = useState<Record<string, number>>({})
   const [goingEvents, setGoingEvents] = useState<Set<string>>(new Set())
-  const [goingCounts, setGoingCounts] = useState<Record<string, number>>({})
   const [goingConfirmEventId, setGoingConfirmEventId] = useState<string | null>(null)
   const [notTodayEventId, setNotTodayEventId] = useState<string | null>(null)
   const [searchTerm, setSearchTerm] = useState("")
+  const [selectedCity, setSelectedCity] = useState("all")
   const [selectedDanceStyle, setSelectedDanceStyle] = useState("all")
-  const [selectedDay, setSelectedDay] = useState("all")
-  const [availableDanceStyles, setAvailableDanceStyles] = useState<string[]>([])
-  const [availableDays, setAvailableDays] = useState<string[]>([])
 
-  const { selectedState, setSelectedState, filteredItems: filteredEvents, isGeoLoading, error: geoError } = useStateFilter(events)
-
-  const searchFilteredEvents = filteredEvents.filter(event => {
-    const nameMatch = event.name.toLowerCase().includes(searchTerm.toLowerCase())
-    const locationMatch = event.location.toLowerCase().includes(searchTerm.toLowerCase())
-    const danceStylesMatch = Array.isArray(event.danceStyles) && event.danceStyles.some(style =>
-      style.toLowerCase().includes(searchTerm.toLowerCase())
-    )
-    const danceStyleMatch = selectedDanceStyle === "all" ||
-      (Array.isArray(event.danceStyles) && event.danceStyles.includes(selectedDanceStyle))
-    const dayMatch = selectedDay === "all" || event.dayOfWeek === selectedDay
-
-    return (nameMatch || locationMatch || danceStylesMatch) && danceStyleMatch && dayMatch
-  })
+  // ── Fetch calendar events ─────────────────────────────────────────────────
 
   useEffect(() => {
-    const DAY_ORDER = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
-
-    function buildEventList(
-      eventsList: Event[],
-      calendarEvents: { title: string; start: string; end?: string; description?: string; location?: string; htmlLink?: string }[]
-    ) {
-      const todayStart = new Date()
-      todayStart.setHours(0, 0, 0, 0)
-
-      const enriched = eventsList.map(event => {
-        const calendarMatch = calendarEvents.find(ce => matchesEvent(ce.title, event.name))
-        const confirmed = calendarMatch ? new Date(calendarMatch.start) : null
-        const nextOccurrence = confirmed && !isNaN(confirmed.getTime()) && confirmed >= todayStart ? confirmed : null
-        const imageUrl = event.imageUrl || extractDriveImageUrl(event.description) || ''
-        const occurrenceDay = nextOccurrence
-          ? DAY_ORDER[(new Date(nextOccurrence).getDay() + 6) % 7]
-          : null
-        const dayOfWeek = occurrenceDay || (event.recurrence ? getDayOfWeek(event.recurrence) : null)
-        return { ...event, imageUrl, nextOccurrence, nextOccurrenceConfirmed: true, dayOfWeek }
-      })
-
-      enriched.sort((a, b) => {
-        if (a.nextOccurrence && b.nextOccurrence) {
-          const diff = (a.nextOccurrence as Date).getTime() - (b.nextOccurrence as Date).getTime()
-          if (diff !== 0) return diff
-          return (a.startTime || '').localeCompare(b.startTime || '')
-        }
-        if (a.nextOccurrence) return -1
-        if (b.nextOccurrence) return 1
-        const dayA = a.dayOfWeek ? DAY_ORDER.indexOf(a.dayOfWeek) : 99
-        const dayB = b.dayOfWeek ? DAY_ORDER.indexOf(b.dayOfWeek) : 99
-        if (dayA !== dayB) return dayA - dayB
-        return (a.name || '').localeCompare(b.name || '')
-      })
-
-      // Deduplicate by name — sorted so dated entry always wins
-      const seen = new Set<string>()
-      return enriched.filter(event => {
-        const key = (event.name || '').toLowerCase().trim()
-        if (seen.has(key)) return false
-        seen.add(key)
-        return true
-      })
-    }
-
     const fetchEvents = async () => {
       setError(null)
 
-      // ── Phase 1: show stale localStorage cache instantly (repeat visitors) ──
+      // Show stale cache instantly for repeat visitors
       try {
-        const raw = localStorage.getItem('bachata_events_v1')
+        const raw = localStorage.getItem('bachata_cal_events_v2')
         if (raw) {
           const { data, ts } = JSON.parse(raw)
           if (Date.now() - ts < 10 * 60 * 1000) {
-            // Re-hydrate Date objects lost during JSON serialisation
-            const hydrated = data.map((e: any) => ({
-              ...e,
-              nextOccurrence: e.nextOccurrence ? new Date(e.nextOccurrence) : null,
-            }))
-            setEvents(hydrated)
+            setRawEvents(data)
             setIsLoading(false)
           }
         }
       } catch {}
 
       try {
-        // ── Phase 2: fetch Firestore events and show immediately (no calendar wait) ──
-        const eventsRes = await fetch('/api/events')
-        const eventsList: Event[] = eventsRes.ok ? await eventsRes.json() : []
-
-        setEvents(buildEventList(eventsList, []))
+        const res = await fetch('/api/calendar/upcoming')
+        if (!res.ok) throw new Error('Failed to fetch')
+        const data = await res.json()
+        const events: CalEvent[] = data.map(mapRawToCalEvent)
+        setRawEvents(events)
         setIsLoading(false)
-
-        // ── Phase 3: fetch calendar in the background and enrich with dates ──
-        const calendarRes = await fetch('/api/calendar/upcoming')
-        const calendarEvents = calendarRes.ok ? await calendarRes.json() : []
-
-        const final = buildEventList(eventsList, calendarEvents)
-        setEvents(final)
-
-        // Cache for next visit
         try {
-          localStorage.setItem('bachata_events_v1', JSON.stringify({ data: final, ts: Date.now() }))
+          localStorage.setItem('bachata_cal_events_v2', JSON.stringify({ data: events, ts: Date.now() }))
         } catch {}
       } catch (err) {
-        console.error('Error fetching events:', err)
-        if (events.length === 0) setError('Failed to load events')
+        console.error('Error fetching calendar events:', err)
+        if (rawEvents.length === 0) setError('Failed to load events')
         setIsLoading(false)
       }
     }
@@ -230,59 +199,24 @@ export default function EventsPage() {
     fetchEvents()
   }, [])
 
-  useEffect(() => {
-    const styles = new Set<string>()
-    const days = new Set<string>()
-    filteredEvents.forEach(event => {
-      if (event.danceStyles && Array.isArray(event.danceStyles)) {
-        event.danceStyles.forEach(style => styles.add(style))
-      }
-      if (event.dayOfWeek) days.add(event.dayOfWeek)
-    })
-    setAvailableDanceStyles(Array.from(styles).sort())
-
-    const dayOrder = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
-    setAvailableDays(dayOrder.filter(d => days.has(d)))
-  }, [filteredEvents])
+  // ── Load likes / going counts from Firestore (backend) ───────────────────
 
   useEffect(() => {
-    if (availableDanceStyles.includes('Bachata')) {
-      setSelectedDanceStyle('Bachata')
-    } else {
-      setSelectedDanceStyle('all')
-    }
-  }, [availableDanceStyles, selectedState])
-
-  const toggleComment = (eventId: string) => {
-    setExpandedComments(prev => ({ ...prev, [eventId]: !prev[eventId] }))
-  }
-
-  // Load liked/going events — backend is source of truth, localStorage is cache
-  useEffect(() => {
-    const generateUserId = (): string => {
-      try {
-        return crypto.randomUUID()
-      } catch {
-        return Math.random().toString(36).slice(2) + Date.now().toString(36)
-      }
-    }
-
     const getOrCreateUserId = (): string => {
       try {
         let id = localStorage.getItem('bachataUserId')
         if (!id) {
-          id = generateUserId()
+          id = crypto.randomUUID()
           localStorage.setItem('bachataUserId', id)
         }
         return id
       } catch {
-        return generateUserId()
+        return crypto.randomUUID()
       }
     }
 
     const userId = getOrCreateUserId()
 
-    // Seed from localStorage immediately so UI isn't empty while fetching
     try {
       const storedLikes = localStorage.getItem('likedEvents')
       if (storedLikes) setLikedEvents(new Set(JSON.parse(storedLikes)))
@@ -290,36 +224,72 @@ export default function EventsPage() {
       if (storedGoing) setGoingEvents(new Set(JSON.parse(storedGoing)))
     } catch {}
 
-    // Fetch authoritative state from backend
     fetch(`/api/user/interactions?userId=${encodeURIComponent(userId)}`)
       .then(r => r.ok ? r.json() : null)
       .then(data => {
         if (!data) return
-        const liked = new Set<string>(data.likedEvents)
-        const going = new Set<string>(data.goingEvents)
-        setLikedEvents(liked)
-        setGoingEvents(going)
+        setLikedEvents(new Set<string>(data.likedEvents))
+        setGoingEvents(new Set<string>(data.goingEvents))
         try {
-          localStorage.setItem('likedEvents', JSON.stringify([...liked]))
-          localStorage.setItem('goingEvents', JSON.stringify([...going]))
+          localStorage.setItem('likedEvents', JSON.stringify(data.likedEvents))
+          localStorage.setItem('goingEvents', JSON.stringify(data.goingEvents))
         } catch {}
       })
       .catch(() => {})
   }, [])
 
+  // ── Filter + group ────────────────────────────────────────────────────────
+
+  const filteredEvents = useMemo(() => {
+    return rawEvents.filter(event => {
+      if (selectedCity !== 'all' && event.calendarCity !== selectedCity) return false
+      if (selectedDanceStyle !== 'all' && !event.danceStyles.includes(selectedDanceStyle)) return false
+      if (searchTerm) {
+        const q = searchTerm.toLowerCase()
+        if (
+          !event.name.toLowerCase().includes(q) &&
+          !event.location.toLowerCase().includes(q) &&
+          !event.description.toLowerCase().includes(q)
+        ) return false
+      }
+      return true
+    })
+  }, [rawEvents, selectedCity, selectedDanceStyle, searchTerm])
+
+  // Group events by date (YYYY-MM-DD key, sorted)
+  const groupedByDate = useMemo(() => {
+    const groups: Record<string, CalEvent[]> = {}
+    for (const ev of filteredEvents) {
+      const key = ev.start.slice(0, 10)
+      if (!groups[key]) groups[key] = []
+      groups[key].push(ev)
+    }
+    return Object.entries(groups).sort(([a], [b]) => a.localeCompare(b))
+  }, [filteredEvents])
+
+  const availableDanceStyles = useMemo(() => {
+    const styles = new Set<string>()
+    rawEvents.forEach(e => e.danceStyles.forEach(s => styles.add(s)))
+    return Array.from(styles).sort()
+  }, [rawEvents])
+
+  // Auto-select Bachata if available
+  useEffect(() => {
+    if (availableDanceStyles.includes('Bachata')) setSelectedDanceStyle('Bachata')
+  }, [availableDanceStyles])
+
+  // ── Interaction handlers ──────────────────────────────────────────────────
+
   const toggleLike = async (e: React.MouseEvent, eventId: string, currentCount: number) => {
     e.stopPropagation()
     const isLiked = likedEvents.has(eventId)
     const action = isLiked ? 'unlike' : 'like'
-
     const newLiked = new Set(likedEvents)
     if (isLiked) newLiked.delete(eventId)
     else newLiked.add(eventId)
     setLikedEvents(newLiked)
-    setLikeCounts(prev => ({ ...prev, [eventId]: (prev[eventId] ?? currentCount) + (isLiked ? -1 : 1) }))
-
+    setLikeCounts(prev => ({ ...prev, [eventId]: Math.max(0, (prev[eventId] ?? currentCount) + (isLiked ? -1 : 1)) }))
     try { localStorage.setItem('likedEvents', JSON.stringify([...newLiked])) } catch {}
-
     try {
       const userId = localStorage.getItem('bachataUserId') ?? ''
       await fetch(`/api/events/${eventId}/like`, {
@@ -333,15 +303,12 @@ export default function EventsPage() {
   const performGoing = async (eventId: string, currentCount: number) => {
     const isGoing = goingEvents.has(eventId)
     const action = isGoing ? 'notgoing' : 'going'
-
     const newGoing = new Set(goingEvents)
     if (isGoing) newGoing.delete(eventId)
     else newGoing.add(eventId)
     setGoingEvents(newGoing)
-    setGoingCounts(prev => ({ ...prev, [eventId]: (prev[eventId] ?? currentCount) + (isGoing ? -1 : 1) }))
-
+    setGoingCounts(prev => ({ ...prev, [eventId]: Math.max(0, (prev[eventId] ?? currentCount) + (isGoing ? -1 : 1)) }))
     try { localStorage.setItem('goingEvents', JSON.stringify([...newGoing])) } catch {}
-
     try {
       const userId = localStorage.getItem('bachataUserId') ?? ''
       await fetch(`/api/events/${eventId}/going`, {
@@ -352,57 +319,53 @@ export default function EventsPage() {
     } catch {}
   }
 
-  const isEventToday = (nextOccurrence: Date | null | undefined): boolean => {
-    if (!nextOccurrence) return false
-    const today = new Date()
-    return nextOccurrence.getFullYear() === today.getFullYear() &&
-      nextOccurrence.getMonth() === today.getMonth() &&
-      nextOccurrence.getDate() === today.getDate()
+  const isEventToday = (start: string): boolean => {
+    const today = new Date().toLocaleDateString('en-CA', { timeZone: 'Australia/Sydney' })
+    return start.slice(0, 10) === today
   }
 
-  const handleGoingClick = (e: React.MouseEvent, eventId: string, currentCount: number, nextOccurrence: Date | null | undefined) => {
+  const handleGoingClick = (e: React.MouseEvent, event: CalEvent) => {
     e.stopPropagation()
-    if (goingEvents.has(eventId)) {
-      performGoing(eventId, currentCount)
-      return
-    }
-    if (!isEventToday(nextOccurrence)) {
-      setNotTodayEventId(eventId)
-      return
-    }
-    setGoingConfirmEventId(eventId)
+    if (goingEvents.has(event.id)) { performGoing(event.id, event.goingCount); return }
+    if (!isEventToday(event.start)) { setNotTodayEventId(event.id); return }
+    setGoingConfirmEventId(event.id)
   }
 
-  const confirmGoing = () => {
-    if (!goingConfirmEventId) return
-    const event = events.find(ev => ev.id === goingConfirmEventId)
-    performGoing(goingConfirmEventId, event?.goingCount ?? 0)
-    setGoingConfirmEventId(null)
-  }
+  // ── Render ────────────────────────────────────────────────────────────────
 
-  if (isLoading && events.length === 0) return <LoadingSpinner message="Loading events..." />
+  if (isLoading && rawEvents.length === 0) return <LoadingSpinner message="Loading events..." />
   if (error) return <div className="text-center py-8 text-red-500">{error}</div>
 
   return (
     <div className="min-h-screen bg-white">
       <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-8">
-        <div className="text-center mb-4 sm:mb-12">
-          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent mb-2 sm:mb-4">
-            Bachata Recurring Events
+
+        <div className="text-center mb-4 sm:mb-8">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent mb-2">
+            Upcoming Bachata Events
           </h1>
-          <p className="text-base sm:text-xl text-gray-600">
-            Find Bachata events near you.
-          </p>
+          <p className="text-base sm:text-xl text-gray-600">Events across Australia, straight from the calendar</p>
         </div>
 
+        {/* Filters */}
         <div className="mb-4 sm:mb-8">
           <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:gap-3">
-            <StateFilter
-              selectedState={selectedState}
-              onChange={setSelectedState}
-              isLoading={isGeoLoading}
-              error={geoError}
-            />
+
+            {/* City / Calendar picker */}
+            <div className="w-full sm:w-48">
+              <Select value={selectedCity} onValueChange={setSelectedCity}>
+                <SelectTrigger className="w-full bg-white/80 border-primary/30 shadow-lg rounded-xl text-base font-semibold transition-all focus:ring-2 focus:ring-primary focus:border-primary">
+                  <SelectValue placeholder="City Calendar" />
+                </SelectTrigger>
+                <SelectContent>
+                  {CITY_OPTIONS.map(opt => (
+                    <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Dance style */}
             <div className="w-full sm:w-44">
               <Select value={selectedDanceStyle} onValueChange={setSelectedDanceStyle}>
                 <SelectTrigger className="w-full bg-white/80 border-primary/30 shadow-lg rounded-xl text-base font-semibold transition-all focus:ring-2 focus:ring-primary focus:border-primary">
@@ -410,31 +373,20 @@ export default function EventsPage() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All Styles</SelectItem>
-                  {availableDanceStyles.map((style) => (
+                  {availableDanceStyles.map(style => (
                     <SelectItem key={style} value={style}>{style}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>
             </div>
-            <div className="w-full sm:w-44">
-              <Select value={selectedDay} onValueChange={setSelectedDay}>
-                <SelectTrigger className="w-full bg-white/80 border-primary/30 shadow-lg rounded-xl text-base font-semibold transition-all focus:ring-2 focus:ring-primary focus:border-primary">
-                  <SelectValue placeholder="Day of Week" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Days</SelectItem>
-                  {availableDays.map((day) => (
-                    <SelectItem key={day} value={day}>{day}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+
+            {/* Search */}
             <div className="flex gap-2 flex-1 min-w-0">
               <Input
                 type="text"
                 placeholder="Search events..."
                 value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
+                onChange={e => setSearchTerm(e.target.value)}
                 className="w-full bg-white border-gray-200 focus:border-primary focus:ring-primary rounded-md"
               />
               <Button
@@ -447,221 +399,202 @@ export default function EventsPage() {
               </Button>
             </div>
           </div>
-
         </div>
 
+        {/* Event list grouped by date */}
         <div className="flex flex-col gap-3">
-          {searchFilteredEvents.length === 0 ? (
-            <div className="text-center py-8 text-gray-500">
+          {groupedByDate.length === 0 ? (
+            <div className="text-center py-12 text-gray-500">
               No events found
-              {selectedState !== 'all' && ` in ${selectedState}`}
-              {selectedDanceStyle !== 'all' && ` for ${selectedDanceStyle}`}
-              {selectedDay !== 'all' && ` on ${selectedDay}s`}
+              {selectedCity !== 'all' && ` for ${CITY_OPTIONS.find(c => c.value === selectedCity)?.label}`}
+              {selectedDanceStyle !== 'all' && ` · ${selectedDanceStyle}`}
             </div>
-          ) : searchFilteredEvents.map((event, i, arr) => {
-              const header = i === 0 || event.dayOfWeek !== arr[i - 1].dayOfWeek ? event.dayOfWeek : null
-              return (
-                <div key={event.id}>
-                  {header && (
-                    <div className="flex items-center gap-3 mt-4 mb-2 first:mt-0">
-                      <span className="text-sm font-bold text-primary uppercase tracking-widest">{header === 'no-day' ? 'Coming Soon' : header}</span>
-                      <div className="flex-1 h-px bg-primary/20" />
-                    </div>
-                  )}
-                  <Card className="overflow-hidden rounded-2xl shadow-md hover:shadow-lg transition-all duration-200 bg-white flex flex-row border border-gray-100">
+          ) : groupedByDate.map(([dateKey, dayEvents]) => (
+            <div key={dateKey}>
+              {/* Date header */}
+              <div className="flex items-center gap-3 mt-4 mb-2 first:mt-0">
+                <span className="text-sm font-bold text-primary uppercase tracking-widest whitespace-nowrap">
+                  {formatDateHeader(dateKey)}
+                </span>
+                <div className="flex-1 h-px bg-primary/20" />
+              </div>
 
-                {/* Image */}
-                <div
-                  className="relative w-32 sm:w-44 flex-shrink-0 overflow-hidden cursor-pointer"
-                  onClick={() => event.imageUrl && setSelectedImage({ url: event.imageUrl, title: event.name })}
-                >
-                  <img
-                    src={event.imageUrl || '/images/BACHATA.AU (13).png'}
-                    alt={event.name}
-                    loading="lazy"
-                    className={`absolute inset-0 w-full h-full ${event.imageUrl ? 'object-cover hover:scale-105 transition-transform duration-300' : 'object-contain p-3 bg-gray-50'}`}
-                  />
-                  {event.isWorkshop && (
-                    <div className="absolute bottom-2 left-1 bg-primary text-white text-[9px] font-semibold px-1.5 py-0.5 rounded-full shadow">
-                      + Workshop
-                    </div>
-                  )}
-                </div>
+              {/* Cards for this date */}
+              <div className="flex flex-col gap-3">
+                {dayEvents.map(event => (
+                  <Card key={event.id} className="overflow-hidden rounded-2xl shadow-md hover:shadow-lg transition-all duration-200 bg-white flex flex-row border border-gray-100">
 
-                {/* Content */}
-                <div className="flex flex-col flex-1 p-3 sm:p-4 min-w-0 gap-2">
-
-                  {/* Date pill */}
-                  {event.nextOccurrence ? (
-                    <div className="inline-flex items-center gap-1.5 self-start bg-green-100 text-green-800 px-3 py-1 rounded-full">
-                      <Clock className="h-3.5 w-3.5 flex-shrink-0" />
-                      <span className="text-xs font-bold whitespace-nowrap">{formatNextDate(event.nextOccurrence)}</span>
-                      {event.startTime && (
-                        <span className="text-[10px] font-medium opacity-70 border-l border-green-300 pl-1.5 whitespace-nowrap">
-                          {formatTime(event.startTime)}{event.endTime ? ` – ${formatTime(event.endTime)}` : ''}
-                        </span>
-                      )}
-                    </div>
-                  ) : (
-                    <div className="inline-flex items-center gap-1.5 self-start bg-gray-100 text-gray-400 px-3 py-1 rounded-full">
-                      <Clock className="h-3.5 w-3.5 flex-shrink-0" />
-                      <span className="text-xs font-medium whitespace-nowrap">Coming soon</span>
-                    </div>
-                  )}
-
-                  {/* Event name */}
-                  <h3 className="font-extrabold text-gray-900 text-base sm:text-lg leading-snug">{event.name}</h3>
-
-                  {/* Location */}
-                  {event.location && (
-                    <div className="flex items-center gap-1 text-xs text-gray-500">
-                      <MapPin className="h-3.5 w-3.5 flex-shrink-0 text-gray-400" />
-                      <span className="truncate">{event.location}</span>
-                    </div>
-                  )}
-
-                  {/* Dance style badges */}
-                  {event.danceStyles && Array.isArray(event.danceStyles) && event.danceStyles.length > 0 && (
-                    <div className="flex flex-wrap gap-1">
-                      {event.danceStyles.map((style, i) => (
-                        <span key={i} className="bg-primary/10 text-primary text-[10px] font-semibold px-2 py-0.5 rounded-full">
-                          {style}
-                        </span>
-                      ))}
-                    </div>
-                  )}
-
-                  {/* Comment */}
-                  {event.comment && (
-                    <div>
-                      <p className={`text-xs text-gray-500 leading-relaxed ${expandedComments[event.id] ? '' : 'line-clamp-2'}`}>
-                        {event.comment}
-                      </p>
-                      {event.comment.length > 80 && (
-                        <button
-                          onClick={(e) => { e.stopPropagation(); toggleComment(event.id) }}
-                          className="text-[10px] text-primary hover:text-primary/80 mt-0.5 flex items-center gap-0.5"
-                        >
-                          {expandedComments[event.id]
-                            ? (<>Less <ChevronUp className="h-2.5 w-2.5" /></>)
-                            : (<>More <ChevronDown className="h-2.5 w-2.5" /></>)}
-                        </button>
-                      )}
-                    </div>
-                  )}
-
-                  <div className="flex-1" />
-
-                  {/* Actions */}
-                  <div className="flex items-center gap-2 pt-2 border-t border-gray-100 flex-wrap">
-                    <button
-                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold transition-colors border ${
-                        likedEvents.has(event.id)
-                          ? 'bg-red-50 text-red-500 border-red-200'
-                          : 'bg-white text-gray-500 border-gray-200 hover:border-red-200 hover:bg-red-50 hover:text-red-500'
-                      }`}
-                      onClick={(e) => toggleLike(e, event.id, event.likesCount ?? 0)}
+                    {/* Image */}
+                    <div
+                      className="relative w-32 sm:w-44 flex-shrink-0 overflow-hidden cursor-pointer"
+                      onClick={() => event.imageUrl && setSelectedImage({ url: event.imageUrl, title: event.name })}
                     >
-                      <Heart className={`h-3.5 w-3.5 ${likedEvents.has(event.id) ? 'fill-red-500' : ''}`} />
-                      <span>{(likeCounts[event.id] ?? event.likesCount) ? `${likeCounts[event.id] ?? event.likesCount} ` : ''}I'm Going</span>
-                    </button>
-
-                    <button
-                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold transition-colors border ${
-                        goingEvents.has(event.id)
-                          ? 'bg-green-500 text-white border-green-500'
-                          : 'bg-white text-gray-500 border-gray-200 hover:border-green-400 hover:bg-green-50 hover:text-green-600'
-                      }`}
-                      onClick={(e) => handleGoingClick(e, event.id, event.goingCount ?? 0, event.nextOccurrence)}
-                    >
-                      <UserCheck className="h-3.5 w-3.5" />
-                      <span>{(goingCounts[event.id] ?? event.goingCount) ? `${goingCounts[event.id] ?? event.goingCount} ` : ''}I'm Here</span>
-                    </button>
-
-                    {isAtTheDoor(event) ? (
-                      <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-amber-700 bg-amber-50 border border-amber-200 px-3 py-1.5 rounded-full">
-                        <Ticket className="h-3.5 w-3.5" />
-                        At the Door
-                      </span>
-                    ) : extractTicketLink(event) ? (
-                      <a
-                        href={extractTicketLink(event)}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        onClick={e => e.stopPropagation()}
-                        className="inline-flex items-center gap-1.5 text-xs font-bold text-white bg-gradient-to-r from-primary to-secondary hover:opacity-90 px-3 py-1.5 rounded-full shadow-sm transition-opacity"
-                      >
-                        <Ticket className="h-3.5 w-3.5" />
-                        Get Ticket
-                      </a>
-                    ) : event.eventLink ? (
-                      <a
-                        href={event.eventLink}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        onClick={e => e.stopPropagation()}
-                        className="inline-flex items-center gap-1.5 text-xs font-semibold text-primary bg-primary/10 hover:bg-primary/20 px-3 py-1.5 rounded-full transition-colors"
-                      >
-                        <ExternalLink className="h-3.5 w-3.5" />
-                        More Info
-                      </a>
-                    ) : null}
-
-                    <div className="flex gap-1 ml-auto">
-                      <button
-                        className="p-1.5 text-gray-400 hover:text-primary hover:bg-primary/10 rounded-full transition-colors"
-                        onClick={(e) => { e.stopPropagation(); window.open(buildGoogleCalendarUrl(event, event.nextOccurrence ?? null), '_blank') }}
-                        title="Add to Google Calendar"
-                      >
-                        <CalendarPlus className="h-4 w-4" />
-                      </button>
-                      {event.googleMapLink && (
-                        <button
-                          className="p-1.5 text-gray-400 hover:text-primary hover:bg-primary/10 rounded-full transition-colors"
-                          onClick={(e) => { e.stopPropagation(); window.open(event.googleMapLink, '_blank') }}
-                          title="View on Map"
-                        >
-                          <MapPin className="h-4 w-4" />
-                        </button>
-                      )}
+                      <img
+                        src={event.imageUrl || '/images/BACHATA.AU (13).png'}
+                        alt={event.name}
+                        loading="lazy"
+                        className={`absolute inset-0 w-full h-full ${event.imageUrl ? 'object-cover hover:scale-105 transition-transform duration-300' : 'object-contain p-3 bg-gray-50'}`}
+                      />
                     </div>
-                  </div>
-                </div>
-              </Card>
-                </div>
-              )
-            })}
+
+                    {/* Content */}
+                    <div className="flex flex-col flex-1 p-3 sm:p-4 min-w-0 gap-2">
+
+                      {/* Date + time pill */}
+                      <div className="inline-flex items-center gap-1.5 self-start bg-green-100 text-green-800 px-3 py-1 rounded-full">
+                        <Clock className="h-3.5 w-3.5 flex-shrink-0" />
+                        <span className="text-xs font-bold whitespace-nowrap">{formatDatePill(event.start)}</span>
+                        {event.startTime && (
+                          <span className="text-[10px] font-medium opacity-70 border-l border-green-300 pl-1.5 whitespace-nowrap">
+                            {event.startTime}{event.endTime ? ` – ${event.endTime}` : ''}
+                          </span>
+                        )}
+                      </div>
+
+                      {/* Name */}
+                      <h3 className="font-extrabold text-gray-900 text-base sm:text-lg leading-snug">{event.name}</h3>
+
+                      {/* Location */}
+                      {event.location && (
+                        <div className="flex items-center gap-1 text-xs text-gray-500">
+                          <MapPin className="h-3.5 w-3.5 flex-shrink-0 text-gray-400" />
+                          <span className="truncate">{event.location}</span>
+                        </div>
+                      )}
+
+                      {/* Dance style badges */}
+                      <div className="flex flex-wrap gap-1">
+                        {event.danceStyles.map((style, i) => (
+                          <span key={i} className="bg-primary/10 text-primary text-[10px] font-semibold px-2 py-0.5 rounded-full">
+                            {style}
+                          </span>
+                        ))}
+                      </div>
+
+                      {/* Description */}
+                      {event.description && (
+                        <div>
+                          <p className={`text-xs text-gray-500 leading-relaxed ${expandedDescriptions[event.id] ? '' : 'line-clamp-2'}`}>
+                            {event.description}
+                          </p>
+                          {event.description.length > 100 && (
+                            <button
+                              onClick={e => { e.stopPropagation(); setExpandedDescriptions(p => ({ ...p, [event.id]: !p[event.id] })) }}
+                              className="text-[10px] text-primary hover:text-primary/80 mt-0.5 flex items-center gap-0.5"
+                            >
+                              {expandedDescriptions[event.id]
+                                ? (<>Less <ChevronUp className="h-2.5 w-2.5" /></>)
+                                : (<>More <ChevronDown className="h-2.5 w-2.5" /></>)}
+                            </button>
+                          )}
+                        </div>
+                      )}
+
+                      <div className="flex-1" />
+
+                      {/* Actions */}
+                      <div className="flex items-center gap-2 pt-2 border-t border-gray-100 flex-wrap">
+                        {/* Like */}
+                        <button
+                          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold transition-colors border ${
+                            likedEvents.has(event.id)
+                              ? 'bg-red-50 text-red-500 border-red-200'
+                              : 'bg-white text-gray-500 border-gray-200 hover:border-red-200 hover:bg-red-50 hover:text-red-500'
+                          }`}
+                          onClick={e => toggleLike(e, event.id, event.likesCount)}
+                        >
+                          <Heart className={`h-3.5 w-3.5 ${likedEvents.has(event.id) ? 'fill-red-500' : ''}`} />
+                          <span>{(likeCounts[event.id] ?? event.likesCount) > 0 ? `${likeCounts[event.id] ?? event.likesCount} ` : ''}Like</span>
+                        </button>
+
+                        {/* Going */}
+                        <button
+                          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold transition-colors border ${
+                            goingEvents.has(event.id)
+                              ? 'bg-green-500 text-white border-green-500'
+                              : 'bg-white text-gray-500 border-gray-200 hover:border-green-400 hover:bg-green-50 hover:text-green-600'
+                          }`}
+                          onClick={e => handleGoingClick(e, event)}
+                        >
+                          <UserCheck className="h-3.5 w-3.5" />
+                          <span>{(goingCounts[event.id] ?? event.goingCount) > 0 ? `${goingCounts[event.id] ?? event.goingCount} ` : ''}I'm Here</span>
+                        </button>
+
+                        {/* Ticket / Link */}
+                        {AT_THE_DOOR.some(n => event.name.toLowerCase().includes(n)) ? (
+                          <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-amber-700 bg-amber-50 border border-amber-200 px-3 py-1.5 rounded-full">
+                            <Ticket className="h-3.5 w-3.5" />
+                            At the Door
+                          </span>
+                        ) : event.ticketLink ? (
+                          <a
+                            href={event.ticketLink}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            onClick={e => e.stopPropagation()}
+                            className="inline-flex items-center gap-1.5 text-xs font-bold text-white bg-gradient-to-r from-primary to-secondary hover:opacity-90 px-3 py-1.5 rounded-full shadow-sm transition-opacity"
+                          >
+                            <Ticket className="h-3.5 w-3.5" />
+                            Get Ticket
+                          </a>
+                        ) : event.htmlLink ? (
+                          <a
+                            href={event.htmlLink}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            onClick={e => e.stopPropagation()}
+                            className="inline-flex items-center gap-1.5 text-xs font-semibold text-primary bg-primary/10 hover:bg-primary/20 px-3 py-1.5 rounded-full transition-colors"
+                          >
+                            <ExternalLink className="h-3.5 w-3.5" />
+                            More Info
+                          </a>
+                        ) : null}
+
+                        {/* Add to calendar + Map */}
+                        <div className="flex gap-1 ml-auto">
+                          <button
+                            className="p-1.5 text-gray-400 hover:text-primary hover:bg-primary/10 rounded-full transition-colors"
+                            onClick={e => { e.stopPropagation(); window.open(buildCalUrl(event), '_blank') }}
+                            title="Add to Google Calendar"
+                          >
+                            <CalendarPlus className="h-4 w-4" />
+                          </button>
+                          {event.location && (
+                            <button
+                              className="p-1.5 text-gray-400 hover:text-primary hover:bg-primary/10 rounded-full transition-colors"
+                              onClick={e => { e.stopPropagation(); window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(event.location)}`, '_blank') }}
+                              title="View on Map"
+                            >
+                              <MapPin className="h-4 w-4" />
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </Card>
+                ))}
+              </div>
+            </div>
+          ))}
         </div>
 
-        {/* Not today modal */}
+        {/* Not-today modal */}
         {notTodayEventId && (() => {
-          const notTodayEvent = events.find(ev => ev.id === notTodayEventId)
+          const ev = rawEvents.find(e => e.id === notTodayEventId)
           return (
-            <div
-              className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4"
-              onClick={() => setNotTodayEventId(null)}
-            >
-              <div
-                className="bg-white rounded-2xl shadow-xl max-w-sm w-full p-6 flex flex-col items-center gap-4"
-                onClick={e => e.stopPropagation()}
-              >
+            <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4" onClick={() => setNotTodayEventId(null)}>
+              <div className="bg-white rounded-2xl shadow-xl max-w-sm w-full p-6 flex flex-col items-center gap-4" onClick={e => e.stopPropagation()}>
                 <div className="w-12 h-12 rounded-full bg-amber-100 flex items-center justify-center">
                   <Clock className="h-6 w-6 text-amber-500" />
                 </div>
                 <h2 className="text-lg font-bold text-gray-900 text-center">Not happening today</h2>
-                {notTodayEvent && (
+                {ev && (
                   <p className="text-sm text-gray-500 text-center">
-                    <span className="font-semibold text-gray-700">{notTodayEvent.name}</span>
-                    {notTodayEvent.nextOccurrence
-                      ? <> is next on <span className="font-semibold text-gray-700">{formatNextDate(notTodayEvent.nextOccurrence)}</span>. Come back on the day!</>
-                      : <> doesn't have a confirmed date yet. Come back when it's scheduled!</>
-                    }
+                    <span className="font-semibold text-gray-700">{ev.name}</span>
+                    {' '}is on <span className="font-semibold text-gray-700">{formatDatePill(ev.start)}</span>. Come back on the day!
                   </p>
                 )}
-                <button
-                  className="w-full py-2.5 rounded-xl bg-gray-100 text-gray-600 font-semibold text-sm hover:bg-gray-200 transition-colors"
-                  onClick={() => setNotTodayEventId(null)}
-                >
+                <button className="w-full py-2.5 rounded-xl bg-gray-100 text-gray-600 font-semibold text-sm hover:bg-gray-200 transition-colors" onClick={() => setNotTodayEventId(null)}>
                   Got it
                 </button>
               </div>
@@ -671,32 +604,16 @@ export default function EventsPage() {
 
         {/* I'm Here confirmation modal */}
         {goingConfirmEventId && (() => {
-          const confirmEvent = events.find(ev => ev.id === goingConfirmEventId)
+          const ev = rawEvents.find(e => e.id === goingConfirmEventId)
           return (
-            <div
-              className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4"
-              onClick={() => setGoingConfirmEventId(null)}
-            >
-              <div
-                className="bg-white rounded-2xl shadow-xl max-w-sm w-full p-6 flex flex-col items-center gap-4"
-                onClick={e => e.stopPropagation()}
-              >
+            <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4" onClick={() => setGoingConfirmEventId(null)}>
+              <div className="bg-white rounded-2xl shadow-xl max-w-sm w-full p-6 flex flex-col items-center gap-4" onClick={e => e.stopPropagation()}>
                 <UserCheck className="h-10 w-10 text-green-500" />
                 <h2 className="text-lg font-bold text-gray-900 text-center">Are you at the venue?</h2>
-                {confirmEvent && (
-                  <p className="text-sm text-gray-500 text-center">Confirm you're currently at <span className="font-semibold text-gray-700">{confirmEvent.name}</span></p>
-                )}
+                {ev && <p className="text-sm text-gray-500 text-center">Confirm you're currently at <span className="font-semibold text-gray-700">{ev.name}</span></p>}
                 <div className="flex gap-3 w-full mt-1">
-                  <button
-                    className="flex-1 py-2.5 rounded-xl bg-gray-100 text-gray-600 font-semibold text-sm hover:bg-gray-200 transition-colors"
-                    onClick={() => setGoingConfirmEventId(null)}
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    className="flex-1 py-2.5 rounded-xl bg-green-500 text-white font-semibold text-sm hover:bg-green-600 transition-colors"
-                    onClick={confirmGoing}
-                  >
+                  <button className="flex-1 py-2.5 rounded-xl bg-gray-100 text-gray-600 font-semibold text-sm hover:bg-gray-200 transition-colors" onClick={() => setGoingConfirmEventId(null)}>Cancel</button>
+                  <button className="flex-1 py-2.5 rounded-xl bg-green-500 text-white font-semibold text-sm hover:bg-green-600 transition-colors" onClick={() => { if (goingConfirmEventId) { const ev = rawEvents.find(e => e.id === goingConfirmEventId); performGoing(goingConfirmEventId, ev?.goingCount ?? 0); setGoingConfirmEventId(null) } }}>
                     Yes, I'm here!
                   </button>
                 </div>
@@ -705,38 +622,28 @@ export default function EventsPage() {
           )
         })()}
 
-        {/* Image Modal */}
+        {/* Image modal */}
         {selectedImage && (
-          <div
-            className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4"
-            onClick={() => setSelectedImage(null)}
-          >
-            <button
-              className="absolute top-4 right-4 text-white hover:text-gray-300 transition-colors"
-              onClick={() => setSelectedImage(null)}
-            >
+          <div className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4" onClick={() => setSelectedImage(null)}>
+            <button className="absolute top-4 right-4 text-white hover:text-gray-300 transition-colors" onClick={() => setSelectedImage(null)}>
               <X className="h-8 w-8" />
             </button>
-            <img
-              src={selectedImage.url}
-              alt={selectedImage.title}
-              className="max-h-[90vh] max-w-[90vw] object-contain"
-              onClick={(e) => e.stopPropagation()}
-            />
+            <img src={selectedImage.url} alt={selectedImage.title} className="max-h-[90vh] max-w-[90vw] object-contain" onClick={e => e.stopPropagation()} />
           </div>
         )}
 
         <CalendarMenu />
 
+        {/* Submit event CTA */}
         <div className="mt-8 sm:mt-16 bg-gradient-to-r from-primary to-secondary rounded-xl shadow-xl overflow-hidden">
           <div className="p-4 sm:p-8 md:p-12 flex flex-col md:flex-row items-center justify-between">
             <div className="text-white mb-4 sm:mb-6 md:mb-0 md:mr-8">
               <h2 className="text-xl sm:text-3xl font-bold mb-2 sm:mb-4">Submit Your Event</h2>
               <p className="text-white/90 text-sm sm:text-lg mb-3 sm:mb-6">
-                Are you organizing a Bachata event? Get featured in our directory and reach dancers across Australia!
+                Are you organising a Bachata event? Get featured and reach dancers across Australia!
               </p>
               <ul className="space-y-1 sm:space-y-3">
-                {['Reach a wider audience of dance enthusiasts', 'Promote your event to the dance community', 'Connect with dancers across Australia'].map((item) => (
+                {['Reach a wider audience of dance enthusiasts', 'Promote your event to the dance community', 'Connect with dancers across Australia'].map(item => (
                   <li key={item} className="flex items-center">
                     <svg className="w-6 h-6 mr-3" fill="currentColor" viewBox="0 0 20 20">
                       <path d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" />
@@ -747,17 +654,11 @@ export default function EventsPage() {
               </ul>
             </div>
             <div className="flex flex-col space-y-4">
-              <Button
-                onClick={() => setIsContactFormOpen(true)}
-                className="bg-white text-primary px-8 py-3 rounded-full font-semibold hover:bg-gray-50 transition-colors duration-200 text-center min-w-[200px]"
-              >
+              <Button onClick={() => setIsContactFormOpen(true)} className="bg-white text-primary px-8 py-3 rounded-full font-semibold hover:bg-gray-50 transition-colors duration-200 text-center min-w-[200px]">
                 Contact Us
               </Button>
-              <Button
-                onClick={() => setIsFormOpen(true)}
-                className="bg-secondary text-white px-8 py-3 rounded-full font-semibold hover:bg-secondary/90 transition-colors duration-200 text-center"
-              >
-                Add Your Recurring Event
+              <Button onClick={() => setIsFormOpen(true)} className="bg-secondary text-white px-8 py-3 rounded-full font-semibold hover:bg-secondary/90 transition-colors duration-200 text-center">
+                Add Your Event
               </Button>
             </div>
           </div>
