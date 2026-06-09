@@ -92,9 +92,15 @@ function formatTime(iso: string): string {
   return d.toLocaleTimeString('en-AU', { hour: '2-digit', minute: '2-digit', hour12: true })
 }
 
-function formatDateHeader(dateStr: string): string {
-  const d = new Date(dateStr + (dateStr.length === 10 ? 'T00:00:00' : ''))
-  return d.toLocaleDateString('en-AU', { weekday: 'long', day: 'numeric', month: 'long' })
+function formatDateHeader(dateStr: string, todayKey: string): string {
+  const d = new Date(dateStr + 'T00:00:00')
+  const label = d.toLocaleDateString('en-AU', { weekday: 'long', day: 'numeric', month: 'long' })
+  if (dateStr === todayKey) return `Today · ${label}`
+  const tomorrow = new Date(todayKey + 'T00:00:00')
+  tomorrow.setDate(tomorrow.getDate() + 1)
+  const tomorrowKey = tomorrow.toLocaleDateString('en-CA')
+  if (dateStr === tomorrowKey) return `Tomorrow · ${label}`
+  return label
 }
 
 function formatDatePill(iso: string): string {
@@ -169,7 +175,7 @@ export default function EventsPage() {
 
       // Show stale cache instantly for repeat visitors
       try {
-        const raw = localStorage.getItem('bachata_cal_events_v2')
+        const raw = localStorage.getItem('bachata_cal_events_v3')
         if (raw) {
           const { data, ts } = JSON.parse(raw)
           if (Date.now() - ts < 10 * 60 * 1000) {
@@ -187,7 +193,7 @@ export default function EventsPage() {
         setRawEvents(events)
         setIsLoading(false)
         try {
-          localStorage.setItem('bachata_cal_events_v2', JSON.stringify({ data: events, ts: Date.now() }))
+          localStorage.setItem('bachata_cal_events_v3', JSON.stringify({ data: events, ts: Date.now() }))
         } catch {}
       } catch (err) {
         console.error('Error fetching calendar events:', err)
@@ -256,16 +262,20 @@ export default function EventsPage() {
     })
   }, [rawEvents, selectedCity, selectedDanceStyle, searchTerm])
 
-  // Group events by date (YYYY-MM-DD key, sorted)
+  // Today's date in the user's local timezone (YYYY-MM-DD)
+  const todayKey = useMemo(() => new Date().toLocaleDateString('en-CA'), [])
+
+  // Group events by date (YYYY-MM-DD key, sorted), starting from today
   const groupedByDate = useMemo(() => {
     const groups: Record<string, CalEvent[]> = {}
     for (const ev of filteredEvents) {
       const key = ev.start.slice(0, 10)
+      if (key < todayKey) continue  // skip anything before today
       if (!groups[key]) groups[key] = []
       groups[key].push(ev)
     }
     return Object.entries(groups).sort(([a], [b]) => a.localeCompare(b))
-  }, [filteredEvents])
+  }, [filteredEvents, todayKey])
 
   const availableDanceStyles = useMemo(() => {
     const styles = new Set<string>()
@@ -414,7 +424,7 @@ export default function EventsPage() {
               {/* Date header */}
               <div className="flex items-center gap-3 mt-4 mb-2 first:mt-0">
                 <span className="text-sm font-bold text-primary uppercase tracking-widest whitespace-nowrap">
-                  {formatDateHeader(dateKey)}
+                  {formatDateHeader(dateKey, todayKey)}
                 </span>
                 <div className="flex-1 h-px bg-primary/20" />
               </div>

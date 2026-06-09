@@ -111,9 +111,12 @@ export async function fetchAllCalendarEvents(
   apiKey: string,
   daysAhead = 90
 ): Promise<UpcomingCalendarEvent[]> {
-  const now = new Date()
-  const future = new Date(now)
-  future.setDate(now.getDate() + daysAhead)
+  // Start from midnight UTC so events earlier today (in Australian timezones) are included
+  const todayMidnightUTC = new Date()
+  todayMidnightUTC.setUTCHours(0, 0, 0, 0)
+
+  const future = new Date(todayMidnightUTC)
+  future.setDate(todayMidnightUTC.getDate() + daysAhead)
 
   const calendarEntries: { id: string; city: string; state: string }[] = [
     ...CITY_CALENDAR_MAP,
@@ -127,7 +130,7 @@ export async function fetchAllCalendarEvents(
 
   const results = await Promise.allSettled(
     calendarEntries.map(({ id, city, state }) =>
-      fetchOneCalendar(id, city, state, now, future, apiKey)
+      fetchOneCalendar(id, city, state, todayMidnightUTC, future, apiKey)
     )
   )
 
