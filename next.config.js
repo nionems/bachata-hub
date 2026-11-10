@@ -92,13 +92,17 @@ const nextConfig = {
           },
         ],
       },
+      // In production, chunks have content hashes so immutable caching is safe.
+      // In development, chunk filenames are stable but content changes on recompile —
+      // force revalidation so browsers always fetch the latest build.
       {
-        // Static assets - cache aggressively for performance
         source: '/_next/static/:path*',
         headers: [
           {
             key: 'Cache-Control',
-            value: 'public, max-age=31536000, immutable'
+            value: process.env.NODE_ENV === 'production'
+              ? 'public, max-age=31536000, immutable'
+              : 'no-cache, must-revalidate'
           },
         ],
       },

@@ -1,3 +1,5 @@
+'use client'
+
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { X } from "lucide-react"
 import Image from "next/image"

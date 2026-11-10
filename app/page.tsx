@@ -1,11 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import { unstable_noStore as noStore } from 'next/cache'
 import dynamicImport from 'next/dynamic'
-
-// Force dynamic rendering to prevent caching
-export const dynamic = 'force-dynamic'
 import { Calendar, Users, Music, School, ShoppingBag, Trophy, MapPin, Clock, Video, Info, Headphones, Film, Building2, Lightbulb, ChevronRight, ChevronLeft, ExternalLink, ZoomIn, Heart, Smartphone, Share2, X } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useState, useEffect, Suspense } from 'react'
