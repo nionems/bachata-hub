@@ -26,6 +26,15 @@
 .note-2 { animation: note-float 1.8s ease-out 0.6s infinite;  }
 .note-3 { animation: note-float 1.8s ease-out 1.2s infinite;  }
 
+/* Entrance animation for feature cards */
+@keyframes fade-in-up {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.fade-in-up {
+  animation: fade-in-up 0.5s ease-out both;
+}
+
 @keyframes wiggle {
   0%, 100%  { transform: rotate(0deg); }
   10%       { transform: rotate(-6deg); }
@@ -97,8 +106,15 @@
   /* Pure black text — always flip to near-white */
   .dark .text-black { color: hsl(210, 40%, 94%) !important; }
 
-  /* Navbar dark mode */
-  .dark header.bg-white\/90 { background-color: hsla(222, 47%, 11%, 0.95) !important; }
+  /* Navbar dark mode — match new backdrop selector */
+  .dark header { background-color: hsla(222, 47%, 11%, 0.85) !important; }
+  .dark header.bg-white\/90 { background-color: hsla(222, 47%, 11%, 0.85) !important; }
+
+  /* Premium dark mode: elevated card surface + green accent glow on hover */
+  .dark .premium-card:hover {
+    background-color: hsl(222, 47%, 14%) !important;
+    box-shadow: 0 8px 30px -4px rgba(16, 185, 129, 0.2), 0 0 0 1px rgba(16, 185, 129, 0.08) !important;
+  }
   .dark .text-gray-700 { color: hsl(210, 40%, 80%) !important; }
 
   :root {

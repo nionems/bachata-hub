@@ -4,7 +4,7 @@ import Link from "next/link"
 import dynamicImport from 'next/dynamic'
 import { Calendar, Users, Music, School, ShoppingBag, Trophy, MapPin, Clock, Video, Info, Headphones, Film, Building2, Lightbulb, ChevronRight, ChevronLeft, ExternalLink, ZoomIn, Heart, Smartphone, Share2, X } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { useState, useEffect, Suspense } from 'react'
+import { useState, useEffect, Suspense, useRef } from 'react'
 import { School as SchoolType } from '@/types/school'
 // Lazy load carousel to reduce initial bundle size
 const Slider = dynamicImport(() => import('react-slick'), { ssr: false })
@@ -540,6 +540,10 @@ export default function Home() {
         <section className="relative h-[28vh] sm:h-[38vh] md:h-[32vh] lg:h-[38vh] overflow-hidden">
           {/* Background gradient */}
           <div className="absolute inset-0 bg-gradient-to-br from-primary to-secondary"></div>
+          {/* Animated depth orbs */}
+          <div className="absolute top-[-15%] left-[10%] w-72 h-72 bg-white/10 rounded-full blur-3xl animate-pulse pointer-events-none" style={{animationDuration:'4s'}} />
+          <div className="absolute bottom-[-15%] right-[10%] w-80 h-80 bg-violet-400/20 rounded-full blur-3xl animate-pulse pointer-events-none" style={{animationDuration:'5s',animationDelay:'1.5s'}} />
+          <div className="absolute top-[20%] right-[28%] w-40 h-40 bg-emerald-200/15 rounded-full blur-2xl animate-pulse pointer-events-none" style={{animationDuration:'3.5s',animationDelay:'0.8s'}} />
           {/* City skyline silhouette — changes by detected state */}
           <StateSkyline state={selectedState} />
           <div className="container mx-auto px-0 relative z-10 h-full flex flex-col items-center justify-center">
@@ -632,7 +636,7 @@ export default function Home() {
                                   fill
                                   loading="lazy"
                                   fetchPriority="low"
-                                  className="object-contain object-top rounded-lg"
+                                  className="object-cover"
                                   sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                                   placeholder="blur"
                                   blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAAIAAoDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAhEAACAQMDBQAAAAAAAAAAAAABAgMABAUGIWGRkqGx0f/EABUBAQEAAAAAAAAAAAAAAAAAAAMF/8QAGhEAAgIDAAAAAAAAAAAAAAAAAAECEgMRkf/aAAwDAQACEQMRAD8AltJagyeH0AthI5xdrLcNM91BF5pX2HaH9bcfaSXWGaRmknyJckliyjqTzSlT54b6bk+h0R//2Q=="
@@ -643,7 +647,7 @@ export default function Home() {
                                   }}
                                 />
                                 {/* Date and time overlay on top of image */}
-                                <div className="absolute top-1 left-1 bg-black/70 text-white px-3 py-1 rounded-md text-sm font-semibold">
+                                <div className="absolute top-2 left-2 bg-black/60 backdrop-blur-sm text-white px-2.5 py-1 rounded-full text-xs font-medium">
                                   {(() => {
                                     try {
                                       const eventDate = new Date(event.date);
@@ -660,7 +664,7 @@ export default function Home() {
                                   })()}
                                 </div>
                                 {/* Location overlay */}
-                                <div className="absolute bottom-0 left-0 right-0 bg-black/70 text-white px-3 py-2">
+                                <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 via-black/55 to-transparent pt-8 px-3 py-2 text-white">
                                   <div className="flex items-start justify-between gap-2">
                                     <div className="min-w-0">
                                       <div className="font-semibold text-xs mb-1">{event.name}</div>
@@ -682,7 +686,7 @@ export default function Home() {
                                 </div>
                                 {/* Event Link Button */}
                                 {getEventLink(event) && (
-                                  <div className="absolute top-1 right-1">
+                                  <div className="absolute top-2 right-2">
                                     <Button
                                       size="sm"
                                       className="bg-gradient-to-r from-emerald-400 to-violet-500 hover:from-emerald-500 hover:to-violet-600 text-white text-xs h-8 px-3 flex items-center gap-1.5 rounded-full shadow-lg hover:shadow-xl transition-all duration-200 font-semibold border-0"
@@ -717,7 +721,7 @@ export default function Home() {
                                   })()}
                                 </div>
                                 {/* Date and time overlay on top of image */}
-                                <div className="absolute top-1 left-1 bg-black/70 text-white px-3 py-1 rounded-md text-sm font-semibold">
+                                <div className="absolute top-2 left-2 bg-black/60 backdrop-blur-sm text-white px-2.5 py-1 rounded-full text-xs font-medium">
                                   {(() => {
                                     try {
                                       const eventDate = new Date(event.date);
@@ -734,7 +738,7 @@ export default function Home() {
                                   })()}
                                 </div>
                                 {/* Location overlay */}
-                                <div className="absolute bottom-0 left-0 right-0 bg-black/70 text-white px-3 py-2">
+                                <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 via-black/55 to-transparent pt-8 px-3 py-2 text-white">
                                   <div className="flex items-start justify-between gap-2">
                                     <div className="min-w-0">
                                       <div className="font-semibold text-xs mb-1">{event.name}</div>
@@ -756,7 +760,7 @@ export default function Home() {
                                 </div>
                                 {/* Event Link Button */}
                                 {getEventLink(event) && (
-                                  <div className="absolute top-1 right-1">
+                                  <div className="absolute top-2 right-2">
                                     <Button
                                       size="sm"
                                       className="bg-gradient-to-r from-emerald-400 to-violet-500 hover:from-emerald-500 hover:to-violet-600 text-white text-xs h-8 px-3 flex items-center gap-1.5 rounded-full shadow-lg hover:shadow-xl transition-all duration-200 font-semibold border-0"
@@ -800,7 +804,7 @@ export default function Home() {
                                     alt={event.name}
                                     fill
                                     loading="lazy"
-                                    className="object-contain object-top rounded-lg"
+                                    className="object-cover"
                                     sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                                     onError={(e) => {
                                       console.error('Error loading image:', event.imageUrl)
@@ -809,7 +813,7 @@ export default function Home() {
                                     }}
                                   />
                                   {/* Date and time overlay on top of image */}
-                                  <div className="absolute top-1 left-1 bg-black/70 text-white px-3 py-1 rounded-md text-sm font-semibold">
+                                  <div className="absolute top-2 left-2 bg-black/60 backdrop-blur-sm text-white px-2.5 py-1 rounded-full text-xs font-medium">
                                     {(() => {
                                       try {
                                         const eventDate = new Date(event.date);
@@ -826,7 +830,7 @@ export default function Home() {
                                     })()}
                                   </div>
                                   {/* Location overlay */}
-                                  <div className="absolute bottom-0 left-0 right-0 bg-black/70 text-white px-3 py-2">
+                                  <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 via-black/55 to-transparent pt-8 px-3 py-2 text-white">
                                     <div className="font-semibold text-xs mb-1">{event.name}</div>
                                     <div className="text-xs opacity-90">{event.location}</div>
                                   </div>
@@ -916,6 +920,9 @@ export default function Home() {
         {/* Features Section - Grid of feature cards */}
         <section className="py-8 sm:py-12">
           <div className="container mx-auto px-4">
+            <h2 className="text-xl sm:text-2xl font-bold text-center mb-6 sm:mb-8 bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+              Explore Bachata Hub
+            </h2>
             <div className="grid grid-cols-3 sm:grid-cols-3 md:grid-cols-4 gap-3 sm:gap-4">
               <FeatureCard
                 icon={<Calendar className="h-6 w-6 sm:h-7 sm:w-7 text-green-600" />}
@@ -1105,28 +1112,46 @@ const accentBubble: Record<string, string> = {
 }
 
 function FeatureCard({ icon, title, description, link, onClick, isButton, accent = "emerald" }: { icon: React.ReactNode; title: string; description: string; link?: string; onClick?: () => void; isButton?: boolean; accent?: string }) {
+  const ref = useRef<HTMLDivElement>(null)
+  const [visible, setVisible] = useState(false)
+  useEffect(() => {
+    const el = ref.current
+    if (!el) return
+    const obs = new IntersectionObserver(([e]) => { if (e.isIntersecting) { setVisible(true); obs.disconnect() } }, { threshold: 0.05 })
+    obs.observe(el)
+    return () => obs.disconnect()
+  }, [])
+
   const bubbleCls = accentBubble[accent] ?? accentBubble.emerald
   const inner = (
-    <div className="bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 p-3 sm:p-5 rounded-2xl shadow-sm hover:shadow-md transition-all duration-200 hover:-translate-y-1 cursor-pointer text-center w-full h-full">
-      <div className="mb-2 sm:mb-3 flex justify-center">
-        <div className={`${bubbleCls} rounded-xl p-2 sm:p-3`}>
-          {icon}
+    <div className={`group relative h-full hover:-translate-y-1 transition-transform duration-200 ${visible ? 'fade-in-up' : 'opacity-0'}`}>
+      {/* Gradient border — appears on hover */}
+      <div className="absolute -inset-[1px] bg-gradient-to-br from-emerald-400 to-violet-500 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+      <div className="relative bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 p-3 sm:p-5 rounded-2xl shadow-sm hover:shadow-lg transition-shadow duration-200 cursor-pointer text-center h-full premium-card">
+        <div className="mb-2 sm:mb-3 flex justify-center">
+          <div className={`${bubbleCls} rounded-xl p-2 sm:p-3 transition-transform duration-200 group-hover:scale-110`}>
+            {icon}
+          </div>
         </div>
+        <h3 className="text-xs sm:text-sm font-semibold text-gray-900 dark:text-gray-100">{title}</h3>
+        <p className="text-gray-500 dark:text-gray-400 hidden sm:block text-xs mt-0.5">{description}</p>
       </div>
-      <h3 className="text-xs sm:text-sm font-semibold text-gray-900 dark:text-gray-100">{title}</h3>
-      <p className="text-gray-500 dark:text-gray-400 hidden sm:block text-xs mt-0.5">{description}</p>
     </div>
   )
   if (isButton) {
     return (
-      <button type="button" onClick={onClick} className="w-full h-full">
-        {inner}
-      </button>
+      <div ref={ref} className="w-full h-full">
+        <button type="button" onClick={onClick} className="w-full h-full block">
+          {inner}
+        </button>
+      </div>
     )
   }
   return (
-    <Link href={link || '#'} className="w-full h-full">
-      {inner}
-    </Link>
+    <div ref={ref} className="w-full h-full">
+      <Link href={link || '#'} className="w-full h-full block">
+        {inner}
+      </Link>
+    </div>
   )
 }
