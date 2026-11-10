@@ -916,92 +916,106 @@ export default function Home() {
         {/* Features Section - Grid of feature cards */}
         <section className="py-8 sm:py-12">
           <div className="container mx-auto px-4">
-            <div className="grid grid-cols-3 sm:grid-cols-3 md:grid-cols-4 gap-4 sm:gap-6">
+            <div className="grid grid-cols-3 sm:grid-cols-3 md:grid-cols-4 gap-3 sm:gap-4">
               <FeatureCard
-                icon={<Calendar className="h-6 w-6 sm:h-8 sm:w-8 text-green-600" />}
+                icon={<Calendar className="h-6 w-6 sm:h-7 sm:w-7 text-green-600" />}
                 title="Events"
                 description="Find Bachata events"
                 link="/events"
+                accent="green"
               />
               <FeatureCard
-                icon={<MapPin className="h-6 w-6 sm:h-8 sm:w-8 text-purple-500" />}
+                icon={<MapPin className="h-6 w-6 sm:h-7 sm:w-7 text-purple-500" />}
                 title="Festivals"
                 description="Find Bachata festivals"
                 link="/festivals"
+                accent="purple"
               />
               <FeatureCard
-                icon={<Music className="h-6 w-6 sm:h-8 sm:w-8 text-emerald-500" />}
+                icon={<Music className="h-6 w-6 sm:h-7 sm:w-7 text-emerald-500" />}
                 title="Top 20"
                 description="Most popular Bachata songs"
                 link="/music"
+                accent="emerald"
               />
               <FeatureCard
-                icon={<Users className="h-6 w-6 sm:h-8 sm:w-8 text-green-600" />}
+                icon={<Users className="h-6 w-6 sm:h-7 sm:w-7 text-green-600" />}
                 title="Instructors"
                 description="Connect with instructors"
                 link="/instructors"
+                accent="green"
               />
               <FeatureCard
-                icon={<ShoppingBag className="h-6 w-6 sm:h-8 sm:w-8 text-yellow-500" />}
+                icon={<ShoppingBag className="h-6 w-6 sm:h-7 sm:w-7 text-yellow-500" />}
                 title="Marketplace"
-                description="Find dance shoes,clothing..."
+                description="Find dance shoes, clothing…"
                 link="/shop"
+                accent="yellow"
               />
               <FeatureCard
-                icon={<School className="h-6 w-6 sm:h-8 sm:w-8 text-yellow-500" />}
+                icon={<School className="h-6 w-6 sm:h-7 sm:w-7 text-yellow-500" />}
                 title="Schools"
                 description="Find your school"
                 link="/schools"
+                accent="yellow"
               />
               <FeatureCard
-                icon={<Headphones className="h-6 w-6 sm:h-8 sm:w-8 text-red-500" />}
+                icon={<Headphones className="h-6 w-6 sm:h-7 sm:w-7 text-red-500" />}
                 title="DJs"
                 description="Find Bachata DJs"
                 link="/djs"
+                accent="red"
               />
               <FeatureCard
-                icon={<Calendar className="h-6 w-6 sm:h-8 sm:w-8 text-yellow-500" />}
+                icon={<Calendar className="h-6 w-6 sm:h-7 sm:w-7 text-yellow-600" />}
                 title="Calendar"
                 description="Find all events"
                 link="/calendar"
+                accent="yellow"
               />
               <FeatureCard
-                icon={<Trophy className="h-6 w-6 sm:h-8 sm:w-8 text-blue-500" />}
+                icon={<Trophy className="h-6 w-6 sm:h-7 sm:w-7 text-blue-500" />}
                 title="Competitions"
                 description="Show off your skills"
                 link="/competitions"
+                accent="blue"
               />
               <FeatureCard
-                icon={<Building2 className="h-6 w-6 sm:h-8 sm:w-8 text-indigo-500" />}
+                icon={<Building2 className="h-6 w-6 sm:h-7 sm:w-7 text-indigo-500" />}
                 title="Accoms"
                 description="Find places to stay"
                 link="/accommodations"
+                accent="indigo"
               />
               <FeatureCard
-                icon={<Info className="h-6 w-6 sm:h-8 sm:w-8 text-blue-500" />}
+                icon={<Info className="h-6 w-6 sm:h-7 sm:w-7 text-blue-500" />}
                 title="About"
                 description="Learn more about us"
                 link="/about"
+                accent="blue"
               />
               <FeatureCard
-                icon={<Lightbulb className="h-6 w-6 sm:h-8 sm:w-8 text-yellow-500" />}
+                icon={<Lightbulb className="h-6 w-6 sm:h-7 sm:w-7 text-yellow-500" />}
                 title="Idea Box"
                 description="Share your ideas"
                 onClick={() => setIsIdeaBoxOpen(true)}
                 isButton
+                accent="yellow"
               />
               <FeatureCard
-                icon={<Smartphone className="h-6 w-6 sm:h-8 sm:w-8 text-sky-500" />}
+                icon={<Smartphone className="h-6 w-6 sm:h-7 sm:w-7 text-sky-500" />}
                 title="Get the App"
                 description="Add to your home screen"
                 onClick={() => setShowIOSInstall(true)}
                 isButton
+                accent="sky"
               />
               <FeatureCard
-                icon={<Film className="h-6 w-6 sm:h-8 sm:w-8 text-purple-500" />}
+                icon={<Film className="h-6 w-6 sm:h-7 sm:w-7 text-purple-500" />}
                 title="Videographer"
                 description="Watch Bachata videos"
                 link="/media"
+                accent="purple"
               />
             </div>
           </div>
@@ -1079,31 +1093,40 @@ export default function Home() {
   }
 }
 
-/**
- * FeatureCard Component
- * Displays a feature card with an icon, title, description, and link
- */
-function FeatureCard({ icon, title, description, link, onClick, isButton }: { icon: React.ReactNode; title: string; description: string; link?: string; onClick?: () => void; isButton?: boolean }) {
+const accentBubble: Record<string, string> = {
+  green:   "bg-green-100 dark:bg-green-900/30",
+  purple:  "bg-purple-100 dark:bg-purple-900/30",
+  emerald: "bg-emerald-100 dark:bg-emerald-900/30",
+  yellow:  "bg-yellow-100 dark:bg-yellow-900/30",
+  red:     "bg-red-100 dark:bg-red-900/30",
+  blue:    "bg-blue-100 dark:bg-blue-900/30",
+  indigo:  "bg-indigo-100 dark:bg-indigo-900/30",
+  sky:     "bg-sky-100 dark:bg-sky-900/30",
+}
+
+function FeatureCard({ icon, title, description, link, onClick, isButton, accent = "emerald" }: { icon: React.ReactNode; title: string; description: string; link?: string; onClick?: () => void; isButton?: boolean; accent?: string }) {
+  const bubbleCls = accentBubble[accent] ?? accentBubble.emerald
+  const inner = (
+    <div className="bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 p-3 sm:p-5 rounded-2xl shadow-sm hover:shadow-md transition-all duration-200 hover:-translate-y-1 cursor-pointer text-center w-full h-full">
+      <div className="mb-2 sm:mb-3 flex justify-center">
+        <div className={`${bubbleCls} rounded-xl p-2 sm:p-3`}>
+          {icon}
+        </div>
+      </div>
+      <h3 className="text-xs sm:text-sm font-semibold text-gray-900 dark:text-gray-100">{title}</h3>
+      <p className="text-gray-500 dark:text-gray-400 hidden sm:block text-xs mt-0.5">{description}</p>
+    </div>
+  )
   if (isButton) {
     return (
-      <button
-        type="button"
-        onClick={onClick}
-        className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-lg shadow-sm hover:shadow-md transition-shadow cursor-pointer text-center w-full h-full"
-      >
-        <div className="mb-2 sm:mb-4 flex justify-center">{icon}</div>
-        <h3 className="text-sm sm:text-lg font-semibold mb-1 sm:mb-2 text-gray-900 dark:text-gray-100">{title}</h3>
-        <p className="text-gray-600 dark:text-gray-400 hidden sm:block text-xs sm:text-sm">{description}</p>
+      <button type="button" onClick={onClick} className="w-full h-full">
+        {inner}
       </button>
     )
   }
   return (
     <Link href={link || '#'} className="w-full h-full">
-      <div className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-lg shadow-sm hover:shadow-md transition-shadow cursor-pointer text-center w-full h-full">
-        <div className="mb-2 sm:mb-4 flex justify-center">{icon}</div>
-        <h3 className="text-sm sm:text-lg font-semibold mb-1 sm:mb-2 text-gray-900 dark:text-gray-100">{title}</h3>
-        <p className="text-gray-600 dark:text-gray-400 hidden sm:block text-xs sm:text-sm">{description}</p>
-      </div>
+      {inner}
     </Link>
   )
 }

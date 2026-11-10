@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react"
 import Link from "next/link"
+import { usePathname } from "next/navigation"
 import { Menu, X, RefreshCw, Sun, Moon } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import Image from "next/image"
@@ -13,6 +14,7 @@ export default function Navbar() {
   const [isIPad, setIsIPad] = useState(false)
   const { theme, setTheme } = useTheme()
   const [mounted, setMounted] = useState(false)
+  const pathname = usePathname()
   useEffect(() => setMounted(true), [])
 
   // Detect iPad and Android tablets
@@ -99,17 +101,24 @@ export default function Navbar() {
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center overflow-x-auto scrollbar-hide">
             <div className="flex space-x-1 md:space-x-1 lg:space-x-2 items-center">
-            {navItems.map((item) => (
+            {navItems.map((item) => {
+              const active = pathname === item.href
+              return (
               <Link
                 key={item.name}
                 href={item.href}
-                  className={`text-gray-700 hover:text-green-600 px-1 md:px-2 py-1 text-xs md:text-sm font-medium whitespace-nowrap ${
-                    item.name === "Home" ? "hidden" : ""
-                  }`}
+                className={`px-1 md:px-2 py-1 text-xs md:text-sm font-medium whitespace-nowrap transition-colors duration-150 border-b-2 ${
+                  item.name === "Home" ? "hidden" : ""
+                } ${
+                  active
+                    ? "text-green-600 border-green-500"
+                    : "text-gray-600 hover:text-green-600 border-transparent"
+                }`}
               >
                 {item.name}
               </Link>
-            ))}
+              )
+            })}
               {!isIPad && (
                 <Link href="/community">
                   <Button size="sm" className="bg-gradient-to-r from-emerald-500 to-violet-500 hover:from-emerald-600 hover:to-violet-600 text-white ml-2 whitespace-nowrap text-xs md:text-sm px-2 py-1 shadow-lg hover:shadow-xl transition-all duration-200 block md:hidden xl:block">
@@ -142,16 +151,23 @@ export default function Navbar() {
       {isMenuOpen && (
         <div className="md:hidden absolute top-full left-0 right-0 bg-white dark:bg-gray-900 shadow-lg z-[100] border-t border-gray-100 dark:border-gray-700">
           <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3 max-h-[80vh] overflow-y-auto">
-            {navItems.map((item) => (
+            {navItems.map((item) => {
+              const active = pathname === item.href
+              return (
               <Link
                 key={item.name}
                 href={item.href}
-                className="text-gray-700 dark:text-gray-200 hover:text-green-600 dark:hover:text-green-400 hover:bg-gray-50 dark:hover:bg-gray-800 block px-3 py-2 rounded-md text-base font-medium"
+                className={`block px-3 py-2 rounded-lg text-base font-medium transition-colors duration-150 ${
+                  active
+                    ? "bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400"
+                    : "text-gray-700 dark:text-gray-200 hover:text-green-600 dark:hover:text-green-400 hover:bg-gray-50 dark:hover:bg-gray-800"
+                }`}
                 onClick={() => setIsMenuOpen(false)}
               >
                 {item.name}
               </Link>
-            ))}
+              )
+            })}
             {!isIPad && (
               <Button className="w-full mt-4 bg-gradient-to-r from-emerald-500 to-violet-500 hover:from-emerald-600 hover:to-violet-600 text-white shadow-lg hover:shadow-xl transition-all duration-200" onClick={handleLoginClick}>
                 Join the Community
