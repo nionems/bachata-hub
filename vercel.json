@@ -10,7 +10,7 @@
     },
     {
       "path": "/api/cron/scrape-events",
-      "schedule": "0 15 * * *"
+      "schedule": "0 15 */2 * *"
     }
   ]
 }
