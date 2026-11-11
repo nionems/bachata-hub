@@ -1,19 +1,8 @@
 import { NextResponse } from 'next/server'
-import { google } from 'googleapis'
 import { cookies } from 'next/headers'
+import { getDb } from '@/lib/firebase-admin'
 
 export const maxDuration = 60
-
-const CITY_CALENDAR_MAP: Record<string, string> = {
-  NSW: '4ea35178b00a2daa33a492682e866bd67e8b83797a948a31caa8a37e2a982dce@group.calendar.google.com',
-  VIC: '641b8d8fbee5ff9eb2402997e5990b3e52a737b134ec201748349884985c84f4@group.calendar.google.com',
-  QLD: 'f0b5764410b23c93087a7d3ef5ed0d0a295ad2b811d10bb772533d7517d2fdc5@group.calendar.google.com',
-  WA:  'e521c86aed4060431cf6de7405315790dcca0a10d4779cc333835199f3724c16@group.calendar.google.com',
-  SA:  '6b95632fc6fe63530bbdd89c944d792009478636f5b2ce7ffc8718ccd500915f@group.calendar.google.com',
-  ACT: '3a82a9f1ed5a4e865ed9f13b24a96004fe7c4b2deb07a422f068c70753f421eb@group.calendar.google.com',
-  NT:  '27319882e504521ffd07dca62fdf7a55f835bfb4233f4c096e787fa8e8fb881b@group.calendar.google.com',
-  TAS: '2f92a58bc97f58a3285a05a474f222d22aaed327af7431f21c2ad1a681c9607b@group.calendar.google.com',
-}
 
 function detectState(location: string): string {
   const loc = (location || '').toLowerCase()
@@ -63,16 +52,11 @@ async function scrapeEventbrite(): Promise<ScrapedEvent[]> {
       const res = await fetch(url.toString(), {
         headers: { Authorization: `Bearer ${apiKey}` },
       })
-
-      if (!res.ok) {
-        console.error(`[scrape-events] Eventbrite ${city}: ${res.status}`)
-        continue
-      }
+      if (!res.ok) continue
 
       const data = await res.json()
       for (const ev of data.events ?? []) {
         if (!ev.name?.text || !ev.start?.local) continue
-
         const title = ev.name.text
         const desc = (ev.description?.text || '').toLowerCase()
         if (!title.toLowerCase().includes('bachata') && !desc.includes('bachata')) continue
@@ -100,7 +84,6 @@ async function scrapeEventbrite(): Promise<ScrapedEvent[]> {
     }
   }
 
-  // Deduplicate by title+date
   const seen = new Set<string>()
   return events.filter(e => {
     const key = `${e.title.toLowerCase()}|${e.startDateTime.slice(0, 10)}`
@@ -110,12 +93,10 @@ async function scrapeEventbrite(): Promise<ScrapedEvent[]> {
   })
 }
 
-// Humanitix scraper - Australian ethical ticketing platform
 async function scrapeHumanitix(): Promise<ScrapedEvent[]> {
   const events: ScrapedEvent[] = []
   const apiKey = process.env.HUMANITIX_API_KEY
 
-  // Try the official API first (free key from humanitix.com/api)
   if (apiKey) {
     try {
       const res = await fetch(
@@ -124,8 +105,7 @@ async function scrapeHumanitix(): Promise<ScrapedEvent[]> {
       )
       if (res.ok) {
         const data = await res.json()
-        const list: any[] = data.events ?? data.data ?? []
-        for (const ev of list) {
+        for (const ev of data.events ?? data.data ?? []) {
           const title = ev.name || ev.title
           const startDate = ev.startDate || ev.startDateTime || ev.dates?.[0]?.startDate
           if (!title || !startDate) continue
@@ -153,11 +133,9 @@ async function scrapeHumanitix(): Promise<ScrapedEvent[]> {
     } catch (e) {
       console.error('[scrape-events] Humanitix API error:', e)
     }
-  } else {
-    console.log('[scrape-events] No HUMANITIX_API_KEY — using public search fallback')
   }
 
-  // Fallback: JSON-LD from Humanitix public search HTML
+  // Fallback: JSON-LD from public search
   try {
     const res = await fetch('https://events.humanitix.com/search?q=bachata&country=AU', {
       headers: { 'User-Agent': 'Mozilla/5.0 (compatible; BachataHubBot/1.0)' },
@@ -202,10 +180,7 @@ async function scrapeHumanitix(): Promise<ScrapedEvent[]> {
 async function scrapeTryBooking(): Promise<ScrapedEvent[]> {
   const events: ScrapedEvent[] = []
 
-  // TryBooking public search API (returns JSON)
-  const searches = ['bachata', 'bachata dance', 'latin bachata']
-
-  for (const term of searches) {
+  for (const term of ['bachata', 'bachata dance']) {
     try {
       const res = await fetch(
         `https://www.trybooking.com/api/event-search?term=${encodeURIComponent(term)}&country=AU&pageSize=50`,
@@ -214,22 +189,16 @@ async function scrapeTryBooking(): Promise<ScrapedEvent[]> {
             Accept: 'application/json, text/plain, */*',
             'User-Agent': 'Mozilla/5.0 (compatible; BachataHubBot/1.0)',
           },
-          next: { revalidate: 0 },
         }
       )
-
       if (res.ok) {
         const data = await res.json()
-        const list: any[] = data.events ?? data.results ?? data.data ?? data ?? []
-
+        const list: any[] = data.events ?? data.results ?? data.data ?? []
         for (const ev of list) {
           const title = ev.name || ev.title || ev.eventName
           const startDate = ev.startDate || ev.dateFrom || ev.start_date || ev.startDateTime
           if (!title || !startDate) continue
-
-          const loc = [ev.venueName || ev.venue, ev.suburb || ev.city, ev.state, 'Australia']
-            .filter(Boolean).join(', ')
-
+          const loc = [ev.venueName || ev.venue, ev.suburb || ev.city, ev.state, 'Australia'].filter(Boolean).join(', ')
           events.push({
             title,
             description: ev.description || ev.summary || '',
@@ -241,28 +210,28 @@ async function scrapeTryBooking(): Promise<ScrapedEvent[]> {
             source: 'trybooking',
           })
         }
-        break // first working term is enough
+        break
       }
     } catch {}
   }
 
-  // Fallback: scrape JSON-LD from TryBooking's public search HTML
+  // Fallback: JSON-LD from public search HTML
   if (events.length === 0) {
     try {
       const res = await fetch('https://www.trybooking.com/search?term=bachata+dance&country=AU', {
         headers: { 'User-Agent': 'Mozilla/5.0 (compatible; BachataHubBot/1.0)' },
       })
       const html = await res.text()
-
-      // Extract JSON-LD Event schemas
       for (const m of html.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)) {
         try {
           const schema = JSON.parse(m[1])
-          const items: any[] = schema['@type'] === 'ItemList' ? schema.itemListElement?.map((i: any) => i.item) ?? [] : [schema]
+          const items: any[] = schema['@type'] === 'ItemList'
+            ? (schema.itemListElement ?? []).map((i: any) => i.item ?? i)
+            : [schema]
           for (const item of items) {
             if (!['Event', 'SocialEvent', 'DanceEvent'].includes(item['@type'])) continue
             if (!item.name || !item.startDate) continue
-            const loc = item.location?.name || item.location?.address?.streetAddress || ''
+            const loc = item.location?.name || item.location?.address?.addressLocality || ''
             events.push({
               title: item.name,
               description: item.description || '',
@@ -276,12 +245,9 @@ async function scrapeTryBooking(): Promise<ScrapedEvent[]> {
           }
         } catch {}
       }
-    } catch (e) {
-      console.error('[scrape-events] TryBooking HTML fallback error:', e)
-    }
+    } catch {}
   }
 
-  // Deduplicate
   const seen = new Set<string>()
   return events.filter(e => {
     const key = `${e.title.toLowerCase()}|${String(e.startDateTime).slice(0, 10)}`
@@ -303,34 +269,13 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
-  if (!process.env.GOOGLE_CLIENT_EMAIL || !process.env.GOOGLE_PRIVATE_KEY) {
-    return NextResponse.json({ error: 'Google Calendar credentials not configured' }, { status: 500 })
-  }
+  const db = getDb()
+  const now = new Date()
 
-  const auth = new google.auth.GoogleAuth({
-    credentials: {
-      client_email: process.env.GOOGLE_CLIENT_EMAIL,
-      private_key: process.env.GOOGLE_PRIVATE_KEY.replace(/\\n/g, '\n'),
-    },
-    scopes: ['https://www.googleapis.com/auth/calendar'],
-  })
-  const calendar = google.calendar({ version: 'v3', auth })
-
-  // Collect existing event titles for deduplication
-  const existingTitles = new Set<string>()
-  await Promise.allSettled(
-    Object.values(CITY_CALENDAR_MAP).map(async (calendarId) => {
-      const res = await calendar.events.list({
-        calendarId,
-        timeMin: new Date().toISOString(),
-        maxResults: 250,
-        singleEvents: true,
-        orderBy: 'startTime',
-      })
-      for (const ev of res.data.items ?? []) {
-        if (ev.summary) existingTitles.add(ev.summary.toLowerCase().trim())
-      }
-    })
+  // Load existing event names from Firestore for deduplication
+  const snapshot = await db.collection('events').get()
+  const existingNames = new Set<string>(
+    snapshot.docs.map(d => ((d.data().name as string) || '').toLowerCase().trim())
   )
 
   // Scrape all sources in parallel
@@ -344,7 +289,7 @@ export async function GET(request: Request) {
   const added: string[] = []
   const skipped: string[] = []
   const failed: string[] = []
-  const now = new Date()
+  const nowIso = now.toISOString()
 
   for (const event of allEvents) {
     const normalizedTitle = event.title.toLowerCase().trim()
@@ -356,10 +301,10 @@ export async function GET(request: Request) {
       continue
     }
 
-    // Fuzzy dedup: skip if title already exists (or close match)
+    // Fuzzy dedup against existing Firestore events
     const isDuplicate =
-      existingTitles.has(normalizedTitle) ||
-      [...existingTitles].some(existing => {
+      existingNames.has(normalizedTitle) ||
+      [...existingNames].some(existing => {
         const a = existing.slice(0, 25)
         const b = normalizedTitle.slice(0, 25)
         return a.length >= 10 && b.length >= 10 && (a === b || existing.includes(b) || normalizedTitle.includes(a))
@@ -370,37 +315,49 @@ export async function GET(request: Request) {
       continue
     }
 
-    const state = detectState(event.location)
-    const calendarId = CITY_CALENDAR_MAP[state]
-
     try {
       const endDate = new Date(event.endDateTime)
       const endDateTime = isNaN(endDate.getTime()) || endDate <= startDate
-        ? new Date(startDate.getTime() + 2 * 60 * 60 * 1000) // default 2h
+        ? new Date(startDate.getTime() + 2 * 60 * 60 * 1000)
         : endDate
 
-      const description = [
-        event.description,
-        event.url ? `\nEvent page: ${event.url}` : '',
-        event.imageUrl ? `\n[image:${event.imageUrl}]` : '',
-        `\nSource: ${event.source}`,
-      ].filter(Boolean).join('')
+      const startDateStr = startDate.toISOString().slice(0, 10)
+      const startTime = startDate.toISOString().slice(11, 16)
+      const endTime = endDateTime.toISOString().slice(11, 16)
+      const state = detectState(event.location)
 
-      await calendar.events.insert({
-        calendarId,
-        requestBody: {
-          summary: event.title,
-          description,
-          start: { dateTime: startDate.toISOString(), timeZone: 'Australia/Sydney' },
-          end: { dateTime: endDateTime.toISOString(), timeZone: 'Australia/Sydney' },
-          location: event.location,
-        },
+      await db.collection('events').add({
+        name: event.title,
+        eventDate: startDateStr,
+        startTime,
+        endTime,
+        location: event.location,
+        city: '',
+        state,
+        description: [
+          event.description,
+          event.url ? `Event page: ${event.url}` : '',
+        ].filter(Boolean).join('\n\n'),
+        imageUrl: event.imageUrl || '',
+        eventLink: event.url || '',
+        ticketLink: event.url || '',
+        danceStyles: ['Bachata'],
+        recurrence: '',
+        isWeekly: false,
+        isWorkshop: false,
+        published: true,
+        autoScraped: true,
+        scrapeSource: event.source,
+        likesCount: 0,
+        goingCount: 0,
+        createdAt: nowIso,
+        updatedAt: nowIso,
       })
 
       added.push(event.title)
-      existingTitles.add(normalizedTitle)
+      existingNames.add(normalizedTitle)
     } catch (e) {
-      console.error(`[scrape-events] Failed to add "${event.title}":`, e)
+      console.error(`[scrape-events] Failed to save "${event.title}":`, e)
       failed.push(event.title)
     }
   }
