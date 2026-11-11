@@ -33,11 +33,9 @@ export default function CommunityPage() {
           Get the best of Bachata.au minus the spam.
 Be first to know about upcoming events, enjoy exclusive perks, and score chances to win dance tickets, stylish shoes, or even a limited-edition Bachata T-shirt! 🎁
           </p>
-          {userCount !== null && (
             <p className="text-lg text-gray-500">
-              Join <span className="font-bold text-primary text-3xl">{userCount + 350}</span> other{(userCount + 350) !== 1 ? 's' : ''} in our growing community
+              Join <span className="font-bold text-primary text-3xl">1276</span> others in our growing community
             </p>
-          )}
         </div>
         <div className="max-w-md mx-auto">
           <SubscribeForm />
