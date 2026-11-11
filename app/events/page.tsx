@@ -264,13 +264,12 @@ export default function EventsPage() {
           .catch(() => {})
       } catch (err) {
         console.error('Error fetching calendar events:', err)
-        if (rawEvents.length === 0) setError('Failed to load events')
+        setError('Failed to load events')
         setIsLoading(false)
       }
     }
 
     fetchEvents()
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   // ── Load likes / going counts from Firestore (backend) ───────────────────
