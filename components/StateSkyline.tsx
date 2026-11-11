@@ -146,13 +146,20 @@ export function StateSkyline({ state }: StateSkylineProps) {
       viewBox="0 0 1440 160"
       preserveAspectRatio="none"
       aria-hidden="true"
-      style={{ height: '40%', opacity: 0.22 }}
+      style={{ height: '45%' }}
     >
+      <defs>
+        {/* Gradient: transparent at the top of the silhouette, solid white at the base */}
+        <linearGradient id="skylineGrad" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%"   stopColor="white" stopOpacity="0.08" />
+          <stop offset="60%"  stopColor="white" stopOpacity="0.22" />
+          <stop offset="100%" stopColor="white" stopOpacity="0.38" />
+        </linearGradient>
+      </defs>
       {isNSW ? (
-        // evenodd punches the sail + arch cutouts through the white silhouette
-        <path fill="white" fillRule="evenodd" d={NSW_PATH} />
+        <path fill="url(#skylineGrad)" fillRule="evenodd" d={NSW_PATH} />
       ) : (
-        <path fill="white" d={SKYLINES[state]!} />
+        <path fill="url(#skylineGrad)" d={SKYLINES[state]!} />
       )}
     </svg>
   )
