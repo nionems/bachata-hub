@@ -2,6 +2,11 @@ import { NextResponse } from 'next/server'
 import { getDb } from '@/lib/firebase-admin'
 import { FieldValue } from 'firebase-admin/firestore'
 
+// Canonical ID for recurring Google Calendar events: strip _YYYYMMDD(THHMMSSZ)? suffix
+function canonicalCalId(id: string): string {
+  return id.replace(/_\d{8}(T\d{6}Z)?$/, '')
+}
+
 // GET /api/calendar/likes?userId=xxx
 // Returns { counts: { [eventId]: number }, likedByUser: string[] }
 export async function GET(request: Request) {
@@ -41,7 +46,7 @@ export async function POST(request: Request) {
     }
 
     const db = getDb()
-    const ref = db.collection('calendarEventLikes').doc(eventId)
+    const ref = db.collection('calendarEventLikes').doc(canonicalCalId(eventId))
 
     await db.runTransaction(async (transaction) => {
       const doc = await transaction.get(ref)

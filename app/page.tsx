@@ -28,6 +28,18 @@ import { EventSubmissionForm } from '@/components/EventSubmissionForm'
 import { doc, getDoc } from 'firebase/firestore'
 import { db } from '@/lib/firebase'
 
+// Canonical ID for recurring Google Calendar events: strip _YYYYMMDD(THHMMSSZ)? suffix
+function canonicalCalId(id: string): string {
+  return id.replace(/_\d{8}(T\d{6}Z)?$/, '')
+}
+
+// Deterministic seed so each event shows a starting heart count (same as events page)
+function seedLikes(name: string): number {
+  let h = 0
+  for (let i = 0; i < name.length; i++) h = (h * 31 + name.charCodeAt(i)) | 0
+  return 4 + (Math.abs(h) % 24) // 4–27
+}
+
 // Add this interface at the top of your file
 interface Event {
   id: string
@@ -244,7 +256,7 @@ export default function Home() {
       if (stored) setLikedCalendarEvents(new Set(JSON.parse(stored)))
     } catch {}
 
-    // Fetch authoritative state from backend
+    // Fetch authoritative state from backend (counts are keyed by canonical ID)
     fetch(`/api/calendar/likes?userId=${encodeURIComponent(userId)}`)
       .then(r => r.ok ? r.json() : null)
       .then(data => {
@@ -257,16 +269,21 @@ export default function Home() {
       .catch(() => {})
   }, [])
 
-  const toggleCalendarLike = async (e: React.MouseEvent, eventId: string) => {
+  const toggleCalendarLike = async (e: React.MouseEvent, eventId: string, eventName: string) => {
     e.stopPropagation()
-    const isLiked = likedCalendarEvents.has(eventId)
+    const cid = canonicalCalId(eventId)
+    const isLiked = likedCalendarEvents.has(cid)
     const action = isLiked ? 'unlike' : 'like'
+    const seed = seedLikes(eventName)
 
     const newLiked = new Set(likedCalendarEvents)
-    if (isLiked) newLiked.delete(eventId)
-    else newLiked.add(eventId)
+    if (isLiked) newLiked.delete(cid)
+    else newLiked.add(cid)
     setLikedCalendarEvents(newLiked)
-    setCalendarLikeCounts(prev => ({ ...prev, [eventId]: (prev[eventId] ?? 0) + (isLiked ? -1 : 1) }))
+    setCalendarLikeCounts(prev => ({
+      ...prev,
+      [cid]: Math.max(seed, (prev[cid] ?? seed) + (isLiked ? -1 : 1)),
+    }))
 
     try { localStorage.setItem('likedCalendarEvents', JSON.stringify([...newLiked])) } catch {}
     try {
@@ -274,7 +291,7 @@ export default function Home() {
       await fetch('/api/calendar/likes', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ eventId, action, userId }),
+        body: JSON.stringify({ eventId: cid, action, userId }),
       })
     } catch {}
   }
@@ -670,15 +687,13 @@ export default function Home() {
                                     </div>
                                     <button
                                       className="flex items-center gap-1 flex-shrink-0 px-2 py-1 rounded-full bg-black/40 hover:bg-black/60 transition-colors"
-                                      onClick={(e) => toggleCalendarLike(e, event.id)}
+                                      onClick={(e) => toggleCalendarLike(e, event.id, event.name)}
                                       title="Like this event"
                                     >
-                                      <Heart className={`h-5 w-5 transition-colors drop-shadow ${likedCalendarEvents.has(event.id) ? 'fill-red-500 text-red-500' : 'text-white'}`} />
-                                      {(calendarLikeCounts[event.id] || 0) > 0 && (
-                                        <span className={`text-xs font-bold ${likedCalendarEvents.has(event.id) ? 'text-red-400' : 'text-white'}`}>
-                                          {calendarLikeCounts[event.id]}
-                                        </span>
-                                      )}
+                                      <Heart className={`h-5 w-5 transition-colors drop-shadow ${likedCalendarEvents.has(canonicalCalId(event.id)) ? 'fill-red-500 text-red-500' : 'text-white'}`} />
+                                      <span className={`text-xs font-bold ${likedCalendarEvents.has(canonicalCalId(event.id)) ? 'text-red-400' : 'text-white'}`}>
+                                        {calendarLikeCounts[canonicalCalId(event.id)] ?? seedLikes(event.name)}
+                                      </span>
                                     </button>
                                   </div>
                                 </div>
@@ -707,9 +722,9 @@ export default function Home() {
                                     try {
                                       const eventDate = new Date(event.date);
                                       const dayName = eventDate.toLocaleDateString('en-AU', { weekday: 'short' });
-                                      const formattedDate = eventDate.toLocaleDateString('en-AU', { 
-                                        day: 'numeric', 
-                                        month: 'short' 
+                                      const formattedDate = eventDate.toLocaleDateString('en-AU', {
+                                        day: 'numeric',
+                                        month: 'short'
                                       });
                                       const formattedTime = event.time && event.time !== 'All day' ? event.time : '';
                                       return `${dayName} ${formattedDate}${formattedTime ? ` • ${formattedTime}` : ''}`;
@@ -724,9 +739,9 @@ export default function Home() {
                                     try {
                                       const eventDate = new Date(event.date);
                                       const dayName = eventDate.toLocaleDateString('en-AU', { weekday: 'short' });
-                                      const formattedDate = eventDate.toLocaleDateString('en-AU', { 
-                                        day: 'numeric', 
-                                        month: 'short' 
+                                      const formattedDate = eventDate.toLocaleDateString('en-AU', {
+                                        day: 'numeric',
+                                        month: 'short'
                                       });
                                       const formattedTime = event.time && event.time !== 'All day' ? event.time : '';
                                       return `${dayName} ${formattedDate}${formattedTime ? ` • ${formattedTime}` : ''}`;
@@ -744,15 +759,13 @@ export default function Home() {
                                     </div>
                                     <button
                                       className="flex items-center gap-1 flex-shrink-0 px-2 py-1 rounded-full bg-black/40 hover:bg-black/60 transition-colors"
-                                      onClick={(e) => toggleCalendarLike(e, event.id)}
+                                      onClick={(e) => toggleCalendarLike(e, event.id, event.name)}
                                       title="Like this event"
                                     >
-                                      <Heart className={`h-5 w-5 transition-colors drop-shadow ${likedCalendarEvents.has(event.id) ? 'fill-red-500 text-red-500' : 'text-white'}`} />
-                                      {(calendarLikeCounts[event.id] || 0) > 0 && (
-                                        <span className={`text-xs font-bold ${likedCalendarEvents.has(event.id) ? 'text-red-400' : 'text-white'}`}>
-                                          {calendarLikeCounts[event.id]}
-                                        </span>
-                                      )}
+                                      <Heart className={`h-5 w-5 transition-colors drop-shadow ${likedCalendarEvents.has(canonicalCalId(event.id)) ? 'fill-red-500 text-red-500' : 'text-white'}`} />
+                                      <span className={`text-xs font-bold ${likedCalendarEvents.has(canonicalCalId(event.id)) ? 'text-red-400' : 'text-white'}`}>
+                                        {calendarLikeCounts[canonicalCalId(event.id)] ?? seedLikes(event.name)}
+                                      </span>
                                     </button>
                                   </div>
                                 </div>
