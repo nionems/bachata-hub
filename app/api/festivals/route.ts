@@ -48,7 +48,7 @@ export async function GET(request: Request) {
     // Check cache (unless clearing cache or admin request)
     if (!clearCache && !admin && festivalsCache && Date.now() - cacheTimestamp < CACHE_DURATION) {
       console.log('API Route (GET /api/festivals): Returning cached festivals. Time:', Date.now() - startTime, 'ms')
-      return NextResponse.json(festivalsCache)
+      return NextResponse.json(festivalsCache, { headers: { 'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=300' } })
     }
 
     // Clear cache if requested
@@ -143,7 +143,8 @@ export async function GET(request: Request) {
 
     console.log(`API Route (GET /api/festivals): Returning ${festivals.length} festivals. Total time: ${Date.now() - startTime}ms`)
 
-    return NextResponse.json(festivals)
+    const headers = admin ? {} : { 'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=300' }
+    return NextResponse.json(festivals, { headers })
   } catch (error) {
     console.error('Failed to fetch festivals:', error)
     

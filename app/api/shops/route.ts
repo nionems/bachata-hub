@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server'
 import { collection, addDoc, getDocs } from 'firebase/firestore'
 import { db } from '@/lib/firebase'
+
+export const revalidate = 60
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { Shop } from '@/types/shop'

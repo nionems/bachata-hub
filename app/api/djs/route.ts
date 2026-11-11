@@ -25,7 +25,8 @@ export async function GET(request: Request) {
     }
 
     console.log('Fetched DJs:', djs)
-    return NextResponse.json(djs)
+    const headers = admin ? {} : { 'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=300' }
+    return NextResponse.json(djs, { headers })
   } catch (error) {
     console.error("Failed to fetch DJs:", error)
     return NextResponse.json(

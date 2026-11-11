@@ -48,7 +48,7 @@ export async function GET(request: Request) {
     // Check cache (unless clearing cache or admin request)
     if (!clearCache && !admin && competitionsCache && Date.now() - cacheTimestamp < CACHE_DURATION) {
       console.log('API Route (GET /api/competitions): Returning cached competitions. Time:', Date.now() - startTime, 'ms')
-      return NextResponse.json(competitionsCache)
+      return NextResponse.json(competitionsCache, { headers: { 'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=300' } })
     }
 
     // Clear cache if requested
@@ -127,7 +127,8 @@ export async function GET(request: Request) {
 
     console.log(`API Route (GET /api/competitions): Returning ${competitions.length} competitions. Total time: ${Date.now() - startTime}ms`)
 
-    return NextResponse.json(competitions)
+    const headers = admin ? {} : { 'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=300' }
+    return NextResponse.json(competitions, { headers })
   } catch (error) {
     console.error('Failed to fetch competitions:', error)
     

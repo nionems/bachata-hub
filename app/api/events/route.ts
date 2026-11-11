@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server'
 import { getDb } from '@/lib/firebase-admin'
 import { google } from 'googleapis'
 
+export const revalidate = 60
+
 // Valid dance styles from constants
 const VALID_DANCE_STYLES = [
   'Bachata',
