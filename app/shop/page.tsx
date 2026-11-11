@@ -50,8 +50,16 @@ export default function ShopsPage() {
     fetchShops()
   }, [])
 
-  const newShops = shops.filter(shop => shop.condition === 'New')
-  const secondHandShops = shops.filter(shop => shop.condition === 'Second Hand')
+  const BRAND_ORDER = ['bailaz', 'pulse', 'fuego']
+  const brandPriority = (name: string) => {
+    const lower = name.toLowerCase()
+    const idx = BRAND_ORDER.findIndex(b => lower.includes(b))
+    return idx === -1 ? BRAND_ORDER.length : idx
+  }
+  const sortByBrand = (a: Shop, b: Shop) => brandPriority(a.name) - brandPriority(b.name)
+
+  const newShops = shops.filter(shop => shop.condition === 'New').sort(sortByBrand)
+  const secondHandShops = shops.filter(shop => shop.condition === 'Second Hand').sort(sortByBrand)
   
   const totalShops = shops.length
   const filteredCount = activeTab === "new" ? newShops.length : secondHandShops.length
