@@ -8,6 +8,11 @@ let festivalsCache: any[] | null = null
 let cacheTimestamp: number = 0
 const CACHE_DURATION = 20 * 60 * 1000 // 20 minutes (increased for better performance)
 
+export function clearFestivalsCache() {
+  festivalsCache = null
+  cacheTimestamp = 0
+}
+
 interface FestivalData {
   id: string
   name: string
@@ -116,11 +121,17 @@ export async function GET(request: Request) {
       }
     }) as FestivalData[]
 
-    // If not admin, filter to only approved festivals
+    // If not admin, filter to only approved and future/current festivals
     let festivals = rawFestivals
     if (!admin) {
+      const todayStr = new Date().toISOString().slice(0, 10)
       const beforeFilter = festivals.length
-      festivals = festivals.filter(festival => festival.status === 'approved' || !festival.status)
+      festivals = festivals.filter(festival => {
+        if (festival.status !== 'approved' && festival.status) return false
+        const end = (festival.endDate || festival.startDate || '').slice(0, 10)
+        if (end && end < todayStr) return false
+        return true
+      })
       const afterFilter = festivals.length
       console.log(`API Route: Filtered festivals - before: ${beforeFilter}, after: ${afterFilter}`)
     }
