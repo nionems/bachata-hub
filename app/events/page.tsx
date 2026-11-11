@@ -500,46 +500,45 @@ export default function EventsPage() {
               </div>
 
               {/* Cards for this date */}
-              <div className="flex flex-col gap-3">
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
                 {dayEvents.map(event => (
-                  <Card key={event.id} className="overflow-hidden rounded-2xl shadow-md hover:shadow-lg transition-all duration-200 bg-white flex flex-row border border-gray-100">
+                  <Card key={event.id} className="overflow-hidden rounded-2xl shadow-md hover:shadow-xl transition-all duration-200 bg-white border border-gray-100 group flex flex-col">
 
                     {/* Image */}
                     <div
-                      className="relative w-32 sm:w-44 flex-shrink-0 overflow-hidden cursor-pointer"
+                      className="relative h-36 sm:h-44 overflow-hidden cursor-pointer flex-shrink-0"
                       onClick={() => event.imageUrl && setSelectedImage({ url: event.imageUrl, title: event.name })}
                     >
                       <img
                         src={event.imageUrl || '/images/BACHATA.AU (13).png'}
                         alt={event.name}
                         loading="lazy"
-                        className={`absolute inset-0 w-full h-full ${event.imageUrl ? 'object-cover hover:scale-105 transition-transform duration-300' : 'object-contain p-3 bg-gray-50'}`}
+                        className={`w-full h-full group-hover:scale-105 transition-transform duration-300 ${event.imageUrl ? 'object-cover' : 'object-contain p-3 bg-gray-50'}`}
                       />
-                    </div>
-
-                    {/* Content */}
-                    <div className="flex flex-col flex-1 p-3 sm:p-4 min-w-0 gap-2">
-
-                      {/* Date + time pill */}
-                      <div className="inline-flex items-center gap-1.5 self-start bg-green-100 text-green-800 px-3 py-1 rounded-full">
-                        <Clock className="h-3.5 w-3.5 flex-shrink-0" />
-                        <span className="text-xs font-bold whitespace-nowrap">{formatDatePill(event.start)}</span>
+                      {/* Date pill overlay */}
+                      <div className="absolute top-2 left-2 inline-flex items-center gap-1 bg-black/60 backdrop-blur-sm text-white px-2 py-0.5 rounded-full">
+                        <Clock className="h-3 w-3 flex-shrink-0" />
+                        <span className="text-[10px] font-bold whitespace-nowrap">{formatDatePill(event.start)}</span>
                         {event.startTime && (
-                          <span className="text-[10px] font-medium opacity-70 border-l border-green-300 pl-1.5 whitespace-nowrap">
-                            {event.startTime}{event.endTime ? ` – ${event.endTime}` : ''}
+                          <span className="text-[9px] opacity-80 border-l border-white/40 pl-1 whitespace-nowrap">
+                            {event.startTime}
                           </span>
                         )}
                       </div>
+                    </div>
+
+                    {/* Content */}
+                    <div className="flex flex-col flex-1 p-3 gap-1.5 min-w-0">
 
                       {/* Name */}
-                      <Link href={`/events/${event.id}`} className="hover:text-green-600 transition-colors">
-                        <h3 className="font-extrabold text-gray-900 text-base sm:text-lg leading-snug">{event.name}</h3>
+                      <Link href={`/events/${event.id}`} className="hover:text-primary transition-colors">
+                        <h3 className="font-bold text-gray-900 text-sm leading-snug line-clamp-2">{event.name}</h3>
                       </Link>
 
                       {/* Location */}
                       {event.location && (
-                        <div className="flex items-center gap-1 text-xs text-gray-500">
-                          <MapPin className="h-3.5 w-3.5 flex-shrink-0 text-gray-400" />
+                        <div className="flex items-center gap-1 text-[11px] text-gray-500">
+                          <MapPin className="h-3 w-3 flex-shrink-0 text-gray-400" />
                           <span className="truncate">{event.location}</span>
                         </div>
                       )}
@@ -547,66 +546,47 @@ export default function EventsPage() {
                       {/* Dance style badges */}
                       <div className="flex flex-wrap gap-1">
                         {event.danceStyles.map((style, i) => (
-                          <span key={i} className="bg-primary/10 text-primary text-[10px] font-semibold px-2 py-0.5 rounded-full">
+                          <span key={i} className="bg-primary/10 text-primary text-[9px] font-semibold px-1.5 py-0.5 rounded-full">
                             {style}
                           </span>
                         ))}
                       </div>
 
-                      {/* Description */}
-                      {event.description && (
-                        <div>
-                          <p className={`text-xs text-gray-500 leading-relaxed ${expandedDescriptions[event.id] ? '' : 'line-clamp-2'}`}>
-                            {event.description}
-                          </p>
-                          {event.description.length > 100 && (
-                            <button
-                              onClick={e => { e.stopPropagation(); setExpandedDescriptions(p => ({ ...p, [event.id]: !p[event.id] })) }}
-                              className="text-[10px] text-primary hover:text-primary/80 mt-0.5 flex items-center gap-0.5"
-                            >
-                              {expandedDescriptions[event.id]
-                                ? (<>Less <ChevronUp className="h-2.5 w-2.5" /></>)
-                                : (<>More <ChevronDown className="h-2.5 w-2.5" /></>)}
-                            </button>
-                          )}
-                        </div>
-                      )}
-
                       <div className="flex-1" />
 
                       {/* Actions */}
-                      <div className="flex items-center gap-2 pt-2 border-t border-gray-100 flex-wrap">
+                      <div className="flex items-center gap-1.5 pt-2 border-t border-gray-100 flex-wrap">
                         {/* Like */}
                         <button
-                          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold transition-colors border ${
+                          className={`flex items-center gap-1 px-2 py-1 rounded-full text-[11px] font-semibold transition-colors border ${
                             likedEvents.has(canonicalId(event.id))
                               ? 'bg-red-50 text-red-500 border-red-200'
                               : 'bg-white text-gray-500 border-gray-200 hover:border-red-200 hover:bg-red-50 hover:text-red-500'
                           }`}
                           onClick={e => toggleLike(e, event.id, likeCounts[canonicalId(event.id)] ?? event.likesCount)}
                         >
-                          <Heart className={`h-3.5 w-3.5 ${likedEvents.has(canonicalId(event.id)) ? 'fill-red-500' : ''}`} />
-                          <span>{(likeCounts[canonicalId(event.id)] ?? event.likesCount) > 0 ? `${likeCounts[canonicalId(event.id)] ?? event.likesCount} ` : ''}Like</span>
+                          <Heart className={`h-3 w-3 ${likedEvents.has(canonicalId(event.id)) ? 'fill-red-500' : ''}`} />
+                          <span>{(likeCounts[canonicalId(event.id)] ?? event.likesCount) > 0 ? `${likeCounts[canonicalId(event.id)] ?? event.likesCount}` : ''}</span>
                         </button>
 
                         {/* Going */}
                         <button
-                          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold transition-colors border ${
+                          className={`flex items-center gap-1 px-2 py-1 rounded-full text-[11px] font-semibold transition-colors border ${
                             goingEvents.has(canonicalId(event.id))
                               ? 'bg-green-500 text-white border-green-500'
                               : 'bg-white text-gray-500 border-gray-200 hover:border-green-400 hover:bg-green-50 hover:text-green-600'
                           }`}
                           onClick={e => handleGoingClick(e, event)}
                         >
-                          <UserCheck className="h-3.5 w-3.5" />
-                          <span>{(goingCounts[canonicalId(event.id)] ?? event.goingCount) > 0 ? `${goingCounts[canonicalId(event.id)] ?? event.goingCount} ` : ''}I'm Here</span>
+                          <UserCheck className="h-3 w-3" />
+                          <span>{(goingCounts[canonicalId(event.id)] ?? event.goingCount) > 0 ? `${goingCounts[canonicalId(event.id)] ?? event.goingCount}` : 'Going'}</span>
                         </button>
 
                         {/* Ticket / Link */}
                         {AT_THE_DOOR.some(n => event.name.toLowerCase().includes(n)) ? (
-                          <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-amber-700 bg-amber-50 border border-amber-200 px-3 py-1.5 rounded-full">
-                            <Ticket className="h-3.5 w-3.5" />
-                            At the Door
+                          <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-amber-700 bg-amber-50 border border-amber-200 px-2 py-1 rounded-full">
+                            <Ticket className="h-3 w-3" />
+                            Door
                           </span>
                         ) : event.ticketLink ? (
                           <a
@@ -614,10 +594,10 @@ export default function EventsPage() {
                             target="_blank"
                             rel="noopener noreferrer"
                             onClick={e => e.stopPropagation()}
-                            className="inline-flex items-center gap-1.5 text-xs font-bold text-white bg-gradient-to-r from-primary to-secondary hover:opacity-90 px-3 py-1.5 rounded-full shadow-sm transition-opacity"
+                            className="inline-flex items-center gap-1 text-[11px] font-bold text-white bg-gradient-to-r from-primary to-secondary hover:opacity-90 px-2 py-1 rounded-full shadow-sm transition-opacity ml-auto"
                           >
-                            <Ticket className="h-3.5 w-3.5" />
-                            Get Ticket
+                            <Ticket className="h-3 w-3" />
+                            Ticket
                           </a>
                         ) : event.htmlLink ? (
                           <a
@@ -625,29 +605,29 @@ export default function EventsPage() {
                             target="_blank"
                             rel="noopener noreferrer"
                             onClick={e => e.stopPropagation()}
-                            className="inline-flex items-center gap-1.5 text-xs font-semibold text-primary bg-primary/10 hover:bg-primary/20 px-3 py-1.5 rounded-full transition-colors"
+                            className="inline-flex items-center gap-1 text-[11px] font-semibold text-primary bg-primary/10 hover:bg-primary/20 px-2 py-1 rounded-full transition-colors ml-auto"
                           >
-                            <ExternalLink className="h-3.5 w-3.5" />
-                            More Info
+                            <ExternalLink className="h-3 w-3" />
+                            Info
                           </a>
                         ) : null}
 
-                        {/* Add to calendar + Map */}
-                        <div className="flex gap-1 ml-auto">
+                        {/* Calendar + Map */}
+                        <div className="flex gap-0.5 ml-auto">
                           <button
-                            className="p-1.5 text-gray-400 hover:text-primary hover:bg-primary/10 rounded-full transition-colors"
+                            className="p-1 text-gray-400 hover:text-primary hover:bg-primary/10 rounded-full transition-colors"
                             onClick={e => { e.stopPropagation(); window.open(buildCalUrl(event), '_blank') }}
                             title="Add to Google Calendar"
                           >
-                            <CalendarPlus className="h-4 w-4" />
+                            <CalendarPlus className="h-3.5 w-3.5" />
                           </button>
                           {event.location && (
                             <button
-                              className="p-1.5 text-gray-400 hover:text-primary hover:bg-primary/10 rounded-full transition-colors"
+                              className="p-1 text-gray-400 hover:text-primary hover:bg-primary/10 rounded-full transition-colors"
                               onClick={e => { e.stopPropagation(); window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(event.location)}`, '_blank') }}
                               title="View on Map"
                             >
-                              <MapPin className="h-4 w-4" />
+                              <MapPin className="h-3.5 w-3.5" />
                             </button>
                           )}
                         </div>
