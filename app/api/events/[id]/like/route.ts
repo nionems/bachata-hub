@@ -2,6 +2,16 @@ import { NextResponse } from 'next/server'
 import { getDb } from '@/lib/firebase-admin'
 import { FieldValue } from 'firebase-admin/firestore'
 
+// Strip date suffix so recurring weekly events share one Firestore doc.
+// cal_latin-nights_20261113 → cal_latin-nights
+function canonicalId(id: string): string {
+  if (id.startsWith('cal_')) {
+    const parts = id.split('_')
+    if (/^\d{8}$/.test(parts[parts.length - 1])) return parts.slice(0, -1).join('_')
+  }
+  return id
+}
+
 export async function POST(
   request: Request,
   { params }: { params: { id: string } }
@@ -16,7 +26,7 @@ export async function POST(
     }
 
     const db = getDb()
-    const eventRef = db.collection('events').doc(params.id)
+    const eventRef = db.collection('events').doc(canonicalId(params.id))
 
     await db.runTransaction(async (transaction) => {
       const eventDoc = await transaction.get(eventRef)

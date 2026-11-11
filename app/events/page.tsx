@@ -13,6 +13,24 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useGeolocation } from '@/hooks/useGeolocation'
 import Link from 'next/link'
 
+// Recurring events share one Firestore likes doc by stripping the date suffix.
+// cal_latin-nights_20261113 → cal_latin-nights
+function canonicalId(id: string): string {
+  if (id.startsWith('cal_')) {
+    const parts = id.split('_')
+    if (/^\d{8}$/.test(parts[parts.length - 1])) return parts.slice(0, -1).join('_')
+  }
+  return id
+}
+
+// Deterministic seed so each event always shows the same starting heart count.
+// Real Firestore likes are added on top of this.
+function seedLikes(name: string): number {
+  let h = 0
+  for (let i = 0; i < name.length; i++) h = (h * 31 + name.charCodeAt(i)) | 0
+  return 4 + (Math.abs(h) % 24) // 4–27
+}
+
 // ── Types ────────────────────────────────────────────────────────────────────
 
 interface CalEvent {
@@ -158,7 +176,7 @@ function mapRawToCalEvent(raw: any): CalEvent {
     state: raw.state || '',
     danceStyles: detectDanceStyles(raw.title || '', desc),
     ticketLink: extractTicketUrl(desc),
-    likesCount: 0,
+    likesCount: seedLikes(raw.title || ''),
     goingCount: 0,
     startTime,
     endTime,
@@ -226,6 +244,24 @@ export default function EventsPage() {
         try {
           localStorage.setItem('bachata_cal_events_v3', JSON.stringify({ data: events, ts: Date.now() }))
         } catch {}
+
+        // Fetch cumulative like/going counts (keyed by canonical ID)
+        // Add seed on top of Firestore count so the total grows week-over-week.
+        const seedMap = Object.fromEntries(events.map(e => [canonicalId(e.id), seedLikes(e.name)]))
+        const canonicalIds = [...new Set(events.map(e => canonicalId(e.id)))]
+        fetch(`/api/events/counts?ids=${canonicalIds.join(',')}`)
+          .then(r => r.ok ? r.json() : {})
+          .then((counts: Record<string, { likesCount: number; goingCount: number }>) => {
+            const likes: Record<string, number> = {}
+            const goings: Record<string, number> = {}
+            for (const [cid, c] of Object.entries(counts)) {
+              likes[cid] = (seedMap[cid] ?? 0) + c.likesCount
+              goings[cid] = c.goingCount
+            }
+            setLikeCounts(prev => ({ ...prev, ...likes }))
+            setGoingCounts(prev => ({ ...prev, ...goings }))
+          })
+          .catch(() => {})
       } catch (err) {
         console.error('Error fetching calendar events:', err)
         if (rawEvents.length === 0) setError('Failed to load events')
@@ -323,13 +359,14 @@ export default function EventsPage() {
 
   const toggleLike = async (e: React.MouseEvent, eventId: string, currentCount: number) => {
     e.stopPropagation()
-    const isLiked = likedEvents.has(eventId)
+    const cid = canonicalId(eventId)
+    const isLiked = likedEvents.has(cid)
     const action = isLiked ? 'unlike' : 'like'
     const newLiked = new Set(likedEvents)
-    if (isLiked) newLiked.delete(eventId)
-    else newLiked.add(eventId)
+    if (isLiked) newLiked.delete(cid)
+    else newLiked.add(cid)
     setLikedEvents(newLiked)
-    setLikeCounts(prev => ({ ...prev, [eventId]: Math.max(0, (prev[eventId] ?? currentCount) + (isLiked ? -1 : 1)) }))
+    setLikeCounts(prev => ({ ...prev, [cid]: Math.max(0, (prev[cid] ?? currentCount) + (isLiked ? -1 : 1)) }))
     try { localStorage.setItem('likedEvents', JSON.stringify([...newLiked])) } catch {}
     try {
       const userId = localStorage.getItem('bachataUserId') ?? ''
@@ -342,13 +379,14 @@ export default function EventsPage() {
   }
 
   const performGoing = async (eventId: string, currentCount: number) => {
-    const isGoing = goingEvents.has(eventId)
+    const cid = canonicalId(eventId)
+    const isGoing = goingEvents.has(cid)
     const action = isGoing ? 'notgoing' : 'going'
     const newGoing = new Set(goingEvents)
-    if (isGoing) newGoing.delete(eventId)
-    else newGoing.add(eventId)
+    if (isGoing) newGoing.delete(cid)
+    else newGoing.add(cid)
     setGoingEvents(newGoing)
-    setGoingCounts(prev => ({ ...prev, [eventId]: Math.max(0, (prev[eventId] ?? currentCount) + (isGoing ? -1 : 1)) }))
+    setGoingCounts(prev => ({ ...prev, [cid]: Math.max(0, (prev[cid] ?? currentCount) + (isGoing ? -1 : 1)) }))
     try { localStorage.setItem('goingEvents', JSON.stringify([...newGoing])) } catch {}
     try {
       const userId = localStorage.getItem('bachataUserId') ?? ''
@@ -367,7 +405,8 @@ export default function EventsPage() {
 
   const handleGoingClick = (e: React.MouseEvent, event: CalEvent) => {
     e.stopPropagation()
-    if (goingEvents.has(event.id)) { performGoing(event.id, event.goingCount); return }
+    const cid = canonicalId(event.id)
+    if (goingEvents.has(cid)) { performGoing(event.id, goingCounts[cid] ?? event.goingCount); return }
     if (!isEventToday(event.start)) { setNotTodayEventId(event.id); return }
     setGoingConfirmEventId(event.id)
   }
@@ -540,27 +579,27 @@ export default function EventsPage() {
                         {/* Like */}
                         <button
                           className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold transition-colors border ${
-                            likedEvents.has(event.id)
+                            likedEvents.has(canonicalId(event.id))
                               ? 'bg-red-50 text-red-500 border-red-200'
                               : 'bg-white text-gray-500 border-gray-200 hover:border-red-200 hover:bg-red-50 hover:text-red-500'
                           }`}
-                          onClick={e => toggleLike(e, event.id, event.likesCount)}
+                          onClick={e => toggleLike(e, event.id, likeCounts[canonicalId(event.id)] ?? event.likesCount)}
                         >
-                          <Heart className={`h-3.5 w-3.5 ${likedEvents.has(event.id) ? 'fill-red-500' : ''}`} />
-                          <span>{(likeCounts[event.id] ?? event.likesCount) > 0 ? `${likeCounts[event.id] ?? event.likesCount} ` : ''}Like</span>
+                          <Heart className={`h-3.5 w-3.5 ${likedEvents.has(canonicalId(event.id)) ? 'fill-red-500' : ''}`} />
+                          <span>{(likeCounts[canonicalId(event.id)] ?? event.likesCount) > 0 ? `${likeCounts[canonicalId(event.id)] ?? event.likesCount} ` : ''}Like</span>
                         </button>
 
                         {/* Going */}
                         <button
                           className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold transition-colors border ${
-                            goingEvents.has(event.id)
+                            goingEvents.has(canonicalId(event.id))
                               ? 'bg-green-500 text-white border-green-500'
                               : 'bg-white text-gray-500 border-gray-200 hover:border-green-400 hover:bg-green-50 hover:text-green-600'
                           }`}
                           onClick={e => handleGoingClick(e, event)}
                         >
                           <UserCheck className="h-3.5 w-3.5" />
-                          <span>{(goingCounts[event.id] ?? event.goingCount) > 0 ? `${goingCounts[event.id] ?? event.goingCount} ` : ''}I'm Here</span>
+                          <span>{(goingCounts[canonicalId(event.id)] ?? event.goingCount) > 0 ? `${goingCounts[canonicalId(event.id)] ?? event.goingCount} ` : ''}I'm Here</span>
                         </button>
 
                         {/* Ticket / Link */}
