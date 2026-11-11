@@ -1,6 +1,7 @@
 "use server"
 
 import { google, calendar_v3 } from "googleapis"
+import { getDb } from '@/lib/firebase-admin'
 
 // Update the getUpcomingEvents function to better handle the API key
 
@@ -298,19 +299,67 @@ export async function getWeekEvents(calendarId?: string, state?: string) {
     })
 
     console.log(`Found total of ${allEvents.length} events across all calendars`)
-    
+
     // Log calendar breakdown for debugging
     results.forEach(({ city, events }) => {
       console.log(`Calendar "${city}": ${events.length} events`)
     })
-    
+
+    // Merge auto-scraped Firestore events into the results
+    try {
+      const db = getDb()
+      const scraped = await db.collection('events')
+        .where('autoScraped', '==', true)
+        .where('published', '==', true)
+        .get()
+
+      const calendarTitles = new Set(allEvents.map((e: any) => (e.summary || '').toLowerCase().trim()))
+      const firestoreEvents: any[] = []
+
+      scraped.docs.forEach(doc => {
+        const d = doc.data()
+        if (!d.name || !d.eventDate) return
+        // Skip duplicates already in calendar
+        if (calendarTitles.has(d.name.toLowerCase().trim())) return
+        // Skip past events
+        const start = new Date(`${d.eventDate}T${d.startTime || '00:00'}:00+10:00`)
+        if (start < now) return
+
+        const end = new Date(`${d.eventDate}T${d.endTime || d.startTime || '02:00'}:00+10:00`)
+        // Convert to Google Calendar event shape so formatEvents works unchanged
+        firestoreEvents.push({
+          id: `fs_${doc.id}`,
+          summary: d.name,
+          description: d.imageUrl
+            ? `[image:${d.imageUrl}]\n${d.description || ''}`
+            : (d.description || ''),
+          location: d.location || '',
+          start: { dateTime: start.toISOString() },
+          end: { dateTime: end.toISOString() },
+          htmlLink: d.eventLink || d.ticketLink || '',
+        })
+      })
+
+      if (firestoreEvents.length > 0) {
+        console.log(`Merged ${firestoreEvents.length} auto-scraped Firestore events into carousel`)
+        allEvents.push(...firestoreEvents)
+        allEvents.sort((a: any, b: any) => {
+          const aStart = a.start?.dateTime || a.start?.date || ''
+          const bStart = b.start?.dateTime || b.start?.date || ''
+          return new Date(aStart).getTime() - new Date(bStart).getTime()
+        })
+      }
+    } catch (e) {
+      console.error('[getWeekEvents] Failed to merge Firestore events:', e)
+    }
+
     // Update cache for general requests
     if (!calendarId && !state) {
       weekEventsCache = allEvents
       weekEventsCacheTimestamp = Date.now()
       console.log('Updated week events cache')
     }
-    
+
     return allEvents
   } catch (error) {
     console.error("Error in getWeekEvents:", error)
