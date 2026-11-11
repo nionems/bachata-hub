@@ -21,7 +21,7 @@ export async function GET(request: Request) {
       schools = schools.filter(school => school.status === 'approved' || !school.status)
     }
     
-    const headers = admin ? {} : { 'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=300' }
+    const headers: HeadersInit = admin ? {} : { 'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=300' }
     return NextResponse.json(schools, { headers })
   } catch (error) {
     console.error('Error fetching schools:', error)

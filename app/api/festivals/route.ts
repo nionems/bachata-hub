@@ -143,7 +143,7 @@ export async function GET(request: Request) {
 
     console.log(`API Route (GET /api/festivals): Returning ${festivals.length} festivals. Total time: ${Date.now() - startTime}ms`)
 
-    const headers = admin ? {} : { 'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=300' }
+    const headers: HeadersInit = admin ? {} : { 'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=300' }
     return NextResponse.json(festivals, { headers })
   } catch (error) {
     console.error('Failed to fetch festivals:', error)
