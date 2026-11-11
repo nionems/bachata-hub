@@ -11,6 +11,7 @@ import { LoadingSpinner } from '@/components/loading-spinner'
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { useGeolocation } from '@/hooks/useGeolocation'
+import Link from 'next/link'
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
@@ -492,7 +493,9 @@ export default function EventsPage() {
                       </div>
 
                       {/* Name */}
-                      <h3 className="font-extrabold text-gray-900 text-base sm:text-lg leading-snug">{event.name}</h3>
+                      <Link href={`/events/${event.id}`} className="hover:text-green-600 transition-colors">
+                        <h3 className="font-extrabold text-gray-900 text-base sm:text-lg leading-snug">{event.name}</h3>
+                      </Link>
 
                       {/* Location */}
                       {event.location && (
