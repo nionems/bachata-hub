@@ -37,7 +37,7 @@ interface ScrapedEvent {
   endDateTime: string
   url: string
   imageUrl?: string
-  source: 'eventbrite' | 'trybooking'
+  source: 'eventbrite' | 'trybooking' | 'humanitix'
 }
 
 async function scrapeEventbrite(): Promise<ScrapedEvent[]> {
@@ -104,6 +104,95 @@ async function scrapeEventbrite(): Promise<ScrapedEvent[]> {
   const seen = new Set<string>()
   return events.filter(e => {
     const key = `${e.title.toLowerCase()}|${e.startDateTime.slice(0, 10)}`
+    if (seen.has(key)) return false
+    seen.add(key)
+    return true
+  })
+}
+
+// Humanitix scraper - Australian ethical ticketing platform
+async function scrapeHumanitix(): Promise<ScrapedEvent[]> {
+  const events: ScrapedEvent[] = []
+  const apiKey = process.env.HUMANITIX_API_KEY
+
+  // Try the official API first (free key from humanitix.com/api)
+  if (apiKey) {
+    try {
+      const res = await fetch(
+        'https://api.humanitix.com/v1/events/public?keywords=bachata&country=AU&upcoming=true&pageSize=50',
+        { headers: { 'x-api-key': apiKey, Accept: 'application/json' } }
+      )
+      if (res.ok) {
+        const data = await res.json()
+        const list: any[] = data.events ?? data.data ?? []
+        for (const ev of list) {
+          const title = ev.name || ev.title
+          const startDate = ev.startDate || ev.startDateTime || ev.dates?.[0]?.startDate
+          if (!title || !startDate) continue
+          const venue = ev.venue || ev.location || {}
+          const loc = [venue.name, venue.suburb || venue.city, venue.state, 'Australia'].filter(Boolean).join(', ')
+          events.push({
+            title,
+            description: ev.description || ev.summary || '',
+            location: loc,
+            startDateTime: startDate,
+            endDateTime: ev.endDate || ev.endDateTime || ev.dates?.[0]?.endDate || startDate,
+            url: ev.url || `https://events.humanitix.com/${ev.slug || ev.id}`,
+            imageUrl: ev.bannerImage || ev.image?.url || ev.imageUrl,
+            source: 'humanitix',
+          })
+        }
+        const seen = new Set<string>()
+        return events.filter(e => {
+          const key = `${e.title.toLowerCase()}|${String(e.startDateTime).slice(0, 10)}`
+          if (seen.has(key)) return false
+          seen.add(key)
+          return true
+        })
+      }
+    } catch (e) {
+      console.error('[scrape-events] Humanitix API error:', e)
+    }
+  } else {
+    console.log('[scrape-events] No HUMANITIX_API_KEY — using public search fallback')
+  }
+
+  // Fallback: JSON-LD from Humanitix public search HTML
+  try {
+    const res = await fetch('https://events.humanitix.com/search?q=bachata&country=AU', {
+      headers: { 'User-Agent': 'Mozilla/5.0 (compatible; BachataHubBot/1.0)' },
+    })
+    const html = await res.text()
+    for (const m of html.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)) {
+      try {
+        const schema = JSON.parse(m[1])
+        const items: any[] = schema['@type'] === 'ItemList'
+          ? (schema.itemListElement ?? []).map((i: any) => i.item ?? i)
+          : [schema]
+        for (const item of items) {
+          if (!['Event', 'SocialEvent', 'DanceEvent', 'MusicEvent'].includes(item['@type'])) continue
+          if (!item.name || !item.startDate) continue
+          const loc = item.location?.name || item.location?.address?.addressLocality || ''
+          events.push({
+            title: item.name,
+            description: item.description || '',
+            location: loc ? `${loc}, Australia` : 'Australia',
+            startDateTime: item.startDate,
+            endDateTime: item.endDate || item.startDate,
+            url: item.url || '',
+            imageUrl: Array.isArray(item.image) ? item.image[0] : item.image,
+            source: 'humanitix',
+          })
+        }
+      } catch {}
+    }
+  } catch (e) {
+    console.error('[scrape-events] Humanitix fallback error:', e)
+  }
+
+  const seen = new Set<string>()
+  return events.filter(e => {
+    const key = `${e.title.toLowerCase()}|${String(e.startDateTime).slice(0, 10)}`
     if (seen.has(key)) return false
     seen.add(key)
     return true
@@ -244,12 +333,13 @@ export async function GET(request: Request) {
     })
   )
 
-  // Scrape both sources in parallel
-  const [eventbriteEvents, trybookingEvents] = await Promise.all([
+  // Scrape all sources in parallel
+  const [eventbriteEvents, trybookingEvents, humanitixEvents] = await Promise.all([
     scrapeEventbrite(),
     scrapeTryBooking(),
+    scrapeHumanitix(),
   ])
-  const allEvents = [...eventbriteEvents, ...trybookingEvents]
+  const allEvents = [...eventbriteEvents, ...trybookingEvents, ...humanitixEvents]
 
   const added: string[] = []
   const skipped: string[] = []
@@ -326,6 +416,7 @@ export async function GET(request: Request) {
     sources: {
       eventbrite: eventbriteEvents.length,
       trybooking: trybookingEvents.length,
+      humanitix: humanitixEvents.length,
     },
     message: `Added ${added.length} new event${added.length !== 1 ? 's' : ''} (skipped ${skipped.length} duplicates, ${failed.length} failed)`,
   })

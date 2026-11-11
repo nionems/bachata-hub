@@ -1902,7 +1902,7 @@ function AdminDashboardContent() {
                 </button>
                 <button
                   onClick={async () => {
-                    if (!window.confirm('Scrape Eventbrite + TryBooking for new bachata events in Australia and add them to Google Calendar?')) return
+                    if (!window.confirm('Scrape Eventbrite, TryBooking + Humanitix for new bachata events in Australia and add them to Google Calendar?')) return
                     const btn = document.activeElement as HTMLButtonElement
                     if (btn) btn.disabled = true
                     try {
@@ -1911,7 +1911,7 @@ function AdminDashboardContent() {
                       if (res.ok) {
                         window.alert(
                           `✅ ${data.message}\n\n` +
-                          `Sources: Eventbrite (${data.sources?.eventbrite ?? 0} found), TryBooking (${data.sources?.trybooking ?? 0} found)\n\n` +
+                          `Sources: Eventbrite (${data.sources?.eventbrite ?? 0}), TryBooking (${data.sources?.trybooking ?? 0}), Humanitix (${data.sources?.humanitix ?? 0})\n\n` +
                           (data.addedEvents?.length ? `Added:\n${data.addedEvents.join('\n')}` : 'No new events found.')
                         )
                         if (data.added > 0) fetchDbEvents()
@@ -1926,7 +1926,7 @@ function AdminDashboardContent() {
                   }}
                   className="bg-purple-500 text-white px-3 py-1.5 rounded hover:bg-purple-600 text-sm disabled:opacity-50"
                 >
-                  Sync Eventbrite + TryBooking
+                  Sync Eventbrite / TryBooking / Humanitix
                 </button>
                 <button
                   onClick={() => router.push('/admin/events/new')}
