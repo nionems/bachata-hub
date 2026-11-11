@@ -4,7 +4,7 @@ const nextConfig = {
     remotePatterns: [
       {
         protocol: 'https',
-        hostname: 'scontent.fsyd6-1.fna.fbcdn.net',
+        hostname: '**',
         pathname: '/**',
       },
       {

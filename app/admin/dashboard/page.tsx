@@ -1972,12 +1972,41 @@ function AdminDashboardContent() {
                   {searchTerm ? `${filteredFestivals.length} of ${festivals.length} festivals` : `${festivals.length} total festivals`}
                 </div>
               </div>
-              <button
-                onClick={() => router.push('/admin/festivals/new')}
-                className="bg-blue-500 text-white px-3 py-1.5 rounded hover:bg-blue-600 text-sm"
-              >
-                Add New Festival
-              </button>
+              <div className="flex gap-2">
+                <button
+                  onClick={async () => {
+                    const btn = document.activeElement as HTMLButtonElement
+                    if (btn) btn.disabled = true
+                    try {
+                      const res = await fetch('/api/admin/unpublish-past-festivals', { method: 'POST' })
+                      const data = await res.json()
+                      if (res.ok) {
+                        window.alert(
+                          data.unpublished > 0
+                            ? `✅ Unpublished ${data.unpublished} past festival(s):\n${data.names.join('\n')}`
+                            : '✅ No past festivals to unpublish.'
+                        )
+                        if (data.unpublished > 0) fetchFestivals()
+                      } else {
+                        window.alert(`❌ Error: ${data.error}`)
+                      }
+                    } catch {
+                      window.alert('❌ Request failed')
+                    } finally {
+                      if (btn) btn.disabled = false
+                    }
+                  }}
+                  className="bg-orange-500 text-white px-3 py-1.5 rounded hover:bg-orange-600 text-sm disabled:opacity-50"
+                >
+                  Unpublish Past Festivals
+                </button>
+                <button
+                  onClick={() => router.push('/admin/festivals/new')}
+                  className="bg-blue-500 text-white px-3 py-1.5 rounded hover:bg-blue-600 text-sm"
+                >
+                  Add New Festival
+                </button>
+              </div>
             </div>
 
             {isLoading ? (

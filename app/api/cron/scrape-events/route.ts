@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server'
 import { cookies } from 'next/headers'
 import { getDb } from '@/lib/firebase-admin'
 
-export const maxDuration = 60
+export const maxDuration = 300
 
 function detectState(location: string): string {
   const loc = (location || '').toLowerCase()
@@ -31,62 +31,104 @@ interface ScrapedEvent {
 
 async function scrapeEventbrite(): Promise<ScrapedEvent[]> {
   const apiKey = process.env.EVENTBRITE_API_KEY
-  if (!apiKey) {
-    console.log('[scrape-events] No EVENTBRITE_API_KEY — skipping Eventbrite')
-    return []
+  const events: ScrapedEvent[] = []
+
+  if (apiKey) {
+    const cities = ['Sydney', 'Melbourne', 'Brisbane', 'Perth', 'Adelaide', 'Canberra']
+    for (const city of cities) {
+      try {
+        const url = new URL('https://www.eventbriteapi.com/v3/events/search/')
+        url.searchParams.set('q', 'bachata')
+        url.searchParams.set('location.address', `${city}, Australia`)
+        url.searchParams.set('location.within', '50km')
+        url.searchParams.set('start_date.range_start', new Date().toISOString())
+        url.searchParams.set('sort_by', 'date')
+        url.searchParams.set('expand', 'venue')
+
+        const res = await fetch(url.toString(), {
+          headers: { Authorization: `Bearer ${apiKey}` },
+        })
+        if (!res.ok) continue
+
+        const data = await res.json()
+        for (const ev of data.events ?? []) {
+          if (!ev.name?.text || !ev.start?.local) continue
+          const title = ev.name.text
+          const desc = (ev.description?.text || '').toLowerCase()
+          if (!title.toLowerCase().includes('bachata') && !desc.includes('bachata')) continue
+
+          const location = [
+            ev.venue?.address?.address_1,
+            ev.venue?.address?.city,
+            ev.venue?.address?.region,
+            'Australia',
+          ].filter(Boolean).join(', ')
+
+          events.push({
+            title,
+            description: ev.description?.text || '',
+            location,
+            startDateTime: ev.start.local,
+            endDateTime: ev.end?.local || ev.start.local,
+            url: ev.url,
+            imageUrl: ev.logo?.original?.url || ev.logo?.url,
+            source: 'eventbrite',
+          })
+        }
+      } catch (e) {
+        console.error(`[scrape-events] Eventbrite API error:`, e)
+      }
+    }
   }
 
-  const events: ScrapedEvent[] = []
-  const cities = ['Sydney', 'Melbourne', 'Brisbane', 'Perth', 'Adelaide', 'Canberra']
-
-  for (const city of cities) {
+  // Public HTML fallback — no API key needed
+  const searchSlugs = ['bachata', 'bachata-festival', 'bachata-weekender', 'latin-bachata']
+  for (const slug of searchSlugs) {
     try {
-      const url = new URL('https://www.eventbriteapi.com/v3/events/search/')
-      url.searchParams.set('q', 'bachata')
-      url.searchParams.set('location.address', `${city}, Australia`)
-      url.searchParams.set('location.within', '50km')
-      url.searchParams.set('start_date.range_start', new Date().toISOString())
-      url.searchParams.set('sort_by', 'date')
-      url.searchParams.set('expand', 'venue')
-
-      const res = await fetch(url.toString(), {
-        headers: { Authorization: `Bearer ${apiKey}` },
+      const res = await fetch(`https://www.eventbrite.com.au/d/australia/${slug}/`, {
+        headers: { 'User-Agent': 'Mozilla/5.0 (compatible; BachataHubBot/1.0)' },
       })
       if (!res.ok) continue
-
-      const data = await res.json()
-      for (const ev of data.events ?? []) {
-        if (!ev.name?.text || !ev.start?.local) continue
-        const title = ev.name.text
-        const desc = (ev.description?.text || '').toLowerCase()
-        if (!title.toLowerCase().includes('bachata') && !desc.includes('bachata')) continue
-
-        const location = [
-          ev.venue?.address?.address_1,
-          ev.venue?.address?.city,
-          ev.venue?.address?.region,
-          'Australia',
-        ].filter(Boolean).join(', ')
-
-        events.push({
-          title,
-          description: ev.description?.text || '',
-          location,
-          startDateTime: ev.start.local,
-          endDateTime: ev.end?.local || ev.start.local,
-          url: ev.url,
-          imageUrl: ev.logo?.original?.url || ev.logo?.url,
-          source: 'eventbrite',
-        })
+      const html = await res.text()
+      for (const m of html.matchAll(/<script[^>]*type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/g)) {
+        try {
+          const schema = JSON.parse(m[1])
+          const items: any[] = schema['@type'] === 'ItemList'
+            ? (schema.itemListElement ?? []).map((i: any) => i.item ?? i)
+            : [schema]
+          for (const item of items) {
+            if (item['@type'] !== 'Event') continue
+            if (!item.name || !item.startDate) continue
+            const title = item.name
+            const lc = title.toLowerCase()
+            if (!lc.includes('bachata') && !(item.description || '').toLowerCase().includes('bachata')) continue
+            const loc = [
+              item.location?.address?.streetAddress,
+              item.location?.address?.addressLocality,
+              item.location?.address?.addressRegion,
+              'Australia',
+            ].filter(Boolean).join(', ')
+            events.push({
+              title,
+              description: item.description || '',
+              location: loc || 'Australia',
+              startDateTime: item.startDate,
+              endDateTime: item.endDate || item.startDate,
+              url: item.url || '',
+              imageUrl: Array.isArray(item.image) ? item.image[0] : item.image,
+              source: 'eventbrite',
+            })
+          }
+        } catch {}
       }
     } catch (e) {
-      console.error(`[scrape-events] Eventbrite error for ${city}:`, e)
+      console.error(`[scrape-events] Eventbrite HTML fallback error (${slug}):`, e)
     }
   }
 
   const seen = new Set<string>()
   return events.filter(e => {
-    const key = `${e.title.toLowerCase()}|${e.startDateTime.slice(0, 10)}`
+    const key = `${e.title.toLowerCase()}|${String(e.startDateTime).slice(0, 10)}`
     if (seen.has(key)) return false
     seen.add(key)
     return true
@@ -179,73 +221,76 @@ async function scrapeHumanitix(): Promise<ScrapedEvent[]> {
 
 async function scrapeTryBooking(): Promise<ScrapedEvent[]> {
   const events: ScrapedEvent[] = []
+  const bachataTerms = /bachata|latin dance|latin weekender|salsa.*bachata|bachata.*salsa/i
 
-  for (const term of ['bachata', 'bachata dance']) {
-    try {
-      const res = await fetch(
-        `https://www.trybooking.com/api/event-search?term=${encodeURIComponent(term)}&country=AU&pageSize=50`,
-        {
-          headers: {
-            Accept: 'application/json, text/plain, */*',
-            'User-Agent': 'Mozilla/5.0 (compatible; BachataHubBot/1.0)',
-          },
-        }
-      )
-      if (res.ok) {
-        const data = await res.json()
-        const list: any[] = data.events ?? data.results ?? data.data ?? []
-        for (const ev of list) {
-          const title = ev.name || ev.title || ev.eventName
-          const startDate = ev.startDate || ev.dateFrom || ev.start_date || ev.startDateTime
-          if (!title || !startDate) continue
-          const loc = [ev.venueName || ev.venue, ev.suburb || ev.city, ev.state, 'Australia'].filter(Boolean).join(', ')
-          events.push({
-            title,
-            description: ev.description || ev.summary || '',
-            location: loc,
-            startDateTime: startDate,
-            endDateTime: ev.endDate || ev.dateTo || ev.end_date || startDate,
-            url: ev.bookingUrl || ev.url || `https://www.trybooking.com/events/${ev.eventId || ev.id}`,
-            imageUrl: ev.imageUrl || ev.image,
-            source: 'trybooking',
-          })
-        }
-        break
+  try {
+    // Fetch sitemap to get recent high-priority event URLs
+    const sitemapRes = await fetch('https://www.trybooking.com/sitemap/au-events-sitemap.xml', {
+      headers: { 'User-Agent': 'Mozilla/5.0 (compatible; BachataHubBot/1.0)' },
+    })
+    if (!sitemapRes.ok) return events
+
+    const xml = await sitemapRes.text()
+    const cutoff = new Date()
+    cutoff.setDate(cutoff.getDate() - 180) // only events modified in last 6 months
+    const cutoffStr = cutoff.toISOString().slice(0, 10)
+
+    const rows: { url: string; priority: number }[] = []
+    for (const m of xml.matchAll(/<url><loc>(https:\/\/www\.trybooking\.com\/au\/event\/\d+)<\/loc><lastmod>([^<]+)<\/lastmod><priority>([^<]+)<\/priority><\/url>/g)) {
+      const [, url, lastmod, priority] = m
+      if (lastmod.slice(0, 10) >= cutoffStr && parseFloat(priority) > 0) {
+        rows.push({ url, priority: parseFloat(priority) })
       }
-    } catch {}
-  }
+    }
 
-  // Fallback: JSON-LD from public search HTML
-  if (events.length === 0) {
-    try {
-      const res = await fetch('https://www.trybooking.com/search?term=bachata+dance&country=AU', {
-        headers: { 'User-Agent': 'Mozilla/5.0 (compatible; BachataHubBot/1.0)' },
-      })
-      const html = await res.text()
-      for (const m of html.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)) {
-        try {
-          const schema = JSON.parse(m[1])
-          const items: any[] = schema['@type'] === 'ItemList'
-            ? (schema.itemListElement ?? []).map((i: any) => i.item ?? i)
-            : [schema]
-          for (const item of items) {
-            if (!['Event', 'SocialEvent', 'DanceEvent'].includes(item['@type'])) continue
-            if (!item.name || !item.startDate) continue
-            const loc = item.location?.name || item.location?.address?.addressLocality || ''
+    // Take top 80 by priority
+    rows.sort((a, b) => b.priority - a.priority)
+    const toFetch = rows.slice(0, 80).map(r => r.url)
+
+    // Fetch event pages in batches of 10
+    const BATCH = 10
+    for (let i = 0; i < toFetch.length; i += BATCH) {
+      const batch = toFetch.slice(i, i + BATCH)
+      const results = await Promise.allSettled(
+        batch.map(url =>
+          fetch(url, { headers: { 'User-Agent': 'Mozilla/5.0 (compatible; BachataHubBot/1.0)' } })
+            .then(r => (r.ok ? r.text() : ''))
+            .catch(() => '')
+        )
+      )
+      for (let j = 0; j < results.length; j++) {
+        const r = results[j]
+        if (r.status !== 'fulfilled' || !r.value) continue
+        const html = r.value
+        for (const m of html.matchAll(/<script[^>]*type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/g)) {
+          try {
+            const schema = JSON.parse(m[1])
+            if (schema['@type'] !== 'Event') continue
+            if (!schema.name || !schema.startDate) continue
+            const combined = `${schema.name} ${schema.description || ''}`
+            if (!bachataTerms.test(combined)) continue
+            const loc = [
+              schema.location?.name,
+              schema.location?.address?.addressLocality,
+              schema.location?.address?.addressRegion,
+              'Australia',
+            ].filter(Boolean).join(', ')
             events.push({
-              title: item.name,
-              description: item.description || '',
-              location: loc ? `${loc}, Australia` : 'Australia',
-              startDateTime: item.startDate,
-              endDateTime: item.endDate || item.startDate,
-              url: item.url || '',
-              imageUrl: Array.isArray(item.image) ? item.image[0] : item.image,
+              title: schema.name,
+              description: schema.description || '',
+              location: loc || 'Australia',
+              startDateTime: schema.startDate,
+              endDateTime: schema.endDate || schema.startDate,
+              url: schema.url || toFetch[i + j],
+              imageUrl: Array.isArray(schema.image) ? schema.image[0] : schema.image,
               source: 'trybooking',
             })
-          }
-        } catch {}
+          } catch {}
+        }
       }
-    } catch {}
+    }
+  } catch (e) {
+    console.error('[scrape-events] TryBooking sitemap error:', e)
   }
 
   const seen = new Set<string>()
@@ -271,6 +316,7 @@ export async function GET(request: Request) {
 
   const db = getDb()
   const now = new Date()
+  const nowIso = now.toISOString()
 
   // Auto-unpublish festivals whose end date has passed
   const todayStr = now.toISOString().slice(0, 10)
@@ -310,7 +356,6 @@ export async function GET(request: Request) {
   const addedFestivals: string[] = []
   const skipped: string[] = []
   const failed: string[] = []
-  const nowIso = now.toISOString()
 
   for (const event of allEvents) {
     const normalizedTitle = event.title.toLowerCase().trim()
