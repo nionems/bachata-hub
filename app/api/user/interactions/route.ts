@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server'
 import { getDb } from '@/lib/firebase-admin'
 
+export const dynamic = 'force-dynamic'
+
 // GET /api/user/interactions?userId=xxx
 export async function GET(request: Request) {
   try {
