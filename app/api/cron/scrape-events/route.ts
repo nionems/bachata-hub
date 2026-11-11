@@ -272,6 +272,22 @@ export async function GET(request: Request) {
   const db = getDb()
   const now = new Date()
 
+  // Auto-unpublish festivals whose end date has passed
+  const todayStr = now.toISOString().slice(0, 10)
+  const festivalsAll = await db.collection('festivals').where('published', '==', true).get()
+  const expiredUnpublish = festivalsAll.docs.filter(doc => {
+    const end = doc.data().endDate || doc.data().startDate || ''
+    return end && end < todayStr
+  })
+  await Promise.allSettled(
+    expiredUnpublish.map(doc =>
+      doc.ref.update({ published: false, unpublishedAt: nowIso, unpublishReason: 'Auto-unpublished: festival end date passed' })
+    )
+  )
+  if (expiredUnpublish.length > 0) {
+    console.log(`[cron/scrape-events] unpublished ${expiredUnpublish.length} expired festival(s)`)
+  }
+
   // Load existing names from both collections for deduplication
   const [eventsSnap, festivalsSnap] = await Promise.all([
     db.collection('events').get(),
@@ -400,7 +416,7 @@ export async function GET(request: Request) {
     }
   }
 
-  console.log(`[cron/scrape-events] events=${added.length} festivals=${addedFestivals.length} skipped=${skipped.length} failed=${failed.length}`)
+  console.log(`[cron/scrape-events] events=${added.length} festivals=${addedFestivals.length} expired=${expiredUnpublish.length} skipped=${skipped.length} failed=${failed.length}`)
 
   return NextResponse.json({
     added: added.length + addedFestivals.length,
@@ -410,6 +426,7 @@ export async function GET(request: Request) {
     failed: failed.length,
     newEvents: added,
     newFestivals: addedFestivals,
+    unpublishedFestivals: expiredUnpublish.length,
     failedEvents: failed,
     sources: {
       eventbrite: eventbriteEvents.length,
