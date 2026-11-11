@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server'
 import { getDb } from '@/lib/firebase-admin'
 
+export const dynamic = 'force-dynamic'
+
 export async function POST(request: Request) {
   try {
     console.log('Community join API called')

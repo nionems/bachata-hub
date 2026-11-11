@@ -3,6 +3,8 @@ import { cookies } from 'next/headers'
 import { getDb } from '@/lib/firebase-admin'
 import { fetchAllCalendarEvents } from '@/lib/calendar-events'
 
+export const dynamic = 'force-dynamic'
+
 export const maxDuration = 60
 
 const STOP_WORDS = new Set([

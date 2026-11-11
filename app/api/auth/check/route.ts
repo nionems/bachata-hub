@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server'
 import { cookies } from 'next/headers'
 
+export const dynamic = 'force-dynamic'
+
 export async function GET() {
   const cookieStore = cookies()
   const adminSession = cookieStore.get('admin_session')

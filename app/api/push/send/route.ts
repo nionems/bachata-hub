@@ -3,6 +3,8 @@ import { getDb } from '@/lib/firebase-admin'
 import { cookies } from 'next/headers'
 import webpush from 'web-push'
 
+export const dynamic = 'force-dynamic'
+
 webpush.setVapidDetails(
   process.env.VAPID_EMAIL!,
   process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY!,

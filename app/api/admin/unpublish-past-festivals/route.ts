@@ -3,6 +3,8 @@ import { cookies } from 'next/headers'
 import { getDb } from '@/lib/firebase-admin'
 import { Timestamp } from 'firebase-admin/firestore'
 
+export const dynamic = 'force-dynamic'
+
 function toDateStr(value: any): string {
   if (!value) return ''
   if (value instanceof Timestamp) return value.toDate().toISOString().slice(0, 10)

@@ -3,6 +3,8 @@ import { getDb } from '@/lib/firebase-admin'
 import { fetchTopBachataVideos } from '@/lib/youtube'
 import { cookies } from 'next/headers'
 
+export const dynamic = 'force-dynamic'
+
 const CACHE_DOC = 'topBachata'
 const CACHE_TTL_MS = 7 * 24 * 60 * 60 * 1000 // 7 days
 const CACHE_VERSION = 14 // bump to force refresh when query logic changes

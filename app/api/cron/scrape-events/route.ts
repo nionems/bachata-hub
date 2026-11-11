@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server'
 import { cookies } from 'next/headers'
 import { getDb } from '@/lib/firebase-admin'
 
+export const dynamic = 'force-dynamic'
+
 export const maxDuration = 300
 
 function detectState(location: string): string {
