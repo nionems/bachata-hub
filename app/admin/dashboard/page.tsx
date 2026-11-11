@@ -1901,6 +1901,34 @@ function AdminDashboardContent() {
                   Import from Calendar
                 </button>
                 <button
+                  onClick={async () => {
+                    if (!window.confirm('Scrape Eventbrite + TryBooking for new bachata events in Australia and add them to Google Calendar?')) return
+                    const btn = document.activeElement as HTMLButtonElement
+                    if (btn) btn.disabled = true
+                    try {
+                      const res = await fetch('/api/cron/scrape-events')
+                      const data = await res.json()
+                      if (res.ok) {
+                        window.alert(
+                          `✅ ${data.message}\n\n` +
+                          `Sources: Eventbrite (${data.sources?.eventbrite ?? 0} found), TryBooking (${data.sources?.trybooking ?? 0} found)\n\n` +
+                          (data.addedEvents?.length ? `Added:\n${data.addedEvents.join('\n')}` : 'No new events found.')
+                        )
+                        if (data.added > 0) fetchDbEvents()
+                      } else {
+                        window.alert(`❌ Error: ${data.error}`)
+                      }
+                    } catch (e) {
+                      window.alert('❌ Scrape failed')
+                    } finally {
+                      if (btn) btn.disabled = false
+                    }
+                  }}
+                  className="bg-purple-500 text-white px-3 py-1.5 rounded hover:bg-purple-600 text-sm disabled:opacity-50"
+                >
+                  Sync Eventbrite + TryBooking
+                </button>
+                <button
                   onClick={() => router.push('/admin/events/new')}
                   className="bg-blue-500 text-white px-3 py-1.5 rounded hover:bg-blue-600 text-sm"
                 >

@@ -7,6 +7,10 @@
     {
       "path": "/api/cron/sync-calendar",
       "schedule": "0 14 * * *"
+    },
+    {
+      "path": "/api/cron/scrape-events",
+      "schedule": "0 15 * * *"
     }
   ]
 }
