@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server'
 import { getDb } from '@/lib/firebase-admin'
 
+export const dynamic = 'force-dynamic'
+
 // GET /api/schools/counts?userId=xxx
 // Returns { counts: { [schoolId]: number }, likedByUser: string[] }
 export async function GET(request: Request) {

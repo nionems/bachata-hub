@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server'
 import { getDb } from '@/lib/firebase-admin'
 import { FieldValue } from 'firebase-admin/firestore'
 
+export const dynamic = 'force-dynamic'
+
 // Canonical ID for recurring Google Calendar events: strip _YYYYMMDD(THHMMSSZ)? suffix
 function canonicalCalId(id: string): string {
   return id.replace(/_\d{8}(T\d{6}Z)?$/, '')

@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server'
 import { getDb } from '@/lib/firebase-admin'
 import { Instructor } from '@/types/instructor'
 
+export const dynamic = 'force-dynamic'
+
 // Add GET method to fetch all instructors
 export async function GET(request: Request) {
   try {

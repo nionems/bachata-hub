@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server'
 import { cookies } from 'next/headers'
 import { getDb } from '@/lib/firebase-admin'
 
+export const dynamic = 'force-dynamic'
+
 export async function GET(request: Request) {
   const cookieStore = cookies()
   const adminSession = cookieStore.get('admin_session')
