@@ -8,11 +8,6 @@ let festivalsCache: any[] | null = null
 let cacheTimestamp: number = 0
 const CACHE_DURATION = 20 * 60 * 1000 // 20 minutes (increased for better performance)
 
-export function clearFestivalsCache() {
-  festivalsCache = null
-  cacheTimestamp = 0
-}
-
 interface FestivalData {
   id: string
   name: string
