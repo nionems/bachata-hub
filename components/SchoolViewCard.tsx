@@ -1,15 +1,18 @@
 'use client'
 
 import { Card } from "@/components/ui/card"
-import { MapPin, ChevronDown, ChevronUp, X, Instagram, Facebook, Globe } from "lucide-react"
+import { MapPin, ChevronDown, ChevronUp, X, Instagram, Facebook, Globe, Heart } from "lucide-react"
 import { useState } from "react"
 import { School } from "@/types/school"
 
 interface SchoolViewCardProps {
   school: School
+  likesCount?: number
+  isLiked?: boolean
+  onLike?: (e: React.MouseEvent) => void
 }
 
-export function SchoolViewCard({ school }: SchoolViewCardProps) {
+export function SchoolViewCard({ school, likesCount = 0, isLiked = false, onLike }: SchoolViewCardProps) {
   const [isCommentExpanded, setIsCommentExpanded] = useState(false)
   const [isImageModalOpen, setIsImageModalOpen] = useState(false)
 
@@ -92,42 +95,54 @@ export function SchoolViewCard({ school }: SchoolViewCardProps) {
               )}
             </div>
           )}
-          <div className="flex gap-2 mt-2">
-            {school.instagramUrl && (
-              <a
-                href={school.instagramUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                onClick={(e) => e.stopPropagation()}
-                className="p-1.5 bg-primary/20 hover:bg-primary/30 text-primary rounded-full transition-colors duration-200"
-                title="Instagram"
+          <div className="flex items-center justify-between mt-2">
+            <div className="flex gap-2">
+              {school.instagramUrl && (
+                <a
+                  href={school.instagramUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={(e) => e.stopPropagation()}
+                  className="p-1.5 bg-primary/20 hover:bg-primary/30 text-primary rounded-full transition-colors duration-200"
+                  title="Instagram"
+                >
+                  <Instagram className="h-4 w-4" />
+                </a>
+              )}
+              {school.facebookUrl && (
+                <a
+                  href={school.facebookUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={(e) => e.stopPropagation()}
+                  className="p-1.5 bg-primary/20 hover:bg-primary/30 text-primary rounded-full transition-colors duration-200"
+                  title="Facebook"
+                >
+                  <Facebook className="h-4 w-4" />
+                </a>
+              )}
+              {school.website && (
+                <a
+                  href={school.website}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={(e) => e.stopPropagation()}
+                  className="p-1.5 bg-primary/20 hover:bg-primary/30 text-primary rounded-full transition-colors duration-200"
+                  title="Website"
+                >
+                  <Globe className="h-4 w-4" />
+                </a>
+              )}
+            </div>
+            {onLike && (
+              <button
+                onClick={onLike}
+                className="flex items-center gap-1 px-2 py-1 rounded-full bg-black/40 hover:bg-black/60 transition-colors"
+                title="Like this school"
               >
-                <Instagram className="h-4 w-4" />
-              </a>
-            )}
-            {school.facebookUrl && (
-              <a
-                href={school.facebookUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                onClick={(e) => e.stopPropagation()}
-                className="p-1.5 bg-primary/20 hover:bg-primary/30 text-primary rounded-full transition-colors duration-200"
-                title="Facebook"
-              >
-                <Facebook className="h-4 w-4" />
-              </a>
-            )}
-            {school.website && (
-              <a
-                href={school.website}
-                target="_blank"
-                rel="noopener noreferrer"
-                onClick={(e) => e.stopPropagation()}
-                className="p-1.5 bg-primary/20 hover:bg-primary/30 text-primary rounded-full transition-colors duration-200"
-                title="Website"
-              >
-                <Globe className="h-4 w-4" />
-              </a>
+                <Heart className={`h-4 w-4 transition-colors drop-shadow ${isLiked ? 'fill-red-500 text-red-500' : 'text-white'}`} />
+                <span className={`text-xs font-bold ${isLiked ? 'text-red-400' : 'text-white'}`}>{likesCount}</span>
+              </button>
             )}
           </div>
         </div>

@@ -31,6 +31,12 @@ import {
   CardFooter
 } from "@/components/ui/card"
 
+function seedLikes(name: string): number {
+  let h = 0
+  for (let i = 0; i < name.length; i++) h = (h * 31 + name.charCodeAt(i)) | 0
+  return 4 + (Math.abs(h) % 24) // 4–27
+}
+
 export default function SchoolsPage() {
   const [schools, setSchools] = useState<School[]>([])
   const [isLoading, setIsLoading] = useState(true)
@@ -40,6 +46,8 @@ export default function SchoolsPage() {
   const [searchTerm, setSearchTerm] = useState("")
   const [selectedDanceStyle, setSelectedDanceStyle] = useState("all")
   const [availableDanceStyles, setAvailableDanceStyles] = useState<string[]>([])
+  const [likeCounts, setLikeCounts] = useState<Record<string, number>>({})
+  const [likedSchools, setLikedSchools] = useState<Set<string>>(new Set())
   
   const { selectedState, setSelectedState, filteredItems: filteredSchools, isGeoLoading } = useStateFilter(schools, { useGeolocation: true })
 
@@ -83,6 +91,54 @@ export default function SchoolsPage() {
 
     fetchSchools()
   }, [])
+
+  // Load like counts + user's liked schools
+  useEffect(() => {
+    let userId = ''
+    try {
+      userId = localStorage.getItem('bachataUserId') ?? ''
+      if (!userId) {
+        userId = crypto.randomUUID()
+        localStorage.setItem('bachataUserId', userId)
+      }
+      const stored = localStorage.getItem('likedSchools')
+      if (stored) setLikedSchools(new Set(JSON.parse(stored)))
+    } catch {}
+
+    fetch(`/api/schools/counts?userId=${encodeURIComponent(userId)}`)
+      .then(r => r.ok ? r.json() : null)
+      .then(data => {
+        if (!data) return
+        setLikedSchools(new Set<string>(data.likedByUser ?? []))
+        // Merge Firestore counts with seeds
+        setLikeCounts(data.counts ?? {})
+        try { localStorage.setItem('likedSchools', JSON.stringify(data.likedByUser ?? [])) } catch {}
+      })
+      .catch(() => {})
+  }, [])
+
+  const toggleLike = (e: React.MouseEvent, school: School) => {
+    e.stopPropagation()
+    const id = school.id
+    const isLiked = likedSchools.has(id)
+    const action = isLiked ? 'unlike' : 'like'
+    const seed = seedLikes(school.name)
+    const current = likeCounts[id] ?? seed
+
+    const newLiked = new Set(likedSchools)
+    if (isLiked) newLiked.delete(id)
+    else newLiked.add(id)
+    setLikedSchools(newLiked)
+    setLikeCounts(prev => ({ ...prev, [id]: Math.max(seed, current + (isLiked ? -1 : 1)) }))
+    try { localStorage.setItem('likedSchools', JSON.stringify([...newLiked])) } catch {}
+
+    const userId = (() => { try { return localStorage.getItem('bachataUserId') ?? '' } catch { return '' } })()
+    fetch(`/api/schools/${id}/like`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action, userId }),
+    }).catch(() => {})
+  }
 
   // Extract available dance styles from schools in the selected state
   useEffect(() => {
@@ -192,7 +248,13 @@ export default function SchoolsPage() {
             </div>
           ) : (
             searchFilteredSchools.map((school) => (
-              <SchoolViewCard key={school.id} school={school} />
+              <SchoolViewCard
+                key={school.id}
+                school={school}
+                likesCount={likeCounts[school.id] !== undefined ? likeCounts[school.id] + seedLikes(school.name) : seedLikes(school.name)}
+                isLiked={likedSchools.has(school.id)}
+                onLike={(e) => toggleLike(e, school)}
+              />
             ))
           )}
         </div>
