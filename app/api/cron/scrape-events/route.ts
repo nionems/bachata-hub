@@ -272,11 +272,15 @@ export async function GET(request: Request) {
   const db = getDb()
   const now = new Date()
 
-  // Load existing event names from Firestore for deduplication
-  const snapshot = await db.collection('events').get()
-  const existingNames = new Set<string>(
-    snapshot.docs.map(d => ((d.data().name as string) || '').toLowerCase().trim())
-  )
+  // Load existing names from both collections for deduplication
+  const [eventsSnap, festivalsSnap] = await Promise.all([
+    db.collection('events').get(),
+    db.collection('festivals').get(),
+  ])
+  const existingNames = new Set<string>([
+    ...eventsSnap.docs.map(d => ((d.data().name as string) || '').toLowerCase().trim()),
+    ...festivalsSnap.docs.map(d => ((d.data().name as string) || '').toLowerCase().trim()),
+  ])
 
   // Scrape all sources in parallel
   const [eventbriteEvents, trybookingEvents, humanitixEvents] = await Promise.all([
@@ -287,6 +291,7 @@ export async function GET(request: Request) {
   const allEvents = [...eventbriteEvents, ...trybookingEvents, ...humanitixEvents]
 
   const added: string[] = []
+  const addedFestivals: string[] = []
   const skipped: string[] = []
   const failed: string[] = []
   const nowIso = now.toISOString()
@@ -301,7 +306,7 @@ export async function GET(request: Request) {
       continue
     }
 
-    // Fuzzy dedup against existing Firestore events
+    // Fuzzy dedup against both collections
     const isDuplicate =
       existingNames.has(normalizedTitle) ||
       [...existingNames].some(existing => {
@@ -322,39 +327,70 @@ export async function GET(request: Request) {
         : endDate
 
       const startDateStr = startDate.toISOString().slice(0, 10)
+      const endDateStr = endDateTime.toISOString().slice(0, 10)
       const startTime = startDate.toISOString().slice(11, 16)
       const endTime = endDateTime.toISOString().slice(11, 16)
       const state = detectState(event.location)
 
-      await db.collection('events').add({
-        name: event.title,
-        eventDate: startDateStr,
-        startTime,
-        endTime,
-        location: event.location,
-        city: '',
-        state,
-        description: [
-          event.description,
-          event.url ? `Event page: ${event.url}` : '',
-        ].filter(Boolean).join('\n\n'),
-        imageUrl: event.imageUrl || '',
-        eventLink: event.url || '',
-        ticketLink: event.url || '',
-        danceStyles: ['Bachata'],
-        recurrence: '',
-        isWeekly: false,
-        isWorkshop: false,
-        published: true,
-        autoScraped: true,
-        scrapeSource: event.source,
-        likesCount: 0,
-        goingCount: 0,
-        createdAt: nowIso,
-        updatedAt: nowIso,
-      })
+      // Multi-day event (spans 2+ calendar days) → festivals collection
+      const isMultiDay = endDateStr > startDateStr
 
-      added.push(event.title)
+      const description = [
+        event.description,
+        event.url ? `Event page: ${event.url}` : '',
+      ].filter(Boolean).join('\n\n')
+
+      if (isMultiDay) {
+        await db.collection('festivals').add({
+          name: event.title,
+          startDate: startDateStr,
+          endDate: endDateStr,
+          location: event.location,
+          state,
+          country: 'Australia',
+          description,
+          imageUrl: event.imageUrl || '',
+          eventLink: event.url || '',
+          ticketLink: event.url || '',
+          danceStyles: ['Bachata'],
+          price: '',
+          published: true,
+          status: 'approved',
+          autoScraped: true,
+          scrapeSource: event.source,
+          featured: 'no',
+          createdAt: nowIso,
+          updatedAt: nowIso,
+        })
+        addedFestivals.push(event.title)
+      } else {
+        await db.collection('events').add({
+          name: event.title,
+          eventDate: startDateStr,
+          startTime,
+          endTime,
+          location: event.location,
+          city: '',
+          state,
+          description,
+          imageUrl: event.imageUrl || '',
+          eventLink: event.url || '',
+          ticketLink: event.url || '',
+          danceStyles: ['Bachata'],
+          recurrence: '',
+          isWeekly: false,
+          isWorkshop: false,
+          published: true,
+          autoScraped: true,
+          scrapeSource: event.source,
+          likesCount: 0,
+          goingCount: 0,
+          createdAt: nowIso,
+          updatedAt: nowIso,
+        })
+        added.push(event.title)
+      }
+
       existingNames.add(normalizedTitle)
     } catch (e) {
       console.error(`[scrape-events] Failed to save "${event.title}":`, e)
@@ -362,13 +398,16 @@ export async function GET(request: Request) {
     }
   }
 
-  console.log(`[cron/scrape-events] added=${added.length} skipped=${skipped.length} failed=${failed.length}`)
+  console.log(`[cron/scrape-events] events=${added.length} festivals=${addedFestivals.length} skipped=${skipped.length} failed=${failed.length}`)
 
   return NextResponse.json({
-    added: added.length,
+    added: added.length + addedFestivals.length,
+    addedEvents: added.length,
+    addedFestivals: addedFestivals.length,
     skipped: skipped.length,
     failed: failed.length,
-    addedEvents: added,
+    newEvents: added,
+    newFestivals: addedFestivals,
     failedEvents: failed,
     sources: {
       eventbrite: eventbriteEvents.length,

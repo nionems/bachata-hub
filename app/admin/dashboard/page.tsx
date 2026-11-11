@@ -1912,7 +1912,10 @@ function AdminDashboardContent() {
                         window.alert(
                           `✅ ${data.message}\n\n` +
                           `Sources: Eventbrite (${data.sources?.eventbrite ?? 0}), TryBooking (${data.sources?.trybooking ?? 0}), Humanitix (${data.sources?.humanitix ?? 0})\n\n` +
-                          (data.addedEvents?.length ? `Added:\n${data.addedEvents.join('\n')}` : 'No new events found.')
+                          `Events added: ${data.addedEvents ?? 0} | Festivals added: ${data.addedFestivals ?? 0}\n\n` +
+                          (data.newEvents?.length ? `New events:\n${data.newEvents.join('\n')}\n\n` : '') +
+                          (data.newFestivals?.length ? `New festivals:\n${data.newFestivals.join('\n')}` : '') +
+                          (!data.newEvents?.length && !data.newFestivals?.length ? 'No new events found.' : '')
                         )
                         if (data.added > 0) fetchDbEvents()
                       } else {
