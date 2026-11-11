@@ -340,6 +340,34 @@ export async function GET(request: Request) {
         event.url ? `Event page: ${event.url}` : '',
       ].filter(Boolean).join('\n\n')
 
+      // Always add to events collection
+      await db.collection('events').add({
+        name: event.title,
+        eventDate: startDateStr,
+        startTime,
+        endTime,
+        location: event.location,
+        city: '',
+        state,
+        description,
+        imageUrl: event.imageUrl || '',
+        eventLink: event.url || '',
+        ticketLink: event.url || '',
+        danceStyles: ['Bachata'],
+        recurrence: '',
+        isWeekly: false,
+        isWorkshop: false,
+        published: true,
+        autoScraped: true,
+        scrapeSource: event.source,
+        likesCount: 0,
+        goingCount: 0,
+        createdAt: nowIso,
+        updatedAt: nowIso,
+      })
+      added.push(event.title)
+
+      // Multi-day events also go to festivals
       if (isMultiDay) {
         await db.collection('festivals').add({
           name: event.title,
@@ -363,32 +391,6 @@ export async function GET(request: Request) {
           updatedAt: nowIso,
         })
         addedFestivals.push(event.title)
-      } else {
-        await db.collection('events').add({
-          name: event.title,
-          eventDate: startDateStr,
-          startTime,
-          endTime,
-          location: event.location,
-          city: '',
-          state,
-          description,
-          imageUrl: event.imageUrl || '',
-          eventLink: event.url || '',
-          ticketLink: event.url || '',
-          danceStyles: ['Bachata'],
-          recurrence: '',
-          isWeekly: false,
-          isWorkshop: false,
-          published: true,
-          autoScraped: true,
-          scrapeSource: event.source,
-          likesCount: 0,
-          goingCount: 0,
-          createdAt: nowIso,
-          updatedAt: nowIso,
-        })
-        added.push(event.title)
       }
 
       existingNames.add(normalizedTitle)
