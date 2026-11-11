@@ -544,8 +544,6 @@ export default function Home() {
           <div className="absolute top-[-15%] left-[10%] w-72 h-72 bg-white/10 rounded-full blur-3xl animate-pulse pointer-events-none" style={{animationDuration:'4s'}} />
           <div className="absolute bottom-[-15%] right-[10%] w-80 h-80 bg-violet-400/20 rounded-full blur-3xl animate-pulse pointer-events-none" style={{animationDuration:'5s',animationDelay:'1.5s'}} />
           <div className="absolute top-[20%] right-[28%] w-40 h-40 bg-emerald-200/15 rounded-full blur-2xl animate-pulse pointer-events-none" style={{animationDuration:'3.5s',animationDelay:'0.8s'}} />
-          {/* City skyline silhouette — changes by detected state */}
-          <StateSkyline state={selectedState} />
           <div className="container mx-auto px-0 relative z-10 h-full flex flex-col items-center justify-center">
             <div className="w-full flex flex-col items-center justify-center">
               <p className="text-xs sm:text-base md:text-lg lg:text-xl text-white/90 text-center comic-neue px-4 mt-2 sm:mt-4 md:mt-6 lg:mt-8">
