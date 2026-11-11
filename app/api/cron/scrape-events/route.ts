@@ -4,7 +4,7 @@ import { getDb } from '@/lib/firebase-admin'
 
 export const dynamic = 'force-dynamic'
 
-export const maxDuration = 300
+export const maxDuration = 60
 
 function detectState(location: string): string {
   const loc = (location || '').toLowerCase()
@@ -245,9 +245,9 @@ async function scrapeTryBooking(): Promise<ScrapedEvent[]> {
       }
     }
 
-    // Take top 80 by priority
+    // Take top 30 by priority (must stay within 60s Vercel hobby limit)
     rows.sort((a, b) => b.priority - a.priority)
-    const toFetch = rows.slice(0, 80).map(r => r.url)
+    const toFetch = rows.slice(0, 30).map(r => r.url)
 
     // Fetch event pages in batches of 10
     const BATCH = 10
