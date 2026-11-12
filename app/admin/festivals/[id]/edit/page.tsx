@@ -62,6 +62,7 @@ export default function EditFestivalPage({ params }: { params: { id: string } })
         danceStylesArr = data.danceStyles.split(',').map((s: string) => s.trim()).filter(Boolean)
       }
       setFormData({ ...data, danceStyles: danceStylesArr })
+      if (data.imageUrl) setImagePreviewUrl(data.imageUrl)
     } catch (error) {
       console.error('Error fetching festival:', error)
       setError('Failed to load festival data')

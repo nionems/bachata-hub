@@ -227,7 +227,7 @@ export default function EventsPage() {
         const raw = localStorage.getItem('bachata_cal_events_v3')
         if (raw) {
           const { data, ts } = JSON.parse(raw)
-          if (Date.now() - ts < 10 * 60 * 1000) {
+          if (Date.now() - ts < 2 * 60 * 1000) {
             setRawEvents(data)
             setIsLoading(false)
           }

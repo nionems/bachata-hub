@@ -6,8 +6,21 @@ export interface UpcomingCalendarEvent {
   description?: string
   location?: string
   htmlLink?: string
+  imageUrl?: string
   calendarCity: string
   state: string
+}
+
+function extractDriveImageUrl(description?: string): string | undefined {
+  if (!description) return undefined
+  const tagMatch = description.match(/\[image:(https?:\/\/[^\]]+)\]/)
+  if (tagMatch) return tagMatch[1]
+  const driveMatch = description.match(
+    /https?:\/\/drive\.google\.com\/(?:file\/d\/([^/\s?#]+)|open\?[^&\s]*id=([^&\s#]+)|uc\?[^&\s]*id=([^&\s#]+))/
+  )
+  if (!driveMatch) return undefined
+  const fileId = driveMatch[1] || driveMatch[2] || driveMatch[3]
+  return fileId ? `https://drive.google.com/thumbnail?id=${fileId}&sz=w400` : undefined
 }
 
 const CITY_CALENDAR_MAP: { id: string; city: string; state: string }[] = [
@@ -60,6 +73,7 @@ async function fetchOneCalendar(
       description: e.description,
       location: e.location,
       htmlLink: e.htmlLink,
+      imageUrl: extractDriveImageUrl(e.description),
       calendarCity: city,
       state: detectedState,
     }

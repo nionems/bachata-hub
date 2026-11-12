@@ -105,6 +105,7 @@ export default function EditSchoolPage() {
       
       console.log('Setting form data:', formDataToSet)
       setFormData(formDataToSet)
+      if (formDataToSet.imageUrl) setImagePreviewUrl(formDataToSet.imageUrl)
     } catch (error) {
       console.error('Error fetching school:', error)
       setError('Failed to fetch school')

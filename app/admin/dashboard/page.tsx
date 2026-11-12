@@ -332,6 +332,25 @@ function AdminDashboardContent() {
   // }
   
 
+  const [isSyncing, setIsSyncing] = useState(false)
+
+  const handleSyncCalendar = async () => {
+    setIsSyncing(true)
+    try {
+      const res = await fetch('/api/cron/sync-calendar', { credentials: 'include' })
+      const data = await res.json()
+      if (res.ok) {
+        toast.success(data.message || 'Calendar synced')
+      } else {
+        toast.error(data.error || 'Sync failed')
+      }
+    } catch {
+      toast.error('Sync failed')
+    } finally {
+      setIsSyncing(false)
+    }
+  }
+
   const handleLogout = async () => {
     try {
       const response = await fetch('/api/auth/logout', {
@@ -1771,7 +1790,13 @@ function AdminDashboardContent() {
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="mb-6">
-        <h1 className="text-2xl font-bold mb-4">Admin Dashboard</h1>
+        <div className="flex items-center justify-between mb-4">
+          <h1 className="text-2xl font-bold">Admin Dashboard</h1>
+          <Button onClick={handleSyncCalendar} disabled={isSyncing} variant="outline" size="sm">
+            <Calendar className="h-4 w-4 mr-2" />
+            {isSyncing ? 'Syncing…' : 'Sync Calendar'}
+          </Button>
+        </div>
         
         {/* Mobile-friendly tab navigation */}
         <div className="border-b border-gray-200">

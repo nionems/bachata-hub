@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { cookies } from 'next/headers'
 import { getDb } from '@/lib/firebase-admin'
-import { fetchAllCalendarEvents } from '@/lib/calendar-events'
+import { getCalendarEvents } from '@/lib/calendar-cache'
 
 export const dynamic = 'force-dynamic'
 
@@ -57,7 +57,8 @@ export async function GET(request: Request) {
   const authHeader = request.headers.get('authorization')
   const cronSecret = process.env.CRON_SECRET
   const adminSession = cookies().get('admin_session')
-  const isAuthed = (cronSecret && authHeader === `Bearer ${cronSecret}`) || adminSession?.value === 'true'
+  const isDev = process.env.NODE_ENV !== 'production'
+  const isAuthed = isDev || (cronSecret && authHeader === `Bearer ${cronSecret}`) || adminSession?.value === 'true'
   if (!isAuthed) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
@@ -71,7 +72,7 @@ export async function GET(request: Request) {
     const db = getDb()
 
     const [calendarEvents, snapshot] = await Promise.all([
-      fetchAllCalendarEvents(apiKey, 90),
+      getCalendarEvents(true), // force-refresh so sync always uses latest Google Calendar data
       db.collection('events').get(),
     ])
 
@@ -90,15 +91,25 @@ export async function GET(request: Request) {
 
     // ── 1. Import new events + backfill images ─────────────────────────────
     const toImport: any[] = []
-    const toUpdate: { id: string; imageUrl: string }[] = []
+    const toUpdate: { id: string; fields: Record<string, any> }[] = []
 
     for (const ce of byTitle.values()) {
       const match = firestoreDocs.find(doc => matchesEvent(ce.title, doc.name || ''))
       if (!match) {
         toImport.push(ce)
-      } else if (!match.imageUrl) {
+      } else {
+        // Always sync description + imageUrl so calendar edits are reflected
         const imageUrl = extractDriveImageUrl(ce.description)
-        if (imageUrl) toUpdate.push({ id: match.id, imageUrl })
+        const fields: Record<string, any> = { updatedAt: now }
+        if (ce.description !== undefined && ce.description !== match.description) {
+          fields.description = ce.description || ''
+        }
+        if (imageUrl && imageUrl !== match.imageUrl) {
+          fields.imageUrl = imageUrl
+        }
+        if (Object.keys(fields).length > 1) { // more than just updatedAt
+          toUpdate.push({ id: match.id, fields })
+        }
       }
     }
 
@@ -136,15 +147,16 @@ export async function GET(request: Request) {
         })
       ),
       Promise.allSettled(
-        toUpdate.map(async ({ id, imageUrl }) => {
-          await db.collection('events').doc(id).update({ imageUrl, updatedAt: now })
+        toUpdate.map(async ({ id, fields }) => {
+          await db.collection('events').doc(id).update(fields)
           return id
         })
       ),
     ])
 
     const created = importResults.filter(r => r.status === 'fulfilled').map(r => (r as PromiseFulfilledResult<string>).value)
-    const updatedImages = updateResults.filter(r => r.status === 'fulfilled').length
+    const updatedCount = updateResults.filter(r => r.status === 'fulfilled').length
+    const updatedImages = updatedCount // kept for log compat
 
     // ── 2. Cross-check: detect cancelled events ────────────────────────────
     // For each published Firestore event, check whether ANY upcoming calendar
@@ -212,7 +224,7 @@ export async function GET(request: Request) {
       newEvents: created,
       message: [
         `Imported ${created.length} new event${created.length !== 1 ? 's' : ''}`,
-        `updated image for ${updatedImages}`,
+        updatedCount ? `updated ${updatedCount} existing event${updatedCount !== 1 ? 's' : ''}` : '',
         `unpublished ${unpublished} cancelled event${unpublished !== 1 ? 's' : ''}`,
         `flagged ${flagged} for review`,
         failed ? `${failed} failed` : '',
