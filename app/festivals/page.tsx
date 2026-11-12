@@ -56,7 +56,7 @@ const LazyFestivalCard = ({ festival, onImageClick, expandedDescriptions, toggle
   
   return (
     <Card className={`overflow-hidden bg-white shadow-lg hover:shadow-xl transition-shadow duration-300 ${isFeatured ? 'border-2 border-yellow-300' : ''}`}>
-      <div className="relative h-48 w-full overflow-hidden rounded-t-lg">
+      <div className="relative h-56 w-full overflow-hidden rounded-t-lg bg-gray-100">
         {!imageLoaded && (
           <div className="absolute inset-0 bg-gray-200 animate-pulse flex items-center justify-center">
             <div className="w-8 h-8 border-2 border-gray-300 border-t-primary rounded-full animate-spin"></div>
@@ -66,7 +66,7 @@ const LazyFestivalCard = ({ festival, onImageClick, expandedDescriptions, toggle
           src={festival.imageUrl || '/images/placeholder.jpg'}
           alt={festival.name}
           fill
-          className={`object-cover transition-transform duration-300 hover:scale-105 cursor-pointer ${imageLoaded ? 'opacity-100' : 'opacity-0'}`}
+          className={`object-contain transition-transform duration-300 hover:scale-105 cursor-pointer ${imageLoaded ? 'opacity-100' : 'opacity-0'}`}
           onClick={(e) => onImageClick(e, festival)}
           onLoad={() => setImageLoaded(true)}
           loading="lazy"
