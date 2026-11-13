@@ -511,6 +511,16 @@ export default function FestivalsPage() {
           </div>
         </div>
 
+        {/* Festival count */}
+        <div className="flex justify-center mb-4">
+          <span className="inline-flex items-center gap-1.5 bg-white/80 backdrop-blur-sm border border-gray-200 rounded-full px-4 py-1 text-sm text-gray-600 shadow-sm">
+            <span className="font-bold text-primary">{(featuredFestivals.length + regularFestivals.length)}</span>
+            {activeTab === 'australia' ? 'Australian' : 'international'} festival{(featuredFestivals.length + regularFestivals.length) !== 1 ? 's' : ''}
+            {selectedState !== 'all' && activeTab === 'australia' ? ` in ${selectedState}` : ''}
+            {selectedCountry !== 'all' && activeTab === 'international' ? ` in ${selectedCountry}` : ''}
+          </span>
+        </div>
+
         <div className="mb-4 sm:mb-8">
           <div className="flex flex-col gap-2 sm:flex-row sm:gap-4">
             {activeTab === 'australia' && (
