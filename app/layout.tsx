@@ -8,6 +8,7 @@ import { AIAssistant } from "@/components/AIAssistant"
 import { ServiceWorkerRegistration } from "@/components/ServiceWorkerRegistration"
 import { Analytics } from '@vercel/analytics/react'
 import { ThemeProvider } from "@/components/ThemeProvider"
+import Script from 'next/script'
 
 const fredoka = Fredoka({
   weight: ['300', '400', '500', '600', '700'],
@@ -126,6 +127,12 @@ export default function RootLayout({
         <link rel="shortcut icon" href="/favicon.ico?v=2" />
 
       </head>
+      <Script
+        async
+        src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7385002273038894"
+        crossOrigin="anonymous"
+        strategy="afterInteractive"
+      />
       <body className={`${fredoka.className} antialiased min-h-screen flex flex-col`}>
         <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false}>
           <Navbar />
