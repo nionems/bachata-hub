@@ -127,12 +127,6 @@ export default function RootLayout({
         <link rel="shortcut icon" href="/favicon.ico?v=2" />
 
       </head>
-      <Script
-        async
-        src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7385002273038894"
-        crossOrigin="anonymous"
-        strategy="afterInteractive"
-      />
       <body className={`${fredoka.className} antialiased min-h-screen flex flex-col`}>
         <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false}>
           <Navbar />
@@ -144,6 +138,12 @@ export default function RootLayout({
           <Toaster />
           <Analytics />
         </ThemeProvider>
+        <Script
+          async
+          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7385002273038894"
+          crossOrigin="anonymous"
+          strategy="afterInteractive"
+        />
       </body>
     </html>
   )
