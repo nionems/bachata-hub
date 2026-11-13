@@ -2031,6 +2031,12 @@ function AdminDashboardContent() {
                 >
                   Add New Festival
                 </button>
+                <button
+                  onClick={() => router.push('/admin/festivals/import')}
+                  className="bg-purple-500 text-white px-3 py-1.5 rounded hover:bg-purple-600 text-sm flex items-center gap-1"
+                >
+                  🌍 Import from URL
+                </button>
               </div>
             </div>
 
