@@ -121,6 +121,28 @@ export default function BrowseBachataWorldPage() {
           </div>
         </div>
 
+        {/* Stats */}
+        {!isLoading && (
+          <div className="flex gap-3 mb-4">
+            <div className="bg-white rounded-xl shadow-sm px-5 py-3 flex items-center gap-3">
+              <span className="text-3xl font-bold text-purple-600">{festivals.length}</span>
+              <span className="text-sm text-gray-500 leading-tight">festivals<br />available</span>
+            </div>
+            {(search || countryFilter !== 'all') && (
+              <div className="bg-white rounded-xl shadow-sm px-5 py-3 flex items-center gap-3">
+                <span className="text-3xl font-bold text-indigo-500">{filtered.length}</span>
+                <span className="text-sm text-gray-500 leading-tight">matching<br />filters</span>
+              </div>
+            )}
+            {selected.size > 0 && (
+              <div className="bg-purple-50 rounded-xl shadow-sm px-5 py-3 flex items-center gap-3">
+                <span className="text-3xl font-bold text-purple-700">{selected.size}</span>
+                <span className="text-sm text-purple-600 leading-tight">selected<br />to import</span>
+              </div>
+            )}
+          </div>
+        )}
+
         {/* Controls */}
         <div className="bg-white rounded-xl shadow-sm p-4 mb-4 flex flex-col sm:flex-row gap-3 items-start sm:items-center justify-between">
           <div className="flex gap-2 flex-1 w-full">
