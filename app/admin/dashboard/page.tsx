@@ -2037,6 +2037,12 @@ function AdminDashboardContent() {
                 >
                   🌍 Import from URL
                 </button>
+                <button
+                  onClick={() => router.push('/admin/festivals/browse')}
+                  className="bg-indigo-600 text-white px-3 py-1.5 rounded hover:bg-indigo-700 text-sm flex items-center gap-1"
+                >
+                  🗺️ Browse BachataWorld
+                </button>
               </div>
             </div>
 
