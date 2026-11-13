@@ -2,11 +2,8 @@
 
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import { Calendar, MapPin, DollarSign, Users, Ticket, Hotel, CheckCircle, Info, Clock, ExternalLink, Star, MapIcon, Share2, Instagram, Facebook, List, Map } from "lucide-react"
+import { Calendar, MapPin, DollarSign, Users, Ticket, Hotel, CheckCircle, Info, Clock, ExternalLink, Star, MapIcon, Share2, Instagram, Facebook } from "lucide-react"
 import { useState, useEffect } from "react"
-import dynamic from "next/dynamic"
-
-const SchoolsMap = dynamic(() => import('@/components/SchoolsMap'), { ssr: false, loading: () => <div className="flex items-center justify-center h-[480px] bg-gray-100 rounded-xl text-gray-500">Loading map…</div> })
 import CollapsibleFilter from "@/components/collapsible-filter"
 import { StateFilter } from '@/components/StateFilter'
 import { DanceStyleFilter } from '@/components/DanceStyleFilter'
@@ -51,7 +48,6 @@ export default function SchoolsPage() {
   const [availableDanceStyles, setAvailableDanceStyles] = useState<string[]>([])
   const [likeCounts, setLikeCounts] = useState<Record<string, number>>({})
   const [likedSchools, setLikedSchools] = useState<Set<string>>(new Set())
-  const [viewMode, setViewMode] = useState<'list' | 'map'>('list')
   
   const { selectedState, setSelectedState, filteredItems: filteredSchools, isGeoLoading } = useStateFilter(schools, { useGeolocation: true })
 
@@ -231,38 +227,18 @@ export default function SchoolsPage() {
             </div>
           </div>
           
-          {/* Add Your School Button + View Toggle */}
-          <div className="mt-4 flex justify-center gap-3 flex-wrap">
+          {/* Add Your School Button */}
+          <div className="mt-4 flex justify-center">
             <Button
               onClick={() => setIsSubmissionFormOpen(true)}
               className="bg-gradient-to-r from-primary to-secondary text-white px-6 py-3 rounded-full font-semibold hover:from-primary/90 hover:to-secondary/90 transition-all duration-200 shadow-lg hover:shadow-xl"
             >
               Add Your School
             </Button>
-            <div className="flex rounded-full border border-gray-300 overflow-hidden shadow-sm">
-              <button
-                onClick={() => setViewMode('list')}
-                className={`flex items-center gap-1.5 px-4 py-2 text-sm font-medium transition-colors ${viewMode === 'list' ? 'bg-primary text-white' : 'bg-white text-gray-600 hover:bg-gray-50'}`}
-              >
-                <List className="h-4 w-4" /> List
-              </button>
-              <button
-                onClick={() => setViewMode('map')}
-                className={`flex items-center gap-1.5 px-4 py-2 text-sm font-medium transition-colors ${viewMode === 'map' ? 'bg-primary text-white' : 'bg-white text-gray-600 hover:bg-gray-50'}`}
-              >
-                <Map className="h-4 w-4" /> Map
-              </button>
-            </div>
           </div>
         </div>
 
-        {viewMode === 'map' && (
-          <div className="mb-8">
-            <SchoolsMap schools={searchFilteredSchools} />
-          </div>
-        )}
-
-        {viewMode === 'list' && <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-4 md:gap-6">
+        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-4 md:gap-6">
           {searchFilteredSchools.length === 0 ? (
             <div className="col-span-full text-center py-6 sm:py-8 text-gray-500">
               No schools found 
@@ -281,7 +257,7 @@ export default function SchoolsPage() {
               />
             ))
           )}
-        </div>}
+        </div>
 
         {/* Add Your School Card */}
         <div className="mt-8 sm:mt-16 bg-gradient-to-r from-primary to-secondary rounded-xl shadow-xl overflow-hidden">
